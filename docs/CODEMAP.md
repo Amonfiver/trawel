@@ -4,7 +4,7 @@
 
 Este archivo describe la estructura esperada del código fuente. Sirve como guía para desarrolladores y agentes que implementen el proyecto.
 
-**Estado:** En desarrollo - Estructura base implementada, datos y tema de mapa listos
+**Estado:** En desarrollo - WorldMap v1 implementado con D3 + TopoJSON + world-atlas CDN
 
 ---
 
@@ -112,6 +112,8 @@ src/features/map/
 **Responsabilidad:** Todo lo relacionado con renderizado de mapas. Desacoplado de datos de contenido.
 
 **Principio:** El mapa no sabe qué es un "país Trawel", solo recibe geometrías y configuración de colores.
+
+**Nota:** WorldMap v1 usa D3 + TopoJSON + world-atlas por CDN. Conecta geometrías UN M.49 con diccionario Trawel.
 
 ### `src/features/countries/` - Lógica de países
 
