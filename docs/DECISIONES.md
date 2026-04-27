@@ -381,6 +381,75 @@ export const defaultMapTheme: MapTheme = {
 
 ---
 
+### DA-012: Dataset world-atlas desde CDN
+
+**Fecha:** 2026-04-27  
+**Estado:** Aceptada  
+**Contexto:** Necesitamos datos geoespaciales (TopJSON) para renderizar el mapa mundial. Incluirlo en el bundle aumentaría significativamente el tamaño.
+
+**Decisión:** Cargar world-atlas desde CDN (unpkg.com) en tiempo de ejecución.
+
+**Implementación:**
+```typescript
+const WORLD_ATLAS_URL = 'https://unpkg.com/world-atlas@2/countries-110m.json';
+// Carga con fetch en useEffect
+```
+
+**Razones:**
+- Reduce bundle inicial (~100KB menos)
+- Aprovecha cache del CDN
+- Dataset probado y mantenido (Mike Bostock)
+- Fácil actualización cambiando versión en URL
+
+**Consecuencias:**
+- Requiere conexión a internet para cargar el mapa
+- Necesita loading state mientras carga
+- Posible latencia inicial
+- Fallback necesario si falla la carga
+
+**Alternativas consideradas:**
+- Bundle local: aumenta tamaño, pero funciona offline
+- API propia: complejidad innecesaria para MVP
+
+**Reversibilidad:** Media. Cambiar a bundle local es modificar la URL por un import.
+
+---
+
+### DA-013: Proyección cartográfica Mercator
+
+**Fecha:** 2026-04-27  
+**Estado:** Aceptada  
+**Contexto:** Elegir proyección cartográfica para el mapa mundial.
+
+**Decisión:** Usar proyección Mercator estándar via `d3.geoMercator()`.
+
+**Configuración:**
+```typescript
+const projection = d3.geoMercator()
+  .scale(150)
+  .translate([width / 2, height / 2 + 40]);
+```
+
+**Razones:**
+- Proyección familiar para usuarios (Google Maps, etc. la usan)
+- Mantiene ángulos, útil para navegación
+- Simple de implementar con D3
+- Buen balance para visualización mundial
+
+**Consecuencias:**
+- Áreas polares distorsionadas (Groenlandia aparece muy grande)
+- No es equivalente (áreas no proporcionales)
+- Aceptable para propósito de exploración turística
+
+**Alternativas consideradas:**
+- Natural Earth: más proporcional, pero menos familiar
+- Orthographic: esférica, más compleja de navegar
+- Equal Earth: proporcional, pero nueva y menos conocida
+
+**Reversibilidad:** Alta. Cambiar proyección es cambiar una línea de código.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |

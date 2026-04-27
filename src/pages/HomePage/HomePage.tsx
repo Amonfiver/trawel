@@ -1,20 +1,21 @@
 /**
  * Página de inicio de Trawel
  * 
- * Propósito: Punto de entrada de la aplicación con lista de países activos
- * Alcance: Muestra el sistema de países preparado y placeholder del futuro mapa
+ * Propósito: Punto de entrada de la aplicación con mapa mundial y lista de países
+ * Alcance: Muestra mapa D3 interactivo y lista de países disponibles
  * 
  * Decisiones técnicas:
+ * - Usa WorldMap component para visualización geográfica
  * - Usa utilidades de countries.utils para acceso a datos
- * - Placeholder visual para el futuro mapa D3
- * - Muestra conteos de países por estado
+ * - Mantiene lista de países como fallback/acceso rápido
  * 
  * Limitaciones actuales:
- * - Sin mapa D3 real (solo placeholder)
+ * - WorldMap sin zoom/pan
  * - Sin imágenes de países
  */
 
 import { Link } from 'react-router-dom';
+import { WorldMap } from '../../features/map/components/WorldMap';
 import { getActiveCountries, getComingSoonCountries, getCountryCounts } from '../../features/countries/data/countries.utils';
 import styles from './HomePage.module.css';
 
@@ -34,27 +35,23 @@ export function HomePage() {
         <section className={styles.hero}>
           <h2 className={styles.heroTitle}>Elije tu próximo destino</h2>
           <p className={styles.heroText}>
-            Explora el mundo y descubre aventuras increíbles
+            Explora el mundo y descubre aventuras increíbles. 
+            Haz clic en un país para descubrir destinos.
           </p>
         </section>
 
         <section className={styles.mapSection}>
-          <div className={styles.mapPlaceholder}>
-            <p>🗺️ Sistema de países preparado para el futuro mapa interactivo</p>
-            <div className={styles.mapStats}>
-              <span className={styles.stat}>
-                <strong>{counts.active}</strong> países activos
-              </span>
-              <span className={styles.stat}>
-                <strong>{counts.comingSoon}</strong> próximamente
-              </span>
-              <span className={styles.stat}>
-                <strong>{counts.total}</strong> total
-              </span>
-            </div>
-            <p className={styles.mapNote}>
-              El mapa D3/TopoJSON se implementará en la siguiente fase
-            </p>
+          <WorldMap />
+          <div className={styles.mapStats}>
+            <span className={styles.stat}>
+              <strong>{counts.active}</strong> países activos
+            </span>
+            <span className={styles.stat}>
+              <strong>{counts.comingSoon}</strong> próximamente
+            </span>
+            <span className={styles.stat}>
+              <strong>{counts.total}</strong> total
+            </span>
           </div>
         </section>
 

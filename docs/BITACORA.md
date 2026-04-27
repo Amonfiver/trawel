@@ -294,4 +294,131 @@ Cada entrada incluye:
 
 ---
 
+## 2026-04-27 - WorldMap v1 implementado con D3 + TopoJSON
+
+**Participantes:** SDD implementación de mapa interactivo
+
+### Qué se hizo
+
+1. **Instalamos dependencias D3 y TopoJSON**
+   - `d3` v7.x - Biblioteca de visualización
+   - `topojson-client` - Conversión TopoJSON a GeoJSON
+   - `@types/d3`, `@types/topojson-client` - Tipos TypeScript
+
+2. **Creamos componente WorldMap** (`map/components/WorldMap/`)
+   - `WorldMap.tsx` - Componente principal con lógica D3
+   - `WorldMap.module.css` - Estilos del mapa y tooltip
+   - `index.ts` - Export público
+
+3. **Implementamos renderizado SVG**
+   - Proyección Mercator estándar
+   - Carga de world-atlas desde CDN (unpkg.com)
+   - Conversión TopoJSON → GeoJSON con `feature()`
+   - Renderizado de países como `<path>` SVG
+   - ViewBox para responsividad
+
+4. **Conectamos world-atlas con diccionario Trawel**
+   - El dataset world-atlas usa códigos UN M.49 (campo `id` en features)
+   - Nuestro diccionario tiene `unM49` en cada país
+   - Función `getCountryByUnM49()` hace el mapeo:
+     ```typescript
+     // world-atlas feature.id = "724" → España
+     const trawelCountry = getCountryByUnM49(feature.id);
+     ```
+   - Si no encuentra país → muestra como "No disponible"
+
+5. **Aplicamos colores desde mapTheme**
+   - `default` - Países sin información en Trawel
+   - `active` (azul) - España, Japón, Perú
+   - `comingSoon` (gris) - Francia, Italia
+   - `hover` (naranja) - Al pasar el cursor
+   - Bordes blancos desde tema
+
+6. **Implementamos tooltip**
+   - Posición fija al cursor (clientX/clientY)
+   - Contenido dinámico según estado:
+     - País activo: nombre + "X destinos disponibles"
+     - Próximamente: nombre + "Próximamente"
+     - No disponible: "País no disponible"
+   - Estilos desde mapTheme (colores, padding, border-radius)
+
+7. **Implementamos navegación por click**
+   - Solo países con `status: 'active'` navegan
+   - Usa `useNavigate` de React Router
+   - Navega a `/pais/${slug}`
+   - Países `comingSoon` o `disabled` no navegan (cursor default)
+
+8. **Integramos en HomePage**
+   - Reemplaza placeholder anterior
+   - Mantiene lista de países debajo como fallback
+   - Estadísticas de países (activos/próximamente/total) visibles
+
+### Cómo funciona la conexión UN M.49
+
+```
+1. world-atlas.json tiene features con id = código UN M.49
+   { "type": "Feature", "id": "724", ... }  // España
+
+2. Nuestro diccionario tiene unM49 en cada país
+   { id: 'ES', unM49: '724', slug: 'espana', status: 'active' }
+
+3. En el renderizado:
+   const trawelCountry = getCountryByUnM49(feature.id) // '724' → España
+
+4. Si encuentra: aplica colores y comportamiento según status
+   Si no encuentra: aplica color default y "no disponible"
+```
+
+### Decisiones técnicas registradas
+
+**DA-012: Dataset world-atlas desde CDN**
+- Contexto: Necesitamos datos geoespaciales sin aumentar el bundle
+- Decisión: Cargar desde https://unpkg.com/world-atlas@2/countries-110m.json
+- Consecuencias: Requiere conexión a internet, loading state necesario
+
+**DA-013: Proyección Mercator**
+- Contexto: Elegir proyección cartográfica
+- Decisión: Mercator estándar (d3.geoMercator)
+- Consecuencias: Áreas polares distorsionadas, pero familiar para usuarios
+
+### Archivos creados/modificados
+
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `package.json` | ✅ Modificado | Dependencias d3, topojson-client añadidas |
+| `WorldMap.tsx` | ✅ Creado | Componente mapa con D3 |
+| `WorldMap.module.css` | ✅ Creado | Estilos del mapa |
+| `HomePage.tsx` | ✅ Modificado | Integra WorldMap, mantiene lista países |
+
+### Criterios de éxito verificados
+
+- ✅ `npm run build` pasa sin errores
+- ✅ Mapa mundial visible en HomePage
+- ✅ España, Japón, Perú aparecen en azul (active)
+- ✅ Francia, Italia aparecen en gris (comingSoon)
+- ✅ Hover muestra tooltip con información
+- ✅ Click en activo navega a página de país
+- ✅ Click en comingSoon no navega
+- ✅ Colores desde mapTheme
+- ✅ SVG responsive
+
+### Próximos pasos
+
+1. **Mejoras de UX en mapa**
+   - Animaciones suaves en hover
+   - Indicador visual de país seleccionado
+   - Leyenda de colores
+
+2. **Datos de ciudades**
+   - Crear estructura para ciudades
+   - Datos de Madrid, Barcelona, Tokio, etc.
+   - Mostrar en CountryPage
+
+3. **Optimizaciones**
+   - Cache de datos geoespaciales
+   - Lazy loading del mapa
+   - Error boundary para fallos de carga
+
+---
+
 *Entradas de bitácora - Trawel v2.0*

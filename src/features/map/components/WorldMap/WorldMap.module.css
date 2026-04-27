@@ -1,0 +1,61 @@
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  background-color: #f8fafc;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.loading,
+.error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1rem 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.country {
+  transition: fill 0.2s ease;
+}
+
+.country:hover {
+  filter: brightness(1.1);
+}
+
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  font-size: 14px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  max-width: 250px;
+}
+
+.tooltipTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 16px;
+}
+
+.tooltipDescription {
+  opacity: 0.9;
+  font-size: 14px;
+}
