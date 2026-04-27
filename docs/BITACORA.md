@@ -154,17 +154,6 @@ Cada entrada incluye:
 - ⏳ Datos de ciudades y aventuras
 - ⏳ Estilos finales
 
-### Cómo probar
-
-1. Abrir http://localhost:5173
-2. Ver lista de países (España, Japón, Perú)
-3. Click en cualquier país → va a página de país
-4. Click en "Volver al mapa" → regresa a inicio
-5. URLs funcionan:
-   - `/pais/espana`
-   - `/pais/japon`
-   - `/pais/peru`
-
 ### Próximos pasos
 
 1. **Implementar WorldMap con D3**
@@ -181,6 +170,127 @@ Cada entrada incluye:
 3. **Añadir datos de ciudades**
    - Crear estructura de datos para ciudades
    - Datos de ejemplo para Madrid, Barcelona, Tokio, etc.
+
+---
+
+## 2026-04-27 - Capa de datos y configuración de mapa preparada
+
+**Participantes:** SDD implementación de infraestructura de datos
+
+### Qué se hizo
+
+1. **Mejoramos los tipos de países** (`countries.types.ts`)
+   - Nuevos campos ISO estandarizados: `isoAlpha2`, `isoAlpha3`, `unM49`
+   - Separación de `name` (técnico) y `displayName` (presentación)
+   - Campo `status` cambiado a: `'active' | 'comingSoon' | 'disabled'`
+   - Añadidos campos opcionales: `featured`, `capital`, `destinationCount`, `shortDescription`
+   - Nuevo tipo `CountryMapData` para datos mínimos del mapa
+   - Documentación JSDoc en español
+
+2. **Actualizamos el diccionario de países** (`countries.ts`)
+   - 3 países activos: España (ES), Japón (JP), Perú (PE)
+   - 2 países próximamente: Francia (FR), Italia (IT)
+   - Todos los países con códigos ISO completos
+   - Campos consistentes con los nuevos tipos
+
+3. **Creamos utilidades de acceso a países** (`countries.utils.ts`)
+   - `getCountryBySlug()` - Búsqueda por slug URL
+   - `getCountryByIsoAlpha2()` - Búsqueda por código ISO
+   - `getCountryByUnM49()` - Búsqueda por código UN (para world-atlas)
+   - `getActiveCountries()` - Lista de países navegables
+   - `getComingSoonCountries()` - Lista de países "Próximamente"
+   - `getFeaturedCountries()` - Países destacados
+   - `getCountriesByContinent()` - Filtrado por continente
+   - `isCountryClickable()` - Verificación de navegabilidad
+   - `isCountryAvailable()` - Verificación de visibilidad
+   - `getStatusLabel()` - Labels localizados para UI
+   - `getAllCountries()` - Todos los países
+   - `getCountryCounts()` - Conteos por estado
+
+4. **Creamos configuración visual del mapa** (`map/config/mapTheme.ts`)
+   - Tema por defecto con paleta de colores completa
+   - Tema minimalista como alternativa
+   - Configuración de colores por estado:
+     - `default`, `active`, `hover`, `selected`, `highlighted`, `comingSoon`, `disabled`
+   - Configuración de tooltip (colores, tamaños, bordes)
+   - Configuración de animaciones
+   - Helper `createCustomTheme()` para temas personalizados
+   - Helper `getThemeByName()` para selección de temas
+
+5. **Creamos tipos del mapa** (`map/types/map.types.ts`)
+   - `CountryVisualStatus` - Estados visuales posibles
+   - `MapCountryData` - Datos mínimos para renderizar país
+   - `MapTooltipData` - Estructura de tooltip
+   - `MapTheme` - Interface completa de configuración visual
+   - `WorldMapProps` - Props del futuro componente WorldMap
+   - `WorldMapState` - Estado interno del mapa
+
+6. **Actualizamos páginas para usar nuevas utilidades**
+   - `HomePage` ahora usa `countries.utils` y muestra conteos
+   - `CountryPage` muestra metadatos completos del país
+   - `CityPage` actualizada con nuevo sistema
+   - Todas las páginas con cabeceras de documentación
+
+7. **Build exitoso**
+   - `npm run build` sin errores de TypeScript
+   - Bundle de ~60KB gzipped
+
+### Decisiones técnicas registradas
+
+**DA-009: Campos ISO estandarizados en tipos de país**
+- Contexto: Necesitamos integrar con world-atlas que usa códigos UN M.49
+- Decisión: Añadir `isoAlpha2`, `isoAlpha3`, `unM49` explícitamente
+- Consecuencias: Mapeo directo con datos geoespaciales externos
+
+**DA-010: Separación name/displayName**
+- Contexto: Necesitamos nombres técnicos para código y nombres para UI
+- Decisión: `name` para identificadores (kebab-case), `displayName` para mostrar
+- Consecuencias: URLs limpias y presentación localizada
+
+**DA-011: Tema de mapa centralizado**
+- Contexto: Evitar hardcodeo de colores en lógica D3
+- Decisión: Tema completo en objeto configurable importado
+- Consecuencias: Cambios de diseño sin tocar código de renderizado
+
+### Archivos creados/modificados
+
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `countries.types.ts` | ✅ Modificado | Tipos mejorados con ISO y campos nuevos |
+| `countries.ts` | ✅ Modificado | Diccionario actualizado con datos completos |
+| `countries.utils.ts` | ✅ Creado | 12 funciones de acceso a datos |
+| `map/types/map.types.ts` | ✅ Creado | Tipos para el sistema de mapas |
+| `map/config/mapTheme.ts` | ✅ Creado | Tema visual configurable |
+| `HomePage.tsx` | ✅ Modificado | Usa nuevas utilidades, muestra conteos |
+| `CountryPage.tsx` | ✅ Modificado | Muestra metadatos completos |
+| `CityPage.tsx` | ✅ Modificado | Usa nuevas utilidades |
+
+### Estado de preparación para D3/TopoJSON
+
+**Listo para integración:**
+- ✅ Diccionario de países con códigos UN M.49 (para mapear con world-atlas)
+- ✅ Funciones de búsqueda por ISO y UN M.49
+- ✅ Tema visual completo con colores por estado
+- ✅ Tipos TypeScript para props del mapa
+- ✅ Diferenciación de países clickeables vs no clickeables
+- ✅ Estructura de tooltip definida
+
+**Próximo paso para mapa:**
+- Instalar `d3` y `topojson-client`
+- Crear componente `WorldMap` que use `useEffect` para cargar world-atlas
+- Renderizar paths SVG con colores del tema
+- Implementar eventos mouseover/mouseout/click
+- Integrar tooltip con datos de países
+
+### Cómo probar el sistema de países
+
+1. Abrir http://localhost:5173
+2. Ver sección "Sistema de países preparado" con conteos
+3. Ver lista de 3 países activos (España, Japón, Perú)
+4. Ver sección "Próximamente" con 2 países
+5. Click en país activo → navega a página de detalle
+6. Ver información completa: capital, continente, códigos ISO
+7. Badge de estado "Disponible" o "Próximamente"
 
 ---
 

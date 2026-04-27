@@ -150,7 +150,7 @@ src/data/
 
 **Estados visuales del país:**
 - `active`: Tiene contenido, click navega
-- `coming-soon`: Visible en mapa, hover muestra tooltip "Próximamente", click no navega
+- `comingSoon`: Visible en mapa, hover muestra tooltip "Próximamente", click no navega
 - `hidden`: No aparece en mapa (para países con restricciones legales, etc.)
 
 **Consecuencias:**
@@ -176,6 +176,8 @@ src/data/
   name: 'España',     // Nombre en español
   slug: 'espana',     // Para URLs
   status: 'active',
+  capital: 'Madrid',
+  shortDescription: '...',
   totalDestinations: 3,
   // ...
 }
@@ -224,7 +226,6 @@ interface MapTheme {
   };
   tooltip: { ... };
   animation: { ... };
-  responsive: { ... };
 }
 ```
 
@@ -272,6 +273,111 @@ Cada feature contiene:
 - Imports pueden ser más largos (pero se resuelve con aliases)
 
 **Reversibilidad:** Baja. Cambiar estructura de carpetas en proyecto en curso es difícil.
+
+---
+
+### DA-009: Campos ISO estandarizados en tipos de país
+
+**Fecha:** 2026-04-27  
+**Estado:** Aceptada  
+**Contexto:** Necesitamos integrar con world-atlas que usa códigos UN M.49 para identificar países.
+
+**Decisión:** Añadir campos ISO explícitos: `isoAlpha2`, `isoAlpha3`, `unM49` al tipo Country.
+
+**Estructura:**
+```typescript
+interface Country {
+  isoAlpha2: string;  // ES, JP, PE
+  isoAlpha3: string;  // ESP, JPN, PER
+  unM49: string;      // 724, 392, 604 (usado por world-atlas)
+  // ...
+}
+```
+
+**Razones:**
+- Mapeo directo con datos geoespaciales externos (world-atlas)
+- Consistencia con estándares internacionales
+- Búsqueda por diferentes criterios (ISO, UN, slug)
+- Facilita debugging y trazabilidad
+
+**Consecuencias:**
+- Más campos que mantener sincronizados
+- Duplicación de información (isoAlpha2 = id en la práctica)
+- Mayor claridad en el código cuando se integra con D3
+
+**Reversibilidad:** Media. Cambiar la estructura de tipos afecta todo el sistema de países.
+
+---
+
+### DA-010: Separación name/displayName en tipos de país
+
+**Fecha:** 2026-04-27  
+**Estado:** Aceptada  
+**Contexto:** Necesitamos nombres técnicos para código (variables, keys) y nombres para mostrar en UI.
+
+**Decisión:** Separar en dos campos: `name` (técnico, kebab-case) y `displayName` (presentación, español).
+
+**Estructura:**
+```typescript
+{
+  name: 'spain',           // Para código: variables, keys
+  displayName: 'España',   // Para UI: títulos, tarjetas
+  slug: 'espana',          // Para URLs
+}
+```
+
+**Razones:**
+- URLs limpias y consistentes con el slug
+- Presentación localizada en español
+- Identificadores técnicos en inglés (convención de código)
+- Evita transformaciones en runtime (toLowerCase, replace, etc.)
+
+**Consecuencias:**
+- Más campos en el diccionario
+- Convención clara: name en inglés, displayName en español
+- Código más legible: `country.name` vs `country.displayName.toLowerCase()`
+
+**Reversibilidad:** Media. Cambiar requiere actualizar todas las referencias en el código.
+
+---
+
+### DA-011: Tema de mapa centralizado en objeto configurable
+
+**Fecha:** 2026-04-27  
+**Estado:** Aceptada  
+**Contexto:** Evitar hardcodeo de colores en la lógica de renderizado D3. Queremos poder cambiar el aspecto del mapa sin tocar el código de renderizado.
+
+**Decisión:** Crear objeto `MapTheme` completo con colores, tooltip y animaciones, exportado desde archivo de configuración.
+
+**Estructura:**
+```typescript
+// map/config/mapTheme.ts
+export const defaultMapTheme: MapTheme = {
+  colors: {
+    default: '#cbd5e1',
+    active: '#3b82f6',
+    hover: '#f59e0b',
+    // ...más estados
+    border: '#ffffff',
+    borderWidth: 0.5,
+  },
+  tooltip: { /* ... */ },
+  animation: { /* ... */ },
+};
+```
+
+**Razones:**
+- Cambios de diseño sin tocar código de renderizado
+- Preparado para múltiples temas (default, minimal, dark)
+- Type safety con interfaz MapTheme
+- Fácil de documentar y mantener
+
+**Consecuencias:**
+- Import explícito del tema en componentes
+- Tema debe pasarse como prop o usarse context
+- Más código inicial (definir toda la estructura)
+
+**Reversibilidad:** Alta. El tema es opcional, puede ignorarse o reemplazarse.
 
 ---
 

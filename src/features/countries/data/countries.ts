@@ -1,69 +1,97 @@
+/**
+ * Diccionario de países de Trawel
+ * 
+ * Propósito: Fuente de verdad de todos los países disponibles en la plataforma
+ * Alcance: Datos estáticos de países con metadatos para UI y navegación
+ * 
+ * Decisiones técnicas:
+ * - Clave del diccionario = isoAlpha2 para búsqueda rápida O(1)
+ * - Campos ISO estandarizados para futura integración con world-atlas
+ * - Estados: active (navegable), comingSoon (visible no clickeable), disabled (oculto)
+ * 
+ * Limitaciones actuales:
+ * - Solo 5 países definidos (3 activos, 2 próximamente)
+ * - Sin datos de coordenadas geográficas
+ * - Sin imágenes reales
+ */
+
 import type { CountryDictionary } from './countries.types';
 
 export const countries: CountryDictionary = {
   ES: {
     id: 'ES',
-    name: 'España',
+    isoAlpha2: 'ES',
+    isoAlpha3: 'ESP',
+    unM49: '724',
     slug: 'espana',
-    nameEn: 'Spain',
+    name: 'spain',
+    displayName: 'España',
     continent: 'europe',
     status: 'active',
+    featured: true,
     capital: 'Madrid',
+    destinationCount: 3,
     shortDescription: 'Desde la Alhambra hasta la Sagrada Familia',
-    totalDestinations: 3,
   },
   JP: {
     id: 'JP',
-    name: 'Japón',
+    isoAlpha2: 'JP',
+    isoAlpha3: 'JPN',
+    unM49: '392',
     slug: 'japon',
-    nameEn: 'Japan',
+    name: 'japan',
+    displayName: 'Japón',
     continent: 'asia',
     status: 'active',
+    featured: true,
     capital: 'Tokio',
+    destinationCount: 2,
     shortDescription: 'Tradición y futuro en perfecta armonía',
-    totalDestinations: 2,
   },
   PE: {
     id: 'PE',
-    name: 'Perú',
+    isoAlpha2: 'PE',
+    isoAlpha3: 'PER',
+    unM49: '604',
     slug: 'peru',
-    nameEn: 'Peru',
+    name: 'peru',
+    displayName: 'Perú',
     continent: 'america',
     status: 'active',
+    featured: false,
     capital: 'Lima',
+    destinationCount: 2,
     shortDescription: 'Machu Picchu y mucho más',
-    totalDestinations: 2,
   },
   // Países "Próximamente" - visibles pero sin contenido aún
   FR: {
     id: 'FR',
-    name: 'Francia',
+    isoAlpha2: 'FR',
+    isoAlpha3: 'FRA',
+    unM49: '250',
     slug: 'francia',
-    nameEn: 'France',
+    name: 'france',
+    displayName: 'Francia',
     continent: 'europe',
-    status: 'coming-soon',
+    status: 'comingSoon',
+    featured: false,
     capital: 'París',
+    destinationCount: 0,
     shortDescription: 'Próximamente',
-    totalDestinations: 0,
   },
   IT: {
     id: 'IT',
-    name: 'Italia',
+    isoAlpha2: 'IT',
+    isoAlpha3: 'ITA',
+    unM49: '380',
     slug: 'italia',
-    nameEn: 'Italy',
+    name: 'italy',
+    displayName: 'Italia',
     continent: 'europe',
-    status: 'coming-soon',
+    status: 'comingSoon',
+    featured: false,
     capital: 'Roma',
+    destinationCount: 0,
     shortDescription: 'Próximamente',
-    totalDestinations: 0,
   },
 };
-
-export const getActiveCountries = () => 
-  Object.values(countries).filter(c => c.status === 'active');
-
-export const getCountryBySlug = (slug: string) => 
-  Object.values(countries).find(c => c.slug === slug);
-
-export const getCountryById = (id: string) => 
-  countries[id];

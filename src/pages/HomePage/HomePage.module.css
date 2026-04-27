@@ -53,17 +53,41 @@
 }
 
 .mapPlaceholder {
-  background: #f3f4f6;
-  border: 2px dashed #d1d5db;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px dashed #3b82f6;
   border-radius: 1rem;
-  padding: 4rem 2rem;
+  padding: 3rem 2rem;
   text-align: center;
-  color: #6b7280;
+  color: #1e40af;
+}
+
+.mapStats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: #374151;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat strong {
+  color: #1e40af;
+  font-size: 1.25rem;
+  display: block;
 }
 
 .mapNote {
   font-size: 0.875rem;
-  margin-top: 0.5rem;
+  color: #6b7280;
+  margin-top: 1rem;
 }
 
 .sectionTitle {
@@ -71,6 +95,10 @@
   color: #1f2937;
   margin: 0 0 1.5rem;
   text-align: center;
+}
+
+.countriesSection {
+  margin-bottom: 3rem;
 }
 
 .countriesGrid {
@@ -116,6 +144,39 @@
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+.comingSoonSection {
+  margin-bottom: 3rem;
+}
+
+.comingSoonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.comingSoonCard {
+  background: #f3f4f6;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  text-align: center;
+  border: 1px dashed #d1d5db;
+}
+
+.comingSoonName {
+  font-size: 1rem;
+  color: #4b5563;
+  margin: 0 0 0.5rem;
+}
+
+.comingSoonBadge {
+  display: inline-block;
+  background: #e5e7eb;
+  color: #6b7280;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
 }
 
 .footer {

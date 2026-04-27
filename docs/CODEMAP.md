@@ -4,7 +4,7 @@
 
 Este archivo describe la estructura esperada del código fuente. Sirve como guía para desarrolladores y agentes que implementen el proyecto.
 
-**Estado:** Planificación / No implementado todavía
+**Estado:** En desarrollo - Estructura base implementada, datos y tema de mapa listos
 
 ---
 
@@ -128,13 +128,13 @@ src/features/countries/
 ├── data/
 │   ├── countries.ts               # Diccionario de países Trawel
 │   ├── countries.types.ts         # Tipos Country, Continent, etc.
-│   └── countryMappers.ts          # Funciones para mapear IDs de world-atlas a nuestros países
+│   └── countries.utils.ts         # Funciones de acceso: getBySlug, getByIso, etc.
 ├── hooks/
 │   ├── useCountries.ts            # Hook para obtener lista de países
 │   ├── useCountry.ts              # Hook para obtener un país por slug
 │   └── useCountryStatus.ts        # Hook para saber si un país está activo
 └── utils/
-    └── countryHelpers.ts          # Funciones auxiliares (getCountryById, etc.)
+    └── countryHelpers.ts          # Funciones auxiliares (futuro)
 ```
 
 **Responsabilidad:** Definición de países, sus metadatos, y componentes relacionados.
