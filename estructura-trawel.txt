@@ -1,0 +1,52 @@
+Listado de rutas de carpetas
+El número de serie del volumen es F4A5-E445
+D:.
+|   .gitignore
+|   estructura-trawel.txt
+|   
++---docs
+|       ANALISIS_MAPA_WEBSIM.md
+|       ARCHITECTURE.md
+|       BITACORA.md
+|       CODEMAP.md
+|       DECISIONES.md
+|       SPEC.md
+|       
+\---src
+    |   App.tsx
+    |   index.css
+    |   
+    +---app
+    |       routes.tsx
+    |       
+    +---features
+    |   \---countries
+    |       \---data
+    |               countries.ts
+    |               countries.types.ts
+    |               
+    +---pages
+    |   +---AdventurePage
+    |   |       AdventurePage.module.css
+    |   |       AdventurePage.tsx
+    |   |       index.ts
+    |   |       
+    |   +---CityPage
+    |   |       CityPage.module.css
+    |   |       CityPage.tsx
+    |   |       index.ts
+    |   |       
+    |   +---CountryPage
+    |   |       CountryPage.module.css
+    |   |       CountryPage.tsx
+    |   |       index.ts
+    |   |       
+    |   \---HomePage
+    |           HomePage.module.css
+    |           HomePage.tsx
+    |           index.ts
+    |           
+    \---styles
+        \---variables
+                colors.css
+                

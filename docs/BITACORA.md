@@ -101,4 +101,87 @@ Cada entrada incluye:
 
 ---
 
-*Primera entrada - Inicio del proyecto Trawel v2.0*
+## 2026-04-27 - Proyecto base creado y servidor arrancado
+
+**Participantes:** SDD implementación inicial
+
+### Qué se hizo
+
+1. **Inicializamos proyecto Vite + React + TypeScript**
+   - Usamos `npm create vite@latest` con template `react-ts`
+   - Instalamos dependencias base (react, react-dom, typescript)
+   - Instalamos react-router-dom para navegación
+
+2. **Creamos estructura de carpetas inicial**
+   ```
+   src/
+   ├── app/           # Configuración (routes)
+   ├── pages/         # HomePage, CountryPage, CityPage, AdventurePage
+   ├── features/      # countries (diccionario y tipos)
+   ├── styles/        # Variables CSS
+   └── App.tsx        # Root component
+   ```
+
+3. **Implementamos datos iniciales**
+   - Tipos TypeScript para Country (`countries.types.ts`)
+   - Diccionario de países con 3 activos (ES, JP, PE) y 2 "Próximamente" (FR, IT)
+   - Helper functions: `getActiveCountries`, `getCountryBySlug`, `getCountryById`
+
+4. **Creamos páginas básicas**
+   - **HomePage**: Lista de países activos con navegación, placeholder para mapa
+   - **CountryPage**: Información del país, botón volver
+   - **CityPage**: Estructura básica para ciudades
+   - **AdventurePage**: Estructura básica para aventuras
+
+5. **Configuramos routing**
+   - `/` → HomePage
+   - `/pais/:countrySlug` → CountryPage
+   - `/pais/:countrySlug/:citySlug` → CityPage
+   - `/aventura/:adventureSlug` → AdventurePage
+
+6. **Arrancamos servidor de desarrollo**
+   - Vite corriendo en http://localhost:5173
+   - Hot Module Replacement activo
+
+### Estado actual
+
+- ✅ Proyecto base funcional
+- ✅ Navegación entre páginas
+- ✅ Lista de países dinámica desde datos
+- ✅ 3 países activos navegables
+- ✅ Placeholder para mapa mundial
+- ⏳ Mapa D3 (próximo paso)
+- ⏳ Datos de ciudades y aventuras
+- ⏳ Estilos finales
+
+### Cómo probar
+
+1. Abrir http://localhost:5173
+2. Ver lista de países (España, Japón, Perú)
+3. Click en cualquier país → va a página de país
+4. Click en "Volver al mapa" → regresa a inicio
+5. URLs funcionan:
+   - `/pais/espana`
+   - `/pais/japon`
+   - `/pais/peru`
+
+### Próximos pasos
+
+1. **Implementar WorldMap con D3**
+   - Cargar world-atlas desde CDN
+   - Renderizar países como SVG paths
+   - Colores según estado (active, coming-soon)
+   - Hover con tooltip
+   - Click para navegar (solo países activos)
+
+2. **Mejorar CountryPage**
+   - Mostrar lista de ciudades del país
+   - Diseño más completo
+
+3. **Añadir datos de ciudades**
+   - Crear estructura de datos para ciudades
+   - Datos de ejemplo para Madrid, Barcelona, Tokio, etc.
+
+---
+
+*Entradas de bitácora - Trawel v2.0*

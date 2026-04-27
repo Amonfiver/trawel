@@ -1,0 +1,59 @@
+.container {
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 2rem;
+}
+
+.backLink {
+  color: white;
+  text-decoration: none;
+  opacity: 0.8;
+  font-size: 0.875rem;
+}
+
+.backLink:hover {
+  opacity: 1;
+}
+
+.title {
+  font-size: 2.5rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.infoCard {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.infoCard h3 {
+  margin-top: 0;
+  color: #1f2937;
+}
+
+.citiesSection {
+  margin-top: 2rem;
+}
+
+.soon {
+  color: #6b7280;
+  font-style: italic;
+}

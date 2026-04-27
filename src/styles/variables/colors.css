@@ -1,0 +1,48 @@
+/* Paleta de colores Trawel */
+
+:root {
+  /* Primary colors */
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-primary-light: #60a5fa;
+  
+  /* Secondary colors */
+  --color-secondary: #10b981;
+  --color-secondary-dark: #059669;
+  --color-secondary-light: #34d399;
+  
+  /* Accent colors */
+  --color-accent: #f59e0b;
+  --color-accent-dark: #d97706;
+  --color-accent-light: #fbbf24;
+  
+  /* Neutral colors */
+  --color-white: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-black: #000000;
+  
+  /* Semantic colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Map specific colors */
+  --map-color-default: #cbd5e1;
+  --map-color-active: #3b82f6;
+  --map-color-hover: #f59e0b;
+  --map-color-selected: #8b5cf6;
+  --map-color-highlighted: #10b981;
+  --map-color-soon: #94a3b8;
+  --map-color-border: #ffffff;
+  --map-border-width: 0.5px;
+}
