@@ -1,24 +1,26 @@
 /**
  * Página de inicio de Trawel
  * 
- * Propósito: Punto de entrada de la aplicación con mapa mundial y lista de países
- * Alcance: Muestra mapa D3 interactivo y lista de países disponibles
+ * Propósito: Punto de entrada de la aplicación con mapa mundial protagonista
+ * Alcance: Hero, mapa interactivo, información de países disponibles
  * 
  * Decisiones técnicas:
- * - Usa WorldMap component para visualización geográfica
- * - Usa utilidades de countries.utils para acceso a datos
- * - Mantiene lista de países como fallback/acceso rápido
- * 
- * Limitaciones actuales:
- * - WorldMap sin zoom/pan
- * - Sin imágenes de países
+ * - WorldMap como elemento principal visual
+ * - Información complementaria sin saturar
+ * - Diseño responsive que prioriza el mapa
+ * - Carga lazy de componentes secundarios (futuro)
  */
 
-import { Link } from 'react-router-dom';
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { getActiveCountries, getComingSoonCountries, getCountryCounts } from '../../features/countries/data/countries.utils';
 import styles from './HomePage.module.css';
 
+/**
+ * HomePage - Página principal de Trawel
+ * 
+ * Presenta el mapa mundial como elemento central de exploración,
+ * con información contextual sobre destinos disponibles.
+ */
 export function HomePage() {
   const activeCountries = getActiveCountries();
   const comingSoonCountries = getComingSoonCountries();
@@ -26,77 +28,132 @@ export function HomePage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Trawel</h1>
-        <p className={styles.subtitle}>Tu portal de descubrimiento de viajes</p>
-      </header>
-
-      <main className={styles.main}>
-        <section className={styles.hero}>
-          <h2 className={styles.heroTitle}>Elije tu próximo destino</h2>
-          <p className={styles.heroText}>
-            Explora el mundo y descubre aventuras increíbles. 
-            Haz clic en un país para descubrir destinos.
+      {/* Hero con el mapa como protagonista */}
+      <section className={styles.hero} aria-labelledby="hero-title">
+        <div className={styles.heroContent}>
+          <h1 id="hero-title" className={styles.heroTitle}>
+            Explora el mundo con Trawel
+          </h1>
+          <p className={styles.heroSubtitle}>
+            Descubre destinos únicos seleccionados para viajeros curiosos
           </p>
-        </section>
-
-        <section className={styles.mapSection}>
-          <WorldMap />
-          <div className={styles.mapStats}>
-            <span className={styles.stat}>
-              <strong>{counts.active}</strong> países activos
-            </span>
-            <span className={styles.stat}>
-              <strong>{counts.comingSoon}</strong> próximamente
-            </span>
-            <span className={styles.stat}>
-              <strong>{counts.total}</strong> total
-            </span>
+          
+          {/* Estadísticas rápidas */}
+          <div className={styles.heroStats} role="region" aria-label="Estadísticas de destinos">
+            <div className={styles.stat}>
+              <span className={styles.statNumber}>{counts.active}</span>
+              <span className={styles.statLabel}>Países disponibles</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statNumber}>{counts.comingSoon}</span>
+              <span className={styles.statLabel}>Próximamente</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statNumber}>15+</span>
+              <span className={styles.statLabel}>Destinos</span>
+            </div>
           </div>
-        </section>
+        </div>
 
-        <section className={styles.countriesSection}>
-          <h3 className={styles.sectionTitle}>Destinos disponibles</h3>
-          <div className={styles.countriesGrid}>
-            {activeCountries.map((country) => (
-              <Link
+        {/* Mapa mundial - Elemento principal */}
+        <div className={styles.mapContainer}>
+          <WorldMap />
+        </div>
+      </section>
+
+      {/* Información contextual */}
+      <main className={styles.main}>
+        {/* Sección de países activos */}
+        <section className={styles.section} aria-labelledby="active-countries-title">
+          <h2 id="active-countries-title" className={styles.sectionTitle}>
+            Destinos disponibles
+          </h2>
+          <p className={styles.sectionDescription}>
+            Haz clic en cualquier país destacado en el mapa o selecciona uno de nuestros destinos curados:
+          </p>
+          
+          <div className={styles.countriesGrid} role="list">
+            {activeCountries.map(country => (
+              <a
                 key={country.isoAlpha2}
-                to={`/pais/${country.slug}`}
+                href={`/pais/${country.slug}`}
                 className={styles.countryCard}
+                role="listitem"
+                aria-label={`Explorar ${country.displayName}, ${country.destinationCount || 0} destinos disponibles`}
               >
-                <h4 className={styles.countryName}>{country.displayName}</h4>
-                <p className={styles.countryDescription}>
-                  {country.shortDescription}
-                </p>
-                <span className={styles.countryMeta}>
-                  {country.destinationCount} destinos
-                </span>
-              </Link>
+                <div className={styles.countryCardHeader}>
+                  <span className={styles.countryFlag} aria-hidden="true">
+                    {getCountryFlag(country.isoAlpha2)}
+                  </span>
+                  <span className={styles.countryStatus} data-status="active">
+                    Disponible
+                  </span>
+                </div>
+                <h3 className={styles.countryName}>{country.displayName}</h3>
+                <p className={styles.countryDescription}>{country.shortDescription}</p>
+                <div className={styles.countryMeta}>
+                  <span>{country.destinationCount || 0} destinos</span>
+                  <span aria-hidden="true">→</span>
+                </div>
+              </a>
             ))}
           </div>
         </section>
 
+        {/* Sección de próximos países */}
         {comingSoonCountries.length > 0 && (
-          <section className={styles.comingSoonSection}>
-            <h3 className={styles.sectionTitle}>Próximamente</h3>
-            <div className={styles.comingSoonGrid}>
-              {comingSoonCountries.map((country) => (
+          <section className={styles.section} aria-labelledby="coming-soon-title">
+            <h2 id="coming-soon-title" className={styles.sectionTitle}>
+              Próximamente
+            </h2>
+            <p className={styles.sectionDescription}>
+              Estamos preparando contenido para estos destinos:
+            </p>
+            
+            <div className={styles.comingSoonGrid} role="list">
+              {comingSoonCountries.map(country => (
                 <div
                   key={country.isoAlpha2}
                   className={styles.comingSoonCard}
+                  role="listitem"
                 >
-                  <h4 className={styles.comingSoonName}>{country.displayName}</h4>
-                  <span className={styles.comingSoonBadge}>Próximamente</span>
+                  <span className={styles.countryFlag} aria-hidden="true">
+                    {getCountryFlag(country.isoAlpha2)}
+                  </span>
+                  <div>
+                    <h3 className={styles.comingSoonName}>{country.displayName}</h3>
+                    <span className={styles.comingSoonBadge}>Próximamente</span>
+                  </div>
                 </div>
               ))}
             </div>
           </section>
         )}
-      </main>
 
-      <footer className={styles.footer}>
-        <p>&copy; 2026 Trawel - Todos los derechos reservados</p>
-      </footer>
+        {/* CTA final */}
+        <section className={styles.cta} aria-labelledby="cta-title">
+          <h2 id="cta-title" className={styles.ctaTitle}>
+            ¿Listo para tu próxima aventura?
+          </h2>
+          <p className={styles.ctaText}>
+            Explora nuestros destinos disponibles y descubre experiencias únicas.
+          </p>
+        </section>
+      </main>
     </div>
   );
+}
+
+/**
+ * Helper para obtener emoji de bandera según código ISO
+ */
+function getCountryFlag(isoAlpha2: string): string {
+  const flags: Record<string, string> = {
+    ES: '🇪🇸',
+    JP: '🇯🇵',
+    PE: '🇵🇪',
+    FR: '🇫🇷',
+    IT: '🇮🇹',
+  };
+  return flags[isoAlpha2] || '🌍';
 }

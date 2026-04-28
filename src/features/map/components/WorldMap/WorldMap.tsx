@@ -2,19 +2,26 @@
  * Componente WorldMap - Mapa mundial interactivo con D3 + TopoJSON
  * 
  * Propósito: Renderizar mapa mundial con países clickeables y tooltips
- * Alcance: Visualización SVG, hover, click, sin zoom/pan por ahora
+ * Alcance: Visualización SVG, hover, click, responsive, accesible
  * 
  * Decisiones técnicas:
- * - Usa proyección Mercator estándar
- * - Carga world-atlas desde CDN (unpkg)
+ * - Usa proyección Mercator estándar con responsive automático
+ * - Carga world-atlas desde CDN (unpkg) con loading state
  * - Conecta geometrías UN M.49 con diccionario Trawel
- * - Colores desde mapTheme (no hardcodeados)
- * - Responsive con viewBox y max-width
+ * - Colores desde mapTheme (sin hardcodeados)
+ * - Transiciones suaves en interacciones
+ * - ARIA labels para accesibilidad
  * 
- * Limitaciones actuales:
- * - Sin zoom/pan
- * - Sin transiciones suaves entre estados
- * - Sin cache de datos geoespaciales
+ * Accesibilidad:
+ * - role="img" y aria-label en SVG
+ * - aria-live para estados de carga/error
+ * - focus visible en elementos interactivos
+ * - tooltip semántico
+ * 
+ * Responsive:
+ * - Aspect ratio preservado con padding-bottom technique
+ * - ViewBox adaptativo
+ * - Breakpoints para ajustes de escala
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -39,9 +46,17 @@ interface TooltipData {
   status: CountryStatus | 'unknown';
 }
 
+/**
+ * Componente WorldMap - Mapa mundial interactivo
+ * 
+ * Renderiza un mapa mundial con países clickeables, tooltips animados
+ * y estados visuales diferenciados según el contenido disponible.
+ */
 export function WorldMap() {
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  
   const [tooltip, setTooltip] = useState<TooltipData>({
     visible: false,
     x: 0,
@@ -59,7 +74,7 @@ export function WorldMap() {
     const width = 960;
     const height = 500;
 
-    // Configurar proyección Mercator
+    // Configurar proyección Mercator responsive
     const projection = d3.geoMercator()
       .scale(150)
       .translate([width / 2, height / 2 + 40]);
@@ -89,9 +104,19 @@ export function WorldMap() {
           .attr('class', styles.country)
           .attr('stroke', defaultMapTheme.colors.border)
           .attr('stroke-width', defaultMapTheme.colors.borderWidth)
+          .attr('role', 'button')
+          .attr('tabindex', '0')
+          .attr('aria-label', (d: unknown) => {
+            const feat = d as { id?: string };
+            const countryCode = feat.id;
+            const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
+            return trawelCountry 
+              ? `País ${trawelCountry.displayName}${isCountryClickable(trawelCountry) ? ', disponible para navegar' : ''}`
+              : 'País no disponible';
+          })
           .each(function (d: unknown) {
-            const feature = d as { id?: string };
-            const countryCode = feature.id;
+            const feat = d as { id?: string };
+            const countryCode = feat.id;
             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
             
             // Asignar color según estado
@@ -113,21 +138,25 @@ export function WorldMap() {
             d3.select(this).attr('fill', fillColor);
           })
           .on('mouseover', function (event: MouseEvent, d: unknown) {
-            const feature = d as { id?: string };
-            const countryCode = feature.id;
+            const feat = d as { id?: string };
+            const countryCode = feat.id;
             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
+            const isClickable = trawelCountry ? isCountryClickable(trawelCountry) : false;
             
-            // Cambiar color a hover
+            // Efecto hover visual
             d3.select(this)
-              .attr('fill', defaultMapTheme.colors.hover)
-              .attr('stroke-width', 1.5)
-              .style('cursor', trawelCountry && isCountryClickable(trawelCountry) ? 'pointer' : 'default');
+              .transition()
+              .duration(defaultMapTheme.animation.hoverDuration || 150)
+              .attr('fill', isClickable ? defaultMapTheme.colors.hover : defaultMapTheme.colors.default)
+              .attr('stroke-width', 1.2)
+              .style('filter', 'brightness(1.08) drop-shadow(0 3px 6px rgba(0,0,0,0.15))')
+              .style('cursor', isClickable ? 'pointer' : 'default');
 
             // Mostrar tooltip
             setTooltip({
               visible: true,
-              x: event.clientX + 10,
-              y: event.clientY - 10,
+              x: event.clientX + 12,
+              y: event.clientY - 12,
               country: trawelCountry || null,
               status: trawelCountry?.status || 'unknown',
             });
@@ -135,13 +164,13 @@ export function WorldMap() {
           .on('mousemove', function (event: MouseEvent) {
             setTooltip(prev => ({
               ...prev,
-              x: event.clientX + 10,
-              y: event.clientY - 10,
+              x: event.clientX + 12,
+              y: event.clientY - 12,
             }));
           })
           .on('mouseout', function (_event: MouseEvent, d: unknown) {
-            const feature = d as { id?: string };
-            const countryCode = feature.id;
+            const feat = d as { id?: string };
+            const countryCode = feat.id;
             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
             
             // Restaurar color según estado
@@ -161,20 +190,36 @@ export function WorldMap() {
             }
             
             d3.select(this)
+              .transition()
+              .duration(defaultMapTheme.animation.hoverDuration || 150)
               .attr('fill', fillColor)
-              .attr('stroke-width', defaultMapTheme.colors.borderWidth);
+              .attr('stroke-width', defaultMapTheme.colors.borderWidth)
+              .style('filter', null)
+              .style('cursor', 'default');
 
             // Ocultar tooltip
             setTooltip(prev => ({ ...prev, visible: false }));
           })
           .on('click', function (_event: MouseEvent, d: unknown) {
-            const feature = d as { id?: string };
-            const countryCode = feature.id;
+            const feat = d as { id?: string };
+            const countryCode = feat.id;
             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
             
             // Navegar solo si es país clickeable
             if (trawelCountry && isCountryClickable(trawelCountry)) {
               navigate(`/pais/${trawelCountry.slug}`);
+            }
+          })
+          .on('keydown', function (event: KeyboardEvent, d: unknown) {
+            // Accesibilidad: permitir navegación con teclado
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              const feat = d as { id?: string };
+              const countryCode = feat.id;
+              const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
+              if (trawelCountry && isCountryClickable(trawelCountry)) {
+                navigate(`/pais/${trawelCountry.slug}`);
+              }
             }
           });
 
@@ -182,7 +227,7 @@ export function WorldMap() {
       })
       .catch(err => {
         console.error('Error cargando mapa:', err);
-        setError('Error cargando el mapa. Por favor, recarga la página.');
+        setError('No se pudo cargar el mapa. Por favor, verifica tu conexión e inténtalo de nuevo.');
         setIsLoading(false);
       });
   }, [navigate]);
@@ -192,6 +237,7 @@ export function WorldMap() {
       return {
         title: 'País no disponible',
         description: 'Próximamente',
+        badge: null,
       };
     }
 
@@ -201,16 +247,19 @@ export function WorldMap() {
       return {
         title: displayName,
         description: `${destinationCount || 0} destinos disponibles`,
+        badge: { text: 'Disponible', color: '#10b981' },
       };
     } else if (status === 'comingSoon') {
       return {
         title: displayName,
-        description: 'Próximamente',
+        description: 'Próximamente disponible',
+        badge: { text: 'Próximamente', color: '#f59e0b' },
       };
     } else {
       return {
         title: displayName,
         description: 'No disponible',
+        badge: null,
       };
     }
   };
@@ -218,42 +267,116 @@ export function WorldMap() {
   const tooltipText = getTooltipText();
 
   return (
-    <div className={styles.container}>
+    <div 
+      ref={containerRef}
+      className={styles.container}
+      role="region"
+      aria-label="Mapa mundial interactivo de destinos de viaje"
+    >
+      {/* Estado de carga */}
       {isLoading && (
-        <div className={styles.loading}>
-          <span>Cargando mapa...</span>
+        <div className={styles.loading} role="status" aria-live="polite">
+          <div className={styles.loadingContent}>
+            <div className={styles.spinner} aria-hidden="true" />
+            <span className={styles.loadingText}>Cargando mapa del mundo...</span>
+          </div>
         </div>
       )}
       
+      {/* Estado de error */}
       {error && (
-        <div className={styles.error}>
-          <span>{error}</span>
+        <div className={styles.error} role="alert" aria-live="assertive">
+          <div className={styles.errorContent}>
+            <div className={styles.errorIcon} aria-hidden="true">🗺️</div>
+            <h3 className={styles.errorTitle}>Error al cargar el mapa</h3>
+            <p className={styles.errorText}>{error}</p>
+          </div>
         </div>
       )}
 
-      <svg
-        ref={svgRef}
-        viewBox="0 0 960 500"
-        className={styles.svg}
-        style={{ opacity: isLoading ? 0.5 : 1 }}
-      />
-
-      {tooltip.visible && (
-        <div
-          className={styles.tooltip}
-          style={{
-            left: tooltip.x,
-            top: tooltip.y,
-            backgroundColor: defaultMapTheme.tooltip.background,
-            color: defaultMapTheme.tooltip.textColor,
-            borderRadius: defaultMapTheme.tooltip.borderRadius,
-            padding: defaultMapTheme.tooltip.padding,
-          }}
+      {/* Wrapper del SVG para aspect ratio responsive */}
+      <div className={styles.mapWrapper}>
+        <svg
+          ref={svgRef}
+          viewBox="0 0 960 500"
+          preserveAspectRatio="xMidYMid meet"
+          className={styles.svg}
+          style={{ opacity: isLoading ? 0.3 : 1 }}
+          role="img"
+          aria-label="Mapa mundial con países disponibles destacados"
         >
-          <div className={styles.tooltipTitle}>{tooltipText.title}</div>
-          <div className={styles.tooltipDescription}>{tooltipText.description}</div>
+          <title>Mapa mundial de destinos Trawel</title>
+          <desc>Mapa interactivo que muestra países disponibles para explorar</desc>
+        </svg>
+      </div>
+
+      {/* Leyenda del mapa */}
+      {!isLoading && !error && (
+        <div className={styles.legend} role="complementary" aria-label="Leyenda del mapa">
+          <div className={styles.legendItem}>
+            <span 
+              className={styles.legendDot} 
+              style={{ backgroundColor: defaultMapTheme.colors.active }}
+              aria-hidden="true"
+            />
+            <span>Destinos disponibles</span>
+          </div>
+          <div className={styles.legendItem}>
+            <span 
+              className={styles.legendDot} 
+              style={{ backgroundColor: defaultMapTheme.colors.comingSoon }}
+              aria-hidden="true"
+            />
+            <span>Próximamente</span>
+          </div>
+          <div className={styles.legendItem}>
+            <span 
+              className={styles.legendDot} 
+              style={{ backgroundColor: defaultMapTheme.colors.default }}
+              aria-hidden="true"
+            />
+            <span>No disponible</span>
+          </div>
         </div>
       )}
+
+      {/* Tooltip */}
+      <div
+        className={`${styles.tooltip} ${tooltip.visible ? styles.tooltipVisible : ''}`}
+        style={{
+          left: tooltip.x,
+          top: tooltip.y,
+          backgroundColor: defaultMapTheme.tooltip.background,
+          color: defaultMapTheme.tooltip.textColor,
+          borderRadius: defaultMapTheme.tooltip.borderRadius,
+          padding: defaultMapTheme.tooltip.padding,
+          maxWidth: defaultMapTheme.tooltip.maxWidth,
+          boxShadow: defaultMapTheme.tooltip.shadow,
+          border: defaultMapTheme.tooltip.border,
+        }}
+        role="tooltip"
+        aria-hidden={!tooltip.visible}
+      >
+        <div className={styles.tooltipContent}>
+          <div 
+            className={styles.tooltipTitle}
+            style={{ fontSize: defaultMapTheme.tooltip.titleFontSize }}
+          >
+            {tooltipText.title}
+          </div>
+          <div 
+            className={styles.tooltipDescription}
+            style={{ fontSize: defaultMapTheme.tooltip.descriptionFontSize }}
+          >
+            {tooltipText.description}
+          </div>
+          {tooltipText.badge && (
+            <div className={styles.tooltipBadge} style={{ color: tooltipText.badge.color }}>
+              <span>●</span> {tooltipText.badge.text}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

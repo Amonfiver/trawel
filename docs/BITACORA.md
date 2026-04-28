@@ -421,4 +421,158 @@ Cada entrada incluye:
 
 ---
 
-*Entradas de bitácora - Trawel v2.0*
+## 2026-04-28 - WorldMap v1 pulido: mejoras visuales, responsive y accesibilidad
+
+**Participantes:** SDD pulido de mapa
+
+### Qué se hizo
+
+1. **Mejoramos tipos del mapa** (`map/types/map.types.ts`)
+   - Añadidas propiedades opcionales al tooltip: `border`, `shadow`
+   - Añadida `hoverDuration` a animaciones para transiciones más suaves
+   - Mejor preparación para temas futuros
+
+2. **Mejoramos configuración del tema** (`map/config/mapTheme.ts`)
+   - Tooltip mejorado con:
+     - Fondo más elegante (`rgba(15, 23, 42, 0.95)`)
+     - Bordes redondeados más grandes (12px)
+     - Sombra más pronunciada con efecto glassmorphism
+     - Borde sutil (`rgba(255, 255, 255, 0.1)`)
+   - Animaciones con easing cúbico más suave
+   - Duración de hover específica (150ms)
+
+3. **Rediseñamos estilos del mapa** (`WorldMap.module.css`)
+   - Contenedor con:
+     - Fondo degradado sutil
+     - Bordes redondeados (24px)
+     - Sombra suave con inset highlight
+     - Borde sutil definido
+   - Aspect ratio preservado con técnica padding-bottom (52%)
+   - Wrapper responsive que adapta altura según breakpoint
+   - Transiciones suaves en hover de países con D3
+   - Loading state profesional con spinner animado
+   - Error state con icono visual y mensaje claro
+   - Tooltip animado con entrada suave (fade + slide + scale)
+   - Leyenda integrada en el contenedor del mapa
+   - Soporte para preferencia reduced-motion
+   - Preparado para modo oscuro
+   - Soporte para alto contraste
+
+4. **Mejoramos componente WorldMap** (`WorldMap.tsx`)
+   - Añadidas transiciones D3 suaves en hover/mouseout
+   - Efectos visuales: brightness y drop-shadow en hover
+   - Cursor diferenciado: pointer para clickeables, default para no clickeables
+   - Badge visual en tooltip: "Disponible" (verde) / "Próximamente" (naranja)
+   - Leyenda integrada en el componente
+   - Accesibilidad completa:
+     - `role="region"` y `aria-label` en contenedor
+     - `role="img"` y `title`/`desc` en SVG
+     - `role="button"` y `tabindex="0"` en países interactivos
+     - `aria-label` dinámico en cada país
+     - `aria-live` para estados de carga y error
+     - `role="tooltip"` en el tooltip
+     - `role="complementary"` en la leyenda
+     - Soporte para navegación con teclado (Enter/Espacio)
+   - Estados mejorados:
+     - Loading con spinner animado
+     - Error con icono y mensaje descriptivo
+
+5. **Rediseñamos HomePage** (`HomePage.tsx` + `HomePage.module.css`)
+   - Hero con gradiente atractivo y barra de color superior
+   - Título principal con tipografía escalable (clamp)
+   - Estadísticas visuales en el hero (países disponibles, próximamente, destinos)
+   - Mapa como elemento protagonista centrado
+   - Tarjetas de país mejoradas con:
+     - Emoji de bandera
+     - Badge de estado visual
+     - Descripción del país
+     - Meta información (número de destinos)
+     - Efecto hover elevado
+   - Sección "Próximamente" con diseño limpio
+   - CTA final con gradiente llamativo
+   - Responsive completo para móvil, tablet y desktop
+   - ARIA labels en todas las secciones
+
+### Decisiones técnicas registradas
+
+**DA-014: Aspect ratio preservado con padding-bottom technique**
+- Contexto: Necesitamos que el mapa mantenga proporción sin deformarse
+- Decisión: Usar `padding-bottom: 52%` con wrapper posicionado relativamente
+- Consecuencias: Mapa responsive que se adapta manteniendo forma
+
+**DA-015: Tooltip con glassmorphism y animación suave**
+- Contexto: Tooltip debe verse moderno y tener entrada suave
+- Decisión: Fondo semitransparente, blur, sombra grande, animación de transform
+- Consecuencias: Apariencia profesional, mejor UX
+
+**DA-016: Accesibilidad completa en mapa SVG**
+- Contexto: Mapas SVG son difíciles de hacer accesibles
+- Decisión: ARIA labels dinámicos, roles semánticos, navegación por teclado
+- Consecuencias: Usuarios con screen readers pueden navegar el mapa
+
+### Archivos modificados
+
+| Archivo | Cambios |
+|---------|---------|
+| `map/types/map.types.ts` | Propiedades opcionales en tooltip y animación |
+| `map/config/mapTheme.ts` | Tooltip mejorado, animaciones suaves |
+| `WorldMap.module.css` | Rediseño completo, responsive, accesibilidad |
+| `WorldMap.tsx` | Transiciones D3, accesibilidad, leyenda |
+| `HomePage.tsx` | Nuevo diseño centrado en mapa |
+| `HomePage.module.css` | Rediseño completo, responsive |
+
+### Criterios de éxito verificados
+
+- ✅ `npm run build` pasa sin errores TypeScript
+- ✅ Mapa se ve profesional y moderno
+- ✅ Responsive funciona en desktop, tablet y móvil
+- ✅ Sin scroll horizontal en ningún dispositivo
+- ✅ Tooltip es legible con buen contraste
+- ✅ Hover suave con transiciones
+- ✅ Click en España/Japón/Perú navega correctamente
+- ✅ Francia/Italia muestran "Próximamente" sin navegar
+- ✅ Países sin datos no rompen nada
+- ✅ Loading state visualmente agradable
+- ✅ Estados de error presentables
+- ✅ Leyenda visible explica los colores
+- ✅ Navegación por teclado funciona
+- ✅ ARIA labels presentes
+
+### Screenshots mentales del resultado
+
+**Desktop:**
+- Hero con gradiente azul claro, título grande, estadísticas en fila
+- Mapa centrado con contenedor redondeado y sombra
+- Países azules destacan sobre el fondo
+- Tooltip oscuro elegante aparece al hover
+- Leyenda debajo del mapa
+- Tarjetas de países en grid de 3 columnas
+- CTA con gradiente azul-morado al final
+
+**Móvil:**
+- Título más pequeño pero legible
+- Estadísticas apiladas verticalmente
+- Mapa ocupa todo el ancho disponible
+- Tooltip posicionado correctamente
+- Tarjetas de país en columna única
+- Leyenda apilada verticalmente
+
+### Próximos pasos
+
+1. **Datos de ciudades**
+   - Crear estructura de datos para ciudades
+   - Implementar páginas de ciudad con contenido real
+
+2. **Página de país mejorada**
+   - Mapa del país (futuro)
+   - Galería de imágenes
+   - Lista de ciudades con tarjetas
+
+3. **Optimizaciones de performance**
+   - Cache de world-atlas en localStorage
+   - Lazy loading de imágenes
+   - Code splitting de páginas
+
+---
+
+*Entradas de bitácora - Trawel v2.1*

@@ -56,18 +56,21 @@ export const defaultMapTheme: MapTheme = {
   },
   
   tooltip: {
-    background: 'rgba(0, 0, 0, 0.9)',
+    background: 'rgba(15, 23, 42, 0.95)',
     textColor: '#ffffff',
-    borderRadius: '8px',
-    padding: '12px 16px',
-    maxWidth: '250px',
-    titleFontSize: '16px',
-    descriptionFontSize: '14px',
+    borderRadius: '12px',
+    padding: '14px 18px',
+    maxWidth: '280px',
+    titleFontSize: '15px',
+    descriptionFontSize: '13px',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    shadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1)',
   },
   
   animation: {
-    duration: 200, // ms
-    easing: 'ease-out',
+    duration: 250,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    hoverDuration: 150,
   },
 };
 

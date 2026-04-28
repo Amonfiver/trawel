@@ -108,6 +108,12 @@ export interface MapTheme {
     
     /** Tamaño de fuente de la descripción */
     descriptionFontSize: string;
+    
+    /** Color del borde del tooltip */
+    border?: string;
+    
+    /** Sombra del tooltip */
+    shadow?: string;
   };
   
   animation: {
@@ -116,6 +122,9 @@ export interface MapTheme {
     
     /** Función de easing para transiciones */
     easing: string;
+    
+    /** Duración específica de hover en ms */
+    hoverDuration?: number;
   };
 }
 
