@@ -39,6 +39,35 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Script de exportación a SQL seed para Supabase
+
+Creado sistema de exportación de datos mock a SQL compatible con el modelo de datos definido:
+
+**Creados:**
+- `scripts/exportMockToSqlSeed.ts` - Script TypeScript que genera SQL seed
+- `supabase/seed.sql` - Archivo SQL generado (488 líneas)
+
+**Características del script:**
+- Lee datos de `countries.ts`, `cities.ts`, `destinations.ts`
+- Genera INSERTS con `ON CONFLICT DO UPDATE` para idempotencia
+- Usa subconsultas para resolver relaciones por slug (evita UUIDs hardcodeados)
+- Convierte arrays/objects a JSONB válido
+- Escapa comillas simples correctamente
+
+**Uso:**
+```bash
+npm run export:seed
+```
+
+**Configuración necesaria:**
+- `@types/node` - Tipos de Node.js
+- `tsx` - Ejecutor de TypeScript
+- `tsconfig.node.json` actualizado para incluir `scripts/**/*.ts`
+
+**Nota:** El SQL generado asume que el schema de tablas ya existe en Supabase con los constraints únicos apropiados.
+
+---
+
 ### 2026-04-28 - Arquitectura de sources implementada en travelData
 
 Separación de fuente de datos del servicio público:

@@ -30,6 +30,10 @@ trawel/
 │   ├── BITACORA.md          # Historial de cambios
 │   ├── CODEMAP.md           # Este archivo
 │   └── ANALISIS_MAPA_WEBSIM.md
+├── scripts/                 # Scripts de utilidad (Node.js/TypeScript)
+│   └── exportMockToSqlSeed.ts  # Exporta datos mock a SQL seed
+├── supabase/                # Configuración y seed para Supabase
+│   └── seed.sql             # Datos iniciales generados
 ├── public/                  # Assets estáticos servidos tal cual
 │   ├── images/
 │   │   ├── countries/       # Fotos hero de países
@@ -476,6 +480,46 @@ src/utils/
 ```
 
 **Responsabilidad:** Funciones puras y hooks reutilizables. Sin dependencias de features.
+
+---
+
+## `scripts/` - Scripts de utilidad
+
+```
+scripts/
+└── exportMockToSqlSeed.ts         # Exporta datos mock a SQL seed para Supabase
+```
+
+**Responsabilidad:** Scripts Node.js/TypeScript para tareas de mantenimiento y migración.
+
+**Script `exportMockToSqlSeed.ts`:**
+- Lee datos de `src/features/countries/data/countries.ts`, `cities.ts`, `destinations.ts`
+- Genera archivo SQL con INSERTS idempotentes (`ON CONFLICT DO UPDATE`)
+- Usa subconsultas para resolver relaciones por slug (evita UUIDs hardcodeados)
+- Output: `supabase/seed.sql`
+
+**Uso:**
+```bash
+npm run export:seed
+```
+
+**Requisitos:**
+- `@types/node` - Tipos de Node.js
+- `tsx` - Ejecutor de TypeScript
+- `tsconfig.node.json` incluye `scripts/**/*.ts`
+
+---
+
+## `supabase/` - Configuración Supabase
+
+```
+supabase/
+└── seed.sql                       # Datos iniciales generados automáticamente
+```
+
+**Responsabilidad:** Contener archivos relacionados con Supabase (schema, seeds, migraciones).
+
+**Nota:** El archivo `seed.sql` se regenera ejecutando `npm run export:seed`. Asume que el schema de tablas ya existe en Supabase.
 
 ---
 
