@@ -1,0 +1,95 @@
+/**
+ * Estilos del componente ExperienceModeSwitch
+ * 
+ * Propósito: Definir la apariencia visual del selector de modo
+ * Alcance: Contenedor, pills de opciones, estados activo/inactivo
+ * 
+ * Decisiones técnicas:
+ * - Diseño tipo toggle con pills redondeadas
+ * - Colores que indican estado activo/inactivo
+ * - Hover effects para feedback visual
+ * - Responsive: se adapta a móvil
+ */
+
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.switch {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  padding: 4px;
+  border: 1px solid #e2e8f0;
+  gap: 4px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+.option:hover:not(.optionActive) {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.option:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.optionActive {
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.optionLabel {
+  display: inline;
+}
+
+/* Responsive - en móvil solo mostrar iconos si no hay espacio */
+@media (max-width: 480px) {
+  .container {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .switch {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .option {
+    flex: 1;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+  }
+}

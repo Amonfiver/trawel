@@ -20,6 +20,28 @@ Los sitios de viajes tradicionales presentan destinos como listas interminables 
 3. **Feedback visual inmediato**: Hover, colores, transiciones que indican qué es interactivo.
 4. **Contenido enriquecido**: Descripciones, fotos, datos prácticos.
 
+## Modos de experiencia
+
+Trawel ofrece dos modos de experiencia adaptados al tipo de usuario:
+
+### Modo Aventura (por defecto)
+- **Tono**: Emocional, inspirador, explorador
+- **Enfoque**: Descubrimiento de destinos, experiencias únicas, aventuras
+- **Público objetivo**: Viajeros curiosos, aventureros, buscadores de experiencias
+- **Ejemplo de contenido**: "Descubre destinos únicos seleccionados para viajeros curiosos"
+
+### Modo Estudiante
+- **Tono**: Educativo, enciclopédico, cultural
+- **Enfoque**: Aprendizaje de cultura, historia y geografía de cada destino
+- **Público objetivo**: Estudiantes, profesores, curiosos del conocimiento
+- **Ejemplo de contenido**: "Descubre la cultura, historia y geografía de destinos fascinantes"
+
+### Implementación
+- Selector de modo visible en la pantalla principal
+- Contenido se adapta dinámicamente según el modo seleccionado
+- Modo persiste durante la sesión (futuro: localStorage)
+- Preparado para contenido dual: países, ciudades y aventuras pueden tener versiones diferenciadas
+
 ## Flujo principal de navegación
 
 ```

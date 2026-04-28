@@ -575,4 +575,97 @@ Cada entrada incluye:
 
 ---
 
-*Entradas de bitácora - Trawel v2.1*
+## 2026-04-28 - Selector de modo de experiencia Aventura/Estudiante
+
+**Participantes:** SDD implementación de modo dual
+
+### Qué se hizo
+
+1. **Creamos feature `experienceMode`** (`src/features/experienceMode/`)
+   - Estructura: `types/`, `data/`, `components/ExperienceModeSwitch/`
+   - Siguiendo el patrón de otras features (countries, map)
+
+2. **Definimos tipos** (`types/experienceMode.types.ts`)
+   - `ExperienceMode = 'adventure' | 'student'`
+   - `ExperienceModeConfig` con label, icon, description, tone
+   - `ModeContent<T>` helper para contenido diferenciado
+   - Props del componente selector
+
+3. **Creamos configuración** (`data/experienceMode.config.ts`)
+   - Modo por defecto: `adventure`
+   - Configuración completa de cada modo:
+     - Aventura: icono 🎒, tono emotional
+     - Estudiante: icono 📚, tono educational
+   - `HOME_PAGE_CONTENT` con textos diferenciados
+   - Helpers: `getHomePageContent`, `isValidExperienceMode`
+
+4. **Creamos componente selector** (`components/ExperienceModeSwitch/`)
+   - `ExperienceModeSwitch.tsx`: Componente controlado
+   - `ExperienceModeSwitch.module.css`: Estilos tipo toggle/pills
+   - Dos opciones visibles con iconos y labels
+   - Estados activo/inactivo con transiciones
+   - Accesible: roles ARIA, aria-checked, keyboard navigation
+   - Responsive: se adapta a móvil
+
+5. **Integramos en HomePage**
+   - Importamos `ExperienceModeSwitch` y configuración
+   - Estado local con `useState<ExperienceMode>`
+   - Selector posicionado antes del título del hero
+   - Contenido dinámico: título, subtítulo, descripción, CTA
+   - Cambios visibles inmediatamente al cambiar modo
+
+### Textos diferenciados implementados
+
+**Modo Aventura (default):**
+- Título: "Explora el mundo con Trawel"
+- Subtítulo: "Descubre destinos únicos seleccionados para viajeros curiosos y aventureros"
+- CTA: "¿Listo para tu próxima aventura?"
+- Descripción: "Haz clic en cualquier país destacado..."
+
+**Modo Estudiante:**
+- Título: "Aprende sobre el mundo con Trawel"
+- Subtítulo: "Descubre la cultura, historia y geografía de destinos fascinantes"
+- CTA: "¿Listo para aprender?"
+- Descripción: "Selecciona un país en el mapa o elige uno de nuestros destinos educativos"
+
+### Decisiones técnicas registradas
+
+**DA-017: Modos de experiencia dual (Aventura/Estudiante)**
+- Contexto: Trawel puede servir a viajeros emocionales y estudiantes curiosos
+- Decisión: Implementar selector de modo con contenido diferenciado
+- Consecuencias: 
+  - Preparado para contenido dual en países/ciudades/aventuras
+  - Base para personalización futura
+  - Sin persistencia todavía (solo estado de React)
+
+### Archivos creados/modificados
+
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `experienceMode/types/experienceMode.types.ts` | ✅ Creado | Tipos del modo |
+| `experienceMode/data/experienceMode.config.ts` | ✅ Creado | Configuración y textos |
+| `ExperienceModeSwitch.tsx` | ✅ Creado | Componente selector |
+| `ExperienceModeSwitch.module.css` | ✅ Creado | Estilos del selector |
+| `HomePage.tsx` | ✅ Modificado | Integra selector y contenido dinámico |
+| `HomePage.module.css` | ✅ Modificado | Estilos del selector |
+
+### Preparación para futuro contenido dual
+
+El sistema está preparado para que en el futuro:
+- Países tengan `content.adventure` y `content.student`
+- Ciudades tengan descripciones diferenciadas por modo
+- Aventuras muestren información emocional o educativa según modo
+- Persistencia en localStorage o base de datos
+
+### Criterios de éxito verificados
+
+- ✅ `npm run build` pasa sin errores
+- ✅ Selector visible en HomePage
+- ✅ Aventura activo por defecto
+- ✅ Cambio a Estudiante actualiza textos
+- ✅ Mapa sigue funcionando igual
+- ✅ Click en países activos navega correctamente
+
+---
+
+*Entradas de bitácora - Trawel v2.2*

@@ -450,14 +450,45 @@ const projection = d3.geoMercator()
 
 ---
 
+## DA-017: Modos de experiencia dual (Aventura/Estudiante)
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Trawel puede servir tanto a viajeros emocionales que buscan aventuras como a estudiantes/curiosos que buscan contenido educativo y cultural.
+
+**Decisión:** Implementar un selector de modo de experiencia con dos opciones:
+- **Aventura** (por defecto): Tono emocional, explorador, inspirador
+- **Estudiante**: Tono educativo, enciclopédico, cultural
+
+**Razones:**
+- Ampliar el público objetivo sin duplicar el desarrollo
+- Permite contenido dual preparado para diferentes necesidades
+- Base para personalización futura según tipo de usuario
+- Implementación simple con estado local (no requiere backend inicialmente)
+
+**Implementación:**
+- Feature `experienceMode` con tipos, configuración y componente selector
+- Contenido diferenciado en HomePage (título, subtítulo, CTA, descripción)
+- Preparado para extender a países, ciudades y aventuras
+- Sin persistencia inicial (futuro: localStorage o base de datos)
+
+**Consecuencias:**
+- Doble trabajo de contenido si se quiere aprovechar el modo dual completamente
+- UI debe mantenerse consistente entre modos (solo cambia el contenido/tono)
+- Testing más complejo (dos flujos de usuario)
+
+**Reversibilidad:** Media. Cambiar el sistema requiere modificar todos los componentes que usen modo dual.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
 |----|-------------|---------------|----------------|
-| DP-001 | ¿Usar CSS Modules o Styled Components? | Necesitamos probar ambos approaches | 2026-04-30 |
-| DP-002 | ¿Cargar world-atlas desde CDN o bundle local? | Ver performance en rede lenta | 2026-04-30 |
+| DP-001 | ¿Implementar persistencia de modo en localStorage? | Ver si es necesario para MVP | 2026-05-05 |
+| DP-002 | ¿Contenido dual completo para países/ciudades? | Requiere más contenido escrito | 2026-05-10 |
 | DP-003 | ¿Implementar CountryMap en Fase 1 o Fase 2? | Ver complejidad de datos geoespaciales | 2026-05-05 |
 
 ---
 
-*Registro de decisiones v1.0 - Trawel*
+*Registro de decisiones v1.1 - Trawel*

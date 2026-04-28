@@ -73,7 +73,14 @@ trawel/
 │   │   │   └── types/
 │   │   │       └── country.types.ts
 │   │   ├── cities/          # Lógica de ciudades
-│   │   └── adventures/      # Lógica de aventuras
+│   │   ├── adventures/      # Lógica de aventuras
+│   │   └── experienceMode/  # Modos de experiencia (Aventura/Estudiante)
+│   │       ├── components/
+│   │       │   └── ExperienceModeSwitch/  # Selector de modo
+│   │       ├── data/
+│   │       │   └── experienceMode.config.ts  # Configuración y textos
+│   │       └── types/
+│   │           └── experienceMode.types.ts   # Tipos TypeScript
 │   ├── data/                # Datos estáticos
 │   │   ├── countries/       # JSON/TS por país
 │   │   │   ├── spain.ts

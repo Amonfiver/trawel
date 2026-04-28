@@ -44,6 +44,13 @@
   text-align: center;
 }
 
+/* Selector de modo de experiencia */
+.modeSelector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
 .heroTitle {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 800;

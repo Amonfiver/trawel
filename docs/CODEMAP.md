@@ -185,6 +185,29 @@ src/features/adventures/
 
 **Responsabilidad:** Datos y componentes de aventuras/fichas de destino.
 
+### `src/features/experienceMode/` - Modos de experiencia
+
+```
+src/features/experienceMode/
+├── components/
+│   └── ExperienceModeSwitch/
+│       ├── ExperienceModeSwitch.tsx    # Selector Aventura/Estudiante
+│       ├── ExperienceModeSwitch.module.css
+│       └── index.ts
+├── data/
+│   └── experienceMode.config.ts        # Configuración y textos por modo
+└── types/
+    └── experienceMode.types.ts         # Tipos TypeScript
+```
+
+**Responsabilidad:** Gestión de modos de experiencia (Aventura vs Estudiante).
+
+**Modos disponibles:**
+- `adventure`: Tono emocional, explorador, viajero (por defecto)
+- `student`: Tono educativo, enciclopédico, cultural
+
+**Uso:** El componente `ExperienceModeSwitch` se integra en `HomePage` para permitir al usuario cambiar entre modos. El contenido se adapta dinámicamente según el modo seleccionado.
+
 ---
 
 ## `src/data/` - Datos de contenido centralizados

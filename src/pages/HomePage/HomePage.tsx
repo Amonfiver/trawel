@@ -2,40 +2,61 @@
  * Página de inicio de Trawel
  * 
  * Propósito: Punto de entrada de la aplicación con mapa mundial protagonista
- * Alcance: Hero, mapa interactivo, información de países disponibles
+ * Alcance: Hero, selector de modo, mapa interactivo, información de países
  * 
  * Decisiones técnicas:
  * - WorldMap como elemento principal visual
- * - Información complementaria sin saturar
+ * - Selector de modo de experiencia (Aventura/Estudiante)
+ * - Contenido dinámico según modo seleccionado
  * - Diseño responsive que prioriza el mapa
- * - Carga lazy de componentes secundarios (futuro)
+ * 
+ * Limitaciones actuales:
+ * - Modo de experiencia no persiste en localStorage (futuro)
+ * - Cambio de modo solo afecta textos, no contenido completo
  */
 
+import { useState } from 'react';
 import { WorldMap } from '../../features/map/components/WorldMap';
+import { ExperienceModeSwitch } from '../../features/experienceMode/components/ExperienceModeSwitch';
 import { getActiveCountries, getComingSoonCountries, getCountryCounts } from '../../features/countries/data/countries.utils';
+import { DEFAULT_EXPERIENCE_MODE, getHomePageContent } from '../../features/experienceMode/data/experienceMode.config';
+import type { ExperienceMode } from '../../features/experienceMode/types/experienceMode.types';
 import styles from './HomePage.module.css';
 
 /**
  * HomePage - Página principal de Trawel
  * 
  * Presenta el mapa mundial como elemento central de exploración,
- * con información contextual sobre destinos disponibles.
+ * con selector de modo de experiencia y contenido dinámico.
  */
 export function HomePage() {
+  const [experienceMode, setExperienceMode] = useState<ExperienceMode>(DEFAULT_EXPERIENCE_MODE);
+  
   const activeCountries = getActiveCountries();
   const comingSoonCountries = getComingSoonCountries();
   const counts = getCountryCounts();
+  
+  // Contenido dinámico según modo de experiencia
+  const content = getHomePageContent(experienceMode);
 
   return (
     <div className={styles.container}>
-      {/* Hero con el mapa como protagonista */}
+      {/* Hero con selector de modo y el mapa como protagonista */}
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroContent}>
+          {/* Selector de modo de experiencia */}
+          <div className={styles.modeSelector}>
+            <ExperienceModeSwitch 
+              currentMode={experienceMode}
+              onModeChange={setExperienceMode}
+            />
+          </div>
+          
           <h1 id="hero-title" className={styles.heroTitle}>
-            Explora el mundo con Trawel
+            {content.heroTitle}
           </h1>
           <p className={styles.heroSubtitle}>
-            Descubre destinos únicos seleccionados para viajeros curiosos
+            {content.heroSubtitle}
           </p>
           
           {/* Estadísticas rápidas */}
@@ -69,7 +90,7 @@ export function HomePage() {
             Destinos disponibles
           </h2>
           <p className={styles.sectionDescription}>
-            Haz clic en cualquier país destacado en el mapa o selecciona uno de nuestros destinos curados:
+            {content.sectionDescription}
           </p>
           
           <div className={styles.countriesGrid} role="list">
@@ -133,10 +154,10 @@ export function HomePage() {
         {/* CTA final */}
         <section className={styles.cta} aria-labelledby="cta-title">
           <h2 id="cta-title" className={styles.ctaTitle}>
-            ¿Listo para tu próxima aventura?
+            {content.ctaTitle}
           </h2>
           <p className={styles.ctaText}>
-            Explora nuestros destinos disponibles y descubre experiencias únicas.
+            {content.ctaText}
           </p>
         </section>
       </main>
