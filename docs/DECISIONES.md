@@ -706,6 +706,36 @@ cities (datos base)
 
 ---
 
+## DA-023: Contrato editorial estructurado con Investighost-GPT
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Trawel necesita recibir contenido investigado de forma estructurada para poder convertirlo fácilmente en datos publicables. Se usará Investighost-GPT como investigador/redactor.
+
+**Decisión:** Crear un contrato formal (INVESTIGHOST_CONTRACT.md) que define:
+- Formato obligatorio de respuesta en 5 secciones
+- Reglas anti-invención (no inventar precios, horarios, normas)
+- Separación entre investigación editorial, ficha para revisión y bloque estructurado
+- Estados editoriales y flujo de publicación
+
+**Razones:**
+- Estandariza la salida de investigación
+- Facilita la revisión humana antes de publicar
+- Reduce errores de datos no verificados
+- Prepara Trawel para escalar contenido sin perder calidad
+
+**Consecuencias:**
+- Investighost-GPT debe seguir formato estricto
+- Revisión humana sigue siendo obligatoria antes de publicar
+- Mayor overhead inicial, mejor calidad final
+
+**Implementación:**
+- Creado `docs/INVESTIGHOST_CONTRACT.md`
+- Definido formato de 5 secciones: Investigación, Ficha, Bloque estructurado, Fuentes, Pendientes
+- Incluye checklist de aceptación y ejemplo completo
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |

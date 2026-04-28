@@ -11,6 +11,7 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `ARCHITECTURE.md` - Arquitectura del sistema
 - `DATA_MODEL.md` - Modelo de datos actual y futuro (ver para entender estructura de entidades)
 - `CONTENT_GUIDE.md` - Guía para crear contenido editorial
+- `INVESTIGHOST_CONTRACT.md` - Contrato de compatibilidad con Investighost-GPT
 - `DECISIONES.md` - Registro de decisiones técnicas
 - `BITACORA.md` - Bitácora activa del proyecto
 - `BITACORA_001.md` - Archivo histórico de bitácora

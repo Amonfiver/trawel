@@ -131,6 +131,8 @@ interface Destination {
 - Workflow editorial: draft → published
 - Timestamps completos para control editorial
 
+> **Nota sobre campos editoriales futuros:** Existe un campo conceptual `pendingVerification` (array de strings) que Investighost-GPT usa para marcar datos pendientes de verificar antes de la publicación. Este campo es editorial, no está implementado aún en el schema TypeScript, pero se usa en el contrato con Investighost-GPT para indicar qué información requiere revisión humana antes de hacer público el contenido.
+
 ### Gestión de idiomas (actual)
 
 **Archivo:** `src/app/i18n/i18n.types.ts`

@@ -39,6 +39,20 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Contrato de compatibilidad Investighost-GPT ↔ Trawel
+
+Creado el contrato editorial entre Investighost-GPT (investigador/redactor) y Trawel (plataforma de publicación):
+
+- Define formato obligatorio de respuesta en 5 secciones
+- Establece reglas anti-invención (precios, horarios, normas)
+- Documenta flujo: Investigación → Revisión → Conversión → Build → Publicación
+- Incluye checklist de aceptación para contenido válido
+- Prepara Trawel para recibir contenido investigado de forma estructurada
+
+**Archivo:** `docs/INVESTIGHOST_CONTRACT.md`
+
+---
+
 ### 2026-04-28 - CountryPage mejorada como ficha editorial funcional
 
 Refactor completo de CountryPage con estructura editorial coherente:

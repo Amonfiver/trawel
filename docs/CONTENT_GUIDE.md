@@ -152,11 +152,25 @@ Cuando no se dispone de información concreta:
 price: createLocalizedText('[Pendiente de verificar]'),
 ```
 
+
+---
+
+## Compatibilidad con Investighost-GPT
+
+**Investighost-GPT** es el investigador/redactor que genera contenido editorial para Trawel.
+
+- Investighost-GPT genera la investigación estructurada
+- Trawel exige formato específico para publicación
+- El contrato oficial está en `docs/INVESTIGHOST_CONTRACT.md`
+- Antes de convertir una investigación en datos, revisar siempre la sección `pendingVerification`
+- El flujo es: Investigación → Revisión humana → Conversión a datos Trawel → Build → Publicación
+
 ---
 
 ## Recursos útiles
 
 - `docs/DATA_MODEL.md` - Modelo de datos completo
+- `docs/INVESTIGHOST_CONTRACT.md` - Contrato de compatibilidad con Investighost-GPT
 - `src/features/destinations/types/destination.types.ts` - Tipos TypeScript
 - `src/features/destinations/data/destinations.ts` - Ejemplos reales
 - `docs/BITACORA.md` - Estado actual del proyecto
