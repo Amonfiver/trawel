@@ -17,23 +17,16 @@
  */
 
 import { useParams, Link } from 'react-router-dom';
-import { getDestinationBySlug, getDestinationContentByMode, getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
-import { getCityBySlug, getCityDisplayName } from '../../features/cities/data/cities.utils';
-import { getCountryBySlug } from '../../features/countries/data/countries.utils';
+import { getAdventurePageData } from '../../features/travelData';
+import { getDestinationContentByMode, getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
+import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import styles from './AdventurePage.module.css';
 
 export function AdventurePage() {
   const { adventureSlug } = useParams<{ adventureSlug: string }>();
   
-  const destination = getDestinationBySlug(adventureSlug || '');
-  
-  // Obtener información de la ciudad y país si están disponibles
-  const city = destination 
-    ? getCityBySlug(destination.countrySlug, destination.citySlug)
-    : undefined;
-  const country = destination 
-    ? getCountryBySlug(destination.countrySlug)
-    : undefined;
+  // Usar travelData.service para obtener datos agregados
+  const { destination, city, country } = getAdventurePageData(adventureSlug || '');
 
   // Destino no encontrado
   if (!destination) {

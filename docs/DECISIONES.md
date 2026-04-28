@@ -561,6 +561,64 @@ Country (País)
 
 ---
 
+
+---
+
+## DA-020: Capa de acceso a datos local antes de persistencia externa
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Necesitamos preparar el proyecto Trawel para futura migración a una base de datos externa (Supabase, API REST) sin tener que reescribir las páginas. Las páginas actuales importan directamente utilidades de countries, cities y destinations, acoplando la UI al origen de datos actual.
+
+**Decisión:** Crear una feature `travelData` que actúe como capa de abstracción/repositorio entre las páginas y los datos. Las páginas consumirán `travelData.service` en lugar de acceder directamente a los diccionarios.
+
+**Estructura implementada:**
+```
+src/features/travelData/
+├── types/travelData.types.ts      # Tipos agregados para páginas
+├── services/travelData.service.ts # Funciones de acceso a datos
+└── index.ts                       # Export público
+```
+
+**Funciones del servicio:**
+- `getHomePageData()` → `HomePageData`
+- `getCountryPageData(countrySlug)` → `CountryPageData`
+- `getCityPageData(countrySlug, citySlug)` → `CityPageData`
+- `getAdventurePageData(adventureSlug)` → `AdventurePageData`
+
+**Razones:**
+- Desacopla las páginas del origen de datos actual
+- Facilita migración futura a Supabase/API sin modificar UI
+- Contrato estable: las páginas dependen de tipos agregados, no de entidades individuales
+- Preparado para evolución: síncrono → async → React Query
+
+**Plan de migración documentado:**
+1. **Actual (Fase 1):** Funciones síncronas con datos locales
+2. **Futuro (Fase 2):** Convertir a async con fetch/Supabase
+3. **Futuro (Fase 3):** Agregar React Query/SWR con caché
+
+**Ejemplo de migración:**
+```typescript
+// Fase 1 (actual):
+const data = getCountryPageData(countrySlug);
+
+// Fase 2 (con API):
+const data = await getCountryPageData(countrySlug);
+
+// Fase 3 (con React Query):
+const { data, isLoading, error } = useCountryPageData(countrySlug);
+```
+
+**Consecuencias:**
+- Mayor indirección: las páginas no conocen la estructura interna de datos
+- Build aumenta ligeramente (~1KB) por la nueva capa
+- Sin caché ni optimizaciones (se agregarán con React Query en el futuro)
+- Las páginas refactorizadas son más simples (un solo import vs múltiples)
+
+**Reversibilidad:** Media. Eliminar la capa requeriría que las páginas vuelvan a importar directamente las utilidades de cada feature.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
@@ -572,4 +630,4 @@ Country (País)
 
 ---
 
-*Registro de decisiones v1.3 - Trawel*
+*Registro de decisiones v1.4 - Trawel*

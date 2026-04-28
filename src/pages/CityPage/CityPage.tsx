@@ -16,19 +16,19 @@
  */
 
 import { useParams, Link } from 'react-router-dom';
-import { getCountryBySlug } from '../../features/countries/data/countries.utils';
-import { getCityBySlug, getCityDisplayName, isCityClickable } from '../../features/cities/data/cities.utils';
-import { getPublishedDestinationsByCity, getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
+import { getCityPageData } from '../../features/travelData';
+import { getCityDisplayName, isCityClickable } from '../../features/cities/data/cities.utils';
+import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import styles from './CityPage.module.css';
 
 export function CityPage() {
   const { countrySlug, citySlug } = useParams<{ countrySlug: string; citySlug: string }>();
   
-  const country = getCountryBySlug(countrySlug || '');
-  const city = getCityBySlug(countrySlug || '', citySlug || '');
-  
-  // Obtener destinos publicados de esta ciudad
-  const destinations = getPublishedDestinationsByCity(countrySlug || '', citySlug || '');
+  // Usar travelData.service para obtener datos agregados
+  const { country, city, publishedDestinations: destinations } = getCityPageData(
+    countrySlug || '',
+    citySlug || ''
+  );
 
   // Ciudad no encontrada
   if (!city) {

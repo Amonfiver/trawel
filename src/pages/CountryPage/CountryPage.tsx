@@ -16,18 +16,16 @@
  */
 
 import { useParams, Link } from 'react-router-dom';
-import { getCountryBySlug, getStatusLabel } from '../../features/countries/data/countries.utils';
-import { getCitiesByCountrySlug, isCityClickable, getCityDisplayName } from '../../features/cities/data/cities.utils';
+import { getCountryPageData } from '../../features/travelData';
+import { isCityClickable, getCityDisplayName } from '../../features/cities/data/cities.utils';
+import { getStatusLabel } from '../../features/countries/data/countries.utils';
 import styles from './CountryPage.module.css';
 
 export function CountryPage() {
   const { countrySlug } = useParams<{ countrySlug: string }>();
-  const country = getCountryBySlug(countrySlug || '');
-
-  // Obtener ciudades del país
-  const cities = getCitiesByCountrySlug(countrySlug || '');
-  const activeCities = cities.filter(c => c.status === 'active');
-  const comingSoonCities = cities.filter(c => c.status === 'comingSoon');
+  
+  // Usar travelData.service para obtener datos agregados
+  const { country, cities, activeCities, comingSoonCities } = getCountryPageData(countrySlug || '');
 
   if (!country) {
     return (

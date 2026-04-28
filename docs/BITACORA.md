@@ -880,6 +880,116 @@ Country (País)
 - ✅ Contenido por modo (adventure/student) implementado
 - ✅ Documentación actualizada (SPEC, ARCHITECTURE, CODEMAP, BITACORA)
 
+
 ---
 
-*Entradas de bitácora - Trawel v2.4*
+## 2026-04-28 - Capa de acceso a datos travelData preparada para persistencia futura
+
+**Participantes:** SDD preparación de arquitectura de datos
+
+### Qué se hizo
+
+1. **Creamos feature `travelData`** (`src/features/travelData/`)
+   - Estructura: `types/`, `services/`, `index.ts`
+   - Tipos agregados para páginas: `HomePageData`, `CountryPageData`, `CityPageData`, `AdventurePageData`
+   - Servicio `travelData.service.ts` con funciones síncronas:
+     - `getHomePageData()` - Datos para HomePage
+     - `getCountryPageData(countrySlug)` - Datos para CountryPage
+     - `getCityPageData(countrySlug, citySlug)` - Datos para CityPage
+     - `getAdventurePageData(adventureSlug)` - Datos para AdventurePage
+
+2. **Refactorizamos páginas para usar travelData.service**
+   - **HomePage**: Ahora usa `getHomePageData()` en lugar de múltiples imports de `countries.utils`
+   - **CountryPage**: Usa `getCountryPageData()` para obtener país y ciudades filtradas
+   - **CityPage**: Usa `getCityPageData()` para obtener ciudad y destinos publicados
+   - **AdventurePage**: Usa `getAdventurePageData()` para obtener destino, ciudad y país relacionados
+
+3. **Preparación para persistencia futura**
+   - Las páginas ahora dependen de un contrato (`travelData.service`) en lugar de implementación directa
+   - Documentación extensa en `travelData.service.ts` sobre cómo migrar a async/API
+   - Tipos planos y serializables para facilitar comunicación con API
+
+### Arquitectura de la capa de datos
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Páginas                              │
+│  (HomePage, CountryPage, CityPage, AdventurePage)           │
+│  - Usan travelData.service                                  │
+│  - No conocen origen de datos                               │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   travelData.service                        │
+│  - Abstracción sobre origen de datos                        │
+│  - Funciones síncronas (actual) / async (futuro)            │
+│  - Agrega datos de múltiples features                       │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+        ▼              ▼              ▼
+┌──────────────┐ ┌──────────┐ ┌─────────────┐
+│  countries/  │ │  cities/ │ │destinations/│
+│  (datos      │ │ (datos   │ │  (datos     │
+│   locales)   │ │  locales)│ │   locales)  │
+└──────────────┘ └──────────┘ └─────────────┘
+```
+
+### Plan de migración futura a Supabase/API
+
+**Fase 1 (actual):** Datos locales síncronos
+```typescript
+const data = getCountryPageData(countrySlug);
+```
+
+**Fase 2 (futuro):** Funciones async con fetch
+```typescript
+const data = await getCountryPageData(countrySlug);
+// Páginas agregan await y loading states
+```
+
+**Fase 3 (futuro):** React Query/SWR con caché
+```typescript
+const { data, isLoading, error } = useCountryPageData(countrySlug);
+// Custom hooks que usan React Query
+```
+
+### Archivos creados/modificados
+
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `travelData/types/travelData.types.ts` | ✅ Creado | Tipos agregados para páginas |
+| `travelData/services/travelData.service.ts` | ✅ Creado | Funciones de acceso a datos |
+| `travelData/index.ts` | ✅ Creado | Export público |
+| `HomePage.tsx` | ✅ Modificado | Usa `getHomePageData()` |
+| `CountryPage.tsx` | ✅ Modificado | Usa `getCountryPageData()` |
+| `CityPage.tsx` | ✅ Modificado | Usa `getCityPageData()` |
+| `AdventurePage.tsx` | ✅ Modificado | Usa `getAdventurePageData()` |
+
+### Decisiones técnicas registradas
+
+**DA-020: Capa de acceso a datos local antes de persistencia externa**
+- Contexto: Necesitamos preparar el proyecto para futura migración a Supabase/API sin reescribir las páginas
+- Decisión: Crear feature `travelData` que actúe como repositorio/servicio con funciones síncronas por ahora
+- Consecuencias:
+  - Las páginas dependen de un contrato estable
+  - Futura migración a async requiere solo modificar travelData.service
+  - Sin caché ni optimizaciones por ahora (se agregará con React Query)
+  - Build aumenta ligeramente (~1KB) por la nueva capa
+
+### Criterios de éxito verificados
+
+- ✅ `npm run build` pasa sin errores
+- ✅ 636 módulos transformados
+- ✅ HomePage funciona correctamente
+- ✅ CountryPage muestra ciudades del país
+- ✅ CityPage muestra destinos de la ciudad
+- ✅ AdventurePage muestra destino con navegación breadcrumb
+- ✅ Las páginas consumen `travelData.service` en lugar de múltiples utilidades
+- ✅ No se rompió navegación entre páginas
+
+---
+
+*Entradas de bitácora - Trawel v2.5*

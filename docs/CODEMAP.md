@@ -236,6 +236,40 @@ src/features/destinations/
 - `getPublishedDestinationsByCity(city)` - Obtiene destinos publicados de una ciudad
 - `getDestinationContentByMode(destination, mode)` - Obtiene contenido según modo
 
+### `src/features/travelData/` - Capa de acceso a datos agregados
+
+```
+src/features/travelData/
+├── types/
+│   └── travelData.types.ts      # Tipos agregados para páginas
+├── services/
+│   └── travelData.service.ts    # Funciones de acceso a datos
+└── index.ts                     # Export público
+```
+
+**Responsabilidad:** Proveer una capa de abstracción entre las páginas y el origen de datos actual (local).
+
+**Propósito:** Facilitar la migración futura a base de datos externa (Supabase/API) sin modificar las páginas.
+
+**Tipos definidos:**
+- `HomePageData` - Datos para HomePage (países, estadísticas)
+- `CountryPageData` - Datos para CountryPage (país, ciudades, conteos)
+- `CityPageData` - Datos para CityPage (ciudad, destinos)
+- `AdventurePageData` - Datos para AdventurePage (destino, ciudad, país)
+
+**Funciones principales en `travelData.service.ts`:**
+- `getHomePageData()` - Obtiene datos agregados para HomePage
+- `getCountryPageData(countrySlug)` - Obtiene datos para CountryPage
+- `getCityPageData(countrySlug, citySlug)` - Obtiene datos para CityPage
+- `getAdventurePageData(adventureSlug)` - Obtiene datos para AdventurePage
+
+**Nota sobre persistencia futura:**
+> Este servicio está diseñado como punto de sustitución. Cuando se implemente Supabase/API:
+> 1. Convertir funciones a async
+> 2. Agregar manejo de errores con TravelDataResult<T>
+> 3. Implementar caché con React Query/SWR
+> 4. Las páginas solo necesitarán agregar await y loading states
+
 ### `src/features/experienceMode/` - Modos de experiencia
 
 ```

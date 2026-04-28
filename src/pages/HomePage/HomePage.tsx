@@ -18,7 +18,7 @@
 import { useState } from 'react';
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { ExperienceModeSwitch } from '../../features/experienceMode/components/ExperienceModeSwitch';
-import { getActiveCountries, getComingSoonCountries, getCountryCounts } from '../../features/countries/data/countries.utils';
+import { getHomePageData } from '../../features/travelData';
 import { DEFAULT_EXPERIENCE_MODE, getHomePageContent } from '../../features/experienceMode/data/experienceMode.config';
 import type { ExperienceMode } from '../../features/experienceMode/types/experienceMode.types';
 import styles from './HomePage.module.css';
@@ -32,9 +32,8 @@ import styles from './HomePage.module.css';
 export function HomePage() {
   const [experienceMode, setExperienceMode] = useState<ExperienceMode>(DEFAULT_EXPERIENCE_MODE);
   
-  const activeCountries = getActiveCountries();
-  const comingSoonCountries = getComingSoonCountries();
-  const counts = getCountryCounts();
+  // Usar travelData.service para obtener datos agregados
+  const { activeCountries, comingSoonCountries, counts } = getHomePageData();
   
   // Contenido dinámico según modo de experiencia
   const content = getHomePageContent(experienceMode);

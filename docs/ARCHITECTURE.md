@@ -90,6 +90,12 @@ trawel/
 │   │   │   ├── types/
 │   │   │   │   └── destination.types.ts     # Tipos: Destination, DestinationStatus, DestinationType
 │   │   │   └── index.ts                     # Export público
+│   │   ├── travelData/      # Capa de acceso a datos agregados
+│   │   │   ├── types/
+│   │   │   │   └── travelData.types.ts      # Tipos: HomePageData, CountryPageData, etc.
+│   │   │   ├── services/
+│   │   │   │   └── travelData.service.ts    # Funciones de acceso a datos para páginas
+│   │   │   └── index.ts                     # Export público
 │   │   └── experienceMode/  # Modos de experiencia (Aventura/Estudiante)
 │   │       ├── components/
 │   │       │   └── ExperienceModeSwitch/  # Selector de modo
