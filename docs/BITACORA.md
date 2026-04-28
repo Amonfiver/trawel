@@ -990,6 +990,127 @@ const { data, isLoading, error } = useCountryPageData(countrySlug);
 - ✅ Las páginas consumen `travelData.service` en lugar de múltiples utilidades
 - ✅ No se rompió navegación entre páginas
 
+
 ---
 
-*Entradas de bitácora - Trawel v2.5*
+## 2026-04-28 - Documentación técnica del modelo de datos futuro
+
+**Participantes:** SDD documentación de arquitectura de datos
+
+### Qué se hizo
+
+1. **Creamos documento DATA_MODEL.md** (`docs/DATA_MODEL.md`)
+   - Modelo actual en TypeScript estático
+   - Modelo futuro para base de datos (Supabase)
+   - Schema SQL propuesto con tablas y relaciones
+   - Mapeo TypeScript → SQL
+   - Estrategia de migración en 6 fases
+   - Notas de diseño explicando decisiones arquitectónicas
+
+2. **Tablas propuestas para base de datos**
+   - `countries` - Países con códigos ISO y estado
+   - `country_translations` - Traducciones multidioma
+   - `cities` - Ciudades con coordenadas
+   - `city_translations` - Traducciones y contenido por modo
+   - `destinations` - Destinos/atracciones con metadatos
+   - `destination_translations` - Contenido dual adventure/student
+   - `destination_sources` - Fuentes y trazabilidad editorial
+
+3. **Principios de diseño documentados**
+   - Separación de traducciones en tablas propias (escalabilidad de idiomas)
+   - Slugs estables para URLs permanentes
+   - Status separado del contenido (workflow editorial)
+   - Trazabilidad de fuentes para contenido profesional
+   - Contenido dual adventure/student en columnas separadas
+
+4. **Plan de migración documentado**
+   - Fase actual: Datos TypeScript estáticos
+   - Fase 1: Definir schema SQL
+   - Fase 2: Crear tablas en Supabase
+   - Fase 3: Migrar datos mock actuales
+   - Fase 4: Adaptar travelData.service a async
+   - Fase 5: Crear editor/admin
+   - Fase 6: Control editorial avanzado
+
+### Arquitectura de datos propuesta
+
+```
+┌─────────────────┐     ┌─────────────────────────┐
+│    countries    │◄────┤   country_translations  │
+│  (base + slug)  │ 1:N │  (locale, display_name) │
+└────────┬────────┘     └─────────────────────────┘
+         │
+         │ 1:N
+         ▼
+┌─────────────────┐     ┌─────────────────────────┐
+│     cities      │◄────┤    city_translations    │
+│  (coords, pop)  │ 1:N │ (locale, adventure_*,   │
+└────────┬────────┘     │          student_*)     │
+         │              └─────────────────────────┘
+         │ 1:N
+         ▼
+┌─────────────────┐     ┌─────────────────────────┐
+│  destinations   │◄────┤ destination_translations│
+│ (type, status,  │ 1:N │ (locale, title,         │
+│  tags, price)   │     │  adventure_content,     │
+└────────┬────────┘     │  student_content)       │
+         │              └─────────────────────────┘
+         │ 1:N
+         ▼
+┌─────────────────────────┐
+│   destination_sources   │
+│  (trazabilidad editorial)│
+└─────────────────────────┘
+```
+
+### Decisiones documentadas en DATA_MODEL.md
+
+- **Traducciones separadas:** Permite agregar idiomas sin modificar schema
+- **Slugs estables:** URLs permanentes, redirecciones si cambian
+- **Status editorial:** workflow draft → published con timestamps
+- **Fuentes guardadas:** trazabilidad y verificación de información
+- **Modos separados:** adventure/student como columnas independientes
+
+### Archivos creados/modificados
+
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `docs/DATA_MODEL.md` | ✅ Creado | Documentación completa del modelo de datos |
+| `docs/ARCHITECTURE.md` | ✅ Modificado | Referencia a DATA_MODEL.md |
+| `docs/CODEMAP.md` | ✅ Modificado | Referencia a DATA_MODEL.md |
+
+### Qué queda pendiente (documentado)
+
+**Técnico:**
+- Schema SQL completo con RLS (Row Level Security)
+- Scripts de migración de datos TypeScript → SQL
+- Adaptación de `travelData.service` a funciones async
+- Integración con React Query/SWR para caché
+
+**Editorial:**
+- Panel de administración
+- Workflow de aprobación de contenido
+- Sistema de notas internas
+- Control de versiones
+
+**Internacionalización:**
+- Traducciones reales (no solo español)
+- Detección automática de idioma
+- URLs con prefijo de idioma
+- SEO multidioma (hreflang)
+
+### Criterios de éxito verificados
+
+- ✅ `docs/DATA_MODEL.md` creado y completo
+- ✅ Explica modelo actual (TypeScript) y futuro (SQL)
+- ✅ Define tablas: countries, cities, destinations + traducciones
+- ✅ Incluye diagrama de relaciones
+- ✅ Explica gestión de idiomas y modos Aventura/Estudiante
+- ✅ Documenta estados de publicación y trazabilidad
+- ✅ Incluye estrategia de migración en 6 fases
+- ✅ ARCHITECTURE.md y CODEMAP.md actualizados con referencias
+- ✅ `npm run build` pasa (solo documentación, no código)
+
+---
+
+*Entradas de bitácora - Trawel v2.6*

@@ -619,6 +619,65 @@ const { data, isLoading, error } = useCountryPageData(countrySlug);
 
 ---
 
+
+---
+
+## DA-021: Modelo persistente separa entidades principales y traducciones para multidioma escalable
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Necesitamos diseñar el modelo de datos para persistencia futura (Supabase) que soporte multidioma desde el inicio, sin requerir migraciones complejas cada vez que se añade un idioma.
+
+**Decisión:** Separar las entidades principales (`countries`, `cities`, `destinations`) de sus traducciones (`*_translations`) en tablas distintas con relación 1:N.
+
+**Estructura propuesta:**
+```
+countries (datos base, no traducibles)
+  └── country_translations (1:N)
+        ├── locale: 'es', 'en', 'fr'
+        ├── display_name
+        └── description
+
+cities (datos base)
+  └── city_translations (1:N)
+        ├── locale
+        ├── display_name
+        ├── adventure_description  (modo aventura)
+        └── student_description    (modo estudiante)
+```
+
+**Razones:**
+- **Escalabilidad:** Agregar idioma = insertar filas, no alterar schema
+- **Normalización:** Datos comunes en tabla principal, traducibles en tabla secundaria
+- **Consultas eficientes:** JOIN solo cuando se necesita traducción específica
+- **Fallback simple:** Si no existe traducción, usar idioma por defecto
+- **Consistencia:** Mismo patrón para todas las entidades
+
+**Gestión de modos Aventura/Estudiante:**
+- Columnas separadas: `adventure_content` y `student_content`
+- Permite tener uno sin el otro (MVP: solo uno)
+- Fácil consultar: `WHERE adventure_content IS NOT NULL`
+
+**Trazabilidad editorial:**
+- Tabla `destination_sources` separada (1:N)
+- Guarda fuentes, URLs, autores, fechas de verificación
+- Requisito para contenido profesional y verificación factual
+
+**Consecuencias:**
+- Más tablas que gestionar (vs. campos JSON monolíticos)
+- JOINs necesarios en consultas con traducciones
+- Mayor complejidad inicial, mayor flexibilidad futura
+- Documentación más extensa requerida
+
+**Alternativas consideradas:**
+- **Campos JSONB:** Más flexible, peor rendimiento en búsquedas, sin constraints
+- **Tabla única con columnas por idioma:** Simple, requiere ALTER TABLE para nuevos idiomas
+- **i18n library externa:** Añade dependencia, menos control sobre schema
+
+**Reversibilidad:** Baja. Una vez en producción con datos en múltiples idiomas, cambiar el esquema de traducciones sería complejo.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
@@ -630,4 +689,4 @@ const { data, isLoading, error } = useCountryPageData(countrySlug);
 
 ---
 
-*Registro de decisiones v1.4 - Trawel*
+*Registro de decisiones v1.5 - Trawel*

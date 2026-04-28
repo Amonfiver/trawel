@@ -35,6 +35,7 @@ trawel/
 │   ├── DECISIONES.md
 │   ├── BITACORA.md
 │   ├── CODEMAP.md
+│   ├── DATA_MODEL.md       # Modelo de datos actual y futuro
 │   └── ANALISIS_MAPA_WEBSIM.md
 ├── public/                  # Assets estáticos
 │   ├── images/

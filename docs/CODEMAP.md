@@ -6,13 +6,26 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 
 **Estado:** En desarrollo - WorldMap v1 implementado con D3 + TopoJSON + world-atlas CDN
 
+**Documentación relacionada:**
+- `SPEC.md` - Especificación funcional
+- `ARCHITECTURE.md` - Arquitectura del sistema
+- `DATA_MODEL.md` - Modelo de datos actual y futuro (ver para entender estructura de entidades)
+- `DECISIONES.md` - Registro de decisiones técnicas
+
 ---
 
 ## Estructura general
 
 ```
 trawel/
-├── docs/                    # Documentación del proyecto (ya existe)
+├── docs/                    # Documentación del proyecto
+│   ├── SPEC.md              # Especificación funcional
+│   ├── ARCHITECTURE.md      # Arquitectura y stack
+│   ├── DATA_MODEL.md        # Modelo de datos actual/futuro
+│   ├── DECISIONES.md        # Decisiones técnicas
+│   ├── BITACORA.md          # Historial de cambios
+│   ├── CODEMAP.md           # Este archivo
+│   └── ANALISIS_MAPA_WEBSIM.md
 ├── public/                  # Assets estáticos servidos tal cual
 │   ├── images/
 │   │   ├── countries/       # Fotos hero de países
