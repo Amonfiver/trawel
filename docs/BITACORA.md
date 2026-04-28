@@ -39,6 +39,44 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Schema SQL inicial para Supabase
+
+Creada migración inicial de base de datos compatible con el modelo definido en DATA_MODEL.md:
+
+**Creado:**
+- `supabase/migrations/001_create_trawel_schema.sql` - Migración completa con 4 tablas
+
+**Tablas creadas:**
+1. **countries** - Países con campos localizados (_es), status, featured
+2. **cities** - Ciudades con relación a countries, contenido dual (adventure/student)
+3. **destinations** - Destinos con relaciones a countries y cities, tags JSONB
+4. **destination_sources** - Fuentes de información por destino
+
+**Constraints implementados:**
+- CHECK constraints para estados válidos (active/comingSoon/disabled, draft/published, etc.)
+- UNIQUE constraints para slugs por ámbito
+- FOREIGN KEY con ON DELETE CASCADE
+- DEFAULT values para timestamps y JSONB arrays vacíos
+
+**Índices creados:**
+- Índices en slugs, status, country_id, city_id para consultas frecuentes
+- Índice parcial en featured para destinos destacados
+
+**Row Level Security (RLS):**
+- Activado en las 4 tablas
+- Policies SELECT públicas para registros visibles:
+  - countries: status = 'active'
+  - cities: status = 'active'
+  - destinations: status = 'published'
+  - destination_sources: destino asociado publicado
+
+**Notas:**
+- El seed.sql generado es compatible con el schema
+- Sin políticas de INSERT/UPDATE/DELETE (fase posterior)
+- Sin conexión a Supabase en el frontend todavía
+
+---
+
 ### 2026-04-28 - Saneamiento de configuración npm
 
 Resuelto problema de instalación de dependencias que impedía ejecutar los comandos del proyecto:

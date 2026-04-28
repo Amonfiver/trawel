@@ -514,12 +514,22 @@ npm run export:seed
 
 ```
 supabase/
+├── migrations/                    # Migraciones SQL de la base de datos
+│   └── 001_create_trawel_schema.sql  # Schema inicial con tablas, índices y RLS
 └── seed.sql                       # Datos iniciales generados automáticamente
 ```
 
 **Responsabilidad:** Contener archivos relacionados con Supabase (schema, seeds, migraciones).
 
-**Nota:** El archivo `seed.sql` se regenera ejecutando `npm run export:seed`. Asume que el schema de tablas ya existe en Supabase.
+**Migraciones:**
+- `001_create_trawel_schema.sql` - Crea tablas countries, cities, destinations, destination_sources con constraints, índices y políticas RLS
+
+**Seed:**
+- El archivo `seed.sql` se regenera ejecutando `npm run export:seed`
+- Compatible con el schema definido en migraciones
+- Usa `ON CONFLICT DO UPDATE` para idempotencia
+
+**Nota:** Para aplicar el schema en Supabase, ejecutar la migración antes de cargar el seed.
 
 ---
 
