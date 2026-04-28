@@ -10,6 +10,7 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `SPEC.md` - Especificación funcional
 - `ARCHITECTURE.md` - Arquitectura del sistema
 - `DATA_MODEL.md` - Modelo de datos actual y futuro (ver para entender estructura de entidades)
+- `SUPABASE_SETUP.md` - Guía de configuración de Supabase
 - `CONTENT_GUIDE.md` - Guía para crear contenido editorial
 - `INVESTIGHOST_CONTRACT.md` - Contrato de compatibilidad con Investighost-GPT
 - `DECISIONES.md` - Registro de decisiones técnicas

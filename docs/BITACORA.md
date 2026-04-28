@@ -39,6 +39,31 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Preparación para conexión con Supabase
+
+Preparado el proyecto para conectar con Supabase manteniendo la fuente mock actual:
+
+**Creados:**
+- `docs/SUPABASE_SETUP.md` - Guía paso a paso para configurar proyecto Supabase
+- `.env.example` - Plantilla de variables de entorno con VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_TRAVEL_DATA_SOURCE
+
+**Estructura de fuente de datos:**
+- `VITE_TRAVEL_DATA_SOURCE=mock` (por defecto) - Usa datos locales estáticos
+- `VITE_TRAVEL_DATA_SOURCE=supabase` (futuro) - Usará base de datos real
+
+**Verificación del seed:**
+- Todos los destinos ya estaban en estado `published` (5 destinos)
+- España tiene 2 ciudades activas (Madrid, Barcelona) con destinos publicados
+- Japón tiene ciudades activas (Tokio, Kioto) con destinos publicados
+- El seed es compatible con las policies RLS de lectura pública
+
+**Decision registrada:**
+- Mantener `mock` como fuente por defecto hasta implementar `SupabaseTravelDataSource`
+- No instalar `@supabase/supabase-js` todavía
+- No modificar `travelData.service.ts` ni páginas en este ladrillo
+
+---
+
 ### 2026-04-28 - Schema SQL inicial para Supabase
 
 Creada migración inicial de base de datos compatible con el modelo definido en DATA_MODEL.md:
