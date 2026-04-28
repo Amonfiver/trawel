@@ -21,6 +21,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
+import type { Topology } from 'topojson-specification';
+import type { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
 import { getCountryByUnM49, isCountryClickable } from '../../../countries/data/countries.utils';
 import { defaultMapTheme } from '../../config/mapTheme';
 import type { Country, CountryStatus } from '../../../countries/data/countries.types';
@@ -73,12 +75,10 @@ export function WorldMap() {
         if (!response.ok) throw new Error('Error cargando world-atlas');
         return response.json();
       })
-      .then((topology: unknown) => {
+      .then((topology: Topology) => {
         // Convertir TopoJSON a GeoJSON
-        const geojson = feature(
-          topology as Parameters<typeof feature>[0],
-          (topology as { objects: { countries: unknown } }).objects.countries
-        );
+        const countriesObject = topology.objects.countries;
+        const geojson = feature(topology, countriesObject) as FeatureCollection<Geometry, GeoJsonProperties>;
 
         // Dibujar países
         svg.selectAll('path')
@@ -139,7 +139,7 @@ export function WorldMap() {
               y: event.clientY - 10,
             }));
           })
-          .on('mouseout', function (event: MouseEvent, d: unknown) {
+          .on('mouseout', function (_event: MouseEvent, d: unknown) {
             const feature = d as { id?: string };
             const countryCode = feature.id;
             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
