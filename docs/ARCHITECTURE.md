@@ -77,7 +77,19 @@ trawel/
 │   │   │   └── types/
 │   │   │       └── country.types.ts
 │   │   ├── cities/          # Lógica de ciudades
-│   │   ├── adventures/      # Lógica de aventuras
+│   │   │   ├── data/
+│   │   │   │   ├── cities.ts          # Diccionario de ciudades
+│   │   │   │   └── cities.utils.ts    # Utilidades de ciudades
+│   │   │   ├── types/
+│   │   │   │   └── city.types.ts      # Tipos: City, CityStatus, CityContentByMode
+│   │   │   └── index.ts               # Export público
+│   │   ├── destinations/    # Lógica de destinos/atracciones
+│   │   │   ├── data/
+│   │   │   │   ├── destinations.ts          # Diccionario de destinos
+│   │   │   │   └── destinations.utils.ts    # Utilidades de destinos
+│   │   │   ├── types/
+│   │   │   │   └── destination.types.ts     # Tipos: Destination, DestinationStatus, DestinationType
+│   │   │   └── index.ts                     # Export público
 │   │   └── experienceMode/  # Modos de experiencia (Aventura/Estudiante)
 │   │       ├── components/
 │   │       │   └── ExperienceModeSwitch/  # Selector de modo

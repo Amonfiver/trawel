@@ -81,14 +81,14 @@ Trawel ofrece dos modos de experiencia adaptados al tipo de usuario:
 El MVP debe demostrar el concepto con una experiencia completa pero limitada en alcance:
 
 ### Incluye:
-- [ ] Mapa mundial interactivo con D3/TopoJSON
-- [ ] 3-5 países activos con contenido completo (ej: España, Japón, Perú)
-- [ ] Página de país con información básica
-- [ ] 2-3 ciudades por país activo
-- [ ] Página de ciudad con información básica
-- [ ] 1-2 aventuras por ciudad
-- [ ] Navegación fluida entre niveles
-- [ ] Diseño responsive (desktop, tablet, móvil)
+- [x] Mapa mundial interactivo con D3/TopoJSON
+- [x] 3-5 países activos con contenido completo (ej: España, Japón, Perú)
+- [x] Página de país con información básica
+- [x] 2-3 ciudades por país activo
+- [x] Página de ciudad con información básica
+- [x] 1-2 aventuras por ciudad
+- [x] Navegación fluida entre niveles
+- [x] Diseño responsive (desktop, tablet, móvil)
 
 ### Países inactivos:
 - Visibles en el mapa

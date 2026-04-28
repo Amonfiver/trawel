@@ -753,6 +753,133 @@ const titleFr = addTranslation(titleEn, 'fr', 'Bienvenue à Trawel');
 - ✅ No se ha instalado ninguna dependencia
 - ✅ La app sigue funcionando igual
 
+
 ---
 
-*Entradas de bitácora - Trawel v2.3*
+## 2026-04-28 - Modelo de datos completo: País → Ciudad → Destino
+
+**Participantes:** SDD implementación de modelo de datos jerárquico
+
+### Qué se hizo
+
+1. **Creamos feature `cities`** (`src/features/cities/`)
+   - Estructura: `types/`, `data/` con tipos, datos y utilidades
+   - `city.types.ts` - Tipos: `City`, `CityStatus`, `CityContentByMode`, `Coordinates`
+   - `cities.ts` - Diccionario de 8 ciudades:
+     - España: Madrid, Barcelona, Castellón
+     - Japón: Tokio, Kioto
+     - Perú: Lima, Cusco
+   - `cities.utils.ts` - Funciones de acceso: `getCitiesByCountrySlug`, `getCityBySlug`, `isCityClickable`
+   - `index.ts` - Export público centralizado
+
+2. **Creamos feature `destinations`** (`src/features/destinations/`)
+   - Estructura: `types/`, `data/` con tipos, datos y utilidades
+   - `destination.types.ts` - Tipos: `Destination`, `DestinationStatus`, `DestinationType`, `Source`
+   - `destinations.ts` - Diccionario de 6 destinos:
+     - Museo del Prado, Parque del Retiro (Madrid)
+     - Senso-ji, Fushimi Inari (Tokio)
+     - Machu Picchu (Cusco)
+   - `destinations.utils.ts` - Funciones: `getDestinationBySlug`, `getPublishedDestinationsByCity`, `getDestinationContentByMode`
+   - Contenido dual por modo (`contentByMode`): tono adventure vs student
+   - `index.ts` - Export público centralizado
+
+3. **Actualizamos páginas con datos reales**
+   - **CountryPage**: Ahora muestra lista de ciudades del país usando `getCitiesByCountrySlug`
+     - Ciudades activas como enlaces a `/pais/:countrySlug/:citySlug`
+     - Ciudades comingSoon con indicador visual
+   - **CityPage**: Muestra destinos publicados de la ciudad
+     - Extrae `countrySlug` y `citySlug` de URL
+     - Usa `getPublishedDestinationsByCity` para filtrar destinos
+     - Muestra metadatos: tipo, duración, precio
+     - Enlaces a `/aventura/:destinationSlug`
+   - **AdventurePage**: Muestra contenido del destino
+     - Extrae `adventureSlug` de URL
+     - Usa `getDestinationContentByMode` para mostrar contenido según modo
+     - Información completa del destino con badges de tipo
+
+4. **Verificamos rutas configuradas**
+   - `/pais/:countrySlug` → CountryPage ✅
+   - `/pais/:countrySlug/:citySlug` → CityPage ✅
+   - `/aventura/:adventureSlug` → AdventurePage ✅
+
+5. **Corregimos errores de TypeScript**
+   - Eliminados imports no usados en `cities.utils.ts` (TS6133)
+   - Eliminados imports no usados en `destinations.utils.ts` (TS6196)
+   - Build pasa exitosamente
+
+### Modelo de datos implementado
+
+```
+Country (País)
+    └── City[] (Ciudades)
+            └── Destination[] (Destinos/Atracciones)
+                    └── ContentByMode (Contenido dual)
+                            ├── adventure: Tono emocional
+                            └── student: Tono educativo
+```
+
+### Estados implementados
+
+**CityStatus:**
+- `active` - Ciudad clicable con contenido
+- `comingSoon` - Próximamente, no clicable
+- `disabled` - Oculta
+
+**DestinationStatus:**
+- `published` - Publicado y visible
+- `draft` - En edición
+- `comingSoon` - Próximamente
+- `disabled` - Oculto
+
+### Decisiones técnicas registradas
+
+**DA-019: Modelo jerárquico País → Ciudad → Destino**
+- Contexto: Necesitábamos estructura de datos para navegación y contenido
+- Decisión: Tres niveles con relaciones por IDs, contenido dual por modo de experiencia
+- Consecuencias:
+  - Navegación intuitiva: Mapa → País → Ciudad → Destino
+  - Contenido diferenciado según modo (aventura/student)
+  - Preparado para futura persistencia en base de datos (timestamps opcionales)
+  - Diccionarios indexados por ID para acceso O(1)
+
+### Archivos creados/modificados
+
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `cities/types/city.types.ts` | ✅ Creado | Tipos: City, CityStatus, Coordinates |
+| `cities/data/cities.ts` | ✅ Creado | 8 ciudades con datos |
+| `cities/data/cities.utils.ts` | ✅ Creado | Funciones de acceso |
+| `cities/index.ts` | ✅ Creado | Export público |
+| `destinations/types/destination.types.ts` | ✅ Creado | Tipos: Destination, DestinationType |
+| `destinations/data/destinations.ts` | ✅ Creado | 6 destinos con contenido dual |
+| `destinations/data/destinations.utils.ts` | ✅ Creado | Funciones de acceso y filtrado |
+| `destinations/index.ts` | ✅ Creado | Export público |
+| `CountryPage.tsx` | ✅ Modificado | Lista de ciudades del país |
+| `CityPage.tsx` | ✅ Modificado | Destinos de la ciudad |
+| `AdventurePage.tsx` | ✅ Modificado | Contenido del destino |
+| `SPEC.md` | ✅ Modificado | Checkboxes del MVP actualizados |
+
+### Flujo de navegación verificado
+
+1. **HomePage** → Click en España (mapa o tarjeta)
+2. **CountryPage** (`/pais/espana`) → Muestra Madrid, Barcelona, Castellón
+3. Click en Madrid → **CityPage** (`/pais/espana/madrid`)
+4. **CityPage** → Muestra Museo del Prado, Parque del Retiro
+5. Click en Museo del Prado → **AdventurePage** (`/aventura/museo-del-prado`)
+6. **AdventurePage** → Muestra contenido del destino según modo seleccionado
+
+### Criterios de éxito verificados
+
+- ✅ `npm run build` pasa sin errores
+- ✅ 8 ciudades creadas y accesibles
+- ✅ 6 destinos creados con contenido dual
+- ✅ CountryPage muestra ciudades del país
+- ✅ CityPage muestra destinos de la ciudad
+- ✅ AdventurePage muestra contenido del destino
+- ✅ Rutas funcionan correctamente
+- ✅ Contenido por modo (adventure/student) implementado
+- ✅ Documentación actualizada (SPEC, ARCHITECTURE, CODEMAP, BITACORA)
+
+---
+
+*Entradas de bitácora - Trawel v2.4*

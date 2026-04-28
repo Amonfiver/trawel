@@ -514,6 +514,53 @@ const projection = d3.geoMercator()
 
 ---
 
+
+---
+
+## DA-019: Modelo jerárquico de datos País → Ciudad → Destino
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Necesitábamos una estructura de datos que soporte la navegación del usuario desde el mapa mundial hasta el contenido específico de cada destino turístico. El modelo debe ser escalable, permitir contenido diferenciado por modo de experiencia y prepararse para futura persistencia en base de datos.
+
+**Decisión:** Implementar un modelo de tres niveles jerárquicos:
+```
+Country (País)
+    └── City[] (Ciudades)
+            └── Destination[] (Destinos/Atracciones)
+                    └── ContentByMode (Contenido dual)
+                            ├── adventure: Tono emocional
+                            └── student: Tono educativo
+```
+
+**Estructura implementada:**
+- **City**: id, countryId, name, slug, status (active/comingSoon/disabled), coordinates, population
+- **Destination**: id, cityId, name, slug, status (published/draft/comingSoon/disabled), type (museum/temple/park/etc.), contentByMode
+- **ContentByMode**: title, description, highlights, story (diferenciado por adventure/student)
+
+**Razones:**
+- Navegación intuitiva y progresiva: Mapa → País → Ciudad → Destino
+- Contenido adaptado según modo de experiencia (aventura vs estudiante)
+- Relaciones por IDs permiten acceso O(1) mediante diccionarios indexados
+- Timestamps opcionales preparan para futura migración a base de datos
+- Estados diferenciados permiten controlar visibilidad y accesibilidad de cada entidad
+
+**Consecuencias:**
+- Mayor complejidad en datos: más archivos y tipos que mantener
+- Doble trabajo de contenido si se quiere aprovechar contentByMode completamente
+- Necesidad de funciones utilitarias para navegar las relaciones (getCitiesByCountrySlug, getPublishedDestinationsByCity, etc.)
+- Rutas anidadas más complejas (/pais/:countrySlug/:citySlug)
+
+**Estados implementados:**
+- **CityStatus**: active (clicable), comingSoon (visible, no clicable), disabled (oculto)
+- **DestinationStatus**: published (visible), draft (edición), comingSoon (próximamente), disabled (oculto)
+
+**Tipos de destino:** museum, temple, park, monument, landmark, nature, cultural
+
+**Reversibilidad:** Baja. El modelo de datos es fundamental para toda la aplicación. Cambiarlo requeriría reescribir features cities y destinations, y modificar todas las páginas que dependen de la jerarquía.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
@@ -525,4 +572,4 @@ const projection = d3.geoMercator()
 
 ---
 
-*Registro de decisiones v1.2 - Trawel*
+*Registro de decisiones v1.3 - Trawel*

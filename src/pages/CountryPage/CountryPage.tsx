@@ -1,26 +1,33 @@
 /**
  * Página de detalle de país
  * 
- * Propósito: Mostrar información de un país específico y sus ciudades
- * Alcance: Información básica del país con navegación de retorno
+ * Propósito: Mostrar información de un país específico y sus ciudades/destinos
+ * Alcance: Información del país con lista de ciudades navegables
  * 
  * Decisiones técnicas:
  * - Usa getCountryBySlug para obtener datos del país desde la URL
- * - Muestra estado del país y metadatos
- * - Placeholder para futura lista de ciudades
+ * - Integra getCitiesByCountrySlug para mostrar ciudades reales
+ * - Filtra ciudades activas vs. próximamente
+ * - Enlaces a /pais/:countrySlug/:citySlug
  * 
  * Limitaciones actuales:
- * - Sin lista real de ciudades
  * - Sin imágenes del país
+ * - Sin mapa interno del país (futuro)
  */
 
 import { useParams, Link } from 'react-router-dom';
 import { getCountryBySlug, getStatusLabel } from '../../features/countries/data/countries.utils';
+import { getCitiesByCountrySlug, isCityClickable, getCityDisplayName } from '../../features/cities/data/cities.utils';
 import styles from './CountryPage.module.css';
 
 export function CountryPage() {
   const { countrySlug } = useParams<{ countrySlug: string }>();
   const country = getCountryBySlug(countrySlug || '');
+
+  // Obtener ciudades del país
+  const cities = getCitiesByCountrySlug(countrySlug || '');
+  const activeCities = cities.filter(c => c.status === 'active');
+  const comingSoonCities = cities.filter(c => c.status === 'comingSoon');
 
   if (!country) {
     return (
@@ -72,15 +79,88 @@ export function CountryPage() {
           </div>
         </section>
 
-        <section className={styles.citiesSection}>
-          <h2>Ciudades y regiones</h2>
-          <div className={styles.soonCard}>
-            <p>🗺️ Próximamente: mapa interactivo de {country.displayName}</p>
-            <p className={styles.soonText}>
-              Estamos preparando información detallada sobre las ciudades 
-              y aventuras disponibles en {country.displayName}.
-            </p>
-          </div>
+        <section className={styles.citiesSection} aria-labelledby="cities-title">
+          <h2 id="cities-title" className={styles.sectionTitle}>
+            Ciudades y regiones
+          </h2>
+
+          {/* Ciudades activas */}
+          {activeCities.length > 0 && (
+            <div className={styles.citiesGrid} role="list">
+              {activeCities.map(city => {
+                const clickable = isCityClickable(city);
+                const cityName = getCityDisplayName(city);
+
+                return (
+                  <div
+                    key={city.id}
+                    className={`${styles.cityCard} ${!clickable ? styles.cityCardDisabled : ''}`}
+                    role="listitem"
+                  >
+                    {clickable ? (
+                      <Link
+                        to={`/pais/${countrySlug}/${city.slug}`}
+                        className={styles.cityLink}
+                        aria-label={`Explorar ${cityName}`}
+                      >
+                        <h3 className={styles.cityName}>{cityName}</h3>
+                        {city.shortDescription && (
+                          <p className={styles.cityDescription}>
+                            {getCityDisplayName(city)}
+                          </p>
+                        )}
+                        <div className={styles.cityMeta}>
+                          <span className={styles.cityBadge} data-status="active">
+                            Disponible
+                          </span>
+                          {city.destinationCount && (
+                            <span className={styles.cityDestinations}>
+                              {city.destinationCount} destinos
+                            </span>
+                          )}
+                          <span aria-hidden="true">→</span>
+                        </div>
+                      </Link>
+                    ) : (
+                      <div className={styles.cityContent}>
+                        <h3 className={styles.cityName}>{cityName}</h3>
+                        <span className={styles.cityBadge} data-status="comingSoon">
+                          Próximamente
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Ciudades próximamente */}
+          {comingSoonCities.length > 0 && (
+            <div className={styles.comingSoonSection}>
+              <h3 className={styles.comingSoonTitle}>Próximamente</h3>
+              <div className={styles.comingSoonGrid} role="list">
+                {comingSoonCities.map(city => (
+                  <div key={city.id} className={styles.comingSoonCard} role="listitem">
+                    <span className={styles.comingSoonName}>
+                      {getCityDisplayName(city)}
+                    </span>
+                    <span className={styles.comingSoonBadge}>Próximamente</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sin ciudades */}
+          {cities.length === 0 && (
+            <div className={styles.emptyState}>
+              <p>🏗️ Estamos preparando información sobre las ciudades de {country.displayName}.</p>
+              <p className={styles.emptyText}>
+                Vuelve pronto para descubrir destinos increíbles.
+              </p>
+            </div>
+          )}
         </section>
       </main>
     </div>

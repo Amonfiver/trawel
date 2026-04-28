@@ -173,43 +173,68 @@ src/features/countries/
 
 ```
 src/features/cities/
-├── components/
-│   ├── CityCard/
-│   ├── CityList/
-│   └── CityHero/
 ├── data/
-│   ├── cities.ts                  # Datos de ciudades
-│   └── cities.types.ts
-├── hooks/
-│   ├── useCities.ts
-│   ├── useCity.ts
-│   └── useCitiesByCountry.ts      # Ciudades de un país específico
-└── utils/
-    └── cityHelpers.ts
+│   ├── cities.ts                  # Diccionario de ciudades Trawel
+│   ├── cities.utils.ts            # Funciones de acceso: getBySlug, getByCountry, etc.
+│   └── cities.types.ts            # Tipos: City, CityStatus, CityContentByMode
+└── index.ts                       # Export público
 ```
 
-**Responsabilidad:** Datos y componentes de ciudades/regiones.
+**Responsabilidad:** Definición de ciudades, sus metadatos y utilidades de acceso.
 
-### `src/features/adventures/` - Lógica de aventuras
+**Archivo clave:** `cities.ts` contiene 8 ciudades: Madrid, Barcelona, Castellón, Tokio, Kioto, Lima, Cusco.
+
+**Estados de ciudad (`CityStatus`):**
+- `active`: Ciudad con contenido disponible (clicable)
+- `comingSoon`: Ciudad próximamente (no clicable, visual diferente)
+- `disabled`: Ciudad deshabilitada (no se muestra)
+
+**Funciones principales en `cities.utils.ts`:**
+- `getCitiesByCountrySlug(countrySlug)` - Obtiene ciudades de un país
+- `getCityBySlug(slug)` - Obtiene ciudad por slug
+- `getCityById(id)` - Obtiene ciudad por ID
+- `isCityClickable(city)` - Verifica si una ciudad es clicable
+- `getAllActiveCities()` - Obtiene todas las ciudades activas
+
+### `src/features/destinations/` - Lógica de destinos/atracciones
 
 ```
-src/features/adventures/
-├── components/
-│   ├── AdventureCard/
-│   ├── AdventureList/
-│   └── AdventureDetail/
+src/features/destinations/
 ├── data/
-│   ├── adventures.ts
-│   └── adventures.types.ts
-├── hooks/
-│   ├── useAdventures.ts
-│   ├── useAdventure.ts
-│   └── useAdventuresByCity.ts
-└── utils/
-    └── adventureHelpers.ts
+│   ├── destinations.ts            # Diccionario de destinos Trawel
+│   ├── destinations.utils.ts      # Funciones de acceso y filtrado
+│   └── destinations.types.ts      # Tipos: Destination, DestinationStatus, DestinationType
+└── index.ts                       # Export público
 ```
 
-**Responsabilidad:** Datos y componentes de aventuras/fichas de destino.
+**Responsabilidad:** Definición de destinos turísticos/atracciones con contenido por modo de experiencia.
+
+**Archivo clave:** `destinations.ts` contiene destinos como Prado, Senso-ji, Machu Picchu, Retiro, Fushimi Inari.
+
+**Estados de destino (`DestinationStatus`):**
+- `published`: Contenido publicado y disponible
+- `draft`: En edición, no visible públicamente
+- `comingSoon`: Próximamente disponible
+- `disabled`: Deshabilitado
+
+**Tipos de destino (`DestinationType`):**
+- `museum`: Museos y galerías
+- `temple`: Templos y lugares religiosos
+- `park`: Parques y jardines
+- `monument`: Monumentos históricos
+- `landmark`: Puntos de interés urbanos
+- `nature`: Atracciones naturales
+- `cultural`: Centros culturales
+
+**Contenido por modo (`contentByMode`):** Cada destino tiene contenido diferenciado:
+- Modo `adventure`: Tono emocional, explorador
+- Modo `student`: Tono educativo, datos históricos
+
+**Funciones principales en `destinations.utils.ts`:**
+- `getDestinationBySlug(slug)` - Obtiene destino por slug
+- `getDestinationsByCityId(cityId)` - Obtiene destinos de una ciudad
+- `getPublishedDestinationsByCity(city)` - Obtiene destinos publicados de una ciudad
+- `getDestinationContentByMode(destination, mode)` - Obtiene contenido según modo
 
 ### `src/features/experienceMode/` - Modos de experiencia
 
