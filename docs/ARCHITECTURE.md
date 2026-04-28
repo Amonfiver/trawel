@@ -33,9 +33,11 @@ trawel/
 │   ├── SPEC.md
 │   ├── ARCHITECTURE.md
 │   ├── DECISIONES.md
-│   ├── BITACORA.md
 │   ├── CODEMAP.md
 │   ├── DATA_MODEL.md       # Modelo de datos actual y futuro
+│   ├── CONTENT_GUIDE.md    # Guía para crear contenido editorial
+│   ├── BITACORA.md         # Bitácora activa
+│   ├── BITACORA_001.md     # Archivo histórico de bitácora
 │   └── ANALISIS_MAPA_WEBSIM.md
 ├── public/                  # Assets estáticos
 │   ├── images/

@@ -678,6 +678,34 @@ cities (datos base)
 
 ---
 
+## DA-022: Rotación de bitácora en archivos históricos
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** La bitácora (`docs/BITACORA.md`) ha crecido a más de 1300 líneas, dificultando su consulta y mantenimiento.
+
+**Decisión:** Implementar sistema de rotación de bitácora:
+- Archivo activo (`BITACORA.md`) mantiene solo entradas recientes (~200-300 líneas)
+- Archivos históricos (`BITACORA_001.md`, `BITACORA_002.md`, etc.) almacenan el historial completo
+- Rotación cuando la bitácora activa supere ~1000 líneas
+
+**Razones:**
+- BITACORA.md debe ser ligera para consulta rápida del estado actual
+- El historial completo debe preservarse sin perder información
+- Facilita la navegación por el historial del proyecto
+
+**Consecuencias:**
+- Necesidad de crear nuevos archivos históricos periódicamente
+- Referencias cruzadas entre bitácora activa e históricos
+- Los archivos históricos no deben editarse (solo correcciones puntuales)
+
+**Implementación:**
+- Creado `BITACORA_001.md` con todo el historial
+- `BITACORA.md` reducida a ~100 líneas con estado actual
+- Regla documentada: rotar cuando supere 1000 líneas
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
