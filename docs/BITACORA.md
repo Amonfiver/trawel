@@ -39,6 +39,48 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-29 - Morella: Primera ciudad real editorial en Trawel ✅
+
+Creado seed manual para Morella como primera ciudad con contenido editorial real:
+
+**Archivo creado:**
+- `supabase/manual-seeds/001_morella.sql` - Insert idempotente de Morella y sus destinos
+
+**Contenido insertado:**
+
+Ciudad:
+- **Morella** (Castellón) - Ciudad amurallada medieval, estado `active`, `featured: true`
+
+Destinos publicados (6):
+| Slug | Tipo | Destacado |
+|------|------|-----------|
+| castillo-de-morella | monument | ✅ |
+| basilica-arciprestal-santa-maria-la-mayor | monument | ✅ |
+| torres-de-sant-miquel-y-murallas | experience | |
+| museo-tiempo-de-dinosaurios | museum | ✅ |
+| prision-del-siglo-xiv | museum | |
+| convento-de-san-francisco | monument | |
+
+Fuentes incluidas:
+- Ayuntamiento de Morella (official)
+- Turismo Comunidad Valenciana (tourism)
+- Museo Tiempo de Dinosaurios (official)
+- Basílica Santa María (heritage)
+
+**Características del SQL:**
+- Idempotente (ON CONFLICT DO UPDATE)
+- Resuelve UUIDs por subconsultas (no hardcodeados)
+- Campos pendientes de verificación marcados en `pending_verification` JSONB
+- Listo para ejecutar en Supabase SQL Editor
+
+**Rutas a probar tras ejecutar el SQL:**
+- `/pais/espana` - Debe mostrar Morella
+- `/pais/espana/morella` - CityPage de Morella
+- `/aventura/castillo-de-morella` - AdventurePage del castillo
+- `/aventura/museo-tiempo-de-dinosaurios` - AdventurePage del museo
+
+---
+
 ### 2026-04-29 - Supabase como fuente de datos estable ✅
 
 **CONFIRMADO:** Trawel lee datos reales desde Supabase. Se verificó cambiando `countries.name_es` de "España" a "España DB" en la base de datos y confirmando que la app muestra el cambio tras refrescar.
