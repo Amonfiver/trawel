@@ -782,6 +782,55 @@ cities (datos base)
 
 ---
 
+## DA-025: Modelo de base de datos real para Trawel con campos específicos por idioma
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Trawel necesita evolucionar desde datos mock estáticos hacia una arquitectura que permita leer contenido real desde Supabase. Investighost será la herramienta que alimente los datos, Trawel solo los lee.
+
+**Decisión:** Definir modelo de base de datos con tablas específicas y campos `_es` para contenido en español (extensible a otros idiomas):
+
+**Tablas definidas:**
+
+1. **countries**: `id`, `slug`, `name_es`, `emoji`, `capital_es`, `continent_es`, `description_es`, `status`, `featured`, timestamps
+
+2. **cities**: `id`, `country_id`, `slug`, `name_es`, `short_description_es`, `adventure_content_es`, `student_content_es`, `lat`, `lng`, `status`, `featured`, `recommended_duration`, `best_season_es`, `sleeping_advice_es`, `food_advice_es`, `pending_verification`, timestamps
+
+3. **destinations**: `id`, `country_id`, `city_id`, `slug`, `title_es`, `summary_es`, `adventure_content_es`, `student_content_es`, `type`, `tags`, `estimated_visit_time`, `price`, `opening_hours`, `practical_tip_es`, `verification_status`, `status`, `featured`, `pending_verification`, timestamps
+
+4. **destination_sources**: `id`, `destination_id`, `title`, `url`, `type`, `supports`, timestamps
+
+**Estados editoriales:**
+- Country/City: `active`, `comingSoon`, `disabled`
+- Destination: `draft`, `published`, `comingSoon`, `disabled`
+- Verification: `pending`, `verified`, `disputed`
+
+**Principios:**
+- Trawel lee datos publicados (`status = 'published'`)
+- Investighost investiga, valida y guarda contenido
+- Campos `_es` permiten extensión a `_en`, `_fr`, etc.
+- `pending_verification` como JSONB para marcar datos pendientes
+
+**Cambios realizados:**
+- Actualizado `docs/DATA_MODEL.md` con schema SQL completo
+- Documentados índices y constraints
+- Definidos estados editoriales y workflow
+
+**Razones:**
+- Separación clara: Investighost escribe, Trawel lee
+- Modelo preparado para Supabase sin reescribir páginas
+- Campos específicos por idioma facilitan queries
+- Estados editoriales controlan visibilidad
+
+**Consecuencias:**
+- Migración futura requiere script de datos mock → SQL
+- `travelData.service` evolucionará de sync a async
+- Las páginas no cambian, solo la fuente de datos
+
+**Reversibilidad:** Media. Cambiar el modelo de base de datos requeriría migración de datos, pero el contrato de `travelData.service` permanece estable.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
@@ -793,4 +842,4 @@ cities (datos base)
 
 ---
 
-*Registro de decisiones v1.6 - Trawel*
+*Registro de decisiones v1.7 - Trawel*

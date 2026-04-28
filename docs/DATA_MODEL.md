@@ -12,6 +12,146 @@ Sirve como guía para:
 
 ---
 
+## Modelo de Base de Datos Real (Propuesto para Trawel)
+
+Este modelo define las tablas necesarias para que Trawel lea contenido real desde Supabase. Investighost será la herramienta que alimente estos datos.
+
+### Tablas principales
+
+#### 1. countries
+
+Países disponibles en Trawel.
+
+```sql
+CREATE TABLE countries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    slug VARCHAR(50) UNIQUE NOT NULL,        -- 'espana', 'japon'
+    name_es VARCHAR(100) NOT NULL,           -- 'España'
+    emoji VARCHAR(10),                       -- '🇪🇸'
+    capital_es VARCHAR(100),                 -- 'Madrid'
+    continent_es VARCHAR(50),                -- 'Europa'
+    description_es TEXT,                     -- Descripción larga
+    status VARCHAR(20) NOT NULL DEFAULT 'comingSoon'
+        CHECK (status IN ('active', 'comingSoon', 'disabled')),
+    featured BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_countries_slug ON countries(slug);
+CREATE INDEX idx_countries_status ON countries(status);
+```
+
+#### 2. cities
+
+Ciudades y regiones dentro de cada país.
+
+```sql
+CREATE TABLE cities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    country_id UUID NOT NULL REFERENCES countries(id) ON DELETE CASCADE,
+    slug VARCHAR(100) NOT NULL,              -- 'madrid', 'tokyo'
+    name_es VARCHAR(100) NOT NULL,           -- 'Madrid'
+    short_description_es TEXT,               -- Para listados
+    adventure_content_es TEXT,               -- Descripción modo aventura
+    student_content_es TEXT,                 -- Descripción modo estudiante
+    lat DECIMAL(10, 8),                      -- Latitud
+    lng DECIMAL(11, 8),                      -- Longitud
+    status VARCHAR(20) NOT NULL DEFAULT 'comingSoon'
+        CHECK (status IN ('active', 'comingSoon', 'disabled')),
+    featured BOOLEAN DEFAULT FALSE,
+    recommended_duration VARCHAR(100),       -- '3 días', '1 semana'
+    best_season_es VARCHAR(200),             -- 'Primavera y otoño'
+    sleeping_advice_es TEXT,                 -- Consejos de alojamiento
+    food_advice_es TEXT,                     -- Consejos gastronómicos
+    pending_verification JSONB,              -- ['precios', 'horarios']
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT idx_cities_slug_country UNIQUE (country_id, slug)
+);
+
+CREATE INDEX idx_cities_country ON cities(country_id);
+CREATE INDEX idx_cities_status ON cities(status);
+```
+
+#### 3. destinations
+
+Destinos turísticos y atracciones.
+
+```sql
+CREATE TABLE destinations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    country_id UUID NOT NULL REFERENCES countries(id) ON DELETE CASCADE,
+    city_id UUID REFERENCES cities(id) ON DELETE SET NULL,
+    slug VARCHAR(100) UNIQUE NOT NULL,       -- 'museo-del-prado'
+    title_es VARCHAR(200) NOT NULL,          -- 'Museo del Prado'
+    summary_es TEXT,                         -- Resumen para tarjetas
+    adventure_content_es TEXT,               -- Contenido modo aventura
+    student_content_es TEXT,                 -- Contenido modo estudiante
+    type VARCHAR(30)                         -- 'museum', 'monument', etc.
+        CHECK (type IN ('monument', 'museum', 'nature', 'experience', 'food', 'hiddenGem', 'temple', 'park', 'landmark', 'cultural')),
+    tags JSONB,                              -- ['arte', 'imprescindible']
+    estimated_visit_time VARCHAR(50),        -- '2-3 horas'
+    price VARCHAR(200),                      -- '15€ general, gratis estudiantes'
+    opening_hours VARCHAR(200),              -- 'Lun-Sab: 10:00-20:00'
+    practical_tip_es TEXT,                   -- Consejo práctico
+    verification_status VARCHAR(20) DEFAULT 'pending'
+        CHECK (verification_status IN ('pending', 'verified', 'disputed')),
+    status VARCHAR(20) NOT NULL DEFAULT 'draft'
+        CHECK (status IN ('draft', 'published', 'comingSoon', 'disabled')),
+    featured BOOLEAN DEFAULT FALSE,
+    pending_verification JSONB,              -- ['precio_entrada', 'horario']
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_destinations_country ON destinations(country_id);
+CREATE INDEX idx_destinations_city ON destinations(city_id);
+CREATE INDEX idx_destinations_slug ON destinations(slug);
+CREATE INDEX idx_destinations_status ON destinations(status);
+CREATE INDEX idx_destinations_featured ON destinations(featured) WHERE featured = true;
+```
+
+#### 4. destination_sources
+
+Fuentes y referencias para cada destino.
+
+```sql
+CREATE TABLE destination_sources (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    destination_id UUID NOT NULL REFERENCES destinations(id) ON DELETE CASCADE,
+    title VARCHAR(300) NOT NULL,             -- 'Guía oficial del Museo'
+    url TEXT,                                -- Link si aplica
+    type VARCHAR(20) NOT NULL                -- 'book', 'website', 'expert', 'own'
+        CHECK (type IN ('book', 'article', 'website', 'expert', 'own')),
+    supports TEXT,                           -- Cita que apoya el dato
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_destination_sources_destination ON destination_sources(destination_id);
+```
+
+### Estados editoriales
+
+**Country/City:**
+- `active`: Visible y navegable
+- `comingSoon`: Visible pero no clicable
+- `disabled`: Oculto completamente
+
+**Destination:**
+- `draft`: En edición, solo visible en desarrollo
+- `published`: Publicado y visible en producción
+- `comingSoon`: Anunciado pero no disponible aún
+- `disabled`: Oculto
+
+**Verification:**
+- `pending`: Información no verificada
+- `verified`: Revisado y confirmado
+- `disputed`: En revisión por inconsistencias
+
+---
+
 ## Modelo Actual (TypeScript Estático)
 
 ### Estructura general

@@ -39,11 +39,34 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Modelo de base de datos real definido para Trawel
+
+Preparación de Trawel para leer contenido real desde Supabase:
+
+**Decisión DA-025:** Modelo de base de datos con campos específicos por idioma
+
+Tablas definidas para Supabase:
+- **countries**: `id`, `slug`, `name_es`, `emoji`, `capital_es`, `continent_es`, `description_es`, `status`, `featured`
+- **cities**: `id`, `country_id`, `slug`, `name_es`, `short_description_es`, `adventure_content_es`, `student_content_es`, `lat`, `lng`, `status`, `featured`, `recommended_duration`, `best_season_es`, `sleeping_advice_es`, `food_advice_es`, `pending_verification`
+- **destinations**: `id`, `country_id`, `city_id`, `slug`, `title_es`, `summary_es`, `adventure_content_es`, `student_content_es`, `type`, `tags`, `estimated_visit_time`, `price`, `opening_hours`, `practical_tip_es`, `verification_status`, `status`, `featured`, `pending_verification`
+- **destination_sources**: `id`, `destination_id`, `title`, `url`, `type`, `supports`
+
+Estados editoriales:
+- Country/City: `active`, `comingSoon`, `disabled`
+- Destination: `draft`, `published`, `comingSoon`, `disabled`
+- Verification: `pending`, `verified`, `disputed`
+
+**Principio:** Investighost investiga/escribe, Trawel lee/muestra.
+
+**Archivo actualizado:** `docs/DATA_MODEL.md` (schema SQL completo con índices y constraints)
+
+---
+
 ### 2026-04-28 - Consolidación de arquitectura: Trawel como plataforma de lectura
 
 Corrección de rumbo arquitectónico importante:
 
-**Decisión DA-021:** Trawel es plataforma pública de lectura, NO validador de Investighost
+**Decisión DA-024:** Trawel es plataforma pública de lectura, NO validador de Investighost
 
 - Eliminada página `/dev/import-investighost` (validación no es responsabilidad de Trawel)
 - Consolidada capa `travelData.service.ts` como API interna única de lectura
