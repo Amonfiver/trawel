@@ -39,6 +39,29 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-29 - Corrección editorial: contenido dual de Morella
+
+Corregidos los textos de Morella para que `adventure_content_es` y `student_content_es` sean claramente diferentes:
+
+**Cambios en `supabase/manual-seeds/001_morella.sql`:**
+
+**adventure_content_es** (modo viajero):
+- Enfoque práctico: cómo visitar, qué esperar, consejos de recorrido
+- "Empieza tu visita subiendo al castillo por la mañana temprano..."
+- "Dedica tiempo a perderte por las calles empedradas sin rumbo fijo..."
+
+**student_content_es** (modo estudiante):
+- Enfoque explicativo: historia, geografía, patrimonio, contexto
+- "Su ubicación estratégica en la frontera entre Aragón y Cataluña..."
+- "El conjunto amurallado conserva restos de ocupación ibérica, romana y medieval..."
+
+**Verificación:**
+- ✅ Build exitoso
+- ✅ SQL idempotente y compatible con Supabase
+- ✅ Diferencia clara entre modos de experiencia
+
+---
+
 ### 2026-04-29 - Morella: Primera ciudad real editorial en Trawel ✅
 
 Creado seed manual para Morella como primera ciudad con contenido editorial real:
