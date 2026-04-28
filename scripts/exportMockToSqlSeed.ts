@@ -1,28 +1,35 @@
 /**
- * Script de exportación de datos mock a SQL seed
+ * Exportador de datos mock a SQL seed para Supabase
  * 
- * Propósito: Generar archivo SQL con INSERTS para cargar datos mock en Supabase
+ * Propósito:
+ * Generar archivo SQL con INSERTS para cargar datos mock en Supabase de forma
+ * idempotente. Facilita la inicialización del entorno de desarrollo y testing.
  * 
- * Alcance: Lee datos de countries, cities, destinations y genera supabase/seed.sql
+ * Alcance:
+ * - Lee datos de countries.ts, cities.ts, destinations.ts
+ * - Genera supabase/seed.sql con sentencias INSERT
+ * - Crea subcarpeta supabase/ si no existe
+ * - No modifica la base de datos real, solo genera archivo SQL
  * 
  * Decisiones técnicas:
  * - Usa subconsultas para resolver relaciones por slug (evita hardcodear UUIDs)
  * - Genera SQL idempotente con ON CONFLICT DO UPDATE
- * - Convierte arrays/objects a JSONB válido
- * - Escapa comillas simples en textos
+ * - Convierte arrays/objects a JSONB válido con escape de comillas simples
+ * - Usa ES modules con import.meta.url para compatibilidad con Node.js
  * 
  * Limitaciones / estado temporal:
  * - Solo genera SQL, no conecta a base de datos
  * - Requiere que el schema de tablas ya exista en Supabase
  * - ON CONFLICT asume constraints únicos definidos en el schema
+ * - Si faltan datos en los imports, el script falla con error claro
  * 
  * Cambios recientes (2026-04-28):
- * - Creado script inicial de exportación
- * - Genera seed.sql con countries, cities, destinations, destination_sources
+ * - Saneada configuración npm para compatibilidad con tsx
+ * - Agregada validación de directorio raíz del proyecto
+ * - Confirmada generación correcta de seed.sql con 488 líneas
  * 
- * TODO:
- * - Verificar que los constraints únicos existen en Supabase antes de usar ON CONFLICT
- * - Considerar usar UUIDs estables si se necesitan relaciones predecibles
+ * Uso oficial:
+ *   npm run export:seed
  */
 
 import * as fs from 'fs';

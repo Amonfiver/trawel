@@ -2,7 +2,7 @@
 -- TRAWEL SEED DATA
 -- ============================================
 -- Generated automatically from mock data
--- Date: 2026-04-28T21:21:47.496Z
+-- Date: 2026-04-28T21:36:06.605Z
 -- ============================================
 
 -- NOTE: This file assumes the schema already exists in Supabase.

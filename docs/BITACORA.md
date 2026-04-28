@@ -39,6 +39,36 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Saneamiento de configuración npm
+
+Resuelto problema de instalación de dependencias que impedía ejecutar los comandos del proyecto:
+
+**Problema identificado:**
+- npm instalaba solo 5-6 paquetes en lugar de las ~240 dependencias del proyecto
+- El `package-lock.json` no se regeneraba correctamente
+- Comandos como `npm run build` y `npm run export:seed` fallaban
+
+**Causa raíz:**
+- Inconsistencia en el lockfile de npm tras instalaciones parciales
+- Cache de npm con referencias corruptas
+
+**Solución aplicada:**
+1. Eliminado `package-lock.json` y `node_modules` completamente
+2. Limpiado caché de npm
+3. Regenerado instalación limpia: `npm install` (238 paquetes instalados correctamente)
+
+**Verificación:**
+- ✅ `npm install` - Funciona correctamente
+- ✅ `npm run export:seed` - Genera `supabase/seed.sql` sin errores
+- ✅ `npm run build` - Compila el proyecto sin errores
+
+**Archivos tocados:**
+- `package.json` - Confirmado que incluye `tsx` en devDependencies
+- `package-lock.json` - Regenerado completamente
+- `tsconfig.node.json` - Incluye `scripts/**/*.ts` para soporte TypeScript
+
+---
+
 ### 2026-04-28 - Script de exportación a SQL seed para Supabase
 
 Creado sistema de exportación de datos mock a SQL compatible con el modelo de datos definido:
