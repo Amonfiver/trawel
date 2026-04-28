@@ -5,13 +5,13 @@
  * Alcance: Ficha funcional con breadcrumb, descripción, metadatos y lista de destinos
  * 
  * Decisiones técnicas:
- * - Usa contenido adventure por defecto para descripción principal
+ * - Usa contenido según el modo global (adventure/student)
+ * - Fallback al otro modo si falta contenido del modo activo
  * - Breadcrumb simple: Inicio / País / Ciudad
  * - Avisos editoriales claros para estados no activos
  * - Lista de destinos con metadatos visibles
  * 
  * Limitaciones actuales:
- * - Sin conexión con ExperienceMode global (siempre usa adventure)
  * - Sin imágenes de la ciudad
  * - Sin mapa de la ciudad
  */
@@ -21,8 +21,38 @@ import { getCityPageData } from '../../features/travelData';
 import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
+import { useExperienceMode } from '../../features/experienceMode';
 import type { CityStatus } from '../../features/cities/types/city.types';
+import type { ExperienceMode } from '../../features/experienceMode';
 import styles from './CityPage.module.css';
+
+/**
+ * Obtiene el contenido de la ciudad según el modo, con fallback
+ */
+function getCityDescription(
+  city: { contentByMode?: { adventure?: unknown; student?: unknown }; shortDescription?: unknown },
+  mode: ExperienceMode
+): string | null {
+  // Intentar el modo activo primero
+  const preferredContent = city.contentByMode?.[mode];
+  if (preferredContent) {
+    return getLocalizedText(preferredContent, 'es');
+  }
+  
+  // Fallback al otro modo
+  const fallbackMode = mode === 'adventure' ? 'student' : 'adventure';
+  const fallbackContent = city.contentByMode?.[fallbackMode];
+  if (fallbackContent) {
+    return getLocalizedText(fallbackContent, 'es');
+  }
+  
+  // Fallback final a shortDescription
+  if (city.shortDescription) {
+    return getLocalizedText(city.shortDescription, 'es');
+  }
+  
+  return null;
+}
 
 /**
  * CityPage - Ficha editorial de ciudad
@@ -32,6 +62,7 @@ import styles from './CityPage.module.css';
  */
 export function CityPage() {
   const { countrySlug, citySlug } = useParams<{ countrySlug: string; citySlug: string }>();
+  const { mode } = useExperienceMode();
   
   // Usar travelData.service para obtener datos agregados
   const { country, city, publishedDestinations: destinations } = getCityPageData(
@@ -62,12 +93,8 @@ export function CityPage() {
 
   const cityName = getCityDisplayName(city);
   
-  // Descripción: adventure por defecto, fallback a shortDescription
-  const description = city.contentByMode?.adventure 
-    ? getLocalizedText(city.contentByMode.adventure, 'es')
-    : city.shortDescription 
-    ? getLocalizedText(city.shortDescription, 'es')
-    : null;
+  // Descripción según el modo global con fallback
+  const description = getCityDescription(city, mode);
 
   // Estado editorial
   const statusLabel = getStatusLabel(city.status);

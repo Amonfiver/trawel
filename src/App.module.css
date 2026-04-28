@@ -1,0 +1,69 @@
+/**
+ * Estilos de la aplicación con header global
+ * 
+ * Incluye:
+ * - Header fijo con logo y selector de modo
+ * - Layout responsive
+ */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header global */
+.header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo:hover {
+  color: #3b82f6;
+}
+
+/* Selector de modo en header */
+.modeSelector {
+  flex-shrink: 0;
+}
+
+/* Contenido principal */
+.main {
+  flex: 1;
+  background: #f9fafb;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .header {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+  }
+}

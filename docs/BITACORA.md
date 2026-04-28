@@ -39,6 +39,44 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-29 - Selector global de modo Aventura/Estudiante ✅
+
+Implementado selector de modo de experiencia visible en toda la aplicación:
+
+**Creados/Modificados:**
+- `src/features/experienceMode/context/ExperienceModeContext.tsx` - Context global con persistencia en localStorage
+- `src/App.tsx` - Header global con selector integrado
+- `src/App.module.css` - Estilos del header y layout
+- `src/pages/CityPage/CityPage.tsx` - Usa modo global con fallback
+- `src/pages/AdventurePage/AdventurePage.tsx` - Usa modo global con fallback
+- `src/features/experienceMode/index.ts` - Exports del Provider y hook
+
+**Características:**
+- Selector visible en header en todas las páginas
+- Persistencia en localStorage (`trawel-experience-mode`)
+- Modo por defecto: `adventure`
+- Hook `useExperienceMode()` para acceder al modo desde cualquier componente
+- Fallback automático: si falta contenido del modo activo, usa el otro modo
+
+**Uso:**
+```typescript
+import { useExperienceMode } from '@/features/experienceMode';
+
+function MiComponente() {
+  const { mode, setMode, toggleMode } = useExperienceMode();
+  // mode: 'adventure' | 'student'
+}
+```
+
+**Verificación:**
+- ✅ Build exitoso
+- ✅ Selector visible en todas las páginas
+- ✅ Cambio de modo actualiza contenido en tiempo real
+- ✅ Persistencia en localStorage (se mantiene al refrescar)
+- ✅ Funciona con datos de Supabase y mock
+
+---
+
 ### 2026-04-29 - Corrección editorial: contenido dual de Morella
 
 Corregidos los textos de Morella para que `adventure_content_es` y `student_content_es` sean claramente diferentes:
