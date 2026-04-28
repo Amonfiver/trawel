@@ -39,17 +39,26 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
-### 2026-04-28 - Página de validación JSON de Investighost-GPT
+### 2026-04-28 - Consolidación de arquitectura: Trawel como plataforma de lectura
 
-Creada página interna `/dev/import-investighost` para validar JSON generado por Investighost-GPT:
+Corrección de rumbo arquitectónico importante:
 
-- Interfaz para pegar y validar JSON según contrato Investighost-Trawel
-- Validaciones: estructura, campos obligatorios, existencia de ciudad, destinos
-- Previsualización del contenido validado
-- Sin persistencia de datos (solo validación temporal)
-- Útil para revisar contenido antes de integrarlo manualmente
+**Decisión DA-021:** Trawel es plataforma pública de lectura, NO validador de Investighost
 
-**Archivos:** `ImportInvestighostPage.tsx`, `ImportInvestighostPage.module.css`, `routes.tsx`
+- Eliminada página `/dev/import-investighost` (validación no es responsabilidad de Trawel)
+- Consolidada capa `travelData.service.ts` como API interna única de lectura
+- Las páginas consumen datos desde funciones estables, no directamente de mocks
+- Preparado para migración futura a Supabase sin modificar páginas
+
+**Funciones disponibles en capa de datos:**
+- `getHomePageData()` - Datos para HomePage
+- `getCountryPageData(countrySlug)` - Datos para CountryPage
+- `getCityPageData(countrySlug, citySlug)` - Datos para CityPage
+- `getAdventurePageData(adventureSlug)` - Datos para AdventurePage
+
+**Archivos modificados:** `routes.tsx`, `travelData.service.ts` (documentación)
+
+**Archivos eliminados:** `src/pages/ImportInvestighostPage/` (carpeta completa)
 
 ---
 

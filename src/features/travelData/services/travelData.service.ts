@@ -65,11 +65,16 @@ import type {
 } from '../types/travelData.types';
 
 /**
- * Obtiene datos agregados para HomePage
+ * Limitaciones actuales:
+ * - Datos síncronos y estáticos
+ * - Sin manejo de errores estructurado (usa null para "no encontrado")
+ * - Sin caché ni deduplicación de peticiones
+ * - Sin soporte para filtros avanzados ni paginación
  * 
- * Combina información de países activos, próximamente y estadísticas
- * 
- * @returns HomePageData con todos los datos necesarios para la página de inicio
+ * Cambios recientes (2026-04-28):
+ * - Añadidas funciones de consulta específicas para páginas
+ * - Consolidada como API interna única de lectura de datos
+ * - Trawel no valida Investighost, solo consume datos publicados
  */
 export function getHomePageData(): HomePageData {
   const countries = getAllCountries();

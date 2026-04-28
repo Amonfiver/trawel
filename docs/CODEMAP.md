@@ -101,20 +101,16 @@ src/pages/
 │   ├── HomePage.module.css
 │   └── index.ts
 ├── CountryPage/
-│   ├── CountryPage.tsx
+│   ├── CountryPage.tsx                 # Ficha editorial de país
 │   ├── CountryPage.module.css
 │   └── index.ts
 ├── CityPage/
-│   ├── CityPage.tsx
+│   ├── CityPage.tsx                    # Ficha editorial de ciudad
 │   ├── CityPage.module.css
 │   └── index.ts
-├── AdventurePage/
-│   ├── AdventurePage.tsx
-│   ├── AdventurePage.module.css
-│   └── index.ts
-└── ImportInvestighostPage/
-    ├── ImportInvestighostPage.tsx      # Página de validación JSON (uso interno)
-    ├── ImportInvestighostPage.module.css
+└── AdventurePage/
+    ├── AdventurePage.tsx               # Ficha editorial de destino/aventura
+    ├── AdventurePage.module.css
     └── index.ts
 ```
 

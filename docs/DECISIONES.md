@@ -736,6 +736,52 @@ cities (datos base)
 
 ---
 
+## DA-024: Trawel es plataforma de lectura, NO validador de Investighost
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Se había creado una página `/dev/import-investighost` en Trawel para validar JSON generado por Investighost-GPT. Esto confunde las responsabilidades entre las dos aplicaciones.
+
+**Decisión:** Eliminar toda funcionalidad de validación/importación de Investighost de Trawel. Trawel es únicamente una plataforma pública de lectura y visualización.
+
+**Responsabilidades claras:**
+
+**Trawel (plataforma pública):**
+- Lee datos desde su fuente (actualmente mocks, futuro Supabase)
+- Muestra países, ciudades, destinos
+- Muestra modo Aventura / modo Estudiante
+- Funciona igual con 10 o 100 registros
+- No valida, no importa, no edita contenido
+
+**Investighost (herramienta editorial):**
+- Investiga y genera contenido
+- Valida datos antes de publicar
+- Completa datos faltantes
+- Guarda en base de datos (futuro)
+- Es la herramienta del redactor, no pública
+
+**Cambios realizados:**
+- Eliminada página `/dev/import-investighost`
+- Eliminada carpeta `src/pages/ImportInvestighostPage/`
+- Consolidada capa `travelData.service.ts` como API interna única de lectura
+- Documentación actualizada en BITACORA.md y CODEMAP.md
+
+**Razones:**
+- Separación de responsabilidades clara (Single Responsibility Principle)
+- Trawel no se convierte en app puente ni editor
+- La validación editorial pertenece a Investighost
+- Trawel consume datos ya publicados, sin importar su origen
+- Preparado para recibir datos de cualquier fuente (manual, Investighost, CMS futuro)
+
+**Consecuencias:**
+- Investigador usa Investighost para crear/validar contenido
+- Trawel solo muestra lo que está publicado
+- Flujo claro: Investighost → (revisión humana) → publicación → Trawel consume
+
+**Reversibilidad:** Media. Si en el futuro se necesita un panel de administración en Trawel, se crearía como feature separada, no como validador de Investighost.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
@@ -747,4 +793,4 @@ cities (datos base)
 
 ---
 
-*Registro de decisiones v1.5 - Trawel*
+*Registro de decisiones v1.6 - Trawel*
