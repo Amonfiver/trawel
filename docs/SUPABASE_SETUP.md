@@ -176,29 +176,56 @@ Estas credenciales se usarán en el siguiente paso cuando conectemos la app. Gua
    ```
    VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
    VITE_SUPABASE_ANON_KEY=eyJ...
-   VITE_TRAVEL_DATA_SOURCE=mock
+   VITE_TRAVEL_DATA_SOURCE=supabase
    ```
 
-3. **IMPORTANTE**: Mantén `VITE_TRAVEL_DATA_SOURCE=mock` por ahora.
-   Cambiará a `supabase` cuando implementemos la fuente real.
+3. **Para usar Supabase**: Cambia `VITE_TRAVEL_DATA_SOURCE=supabase`
+   **Para usar mock**: Mantén `VITE_TRAVEL_DATA_SOURCE=mock`
 
-## 10. Verificación final
+## 10. Activar Supabase en la aplicación
 
-Antes de continuar, verifica:
+La aplicación detecta automáticamente la fuente de datos según `VITE_TRAVEL_DATA_SOURCE`:
+
+### Modo Mock (default)
+- No requiere configuración
+- Datos locales instantáneos
+- Sin pantalla de carga
+
+### Modo Supabase
+- Requiere credenciales válidas
+- Muestra pantalla "Cargando Trawel..." mientras carga
+- Si falla, muestra error con opción de reintentar
+
+## 11. Verificar funcionamiento
+
+### Probar con Mock
+```bash
+VITE_TRAVEL_DATA_SOURCE=mock npm run dev
+```
+- Debe funcionar inmediatamente
+- Sin mensajes de carga
+
+### Probar con Supabase
+```bash
+VITE_TRAVEL_DATA_SOURCE=supabase npm run dev
+```
+- Debe mostrar "Cargando Trawel..."
+- Luego renderizar la app con datos de Supabase
+- Verificar rutas:
+  - `/pais/espana`
+  - `/pais/espana/madrid`
+  - `/aventura/museo-del-prado`
+
+## 12. Verificación final
+
+Antes de desplegar, verifica:
 
 - [ ] Tablas creadas y con datos
 - [ ] RLS activo en las 4 tablas
 - [ ] Policies configuradas correctamente
 - [ ] Datos públicos visibles según reglas de negocio
 - [ ] Credenciales guardadas de forma segura
-
-## Próximo paso
-
-Una vez completado este setup, el siguiente paso será:
-
-**Crear `SupabaseTravelDataSource`** - Implementación de `TravelDataSource` que use el cliente de Supabase para leer datos desde la base de datos real.
-
-Esto se hará en un ladrillo posterior, manteniendo la app funcionando con mock hasta entonces.
+- [ ] Build exitoso: `npm run build`
 
 ---
 

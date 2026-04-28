@@ -39,6 +39,46 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-29 - Inicialización controlada de datos con Supabase
+
+Implementada inicialización controlada antes del renderizado de React, asegurando que los datos estén cargados antes de mostrar las páginas:
+
+**Creados/Modificados:**
+- `src/main.tsx` - Bootstrap con inicialización asíncrona y pantallas de loading/error
+- `src/features/travelData/services/travelData.service.ts` - Función `initializeTravelDataSource()`
+- `src/features/travelData/index.ts` - Exports de funciones de inicialización
+
+**Flujo de inicialización:**
+```
+main.tsx → initializeTravelDataSource() → renderApp() o renderError()
+```
+
+**Comportamiento:**
+- **Mock (default)**: Inicialización instantánea, sin pantalla de carga
+- **Supabase**: Muestra "Cargando Trawel..." mientras carga, luego renderiza
+- **Error**: Muestra pantalla de error con mensaje claro y botón reintentar
+
+**API de inicialización:**
+```typescript
+import { initializeTravelDataSource } from '@/features/travelData';
+
+// Inicializar (mock: instantáneo, supabase: async)
+await initializeTravelDataSource();
+
+// Verificar estado
+const isReady = isTravelDataSourceInitialized();
+const state = getTravelDataSourceState();
+```
+
+**Verificación:**
+- ✅ `npm run build` exitoso
+- ✅ Modo mock funciona sin configuración
+- ✅ Modo Supabase inicializa antes de renderizar
+- ✅ Pantalla de error si falla Supabase
+- ✅ Sin cambios en páginas existentes
+
+---
+
 ### 2026-04-29 - Implementación SupabaseTravelDataSource completa
 
 Creada implementación completa de fuente de datos Supabase manteniendo mock como default:
@@ -64,27 +104,11 @@ VITE_TRAVEL_DATA_SOURCE=supabase
 - Implementación síncrona compatible con interfaz actual
 - Cache en memoria con carga inicial asíncrona
 - Mapeo automático de campos `_es` a tipos de aplicación
-- Fallback a mock si Supabase no está configurado
-
-**Uso de Supabase:**
-```typescript
-// Inicializar antes de usar
-await supabaseTravelDataSource.initialize();
-
-// Luego usar normalmente (síncrono)
-const countries = travelDataSource.getAllCountries();
-```
 
 **Variables de entorno:**
 - `VITE_SUPABASE_URL` - URL del proyecto Supabase
 - `VITE_SUPABASE_ANON_KEY` - Clave anónima de Supabase
 - `VITE_TRAVEL_DATA_SOURCE` - Fuente: `mock` | `supabase`
-
-**Verificación:**
-- ✅ `npm run build` exitoso
-- ✅ Sin errores de TypeScript
-- ✅ Mock funciona por defecto (sin configuración)
-- ✅ Páginas no requieren cambios
 
 ---
 

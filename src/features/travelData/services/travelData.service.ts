@@ -54,7 +54,98 @@ import type {
  * - Refactorizado para usar TravelDataSource
  * - Separada la fuente de datos (mockTravelDataSource) del servicio
  * - Preparado para sustituir mock por Supabase sin cambiar estas funciones
+ * 
+ * Cambios recientes (2026-04-29):
+ * - Agregada función initializeTravelDataSource() para inicialización controlada
  */
+
+import { supabaseTravelDataSource } from '../sources/mockTravelData.source';
+
+/**
+ * Estado de inicialización de la fuente de datos
+ */
+interface InitializationState {
+  initialized: boolean;
+  initializing: boolean;
+  error: string | null;
+}
+
+const initState: InitializationState = {
+  initialized: false,
+  initializing: false,
+  error: null,
+};
+
+/**
+ * Inicializa la fuente de datos según la configuración.
+ * 
+ * - Si VITE_TRAVEL_DATA_SOURCE=mock: No hace nada (datos listos inmediatamente)
+ * - Si VITE_TRAVEL_DATA_SOURCE=supabase: Carga datos desde Supabase
+ * 
+ * @returns Promise que resuelve cuando la fuente está lista
+ * @throws Error si la inicialización falla
+ */
+export async function initializeTravelDataSource(): Promise<void> {
+  // Evitar inicializaciones duplicadas
+  if (initState.initialized) {
+    console.log('[TravelData] Fuente de datos ya inicializada');
+    return;
+  }
+  
+  if (initState.initializing) {
+    console.log('[TravelData] Inicialización en progreso...');
+    // Esperar a que termine la inicialización en curso
+    while (initState.initializing) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (initState.error) {
+      throw new Error(initState.error);
+    }
+    return;
+  }
+
+  const source = import.meta.env.VITE_TRAVEL_DATA_SOURCE;
+  
+  // Mock no requiere inicialización
+  if (source !== 'supabase') {
+    console.log('[TravelData] Usando fuente mock (sin inicialización necesaria)');
+    initState.initialized = true;
+    return;
+  }
+
+  // Inicializar Supabase
+  console.log('[TravelData] Inicializando fuente Supabase...');
+  initState.initializing = true;
+  initState.error = null;
+
+  try {
+    await supabaseTravelDataSource.initialize();
+    initState.initialized = true;
+    console.log('[TravelData] Fuente Supabase inicializada correctamente');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    initState.error = errorMessage;
+    console.error('[TravelData] Error inicializando Supabase:', errorMessage);
+    throw new Error(`No se pudieron cargar los datos de Trawel: ${errorMessage}`);
+  } finally {
+    initState.initializing = false;
+  }
+}
+
+/**
+ * Verifica si la fuente de datos está inicializada
+ */
+export function isTravelDataSourceInitialized(): boolean {
+  return initState.initialized;
+}
+
+/**
+ * Obtiene el estado actual de inicialización
+ */
+export function getTravelDataSourceState(): InitializationState {
+  return { ...initState };
+}
+
 export function getHomePageData(): HomePageData {
   const countries = travelDataSource.getAllCountries();
   const activeCountries = travelDataSource.getActiveCountries();

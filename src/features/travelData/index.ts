@@ -26,4 +26,7 @@ export {
   getCountryPageData,
   getCityPageData,
   getAdventurePageData,
+  initializeTravelDataSource,
+  isTravelDataSourceInitialized,
+  getTravelDataSourceState,
 } from './services/travelData.service';
