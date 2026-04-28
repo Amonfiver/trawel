@@ -9,10 +9,15 @@
  * para consumo de páginas.
  * 
  * Decisiones técnicas:
- * - Funciones síncronas por ahora (datos locales estáticos)
- * - En el futuro este módulo será el punto de sustitución para Supabase/API
- * - Cada función devuelve datos agregados listos para consumo de páginas
- * - Sin lógica de caché ni estado (las páginas manejan su propio estado)
+ * - Usa TravelDataSource como contrato abstracto de fuente de datos
+ * - Actualmente usa mockTravelDataSource (datos locales)
+ * - En el futuro se sustituirá por SupabaseTravelDataSource
+ * - Las páginas no conocen la implementación de la fuente
+ * 
+ * Arquitectura de sources:
+ * - travelData.source.types.ts: Contrato TravelDataSource
+ * - mockTravelData.source.ts: Implementación mock actual
+ * - (futuro) supabaseTravelData.source.ts: Implementación Supabase
  * 
  * NOTA SOBRE FUTURA PERSISTENCIA:
  * 
@@ -20,41 +25,21 @@
  * externa (Supabase, API REST, etc.) sin modificar las páginas.
  * 
  * Cuando se implemente persistencia externa:
- * 1. Convertir estas funciones a async
- * 2. Agregar manejo de errores con TravelDataResult<T>
- * 3. Implementar caché con React Query/SWR
- * 4. Las páginas solo necesitarán agregar await y manejo de loading
+ * 1. Cambiar travelDataSource en mockTravelData.source.ts
+ * 2. Convertir funciones a async si es necesario
+ * 3. Agregar manejo de errores con TravelDataResult<T>
+ * 4. Implementar caché con React Query/SWR
  * 
- * Ejemplo de migración futura:
- * 
- * // Antes (actual):
- * const data = getCountryPageData(countrySlug);
- * 
- * // Después (con API):
- * const { data, isLoading, error } = useCountryPageData(countrySlug);
+ * Las páginas solo necesitarán agregar await y manejo de loading.
  * 
  * Limitaciones actuales:
- * - Datos síncronos y estáticos
+ * - Datos síncronos y estáticos (fuente mock)
  * - Sin manejo de errores estructurado (usa null para "no encontrado")
  * - Sin caché ni deduplicación de peticiones
  * - Sin soporte para filtros avanzados ni paginación
  */
 
-import {
-  getActiveCountries,
-  getAllCountries,
-  getComingSoonCountries,
-  getCountryBySlug,
-  getCountryCounts,
-} from '../../countries/data/countries.utils';
-import {
-  getCitiesByCountrySlug,
-  getCityBySlug,
-} from '../../cities/data/cities.utils';
-import {
-  getDestinationBySlug,
-  getDestinationsByCitySlug,
-} from '../../destinations/data/destinations.utils';
+import { travelDataSource } from '../sources/mockTravelData.source';
 import type { City, CityStatus } from '../../cities/types/city.types';
 import type { Destination, DestinationStatus } from '../../destinations/types/destination.types';
 import type {
@@ -65,22 +50,16 @@ import type {
 } from '../types/travelData.types';
 
 /**
- * Limitaciones actuales:
- * - Datos síncronos y estáticos
- * - Sin manejo de errores estructurado (usa null para "no encontrado")
- * - Sin caché ni deduplicación de peticiones
- * - Sin soporte para filtros avanzados ni paginación
- * 
  * Cambios recientes (2026-04-28):
- * - Añadidas funciones de consulta específicas para páginas
- * - Consolidada como API interna única de lectura de datos
- * - Trawel no valida Investighost, solo consume datos publicados
+ * - Refactorizado para usar TravelDataSource
+ * - Separada la fuente de datos (mockTravelDataSource) del servicio
+ * - Preparado para sustituir mock por Supabase sin cambiar estas funciones
  */
 export function getHomePageData(): HomePageData {
-  const countries = getAllCountries();
-  const activeCountries = getActiveCountries();
-  const comingSoonCountries = getComingSoonCountries();
-  const counts = getCountryCounts();
+  const countries = travelDataSource.getAllCountries();
+  const activeCountries = travelDataSource.getActiveCountries();
+  const comingSoonCountries = travelDataSource.getComingSoonCountries();
+  const counts = travelDataSource.getCountryCounts();
 
   return {
     countries,
@@ -103,7 +82,7 @@ export function getHomePageData(): HomePageData {
  * @returns CountryPageData con país, ciudades y conteos
  */
 export function getCountryPageData(countrySlug: string): CountryPageData {
-  const country = getCountryBySlug(countrySlug) ?? null;
+  const country = travelDataSource.getCountryBySlug(countrySlug) ?? null;
   
   // Si el país no existe, retornar estructura vacía
   if (!country) {
@@ -119,29 +98,29 @@ export function getCountryPageData(countrySlug: string): CountryPageData {
     };
   }
 
-  const cities = getCitiesByCountrySlug(countrySlug);
-  const activeCities = cities.filter((city): city is City => 
+  const cities = travelDataSource.getCitiesByCountrySlug(countrySlug);
+  const activeCities = cities.filter((city: City): city is City => 
     city.status === 'active' as CityStatus
   );
-  const comingSoonCities = cities.filter((city): city is City => 
+  const comingSoonCities = cities.filter((city: City): city is City => 
     city.status === 'comingSoon' as CityStatus
   );
 
   // Obtener todos los destinos del país
   const allDestinations: Destination[] = [];
-  cities.forEach(city => {
-    const cityDestinations = getDestinationsByCitySlug(countrySlug, city.slug);
+  cities.forEach((city: City) => {
+    const cityDestinations = travelDataSource.getDestinationsByCitySlug(countrySlug, city.slug);
     allDestinations.push(...cityDestinations);
   });
 
   // Calcular conteos de destinos
-  const publishedDestinations = allDestinations.filter((dest): dest is Destination => 
+  const publishedDestinations = allDestinations.filter((dest: Destination): dest is Destination => 
     dest.status === 'published' as DestinationStatus
   );
-  const comingSoonDestinations = allDestinations.filter((dest): dest is Destination => 
+  const comingSoonDestinations = allDestinations.filter((dest: Destination): dest is Destination => 
     dest.status === 'comingSoon' as DestinationStatus
   );
-  const featuredDestinations = publishedDestinations.filter(dest => dest.featured);
+  const featuredDestinations = publishedDestinations.filter((dest: Destination) => dest.featured);
 
   return {
     country,
@@ -163,8 +142,8 @@ export function getCountryPageData(countrySlug: string): CountryPageData {
  * @returns CityPageData con país, ciudad y destinos
  */
 export function getCityPageData(countrySlug: string, citySlug: string): CityPageData {
-  const country = getCountryBySlug(countrySlug) ?? null;
-  const city = getCityBySlug(countrySlug, citySlug) ?? null;
+  const country = travelDataSource.getCountryBySlug(countrySlug) ?? null;
+  const city = travelDataSource.getCityBySlug(countrySlug, citySlug) ?? null;
   
   // Si la ciudad no existe, retornar estructura vacía
   if (!city) {
@@ -177,11 +156,11 @@ export function getCityPageData(countrySlug: string, citySlug: string): CityPage
     };
   }
 
-  const destinations = getDestinationsByCitySlug(countrySlug, citySlug);
-  const publishedDestinations = destinations.filter((dest): dest is Destination => 
+  const destinations = travelDataSource.getDestinationsByCitySlug(countrySlug, citySlug);
+  const publishedDestinations = destinations.filter((dest: Destination): dest is Destination => 
     dest.status === 'published' as DestinationStatus
   );
-  const comingSoonDestinations = destinations.filter((dest): dest is Destination => 
+  const comingSoonDestinations = destinations.filter((dest: Destination): dest is Destination => 
     dest.status === 'comingSoon' as DestinationStatus
   );
 
@@ -201,7 +180,7 @@ export function getCityPageData(countrySlug: string, citySlug: string): CityPage
  * @returns AdventurePageData con destino, ciudad y país
  */
 export function getAdventurePageData(adventureSlug: string): AdventurePageData {
-  const destination = getDestinationBySlug(adventureSlug);
+  const destination = travelDataSource.getDestinationBySlug(adventureSlug);
   
   // Si el destino no existe, retornar estructura vacía
   if (!destination) {
@@ -214,11 +193,11 @@ export function getAdventurePageData(adventureSlug: string): AdventurePageData {
 
   // Obtener ciudad y país relacionados
   const city = destination.citySlug && destination.countrySlug
-    ? (getCityBySlug(destination.countrySlug, destination.citySlug) ?? null)
+    ? (travelDataSource.getCityBySlug(destination.countrySlug, destination.citySlug) ?? null)
     : null;
   
   const country = destination.countrySlug
-    ? (getCountryBySlug(destination.countrySlug) ?? null)
+    ? (travelDataSource.getCountryBySlug(destination.countrySlug) ?? null)
     : null;
 
   return {

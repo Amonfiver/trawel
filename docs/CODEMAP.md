@@ -261,8 +261,11 @@ src/features/destinations/
 src/features/travelData/
 ├── types/
 │   └── travelData.types.ts      # Tipos agregados para páginas
+├── sources/
+│   ├── travelData.source.types.ts   # Contrato TravelDataSource
+│   └── mockTravelData.source.ts     # Implementación mock actual
 ├── services/
-│   └── travelData.service.ts    # Funciones de acceso a datos
+│   └── travelData.service.ts    # Servicio público (usa sources)
 └── index.ts                     # Export público
 ```
 

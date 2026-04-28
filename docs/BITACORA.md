@@ -39,6 +39,30 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Arquitectura de sources implementada en travelData
+
+Separación de fuente de datos del servicio público:
+
+**Creados:**
+- `src/features/travelData/sources/travelData.source.types.ts` - Contrato TravelDataSource
+- `src/features/travelData/sources/mockTravelData.source.ts` - Implementación mock
+
+**Modificado:**
+- `src/features/travelData/services/travelData.service.ts` - Ahora usa `travelDataSource` en lugar de importar utilidades directamente
+
+**Arquitectura:**
+```
+travelData.service.ts (público, estable)
+    ↓ usa
+travelDataSource (interfaz TravelDataSource)
+    ↓ implementa
+mockTravelDataSource (actual) → SupabaseTravelDataSource (futuro)
+```
+
+**Beneficio:** Las páginas no se ven afectadas cuando se cambia la fuente de datos.
+
+---
+
 ### 2026-04-28 - Modelo de base de datos real definido para Trawel
 
 Preparación de Trawel para leer contenido real desde Supabase:
