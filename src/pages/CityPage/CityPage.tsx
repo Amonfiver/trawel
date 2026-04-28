@@ -1,26 +1,35 @@
 /**
- * Página de detalle de ciudad
+ * Página de ficha de ciudad
  * 
- * Propósito: Mostrar información de una ciudad específica y sus destinos/aventuras
- * Alcance: Información de la ciudad con lista de destinos navegables
+ * Propósito: Mostrar información editorial completa de una ciudad y sus destinos
+ * Alcance: Ficha funcional con breadcrumb, descripción, metadatos y lista de destinos
  * 
  * Decisiones técnicas:
- * - Usa getCityBySlug para obtener datos reales de la ciudad
- * - Usa getPublishedDestinationsByCity para mostrar destinos disponibles
- * - Enlaces a /aventura/:destinationSlug para destinos publicados
- * - Fallback amigable cuando no hay destinos
+ * - Usa contenido adventure por defecto para descripción principal
+ * - Breadcrumb simple: Inicio / País / Ciudad
+ * - Avisos editoriales claros para estados no activos
+ * - Lista de destinos con metadatos visibles
  * 
  * Limitaciones actuales:
- * - Sin imágenes de ciudades
+ * - Sin conexión con ExperienceMode global (siempre usa adventure)
+ * - Sin imágenes de la ciudad
  * - Sin mapa de la ciudad
  */
 
 import { useParams, Link } from 'react-router-dom';
 import { getCityPageData } from '../../features/travelData';
-import { getCityDisplayName, isCityClickable } from '../../features/cities/data/cities.utils';
+import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
+import { getLocalizedText } from '../../app/i18n';
+import type { CityStatus } from '../../features/cities/types/city.types';
 import styles from './CityPage.module.css';
 
+/**
+ * CityPage - Ficha editorial de ciudad
+ * 
+ * Muestra información completa de una ciudad con navegación breadcrumb,
+ * descripción, metadatos y lista de destinos disponibles.
+ */
 export function CityPage() {
   const { countrySlug, citySlug } = useParams<{ countrySlug: string; citySlug: string }>();
   
@@ -37,45 +46,114 @@ export function CityPage() {
         <div className={styles.notFound}>
           <h1>Ciudad no encontrada</h1>
           <p>La ciudad "{citySlug}" no existe en {country?.displayName || 'este país'}.</p>
-          <Link to={`/pais/${countrySlug}`} className={styles.backLink}>
-            Volver al país
-          </Link>
+          {country ? (
+            <Link to={`/pais/${countrySlug}`} className={styles.backLink}>
+              ← Volver a {country.displayName}
+            </Link>
+          ) : (
+            <Link to="/" className={styles.backLink}>
+              ← Volver al inicio
+            </Link>
+          )}
         </div>
       </div>
     );
   }
 
   const cityName = getCityDisplayName(city);
-  const isActive = isCityClickable(city);
+  
+  // Descripción: adventure por defecto, fallback a shortDescription
+  const description = city.contentByMode?.adventure 
+    ? getLocalizedText(city.contentByMode.adventure, 'es')
+    : city.shortDescription 
+    ? getLocalizedText(city.shortDescription, 'es')
+    : null;
+
+  // Estado editorial
+  const statusLabel = getStatusLabel(city.status);
+  const showStatusWarning = city.status !== 'active';
 
   return (
     <div className={styles.container}>
+      {/* Breadcrumb de navegación */}
+      <nav className={styles.breadcrumb} aria-label="Navegación">
+        <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
+        <span className={styles.breadcrumbSeparator}>/</span>
+        {country ? (
+          <Link to={`/pais/${countrySlug}`} className={styles.breadcrumbLink}>
+            {country.displayName}
+          </Link>
+        ) : (
+          <span className={styles.breadcrumbDisabled}>{countrySlug}</span>
+        )}
+        <span className={styles.breadcrumbSeparator}>/</span>
+        <span className={styles.breadcrumbCurrent} aria-current="page">{cityName}</span>
+      </nav>
+
+      {/* Aviso editorial si no está activa */}
+      {showStatusWarning && (
+        <div className={`${styles.statusAlert} ${styles[city.status]}`} role="alert">
+          <span className={styles.statusIcon}>📝</span>
+          <div>
+            <strong>{statusLabel}</strong>
+            <p>Esta ciudad está en preparación y puede cambiar.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Encabezado de la ciudad */}
       <header className={styles.header}>
-        <Link to={`/pais/${countrySlug}`} className={styles.backLink}>
-          ← Volver a {country?.displayName || 'país'}
-        </Link>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>{cityName}</h1>
-          {city.shortDescription && (
-            <p className={styles.subtitle}>
-              {getCityDisplayName(city)}
-            </p>
+        <div className={styles.headerMeta}>
+          {city.featured && (
+            <span className={styles.featuredBadge}>⭐ Destacada</span>
           )}
-          {!isActive && (
-            <span className={styles.comingSoonBadge}>Próximamente</span>
+          {showStatusWarning && (
+            <span className={styles.statusBadge}>{statusLabel}</span>
           )}
         </div>
+        
+        <h1 className={styles.title}>{cityName}</h1>
+        
+        <p className={styles.location}>
+          📍 {country?.displayName || 'País no disponible'}
+        </p>
+
+        {description && (
+          <p className={styles.summary}>{description}</p>
+        )}
       </header>
 
+      {/* Contenido principal */}
       <main className={styles.main}>
-        {/* Descripción de la ciudad */}
-        {city.contentByMode && (
-          <section className={styles.descriptionSection}>
-            <p className={styles.description}>
-              {getCityDisplayName(city)}
-            </p>
-          </section>
-        )}
+        {/* Información y metadatos */}
+        <section className={styles.infoSection}>
+          <div className={styles.infoCard}>
+            <h2 className={styles.infoTitle}>Información general</h2>
+            
+            <div className={styles.infoGrid}>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Destinos disponibles</span>
+                <span className={styles.infoValue}>{destinations.length}</span>
+              </div>
+              
+              {city.coordinates && (
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Coordenadas</span>
+                  <span className={styles.infoValueCoords}>
+                    {city.coordinates.lat.toFixed(4)}, {city.coordinates.lng.toFixed(4)}
+                  </span>
+                </div>
+              )}
+              
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Estado</span>
+                <span className={`${styles.infoValue} ${styles[city.status]}`}>
+                  {statusLabel}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Destinos disponibles */}
         <section className={styles.destinationsSection} aria-labelledby="destinations-title">
@@ -107,7 +185,7 @@ export function CityPage() {
                           </span>
                         )}
                         {destination.featured && (
-                          <span className={styles.featuredBadge}>Destacado</span>
+                          <span className={styles.featuredBadgeSmall}>⭐ Destacado</span>
                         )}
                       </div>
                       
@@ -139,9 +217,9 @@ export function CityPage() {
             </div>
           ) : (
             <div className={styles.emptyState}>
-              <p>🗺️ Estamos preparando los mejores destinos de {cityName}.</p>
+              <p>🗺️ Todavía estamos preparando destinos para esta ciudad.</p>
               <p className={styles.emptyText}>
-                Vuelve pronto para descubrir aventuras increíbles en esta ciudad.
+                Vuelve pronto para descubrir aventuras increíbles en {cityName}.
               </p>
             </div>
           )}
@@ -149,6 +227,16 @@ export function CityPage() {
       </main>
     </div>
   );
+}
+
+/** Obtiene label legible del estado de la ciudad */
+function getStatusLabel(status: CityStatus): string {
+  const labels: Record<CityStatus, string> = {
+    active: 'Activa',
+    comingSoon: 'Próximamente',
+    disabled: 'No disponible',
+  };
+  return labels[status] || status;
 }
 
 /** Helper para obtener label legible del tipo de destino */
@@ -159,7 +247,7 @@ function getDestinationTypeLabel(type: string): string {
     nature: 'Naturaleza',
     experience: 'Experiencia',
     food: 'Gastronomía',
-    hiddenGem: 'Joyas escondidas',
+    hiddenGem: 'Joya escondida',
   };
   return labels[type] || type;
 }

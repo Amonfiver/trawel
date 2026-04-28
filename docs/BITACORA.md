@@ -1186,4 +1186,69 @@ dist/assets/index-ClBtF5zK.css   22.09 kB │ gzip: 5.12 kB
 
 ---
 
-*Entradas de bitácora - Trawel v2.7*
+## 2026-04-28 - CityPage mejorada como ficha editorial funcional
+
+**Participantes:** SDD mejora de ficha de ciudad
+
+### Qué se hizo
+
+1. **Refactor de CityPage** (`src/pages/CityPage/`)
+   - Nueva estructura de ficha editorial completa:
+     - Breadcrumb navegable: Inicio / País / Ciudad
+     - Encabezado con nombre, badges (destacada, estado), ubicación
+     - Descripción principal (modo adventure por defecto)
+     - Tarjeta de información general con metadatos
+     - Lista de destinos publicados en grid responsive
+   - Avisos editoriales para estados no activos (comingSoon, disabled)
+   - Manejo de estado vacío: mensaje amigable cuando no hay destinos
+   - Manejo de ciudad no encontrada con enlaces de navegación
+
+2. **Nuevos estilos CSS** (`CityPage.module.css`)
+   - Coherencia visual con AdventurePage
+   - Layout responsive: móvil a desktop
+   - Grid de destinos: 1 columna (móvil), 2 (tablet), 3 (desktop)
+   - Tarjetas con hover effects sutiles
+   - Estados de alerta con colores diferenciados
+
+### Elementos de la ficha editorial
+
+**Encabezado:**
+- Badge "Destacada" si aplica
+- Badge de estado (Próximamente/No disponible) si no está activa
+- Nombre de la ciudad
+- Ubicación: 📍 País
+- Descripción del contenido adventure
+
+**Información general:**
+- Número de destinos disponibles
+- Coordenadas (lat, lng)
+- Estado de la ciudad
+
+**Lista de destinos:**
+- Cada destino en tarjeta con:
+  - Badge de tipo (Museo, Monumento, etc.)
+  - Badge "Destacado" si aplica
+  - Título
+  - Resumen (2 líneas máximo)
+  - Duración estimada
+  - Tags (máximo 3)
+  - Flecha de navegación
+
+### Archivos modificados
+
+| Archivo | Cambios |
+|---------|---------|
+| `CityPage.tsx` | Refactor completo con ficha editorial |
+| `CityPage.module.css` | Estilos nuevos responsive y coherentes |
+
+### Build verificado
+
+```
+✓ 636 modules transformed
+✓ built in 349ms
+dist/assets/index-CxLLxsts.css   29.01 kB │ gzip: 5.78 kB
+```
+
+---
+
+*Entradas de bitácora - Trawel v2.8*
