@@ -39,9 +39,11 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
-### 2026-04-29 - Inicialización controlada de datos con Supabase
+### 2026-04-29 - Supabase como fuente de datos estable ✅
 
-Implementada inicialización controlada antes del renderizado de React, asegurando que los datos estén cargados antes de mostrar las páginas:
+**CONFIRMADO:** Trawel lee datos reales desde Supabase. Se verificó cambiando `countries.name_es` de "España" a "España DB" en la base de datos y confirmando que la app muestra el cambio tras refrescar.
+
+**Implementación de inicialización controlada:**
 
 **Creados/Modificados:**
 - `src/main.tsx` - Bootstrap con inicialización asíncrona y pantallas de loading/error
@@ -50,31 +52,40 @@ Implementada inicialización controlada antes del renderizado de React, aseguran
 
 **Flujo de inicialización:**
 ```
-main.tsx → initializeTravelDataSource() → renderApp() o renderError()
+main.tsx → bootstrap()
+  ↓
+initializeTravelDataSource()
+  ↓
+├─ mock: inicialización instantánea
+└─ supabase: carga datos → renderApp() o renderError()
 ```
 
-**Comportamiento:**
-- **Mock (default)**: Inicialización instantánea, sin pantalla de carga
-- **Supabase**: Muestra "Cargando Trawel..." mientras carga, luego renderiza
-- **Error**: Muestra pantalla de error con mensaje claro y botón reintentar
+**Comportamiento por modo:**
 
-**API de inicialización:**
-```typescript
-import { initializeTravelDataSource } from '@/features/travelData';
+| Modo | Loading | Error | Datos |
+|------|---------|-------|-------|
+| `mock` | No | Pantalla error | Locales estáticos |
+| `supabase` | "Cargando Trawel..." | Pantalla error + reintentar | Desde Supabase |
 
-// Inicializar (mock: instantáneo, supabase: async)
-await initializeTravelDataSource();
+**Manejo de errores:**
+- Si Supabase falla: pantalla con mensaje claro y botón "Reintentar"
+- Console logs detallados en cada paso del proceso
+- No se rompe la app ni queda en blanco
 
-// Verificar estado
-const isReady = isTravelDataSourceInitialized();
-const state = getTravelDataSourceState();
-```
+**Rutas verificadas:**
+- ✅ `/` - HomePage con países desde Supabase
+- ✅ `/pais/espana` - CountryPage con datos de España
+- ✅ `/pais/japon` - CountryPage con datos de Japón
+- ✅ `/pais/espana/madrid` - CityPage con datos de Madrid
+- ✅ `/pais/japon/tokyo` - CityPage con datos de Tokio
+- ✅ `/aventura/museo-del-prado` - AdventurePage con datos del destino
 
 **Verificación:**
 - ✅ `npm run build` exitoso
 - ✅ Modo mock funciona sin configuración
-- ✅ Modo Supabase inicializa antes de renderizar
-- ✅ Pantalla de error si falla Supabase
+- ✅ Modo Supabase lee datos reales
+- ✅ Inicialización antes de renderizar (sin condiciones de carrera)
+- ✅ Pantalla de error clara si falla Supabase
 - ✅ Sin cambios en páginas existentes
 
 ---
