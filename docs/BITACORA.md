@@ -39,6 +39,35 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-29 - Corrección de seed SQL tras error real en Supabase
+
+Corregido `scripts/exportMockToSqlSeed.ts` para generar SQL compatible con constraints reales de Supabase:
+
+**Problema detectado:**
+Al ejecutar `supabase/seed.sql` en Supabase SQL Editor apareció error:
+```
+ERROR: null value in column "url" of relation "destination_sources" violates not-null constraint
+```
+
+**Causas:**
+- Fuentes mock con `url: null` se exportaban como `NULL` en SQL
+- Fuentes con `type: "own"` no válido en schema (solo permite: official, tourism, heritage, blog, reviews, restaurant, accommodation, other)
+- Campo `supports` vacío no tenía valor por defecto
+
+**Correcciones aplicadas:**
+1. Filtrar fuentes sin URL válida (no se exportan a `destination_sources`)
+2. Mapear `type: 'own'` a `'other'` cuando no está en valores permitidos
+3. Valor por defecto para `supports`: "Fuente usada como referencia editorial."
+
+**Verificación:**
+- ✅ `npm run export:seed` funciona
+- ✅ `npm run build` funciona
+- ✅ Seed.sql no contiene `type = 'own'`
+- ✅ Seed.sql no contiene URLs null en fuentes
+- ✅ Compatible con schema real de Supabase
+
+---
+
 ### 2026-04-28 - Preparación para conexión con Supabase
 
 Preparado el proyecto para conectar con Supabase manteniendo la fuente mock actual:

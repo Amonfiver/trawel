@@ -23,10 +23,11 @@
  * - ON CONFLICT asume constraints únicos definidos en el schema
  * - Si faltan datos en los imports, el script falla con error claro
  * 
- * Cambios recientes (2026-04-28):
- * - Saneada configuración npm para compatibilidad con tsx
- * - Agregada validación de directorio raíz del proyecto
- * - Confirmada generación correcta de seed.sql con 488 líneas
+ * Cambios recientes (2026-04-29):
+ * - CORREGIDO: Filtrar fuentes sin URL válida (constraint NOT NULL en Supabase)
+ * - CORREGIDO: Mapear type 'own' a 'other' (no permitido en schema)
+ * - CORREGIDO: Valor por defecto para supports vacío/null
+ * - Verificado compatibilidad completa con schema real de Supabase
  * 
  * Uso oficial:
  *   npm run export:seed
@@ -185,6 +186,17 @@ function generateDestinationsSql(): string {
   return lines.join('\n');
 }
 
+// Tipos válidos de fuentes en el schema
+const VALID_SOURCE_TYPES = ['official', 'tourism', 'heritage', 'blog', 'reviews', 'restaurant', 'accommodation', 'other'];
+
+// Normalizar tipo de fuente al schema
+function normalizeSourceType(type: string | undefined): string {
+  if (!type) return 'other';
+  if (VALID_SOURCE_TYPES.includes(type)) return type;
+  // 'own' y otros valores no permitidos se mapean a 'other'
+  return 'other';
+}
+
 // Generar SQL para destination_sources
 function generateSourcesSql(): string {
   const lines: string[] = [
@@ -200,14 +212,26 @@ function generateSourcesSql(): string {
     const titleEs = typeof dest.title === 'string' ? dest.title : dest.title?.es || dest.id;
 
     dest.sources.forEach(source => {
+      // CORRECCIÓN: Omitir fuentes sin URL válida (constraint NOT NULL en Supabase)
+      if (!source.url || source.url.trim() === '') {
+        return;
+      }
+
+      // CORRECCIÓN: Normalizar tipo al schema válido
+      const normalizedType = normalizeSourceType(source.type);
+
+      // CORRECCIÓN: Valor por defecto para supports
+      // Nota: El tipo Source no tiene campo supports, usamos valor por defecto
+      const supportsValue = 'Fuente usada como referencia editorial.';
+
       lines.push(`-- Source for: ${titleEs}`);
       lines.push(`INSERT INTO destination_sources (destination_id, title, url, type, supports, created_at)`);
       lines.push(`VALUES (`);
       lines.push(`  (SELECT id FROM destinations WHERE slug = '${dest.slug}'),`);
       lines.push(`  '${escapeSql(source.title)}',`);
-      lines.push(`  ${optional(source.url)},`);
-      lines.push(`  '${source.type}',`);
-      lines.push(`  NULL,`);
+      lines.push(`  '${escapeSql(source.url)}',`);
+      lines.push(`  '${normalizedType}',`);
+      lines.push(`  '${escapeSql(supportsValue)}',`);
       lines.push(`  NOW()`);
       lines.push(`)`);
       lines.push(`ON CONFLICT DO NOTHING;`);

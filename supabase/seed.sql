@@ -2,7 +2,7 @@
 -- TRAWEL SEED DATA
 -- ============================================
 -- Generated automatically from mock data
--- Date: 2026-04-28T21:50:52.420Z
+-- Date: 2026-04-28T22:07:39.528Z
 -- ============================================
 
 -- NOTE: This file assumes the schema already exists in Supabase.
@@ -384,50 +384,14 @@ ON CONFLICT DO NOTHING;
 -- DESTINATION SOURCES
 -- ============================================
 
--- Source for: Museo del Prado
-INSERT INTO destination_sources (destination_id, title, url, type, supports, created_at)
-VALUES (
-  (SELECT id FROM destinations WHERE slug = 'museo-del-prado'),
-  'Guía oficial del Museo del Prado',
-  NULL,
-  'own',
-  NULL,
-  NOW()
-)
-ON CONFLICT DO NOTHING;
-
--- Source for: Templo Senso-ji
-INSERT INTO destination_sources (destination_id, title, url, type, supports, created_at)
-VALUES (
-  (SELECT id FROM destinations WHERE slug = 'templo-senso-ji'),
-  'Folletos oficiales del templo Senso-ji',
-  NULL,
-  'own',
-  NULL,
-  NOW()
-)
-ON CONFLICT DO NOTHING;
-
 -- Source for: Machu Picchu
 INSERT INTO destination_sources (destination_id, title, url, type, supports, created_at)
 VALUES (
   (SELECT id FROM destinations WHERE slug = 'machu-picchu'),
   'Ministerio de Cultura del Perú',
   'https://www.machupicchu.gob.pe',
-  'website',
-  NULL,
-  NOW()
-)
-ON CONFLICT DO NOTHING;
-
--- Source for: Machu Picchu
-INSERT INTO destination_sources (destination_id, title, url, type, supports, created_at)
-VALUES (
-  (SELECT id FROM destinations WHERE slug = 'machu-picchu'),
-  'Machu Picchu: Unveiling the Mystery of the Incas',
-  NULL,
-  'book',
-  NULL,
+  'other',
+  'Fuente usada como referencia editorial.',
   NOW()
 )
 ON CONFLICT DO NOTHING;
@@ -438,20 +402,8 @@ VALUES (
   (SELECT id FROM destinations WHERE slug = 'parque-del-retiro'),
   'Ayuntamiento de Madrid - Parque del Retiro',
   'https://www.madrid.es/retiro',
-  'website',
-  NULL,
-  NOW()
-)
-ON CONFLICT DO NOTHING;
-
--- Source for: Parque del Retiro
-INSERT INTO destination_sources (destination_id, title, url, type, supports, created_at)
-VALUES (
-  (SELECT id FROM destinations WHERE slug = 'parque-del-retiro'),
-  'El Retiro: Historia y Arte',
-  NULL,
-  'book',
-  NULL,
+  'other',
+  'Fuente usada como referencia editorial.',
   NOW()
 )
 ON CONFLICT DO NOTHING;
@@ -462,20 +414,8 @@ VALUES (
   (SELECT id FROM destinations WHERE slug = 'fushimi-inari'),
   'Fushimi Inari Taisha Official',
   'https://inari.jp/en/',
-  'website',
-  NULL,
-  NOW()
-)
-ON CONFLICT DO NOTHING;
-
--- Source for: Fushimi Inari Taisha
-INSERT INTO destination_sources (destination_id, title, url, type, supports, created_at)
-VALUES (
-  (SELECT id FROM destinations WHERE slug = 'fushimi-inari'),
-  'The Fox and the Jewel: Shared and Private Meanings in Contemporary Japanese Inari Worship',
-  NULL,
-  'book',
-  NULL,
+  'other',
+  'Fuente usada como referencia editorial.',
   NOW()
 )
 ON CONFLICT DO NOTHING;
