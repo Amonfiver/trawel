@@ -39,6 +39,55 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-29 - Implementación SupabaseTravelDataSource completa
+
+Creada implementación completa de fuente de datos Supabase manteniendo mock como default:
+
+**Creados:**
+- `src/lib/supabaseClient.ts` - Cliente Supabase con safe-fallback
+- `src/features/travelData/sources/supabaseTravelData.source.ts` - Implementación TravelDataSource para Supabase
+
+**Modificados:**
+- `src/features/travelData/sources/mockTravelData.source.ts` - Factory con selección por VITE_TRAVEL_DATA_SOURCE
+- `package.json` - Agregada dependencia `@supabase/supabase-js`
+
+**Arquitectura de fuentes:**
+```
+VITE_TRAVEL_DATA_SOURCE=mock (default)
+  → mockTravelDataSource (datos locales)
+
+VITE_TRAVEL_DATA_SOURCE=supabase
+  → supabaseTravelDataSource (requiere inicialización)
+```
+
+**Características de SupabaseTravelDataSource:**
+- Implementación síncrona compatible con interfaz actual
+- Cache en memoria con carga inicial asíncrona
+- Mapeo automático de campos `_es` a tipos de aplicación
+- Fallback a mock si Supabase no está configurado
+
+**Uso de Supabase:**
+```typescript
+// Inicializar antes de usar
+await supabaseTravelDataSource.initialize();
+
+// Luego usar normalmente (síncrono)
+const countries = travelDataSource.getAllCountries();
+```
+
+**Variables de entorno:**
+- `VITE_SUPABASE_URL` - URL del proyecto Supabase
+- `VITE_SUPABASE_ANON_KEY` - Clave anónima de Supabase
+- `VITE_TRAVEL_DATA_SOURCE` - Fuente: `mock` | `supabase`
+
+**Verificación:**
+- ✅ `npm run build` exitoso
+- ✅ Sin errores de TypeScript
+- ✅ Mock funciona por defecto (sin configuración)
+- ✅ Páginas no requieren cambios
+
+---
+
 ### 2026-04-29 - Corrección de seed SQL tras error real en Supabase
 
 Corregido `scripts/exportMockToSqlSeed.ts` para generar SQL compatible con constraints reales de Supabase:

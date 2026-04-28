@@ -1,23 +1,23 @@
 /**
- * Implementación mock de fuente de datos para TravelData
+ * Factory de fuentes de datos para TravelData
  * 
- * Propósito: Proveer datos desde archivos locales estáticos (mock)
+ * Propósito: Proveer la fuente de datos según configuración (mock o Supabase)
  * 
- * Alcance: Implementación actual de TravelDataSource usando datos locales
+ * Alcance: Exporta la fuente de datos activa según VITE_TRAVEL_DATA_SOURCE
  * 
  * Decisiones técnicas:
- * - Delega a las utilidades existentes de countries, cities, destinations
- * - Mantiene compatibilidad con datos actuales
- * - No realiza transformaciones, solo expone los datos
+ * - Lee VITE_TRAVEL_DATA_SOURCE para seleccionar fuente ('mock' | 'supabase')
+ * - Mock por defecto si no está definida o tiene valor inválido
+ * - Mantiene compatibilidad con código existente (sin cambios en páginas)
  * 
  * Limitaciones / estado temporal:
- * - Es la implementación temporal hasta migrar a Supabase
- * - Datos estáticos, no persistencia real
- * - Se sustituirá por SupabaseTravelDataSource en el futuro
+ * - Supabase requiere inicialización asíncrona (no compatible con interfaz síncrona)
+ * - Para usar Supabase, las páginas deben adaptarse a async
  * 
- * Cambios recientes (2026-04-28):
- * - Creado para encapsular fuente mock
- * - Separado del servicio público travelData.service.ts
+ * Cambios recientes (2026-04-29):
+ * - Agregado soporte para VITE_TRAVEL_DATA_SOURCE
+ * - Export de supabaseTravelDataSource para inicialización manual
+ * - Factory createTravelDataSource() mantiene compatibilidad
  */
 
 import type { TravelDataSource } from './travelData.source.types';
@@ -42,11 +42,14 @@ import {
   getDestinationsByCitySlug,
 } from '../../destinations/data/destinations.utils';
 
+// Importar implementación Supabase (para export y uso manual)
+import { supabaseTravelDataSource } from './supabaseTravelData.source';
+
 /**
  * Implementación mock de TravelDataSource
  * 
  * Usa los diccionarios locales de countries, cities y destinations.
- * En el futuro se sustituirá por una implementación que consulte Supabase.
+ * Es la implementación por defecto y no requiere configuración externa.
  */
 export const mockTravelDataSource: TravelDataSource = {
   // === Countries ===
@@ -91,23 +94,53 @@ export const mockTravelDataSource: TravelDataSource = {
 };
 
 /**
- * Factory para crear la fuente de datos
+ * Determina qué fuente de datos usar según configuración
  * 
- * Actualmente siempre retorna mockTravelDataSource.
- * En el futuro, esto permitirá seleccionar la implementación
- * según configuración (mock vs Supabase vs API).
+ * Lee VITE_TRAVEL_DATA_SOURCE:
+ * - 'mock' → mockTravelDataSource (default)
+ * - 'supabase' → supabaseTravelDataSource (requiere inicialización)
+ * - cualquier otro → mockTravelDataSource
  */
-export function createTravelDataSource(): TravelDataSource {
-  // TODO: En el futuro, leer de configuración o variable de entorno
-  // const useSupabase = import.meta.env.VITE_USE_SUPABASE === 'true';
-  // if (useSupabase) return new SupabaseTravelDataSource();
+function getConfiguredDataSource(): TravelDataSource {
+  const source = import.meta.env.VITE_TRAVEL_DATA_SOURCE;
+  
+  if (source === 'supabase') {
+    // NOTA: Supabase requiere inicialización asíncrona antes de usar
+    // Las páginas deben llamar a supabaseTravelDataSource.initialize() primero
+    // o usar createSupabaseTravelDataSource() para obtener instancia lista
+    console.warn(
+      '[TravelDataSource] Usando Supabase. ' +
+      'Asegúrate de llamar supabaseTravelDataSource.initialize() antes de usar los datos.'
+    );
+    return supabaseTravelDataSource;
+  }
+  
+  // Default: mock
+  if (source && source !== 'mock') {
+    console.warn(`[TravelDataSource] Valor desconocido "${source}", usando mock por defecto`);
+  }
   
   return mockTravelDataSource;
+}
+
+/**
+ * Factory para crear la fuente de datos configurada
+ * 
+ * @returns TravelDataSource según VITE_TRAVEL_DATA_SOURCE
+ */
+export function createTravelDataSource(): TravelDataSource {
+  return getConfiguredDataSource();
 }
 
 /**
  * Instancia singleton de la fuente de datos
  * 
  * Usar esta instancia en travelData.service.ts
+ * 
+ * NOTA: Si VITE_TRAVEL_DATA_SOURCE=supabase, debes inicializar antes:
+ *   await supabaseTravelDataSource.initialize();
  */
 export const travelDataSource = createTravelDataSource();
+
+// Re-exportar supabaseTravelDataSource para inicialización manual
+export { supabaseTravelDataSource };

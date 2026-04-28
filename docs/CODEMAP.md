@@ -73,6 +73,41 @@ src/app/
 
 **Responsabilidad:** Inicialización y configuración global. No contiene lógica de negocio.
 
+---
+
+## `src/lib/` - Clientes y utilidades externas
+
+```
+src/lib/
+└── supabaseClient.ts    # Cliente Supabase con safe-fallback
+```
+
+**Responsabilidad:** Configuración de clientes para servicios externos (Supabase, APIs, etc.).
+
+### Cliente Supabase (`src/lib/supabaseClient.ts`)
+
+**Propósito:** Proveer instancia reutilizable del cliente Supabase para conectar con base de datos en la nube.
+
+**Variables de entorno requeridas:**
+- `VITE_SUPABASE_URL` - URL del proyecto Supabase
+- `VITE_SUPABASE_ANON_KEY` - Clave anónima pública
+
+**Exports:**
+- `supabase` - Instancia del cliente (null si no está configurado)
+- `isSupabaseConfigured()` - Verifica si las credenciales están presentes
+- `getSupabase()` - Obtiene el cliente o lanza error si no está configurado
+
+**Uso:**
+```typescript
+import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+
+if (isSupabaseConfigured()) {
+  const { data, error } = await supabase.from('countries').select('*');
+}
+```
+
+**Nota:** El cliente es seguro de usar sin configuración (retorna null), evitando que la app falle si no se usa Supabase.
+
 ### Sistema i18n (`src/app/i18n/`)
 
 **Archivos:**
@@ -265,18 +300,26 @@ src/features/destinations/
 ```
 src/features/travelData/
 ├── types/
-│   └── travelData.types.ts      # Tipos agregados para páginas
+│   └── travelData.types.ts              # Tipos agregados para páginas
 ├── sources/
-│   ├── travelData.source.types.ts   # Contrato TravelDataSource
-│   └── mockTravelData.source.ts     # Implementación mock actual
+│   ├── travelData.source.types.ts       # Contrato TravelDataSource
+│   ├── mockTravelData.source.ts         # Implementación mock (default)
+│   └── supabaseTravelData.source.ts     # Implementación Supabase
 ├── services/
-│   └── travelData.service.ts    # Servicio público (usa sources)
-└── index.ts                     # Export público
+│   └── travelData.service.ts            # Servicio público (usa sources)
+└── index.ts                             # Export público
 ```
 
-**Responsabilidad:** Proveer una capa de abstracción entre las páginas y el origen de datos actual (local).
+**Responsabilidad:** Proveer una capa de abstracción entre las páginas y el origen de datos (mock o Supabase).
 
-**Propósito:** Facilitar la migración futura a base de datos externa (Supabase/API) sin modificar las páginas.
+**Arquitectura de fuentes:**
+```
+VITE_TRAVEL_DATA_SOURCE=mock (default)
+  → mockTravelDataSource (datos locales estáticos)
+
+VITE_TRAVEL_DATA_SOURCE=supabase
+  → supabaseTravelDataSource (base de datos real)
+```
 
 **Tipos definidos:**
 - `HomePageData` - Datos para HomePage (países, estadísticas)
@@ -290,12 +333,14 @@ src/features/travelData/
 - `getCityPageData(countrySlug, citySlug)` - Obtiene datos para CityPage
 - `getAdventurePageData(adventureSlug)` - Obtiene datos para AdventurePage
 
-**Nota sobre persistencia futura:**
-> Este servicio está diseñado como punto de sustitución. Cuando se implemente Supabase/API:
-> 1. Convertir funciones a async
-> 2. Agregar manejo de errores con TravelDataResult<T>
-> 3. Implementar caché con React Query/SWR
-> 4. Las páginas solo necesitarán agregar await y loading states
+**Implementaciones disponibles:**
+
+1. **mockTravelDataSource** (default): Usa datos locales de `countries.ts`, `cities.ts`, `destinations.ts`
+
+2. **supabaseTravelDataSource**: Conecta con Supabase
+   - Requiere inicialización: `await supabaseTravelDataSource.initialize()`
+   - Cache en memoria para operaciones síncronas
+   - Mapeo automático de campos `_es` a tipos de aplicación
 
 ### `src/features/experienceMode/` - Modos de experiencia
 
