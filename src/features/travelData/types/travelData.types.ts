@@ -58,8 +58,14 @@ export interface CountryPageData {
   activeCities: City[];
   /** Ciudades con status 'comingSoon' */
   comingSoonCities: City[];
-  /** Número total de destinos en todas las ciudades del país */
-  destinationsCount: number;
+  /** Número total de ciudades */
+  totalCitiesCount: number;
+  /** Número de destinos publicados en el país */
+  publishedDestinationsCount: number;
+  /** Número de destinos próximamente en el país */
+  comingSoonDestinationsCount: number;
+  /** Destinos destacados del país */
+  featuredDestinations: Destination[];
 }
 
 /**

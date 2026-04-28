@@ -107,7 +107,10 @@ export function getCountryPageData(countrySlug: string): CountryPageData {
       cities: [],
       activeCities: [],
       comingSoonCities: [],
-      destinationsCount: 0,
+      totalCitiesCount: 0,
+      publishedDestinationsCount: 0,
+      comingSoonDestinationsCount: 0,
+      featuredDestinations: [],
     };
   }
 
@@ -119,17 +122,31 @@ export function getCountryPageData(countrySlug: string): CountryPageData {
     city.status === 'comingSoon' as CityStatus
   );
 
-  // Calcular total de destinos sumando los de todas las ciudades
-  const destinationsCount = cities.reduce((total, city) => 
-    total + (city.destinationCount || 0), 0
+  // Obtener todos los destinos del país
+  const allDestinations: Destination[] = [];
+  cities.forEach(city => {
+    const cityDestinations = getDestinationsByCitySlug(countrySlug, city.slug);
+    allDestinations.push(...cityDestinations);
+  });
+
+  // Calcular conteos de destinos
+  const publishedDestinations = allDestinations.filter((dest): dest is Destination => 
+    dest.status === 'published' as DestinationStatus
   );
+  const comingSoonDestinations = allDestinations.filter((dest): dest is Destination => 
+    dest.status === 'comingSoon' as DestinationStatus
+  );
+  const featuredDestinations = publishedDestinations.filter(dest => dest.featured);
 
   return {
     country,
     cities,
     activeCities,
     comingSoonCities,
-    destinationsCount,
+    totalCitiesCount: cities.length,
+    publishedDestinationsCount: publishedDestinations.length,
+    comingSoonDestinationsCount: comingSoonDestinations.length,
+    featuredDestinations,
   };
 }
 

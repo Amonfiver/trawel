@@ -1251,4 +1251,99 @@ dist/assets/index-CxLLxsts.css   29.01 kB │ gzip: 5.78 kB
 
 ---
 
-*Entradas de bitácora - Trawel v2.8*
+## 2026-04-28 - CountryPage mejorada como ficha editorial funcional
+
+**Participantes:** SDD mejora de ficha de país
+
+### Qué se hizo
+
+1. **Refactor de CountryPage** (`src/pages/CountryPage/`)
+   - Nueva estructura de ficha editorial completa coherente con CityPage y AdventurePage:
+     - Breadcrumb navegable: Inicio / País
+     - Encabezado con emoji de bandera, nombre, badges (destacado, estado), capital y continente
+     - Descripción del país desde `shortDescription`
+   - Estadísticas visuales en grid de 4 tarjetas:
+     - Ciudades disponibles
+     - Total de ciudades
+     - Destinos publicados
+     - Próximamente
+   - Información general en tarjeta con: capital, continente, códigos ISO, estado
+   - Lista de ciudades activas con:
+     - Enlaces a `/pais/:countrySlug/:citySlug`
+     - Badge de destacada si aplica
+     - Badge de estado "Disponible"
+     - Descripción de la ciudad
+     - Contador de destinos
+   - Sección de ciudades "Próximamente" sin enlaces
+   - Sección de destinos destacados del país con enlaces directos a `/aventura/:destinationSlug`
+   - Avisos editoriales para estados no activos (comingSoon, disabled)
+   - Manejo de estado vacío: mensaje amigable cuando no hay ciudades
+   - Manejo de país no encontrado con enlace de navegación
+
+2. **Nuevos estilos CSS** (`CountryPage.module.css`)
+   - Coherencia visual con CityPage y AdventurePage
+   - Layout responsive: móvil a desktop
+   - Grid de estadísticas: 2x2 en móvil, 4 columnas en desktop
+   - Grid de ciudades: 1 columna (móvil), 2 (tablet), 3 (desktop)
+   - Grid de destinos destacados: igual que ciudades
+   - Tarjetas con hover effects sutiles
+   - Estados de alerta con colores diferenciados
+   - Emoji de bandera grande en el encabezado
+
+### Datos utilizados de CountryPageData
+
+El servicio `travelData.service` ahora proporciona:
+- `country`: Información completa del país
+- `activeCities`: Ciudades navegables del país
+- `comingSoonCities`: Ciudades en preparación
+- `totalCitiesCount`: Total de ciudades
+- `publishedDestinationsCount`: Destinos publicados
+- `comingSoonDestinationsCount`: Destinos próximamente
+- `featuredDestinations`: Destinos destacados del país
+
+### Elementos de la ficha editorial
+
+**Encabezado:**
+- Emoji de bandera del país (generado desde ISO alpha-2)
+- Badge "Destacado" si aplica
+- Badge de estado si no está activo
+- Nombre del país (título grande)
+- Ubicación: Capital y continente
+- Descripción del país
+
+**Estadísticas (4 tarjetas):**
+- Visualización rápida de métricas clave
+- Hover con elevación suave
+
+**Información general:**
+- Capital, continente, códigos ISO, estado
+- Colores diferenciados por estado
+
+**Ciudades:**
+- Tarjetas clickeables para ciudades activas
+- Indicador visual de ciudades destacadas
+- Contador de destinos por ciudad
+- Descripción truncada a 2 líneas
+
+**Destinos destacados:**
+- Acceso directo a aventuras destacadas del país
+- Tipo de destino, título, resumen, duración
+
+### Archivos modificados
+
+| Archivo | Cambios |
+|---------|---------|
+| `CountryPage.tsx` | Refactor completo con ficha editorial |
+| `CountryPage.module.css` | Estilos nuevos responsive y coherentes |
+
+### Build verificado
+
+```
+✓ 636 modules transformed
+✓ built in 345ms
+dist/assets/index-[hash].css   [tamaño] │ gzip: [tamaño]
+```
+
+---
+
+*Entradas de bitácora - Trawel v2.9*
