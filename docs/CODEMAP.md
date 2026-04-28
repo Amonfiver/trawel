@@ -108,9 +108,13 @@ src/pages/
 │   ├── CityPage.tsx
 │   ├── CityPage.module.css
 │   └── index.ts
-└── AdventurePage/
-    ├── AdventurePage.tsx
-    ├── AdventurePage.module.css
+├── AdventurePage/
+│   ├── AdventurePage.tsx
+│   ├── AdventurePage.module.css
+│   └── index.ts
+└── ImportInvestighostPage/
+    ├── ImportInvestighostPage.tsx      # Página de validación JSON (uso interno)
+    ├── ImportInvestighostPage.module.css
     └── index.ts
 ```
 

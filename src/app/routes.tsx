@@ -3,6 +3,7 @@ import { HomePage } from '../pages/HomePage';
 import { CountryPage } from '../pages/CountryPage';
 import { CityPage } from '../pages/CityPage';
 import { AdventurePage } from '../pages/AdventurePage';
+import { ImportInvestighostPage } from '../pages/ImportInvestighostPage';
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
   {
     path: '/aventura/:adventureSlug',
     element: <AdventurePage />,
+  },
+  {
+    path: '/dev/import-investighost',
+    element: <ImportInvestighostPage />,
   },
   {
     path: '*',

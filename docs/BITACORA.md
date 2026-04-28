@@ -39,6 +39,20 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-28 - Página de validación JSON de Investighost-GPT
+
+Creada página interna `/dev/import-investighost` para validar JSON generado por Investighost-GPT:
+
+- Interfaz para pegar y validar JSON según contrato Investighost-Trawel
+- Validaciones: estructura, campos obligatorios, existencia de ciudad, destinos
+- Previsualización del contenido validado
+- Sin persistencia de datos (solo validación temporal)
+- Útil para revisar contenido antes de integrarlo manualmente
+
+**Archivos:** `ImportInvestighostPage.tsx`, `ImportInvestighostPage.module.css`, `routes.tsx`
+
+---
+
 ### 2026-04-28 - Contrato de compatibilidad Investighost-GPT ↔ Trawel
 
 Creado el contrato editorial entre Investighost-GPT (investigador/redactor) y Trawel (plataforma de publicación):
