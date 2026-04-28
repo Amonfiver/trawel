@@ -118,6 +118,10 @@ export const destinations: DestinationDictionary = {
     estimatedVisitTime: '2 horas',
     price: createLocalizedText('Gratis'),
     openingHours: createLocalizedText('6:00 - 00:00 (horario variable según estación)'),
+    sources: [
+      { type: 'website', title: 'Ayuntamiento de Madrid - Parque del Retiro', url: 'https://www.madrid.es/retiro' },
+      { type: 'book', title: 'El Retiro: Historia y Arte', author: 'Francesco P. S.', year: 2015 },
+    ],
   },
 
   // Kioto - Fushimi Inari
@@ -139,6 +143,10 @@ export const destinations: DestinationDictionary = {
     estimatedVisitTime: '2-3 horas (ida y vuelta completa)',
     price: createLocalizedText('Gratis'),
     openingHours: createLocalizedText('Siempre abierto'),
+    sources: [
+      { type: 'website', title: 'Fushimi Inari Taisha Official', url: 'https://inari.jp/en/' },
+      { type: 'book', title: 'The Fox and the Jewel: Shared and Private Meanings in Contemporary Japanese Inari Worship', author: 'Karen A. Smyers', year: 1999 },
+    ],
   },
 };
 

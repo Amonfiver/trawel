@@ -1111,6 +1111,79 @@ const { data, isLoading, error } = useCountryPageData(countrySlug);
 - ✅ ARCHITECTURE.md y CODEMAP.md actualizados con referencias
 - ✅ `npm run build` pasa (solo documentación, no código)
 
+
 ---
 
-*Entradas de bitácora - Trawel v2.6*
+## 2026-04-28 - AdventurePage mejorada como ficha editorial funcional
+
+**Participantes:** SDD mejora de ficha de destino
+
+### Qué se hizo
+
+1. **Refactor de AdventurePage** (`src/pages/AdventurePage/`)
+   - Nueva estructura de ficha editorial completa:
+     - Breadcrumb navegable: Inicio / País / Ciudad / Destino
+     - Encabezado con título, badges de tipo y destacado, ubicación
+     - Resumen del destino
+     - Contenido principal (modo adventure por defecto)
+     - Sidebar con metadatos prácticos
+   - Avisos editoriales para estados no publicados (draft, comingSoon, disabled)
+   - Manejo de estados vacíos: destino no encontrado, ciudad/país no encontrados
+
+2. **Nuevos estilos CSS** (`AdventurePage.module.css`)
+   - Layout responsive: stack en móvil, side-by-side en desktop (≥1024px)
+   - Tarjetas limpias con sombras suaves
+   - Estados de alerta con colores diferenciados
+   - Sección de fuentes con manejo de "fuentes pendientes"
+
+3. **Fuentes añadidas a destinos mock** (`src/features/destinations/data/destinations.ts`)
+   - Museo del Prado: guía oficial
+   - Senso-ji: folletos oficiales
+   - Machu Picchu: ministerio de cultura + libro académico
+   - Parque del Retiro: ayuntamiento de Madrid + libro
+   - Fushimi Inari: web oficial + libro académico
+
+### Elementos de la ficha editorial
+
+**Encabezado:**
+- Badge de tipo (Museo, Monumento, Naturaleza...)
+- Badge "Destacado" si aplica
+- Título del destino
+- Ubicación: 📍 Ciudad, País
+
+**Contenido principal:**
+- Resumen del destino
+- Contenido completo (modo adventure por defecto)
+
+**Sidebar - Información práctica:**
+- ⏱️ Duración estimada
+- 💰 Precio
+- 🕒 Horario
+
+**Sidebar - Etiquetas:**
+- Tags del destino
+
+**Sidebar - Fuentes:**
+- Lista de fuentes con links externos
+- Aviso discreto "Fuentes pendientes" si no hay sources
+
+### Archivos modificados
+
+| Archivo | Cambios |
+|---------|---------|
+| `AdventurePage.tsx` | Refactor completo con ficha editorial |
+| `AdventurePage.module.css` | Estilos nuevos responsive |
+| `destinations.ts` | Fuentes añadidas a todos los destinos |
+| `CODEMAP.md` | Actualizada sección de destinos |
+
+### Build verificado
+
+```
+✓ 636 modules transformed
+✓ built in 336ms
+dist/assets/index-ClBtF5zK.css   22.09 kB │ gzip: 5.12 kB
+```
+
+---
+
+*Entradas de bitácora - Trawel v2.7*

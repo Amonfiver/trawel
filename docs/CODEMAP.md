@@ -248,6 +248,8 @@ src/features/destinations/
 - `getDestinationsByCityId(cityId)` - Obtiene destinos de una ciudad
 - `getPublishedDestinationsByCity(city)` - Obtiene destinos publicados de una ciudad
 - `getDestinationContentByMode(destination, mode)` - Obtiene contenido según modo
+- `getDestinationTitle(destination)` - Obtiene título localizado
+- `getDestinationSummary(destination)` - Obtiene resumen localizado
 
 ### `src/features/travelData/` - Capa de acceso a datos agregados
 
