@@ -668,4 +668,91 @@ El sistema está preparado para que en el futuro:
 
 ---
 
-*Entradas de bitácora - Trawel v2.2*
+## 2026-04-28 - Base multidioma (i18n) preparada
+
+**Participantes:** SDD preparación de internacionalización
+
+### Qué se hizo
+
+1. **Creamos sistema i18n en `src/app/i18n/`**
+   - `i18n.types.ts` - Tipos base: Locale, LocalizedText, LocaleConfig
+   - `i18n.utils.ts` - Funciones de localización con fallback
+   - `index.ts` - Export público centralizado
+
+2. **Definimos tipos de idioma**
+   - `Locale = 'es' | 'en' | 'fr' | 'it' | 'uk'`
+   - `DEFAULT_LOCALE = 'es'`
+   - `LocalizedText` permite traducciones parciales
+   - Configuración de cada idioma con metadatos (nombre, dirección, isProductionReady)
+
+3. **Implementamos utilidades de localización**
+   - `getLocalizedText(text, locale)` - Obtiene texto con fallback inteligente
+   - `isSupportedLocale(value)` - Verifica si un locale es válido
+   - `normalizeLocale(value)` - Normaliza código de idioma (ej: 'en-US' → 'en')
+   - `createLocalizedText(es)` - Crea objeto con solo español (para desarrollo)
+   - `addTranslation(text, locale, translation)` - Añade traducción a objeto existente
+
+4. **Estrategia de fallback implementada**
+   - 1º: Idioma solicitado
+   - 2º: Español (DEFAULT_LOCALE)
+   - 3º: Inglés
+   - 4º: Primer texto disponible en cualquier idioma
+   - 5º: String vacío
+
+5. **Marcamos estado de cada idioma**
+   - `es`: Production ready ✅
+   - `en`, `fr`, `it`, `uk`: No production ready (se activarán cuando haya contenido)
+
+### Decisiones técnicas registradas
+
+**DA-018: Sistema i18n propio sin librería externa**
+- Contexto: Necesitamos base multidioma sin aumentar bundle ni complejidad
+- Decisión: Implementar sistema propio simple con TypeScript, sin i18next/react-intl
+- Consecuencias:
+  - Bundle más ligero (sin dependencias de i18n)
+  - Control total sobre fallback y comportamiento
+  - Menos features avanzadas (pluralización, interpolación compleja) pero suficiente para MVP
+  - Fácil migrar a librería externa en el futuro si se necesita
+
+### Archivos creados
+
+| Archivo | Descripción |
+|---------|-------------|
+| `src/app/i18n/i18n.types.ts` | Tipos: Locale, LocalizedText, LocaleConfig |
+| `src/app/i18n/i18n.utils.ts` | Funciones: getLocalizedText, normalizeLocale |
+| `src/app/i18n/index.ts` | Export público |
+
+### Estado de idiomas
+
+| Idioma | Código | Production Ready | Notas |
+|--------|--------|------------------|-------|
+| Español | es | ✅ | Idioma principal durante MVP |
+| Inglés | en | ⏳ | Se activará cuando haya contenido |
+| Francés | fr | ⏳ | Futuro |
+| Italiano | it | ⏳ | Futuro |
+| Ucraniano | uk | ⏳ | Futuro |
+
+### Preparación para futuras traducciones
+
+El sistema permite añadir traducciones gradualmente:
+```typescript
+// Inicial (solo español durante MVP)
+const title = createLocalizedText('Bienvenidos a Trawel');
+
+// Más adelante se añaden traducciones
+const titleEn = addTranslation(title, 'en', 'Welcome to Trawel');
+const titleFr = addTranslation(titleEn, 'fr', 'Bienvenue à Trawel');
+```
+
+### Criterios de éxito verificados
+
+- ✅ `npm run build` pasa sin errores
+- ✅ Existe `src/app/i18n/` con tipos y utilidades
+- ✅ Sistema de fallback funciona correctamente
+- ✅ No se ha traducido toda la interfaz (solo base preparada)
+- ✅ No se ha instalado ninguna dependencia
+- ✅ La app sigue funcionando igual
+
+---
+
+*Entradas de bitácora - Trawel v2.3*

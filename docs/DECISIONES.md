@@ -481,6 +481,39 @@ const projection = d3.geoMercator()
 
 ---
 
+## DA-018: Sistema i18n propio sin librería externa
+
+**Fecha:** 2026-04-28  
+**Estado:** Aceptada  
+**Contexto:** Necesitamos preparar base multidioma para futuro, pero sin aumentar bundle ni añadir complejidad innecesaria durante el MVP donde solo usaremos español.
+
+**Decisión:** Implementar sistema i18n propio simple con TypeScript, sin depender de librerías como i18next o react-intl.
+
+**Implementación:**
+- Tipos: `Locale`, `LocalizedText`, `LocaleConfig`
+- Funciones: `getLocalizedText`, `normalizeLocale`, `isSupportedLocale`
+- Fallback en cascada: solicitado → español → inglés → primer disponible → ''
+- Traducciones parciales permitidas (no exige todos los idiomas)
+
+**Razones:**
+- Bundle más ligero (sin dependencias de i18n)
+- Control total sobre estrategia de fallback
+- Suficiente para MVP (solo español inicialmente)
+- Fácil migrar a librería externa en el futuro si se necesita funcionalidad avanzada
+
+**Idiomas soportados:** es, en, fr, it, uk  
+**Idioma por defecto:** es  
+**Idioma production-ready:** solo es (los demás se activarán cuando haya contenido)
+
+**Consecuencias:**
+- Sin features avanzadas (pluralización, interpolación compleja, date/number formatting)
+- Desarrollo manual de utilidades (ya implementado)
+- Puede requerir migración a librería externa si las necesidades crecen
+
+**Reversibilidad:** Media. Migrar a i18next o similar requiere cambiar imports y adaptar formato de traducciones, pero la estructura de datos (`LocalizedText`) es compatible.
+
+---
+
 ## Decisiones pendientes
 
 | ID | Descripción | Bloqueado por | Fecha estimada |
@@ -488,7 +521,8 @@ const projection = d3.geoMercator()
 | DP-001 | ¿Implementar persistencia de modo en localStorage? | Ver si es necesario para MVP | 2026-05-05 |
 | DP-002 | ¿Contenido dual completo para países/ciudades? | Requiere más contenido escrito | 2026-05-10 |
 | DP-003 | ¿Implementar CountryMap en Fase 1 o Fase 2? | Ver complejidad de datos geoespaciales | 2026-05-05 |
+| DP-004 | ¿Activar inglés como segundo idioma? | Contenido traducido y estable | 2026-05-15 |
 
 ---
 
-*Registro de decisiones v1.1 - Trawel*
+*Registro de decisiones v1.2 - Trawel*

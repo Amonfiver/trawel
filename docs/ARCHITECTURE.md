@@ -47,7 +47,11 @@ trawel/
 │   ├── app/                 # Configuración de la aplicación
 │   │   ├── App.tsx          # Root component
 │   │   ├── routes.tsx       # Definición de rutas
-│   │   └── providers.tsx    # Context providers (theme, etc.)
+│   │   ├── providers.tsx    # Context providers (theme, etc.)
+│   │   └── i18n/            # Sistema de internacionalización
+│   │       ├── i18n.types.ts    # Tipos: Locale, LocalizedText
+│   │       ├── i18n.utils.ts    # Utilidades: getLocalizedText, normalizeLocale
+│   │       └── index.ts         # Export público
 │   ├── pages/               # Páginas de la aplicación
 │   │   ├── HomePage/
 │   │   ├── CountryPage/

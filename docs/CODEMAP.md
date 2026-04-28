@@ -42,10 +42,36 @@ src/app/
 ├── App.tsx              # Root component, providers
 ├── routes.tsx           # Definición de rutas con React Router
 ├── providers.tsx        # Context providers (ThemeProvider, etc.)
-└── main.tsx             # Entry point (render React)
+├── main.tsx             # Entry point (render React)
+└── i18n/                # Sistema de internacionalización
+    ├── i18n.types.ts    # Tipos: Locale, LocalizedText
+    ├── i18n.utils.ts    # Utilidades: getLocalizedText, normalizeLocale
+    └── index.ts         # Export público
 ```
 
 **Responsabilidad:** Inicialización y configuración global. No contiene lógica de negocio.
+
+### Sistema i18n (`src/app/i18n/`)
+
+**Archivos:**
+- `i18n.types.ts` - Tipos base del sistema multidioma
+- `i18n.utils.ts` - Funciones de localización con fallback
+- `index.ts` - Export centralizado
+
+**Idiomas soportados:** es, en, fr, it, uk  
+**Idioma por defecto:** es (español)
+
+**Funciones principales:**
+- `getLocalizedText(text, locale)` - Obtiene texto con fallback inteligente
+- `normalizeLocale(value)` - Normaliza código de idioma
+- `isSupportedLocale(value)` - Verifica si un locale es válido
+
+**Estrategia de fallback:**
+1. Idioma solicitado
+2. Español (DEFAULT_LOCALE)
+3. Inglés
+4. Primer texto disponible
+5. String vacío
 
 ---
 
