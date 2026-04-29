@@ -562,6 +562,31 @@ Documentada como hoja de ruta futura la estrategia para assets cartográficos in
 
 ---
 
+### 2026-04-29 - Auditoría Editorial de Datos Demo 📊
+
+Creado informe completo de auditoría editorial para España/Morella/Castillo de Morella:
+
+**Hallazgo crítico:**
+Morella y Castillo de Morella existen en **Supabase** pero **NO en datos mock**, causando inconsistencias en la demo.
+
+**Archivo creado:**
+- `docs/EDITORIAL_AUDIT.md` - Informe detallado con:
+  - Tablas de campos usados por página
+  - Análisis de datos mock vs Supabase
+  - Carencias identificadas
+  - Recomendaciones priorizadas
+
+**Problemas principales detectados:**
+1. **Morella**: No existe en `cities.ts` (mock) → 404 en `/pais/espana/morella`
+2. **Castillo de Morella**: No existe en `destinations.ts` (mock) → 404 en `/aventura/castillo-de-morella`
+3. **Castellón**: Tiene `destinationCount: 1` pero sin destinos asignados
+4. **Prado**: Fuentes mínimas (solo placeholder)
+
+**Recomendación:**
+Sincronizar datos mock con Supabase para demo consistente, o usar `VITE_TRAVEL_DATA_SOURCE=supabase` para demos.
+
+---
+
 ### 2026-04-29 - Corrección: Eliminado selector de modo duplicado en HomePage 🐛
 
 **Incoherencia encontrada:**
