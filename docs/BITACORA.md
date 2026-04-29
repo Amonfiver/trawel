@@ -543,6 +543,41 @@ Implementación del modelo jerárquico con:
 
 ---
 
+### 2026-04-29 - Rediseño de CountryPage como Nivel País / Directorio Editorial ✅
+
+Mejorada la página de país para que se sienta como un verdadero "nivel país" y directorio editorial de ciudades:
+
+**Cambios visuales principales:**
+- **Hero prominente**: Bandera grande (5-6rem), título destacado, badges de estado
+- **Estadísticas rápidas**: Ciudades disponibles, aventuras y total en el hero
+- **Sección principal de ciudades**: Mayor protagonismo con tarjetas grandes, bordes interactivos, animaciones
+- **Separación visual clara**: ComingSoon con línea discontinua y estilo diferenciado
+- **Destinos destacados**: Sección secundaria con fondo gris, tarjetas más pequeñas, menor jerarquía visual
+
+**Archivos modificados:**
+- `src/pages/CountryPage/CountryPage.tsx` - Estructura de componentes rediseñada
+- `src/pages/CountryPage/CountryPage.module.css` - Nuevos estilos con jerarquía visual
+
+**Jerarquía visual implementada:**
+```
+Hero (País)
+  └── Estadísticas
+Sección Principal (Ciudades - fondo blanco, máxima prominencia)
+  └── Grid 3-columnas de ciudades activas
+  └── Sección ComingSoon (separada visualmente)
+Sección Secundaria (Destinos - fondo gris, menor prominencia)
+  └── Grid de destinos destacados
+```
+
+**Verificación:**
+- ✅ Build exitoso
+- ✅ Responsive (mobile, tablet, desktop)
+- ✅ Funciona con mock y Supabase
+- ✅ Navegación a ciudades preservada
+- ✅ Selector Aventura/Estudiante sigue visible en header
+
+---
+
 ## Próximos pasos inmediatos
 
 1. **Preparar sistema para contenido real**
@@ -554,11 +589,11 @@ Implementación del modelo jerárquico con:
    - Expandir cobertura de ciudades
 
 3. **Técnico (futuro, no inmediato)**
-   - Migración a Supabase (Fase 2 del plan)
    - Panel de administración
    - SEO y meta tags
+   - Optimización de bundle (code splitting)
 
 ---
 
-*Bitácora activa - Trawel v2.9*
-*Última actualización: 2026-04-28*
+*Bitácora activa - Trawel v3.0*
+*Última actualización: 2026-04-29*
