@@ -543,6 +543,25 @@ Implementación del modelo jerárquico con:
 
 ---
 
+### 2026-04-29 - Decisión DA-027: Estrategia progresiva para mapas internos 🗺️
+
+Documentada como hoja de ruta futura la estrategia para assets cartográficos internos:
+
+**Decisión clave:**
+- Mapas internos de países NO se incluirán todos desde el inicio
+- Se incorporarán bajo demanda editorial o cuando un país tenga contenido/tráfico suficiente
+- Trawel guardará copia propia optimizada (sin dependencias en tiempo real)
+- Fuentes futuras posibles: Natural Earth Admin 1, geoBoundaries, OSM Boundaries
+
+**Principios:**
+- Supabase sigue siendo la fuente editorial principal
+- Los mapas son apoyo visual, no fuente de verdad
+- Prioridad actual: reforzar flujo editorial Mundo → País → Ciudad → Destino
+
+**Estado:** Documentado en `docs/DECISIONES.md` (DA-027) - No se implementa ahora
+
+---
+
 ### 2026-04-29 - Rediseño de CountryPage como Nivel País / Directorio Editorial ✅
 
 Mejorada la página de país para que se sienta como un verdadero "nivel país" y directorio editorial de ciudades:

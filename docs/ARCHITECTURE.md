@@ -328,7 +328,7 @@ export const routes = [
 ## Próximos pasos arquitectónicos
 
 1. **Fase 1 (MVP)**: Estructura base, WorldMap, 3 países
-2. **Fase 2**: CountryMap interno, más países
+2. **Fase 2**: CountryMap interno, más países *(Ver DA-027: estrategia progresiva - bajo demanda editorial)*
 3. **Fase 3**: Buscador, filtros, más features
 4. **Fase 4**: Evaluar migración a Next.js si el SEO se vuelve crítico
 

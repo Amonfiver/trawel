@@ -121,10 +121,41 @@ Este archivo registra decisiones técnicas y de diseño importantes del proyecto
 
 ---
 
+## DA-027: Estrategia progresiva para assets cartográficos internos
+
+**Fecha:** 2026-04-29  
+**Estado:** Aprobada (Hoja de ruta futura - no implementar ahora)  
+**Contexto:** Trawel tiene mapa mundial base funcional y navegación editorial Mundo → País → Ciudad → Destino. Los mapas deben ser apoyo visual, no fuente de verdad editorial. No queremos guardar desde el inicio todos los mapas internos del mundo.
+
+**Decisión:** Trawel usará una estrategia progresiva para assets cartográficos internos:
+
+| Aspecto | Estrategia |
+|---------|------------|
+| Mapa mundial base | Copia propia optimizada como asset estático (procesado desde world-atlas/Natural Earth) |
+| Mapas internos de países | NO se incluirán todos desde el inicio |
+| Incorporación | Bajo demanda editorial o cuando un país tenga contenido/tráfico suficiente |
+| Almacenamiento | Una vez incorporado, Trawel guardará copia propia optimizada |
+| Dependencia externa | NO se dependerá de consultas en tiempo real para pintar mapas |
+| Fuentes futuras | Natural Earth Admin 1, geoBoundaries, OSM Boundaries |
+| Prioridad actual | Reforzar flujo editorial Mundo → País → Ciudad → Destino |
+
+**Principios:**
+- Supabase sigue siendo la fuente editorial principal (countries → cities → destinations)
+- Los mapas son apoyo visual, no fuente de verdad
+- Sin dependencias de terceros en tiempo real para usuarios finales
+- Escalabilidad: cargar solo lo necesario, cuando sea necesario
+
+**Implementación:** Futura. No se desarrolla en este ciclo.
+
+**Reversibilidad:** Alta. Estrategia documental sin código implementado.
+
+---
+
 ## Índice de Decisiones
 
 | ID | Fecha | Título | Estado |
 |----|-------|--------|--------|
+| DA-027 | 2026-04-29 | Estrategia progresiva para mapas internos | ✅ Hoja de ruta |
 | DA-026 | 2026-04-28 | Mock como fuente por defecto hasta conectar Supabase | ✅ Aprobada |
 | DA-025 | 2026-04-28 | Modelo de base de datos real para Trawel | ✅ Aprobada |
 | DA-024 | 2026-04-28 | Trawel como plataforma pública de lectura | ✅ Aprobada |
@@ -151,5 +182,5 @@ Este archivo registra decisiones técnicas y de diseño importantes del proyecto
 
 ---
 
-*Registro de decisiones v1.8 - Trawel*
-*Última actualización: 2026-04-28*
+*Registro de decisiones v1.9 - Trawel*
+*Última actualización: 2026-04-29*
