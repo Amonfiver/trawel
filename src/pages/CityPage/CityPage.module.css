@@ -1,43 +1,67 @@
 /**
- * Estilos de CityPage - Ficha editorial de ciudad
+ * Estilos de CityPage - Página Editorial de Ciudad
  * 
- * Propósito: Estilos limpios y legibles para ficha de ciudad
- * Alcance: Layout responsive, tarjetas de destinos, breadcrumb
+ * Propósito: Estilos para una página de ciudad que se sienta como editorial local
+ * Alcance: Hero prominente, destinos como contenido principal, info útil secundaria
  * 
  * Decisiones técnicas:
- * - Coherencia visual con AdventurePage
- * - Variables CSS para consistencia con tema global
- * - Responsive: adaptación a móvil y desktop
- * - Sin animaciones complejas
+ * - Hero con fondo sutil y metadatos destacados
+ * - Destinos en grid prominente (3 columnas en desktop)
+ * - Info útil en sección visualmente secundaria
+ * - Jerarquía clara: Ciudad → Destinos → Info
+ * - Responsive: adaptación progresiva
  * 
- * Limitaciones actuales:
- * - Sin tema oscuro específico
- * - Sin imágenes de fondo
+ * Cambios recientes (2026-04-29):
+ * - Rediseño completo con hero prominente
+ * - Destinos con mayor protagonismo visual
+ * - Info útil movida a sección secundaria
+ * - Coherencia visual con CountryPage rediseñada
  */
 
 /* Contenedor principal */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-md, 1rem);
+  padding: 0;
   min-height: 100vh;
   background-color: var(--color-background, #f8f9fa);
 }
 
 @media (min-width: 768px) {
   .container {
-    padding: var(--space-lg, 2rem);
+    padding: var(--space-md, 1rem);
   }
 }
 
-/* Breadcrumb de navegación */
+/* ============================================
+   HERO DE LA CIUDAD - Nivel principal
+   ============================================ */
+
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 50%, #e8eef3 100%);
+  border-radius: 0 0 24px 24px;
+  padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  margin-bottom: var(--space-xl, 3rem);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding: var(--space-xl, 3rem) var(--space-lg, 2rem);
+    border-radius: 24px;
+    margin: var(--space-md, 1rem);
+  }
+}
+
+/* Breadcrumb flotante */
 .breadcrumb {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-xs, 0.25rem);
-  margin-bottom: var(--space-lg, 2rem);
-  padding: var(--space-sm, 0.5rem) 0;
+  margin-bottom: var(--space-lg, 1.5rem);
+  padding: var(--space-xs, 0.25rem) 0;
   font-size: 0.875rem;
   color: var(--color-text-secondary, #6b7280);
 }
@@ -71,15 +95,165 @@
   padding: 0.25rem 0.5rem;
 }
 
+/* Contenido del hero */
+.heroContent {
+  text-align: center;
+  margin-bottom: var(--space-lg, 2rem);
+}
+
+@media (min-width: 640px) {
+  .heroContent {
+    text-align: left;
+  }
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm, 0.5rem);
+  justify-content: center;
+  margin-bottom: var(--space-md, 1rem);
+}
+
+@media (min-width: 640px) {
+  .heroMeta {
+    justify-content: flex-start;
+  }
+}
+
+.featuredBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #78350f;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+.statusBadge.comingSoon {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statusBadge.disabled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.countryBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+}
+
+.heroTitle {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 800;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 var(--space-sm, 0.5rem) 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.heroLocation {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 var(--space-md, 1rem) 0;
+  font-weight: 500;
+}
+
+.heroDescription {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary, #4b5563);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .heroDescription {
+    margin: 0;
+  }
+}
+
+/* Estadísticas rápidas en hero */
+.heroStats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg, 1.5rem);
+  padding: var(--space-md, 1rem);
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  max-width: fit-content;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .heroStats {
+    gap: var(--space-xl, 2rem);
+    padding: var(--space-md, 1.25rem) var(--space-xl, 2rem);
+  }
+}
+
+.heroStat {
+  text-align: center;
+}
+
+.heroStatNumber {
+  display: block;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: var(--color-primary, #3b82f6);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.heroStatLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.heroStatDivider {
+  width: 1px;
+  height: 40px;
+  background-color: #cbd5e1;
+}
+
 /* Aviso de estado editorial */
 .statusAlert {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-sm, 0.5rem);
-  padding: var(--space-md, 1rem);
-  margin-bottom: var(--space-lg, 2rem);
-  border-radius: 8px;
+  gap: var(--space-sm, 0.75rem);
+  padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+  margin-top: var(--space-lg, 1.5rem);
+  border-radius: 12px;
   border-left: 4px solid;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .statusAlert.comingSoon {
@@ -108,137 +282,265 @@
 .statusAlert p {
   margin: 0;
   font-size: 0.875rem;
+  opacity: 0.9;
 }
 
-/* Encabezado de la ciudad */
-.header {
-  margin-bottom: var(--space-xl, 3rem);
-  text-align: center;
-}
+/* ============================================
+   CONTENIDO PRINCIPAL
+   ============================================ */
 
-@media (min-width: 768px) {
-  .header {
-    text-align: left;
-  }
-}
-
-.headerMeta {
+.main {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm, 0.5rem);
-  justify-content: center;
-  margin-bottom: var(--space-md, 1rem);
+  flex-direction: column;
+  gap: var(--space-2xl, 4rem);
+  padding: 0 var(--space-md, 1rem) var(--space-xl, 3rem);
 }
 
 @media (min-width: 768px) {
-  .headerMeta {
-    justify-content: flex-start;
+  .main {
+    padding: 0 var(--space-lg, 2rem) var(--space-2xl, 4rem);
   }
 }
 
-.featuredBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.375rem 0.75rem;
-  background-color: #fbbf24;
-  color: #78350f;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 9999px;
+/* ============================================
+   SECCIÓN PRINCIPAL: DESTINOS
+   ============================================ */
+
+.destinationsSection {
+  background-color: white;
+  border-radius: 20px;
+  padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.375rem 0.75rem;
-  background-color: #6b7280;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 9999px;
+@media (min-width: 768px) {
+  .destinationsSection {
+    padding: var(--space-2xl, 3rem);
+  }
 }
 
-.title {
-  font-size: clamp(1.75rem, 5vw, 2.5rem);
+.sectionHeader {
+  text-align: center;
+  margin-bottom: var(--space-xl, 2rem);
+}
+
+.sectionTitle {
+  font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 700;
   color: var(--color-text-primary, #111827);
   margin: 0 0 var(--space-sm, 0.5rem) 0;
   line-height: 1.2;
 }
 
-.location {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary, #6b7280);
-  margin: 0 0 var(--space-md, 1rem) 0;
-}
-
-.summary {
-  font-size: 1.125rem;
-  line-height: 1.7;
-  color: var(--color-text-secondary, #4b5563);
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-@media (min-width: 768px) {
-  .summary {
-    margin: 0;
-  }
-}
-
-/* Contenido principal */
-.main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xl, 3rem);
-}
-
-/* Sección de información */
-.infoSection {
-  display: flex;
-  justify-content: center;
-}
-
-@media (min-width: 768px) {
-  .infoSection {
-    justify-content: flex-start;
-  }
-}
-
-.infoCard {
-  background-color: white;
-  border-radius: 12px;
-  padding: var(--space-md, 1.5rem);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 600px;
-}
-
-.infoTitle {
+.sectionSubtitle {
   font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
-  margin: 0 0 var(--space-md, 1rem) 0;
-  padding-bottom: var(--space-sm, 0.5rem);
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
 }
 
-.infoGrid {
+/* Grid de destinos - Más prominente */
+.destinationsGrid {
   display: grid;
-  gap: var(--space-sm, 0.75rem);
+  gap: var(--space-lg, 1.25rem);
 }
 
 @media (min-width: 640px) {
-  .infoGrid {
+  .destinationsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .destinationsGrid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-.infoItem {
+/* Tarjetas de destino - Más grandes y prominentes */
+.destinationCard {
+  background-color: white;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.destinationCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15);
+}
+
+.destinationCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary, #3b82f6), #60a5fa);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.destinationCard:hover::before {
+  transform: scaleX(1);
+}
+
+.destinationLink {
+  display: block;
+  padding: var(--space-lg, 1.5rem);
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.destinationCardContent {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: var(--space-sm, 0.5rem) 0;
+  height: 100%;
+}
+
+.destinationHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm, 0.5rem);
+  margin-bottom: var(--space-sm, 0.75rem);
+}
+
+.destinationTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.featuredStar {
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.destinationMetaTop {
+  margin-bottom: var(--space-sm, 0.75rem);
+}
+
+.destinationType {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  background-color: var(--color-primary, #3b82f6);
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+}
+
+.destinationSummary {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #4b5563);
+  margin: 0 0 var(--space-md, 1rem) 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.destinationMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: var(--space-sm, 0.75rem);
+  border-top: 1px solid #f1f5f9;
+}
+
+.visitTime {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.arrow {
+  margin-left: auto;
+  color: var(--color-primary, #3b82f6);
+  font-size: 1.25rem;
+  font-weight: 500;
+  transition: transform 0.2s ease;
+}
+
+.destinationCard:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ============================================
+   SECCIÓN SECUNDARIA: INFORMACIÓN ÚTIL
+   ============================================ */
+
+.infoSection {
+  background-color: #f8fafc;
+  border-radius: 20px;
+  padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem);
+}
+
+@media (min-width: 768px) {
+  .infoSection {
+    padding: var(--space-2xl, 2.5rem);
+  }
+}
+
+.sectionHeaderSecondary {
+  text-align: center;
+  margin-bottom: var(--space-xl, 1.5rem);
+}
+
+.sectionTitleSecondary {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 600;
+  color: var(--color-text-secondary, #4b5563);
+  margin: 0;
+}
+
+.infoGrid {
+  display: grid;
+  gap: var(--space-md, 1rem);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 640px) {
+  .infoGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.infoCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-xs, 0.25rem);
+  background-color: white;
+  border-radius: 12px;
+  padding: var(--space-md, 1.25rem);
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.infoCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.infoIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-bottom: 0.25rem;
 }
 
 .infoLabel {
@@ -250,8 +552,8 @@
 }
 
 .infoValue {
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.125rem;
+  font-weight: 600;
   color: var(--color-text-primary, #374151);
 }
 
@@ -273,146 +575,27 @@
   color: #dc2626;
 }
 
-/* Sección de destinos */
-.sectionTitle {
-  font-size: 1.5rem;
+.infoLink {
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
-  margin: 0 0 var(--space-lg, 1.5rem) 0;
-  padding-bottom: var(--space-sm, 0.5rem);
-  border-bottom: 2px solid var(--color-primary, #3b82f6);
-}
-
-.destinationsGrid {
-  display: grid;
-  gap: var(--space-md, 1rem);
-}
-
-@media (min-width: 640px) {
-  .destinationsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .destinationsGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Tarjetas de destino */
-.destinationCard {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.destinationCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.destinationLink {
-  display: block;
-  padding: var(--space-md, 1.25rem);
-  text-decoration: none;
-  color: inherit;
-  height: 100%;
-}
-
-.destinationHeader {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.destinationType {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  background-color: var(--color-primary, #3b82f6);
-  color: white;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-radius: 4px;
-}
-
-.featuredBadgeSmall {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  background-color: #fbbf24;
-  color: #78350f;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  border-radius: 4px;
-}
-
-.destinationTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
-  margin: 0 0 0.5rem 0;
-  line-height: 1.3;
-}
-
-.destinationSummary {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--color-text-secondary, #6b7280);
-  margin: 0 0 1rem 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.destinationMeta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: auto;
-}
-
-.visitTime {
-  font-size: 0.8125rem;
-  color: var(--color-text-muted, #9ca3af);
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-}
-
-.tag {
-  display: inline-flex;
-  padding: 0.25rem 0.5rem;
-  background-color: var(--color-background, #f3f4f6);
-  color: var(--color-text-secondary, #4b5563);
-  font-size: 0.75rem;
-  border-radius: 4px;
-}
-
-.arrow {
-  margin-left: auto;
   color: var(--color-primary, #3b82f6);
-  font-size: 1.125rem;
-  font-weight: 500;
+  text-decoration: none;
 }
 
-/* Estado vacío */
+.infoLink:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   ESTADOS ESPECIALES
+   ============================================ */
+
 .emptyState {
   text-align: center;
-  padding: var(--space-xl, 3rem) var(--space-lg, 2rem);
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: var(--space-2xl, 3rem) var(--space-lg, 2rem);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 2px dashed #e2e8f0;
 }
 
 .emptyState p:first-child {
@@ -427,23 +610,24 @@
   margin: 0;
 }
 
-/* Estado: Ciudad no encontrada */
 .notFound {
   text-align: center;
-  padding: var(--space-xl, 4rem) var(--space-lg, 2rem);
-  max-width: 600px;
+  padding: var(--space-3xl, 5rem) var(--space-lg, 2rem);
+  max-width: 500px;
   margin: 0 auto;
 }
 
 .notFound h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
   color: var(--color-text-primary, #111827);
   margin-bottom: var(--space-sm, 0.5rem);
 }
 
 .notFound p {
   color: var(--color-text-secondary, #6b7280);
-  margin-bottom: var(--space-lg, 2rem);
+  margin-bottom: var(--space-lg, 1.5rem);
+  font-size: 1rem;
 }
 
 .backLink {
@@ -452,13 +636,14 @@
   gap: 0.5rem;
   color: var(--color-primary, #3b82f6);
   text-decoration: none;
-  font-weight: 500;
-  padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+  font-weight: 600;
+  padding: var(--space-sm, 0.625rem) var(--space-md, 1.25rem);
   border-radius: 8px;
-  transition: background-color 0.2s ease;
+  background-color: rgba(59, 130, 246, 0.1);
+  transition: all 0.2s ease;
 }
 
 .backLink:hover {
-  background-color: rgba(59, 130, 246, 0.1);
-  text-decoration: underline;
+  background-color: rgba(59, 130, 246, 0.2);
+  transform: translateX(-2px);
 }

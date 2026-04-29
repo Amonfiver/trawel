@@ -562,6 +562,48 @@ Documentada como hoja de ruta futura la estrategia para assets cartográficos in
 
 ---
 
+### 2026-04-29 - Rediseño de CityPage como Página Editorial de Ciudad ✅
+
+Mejorada la página de ciudad para que /pais/espana/morella se sienta como una verdadera página editorial dentro de Trawel:
+
+**Cambios visuales principales:**
+- **Hero prominente**: Título destacado, badges (destacada, estado, país), relación visible con España
+- **Estadísticas rápidas**: Número de aventuras en el hero
+- **Sección principal de destinos**: Mayor protagonismo con tarjetas grandes, bordes interactivos, animaciones
+- **Estado vacío amable**: Mensaje claro cuando no hay destinos disponibles
+- **Info útil secundaria**: Destinos, ubicación, estado y enlace al país en grid compacto
+
+**Archivos modificados:**
+- `src/pages/CityPage/CityPage.tsx` - Estructura de componentes rediseñada con hero
+- `src/pages/CityPage/CityPage.module.css` - Nuevos estilos con jerarquía visual
+
+**Jerarquía visual implementada:**
+```
+Hero (Ciudad)
+  └── Relación con País + Badges + Estadísticas
+Sección Principal (Destinos - fondo blanco, máxima prominencia)
+  └── Grid 3-columnas de aventuras disponibles
+  └── Estado vacío amable (si aplica)
+Sección Secundaria (Info útil - fondo gris, menor prominencia)
+  └── Grid de metadatos prácticos
+```
+
+**Modo Aventura/Estudiante:**
+- Conservado el sistema de fallback: modo activo → otro modo → shortDescription
+- El selector global sigue visible en header
+- Contenido se adapta según el modo seleccionado
+
+**Verificación:**
+- ✅ Build exitoso
+- ✅ Responsive (mobile, tablet, desktop)
+- ✅ Funciona con mock y Supabase
+- ✅ Navegación a destinos preservada (ej: castillo-de-morella)
+- ✅ Enlace de vuelta al país funciona
+- ✅ Estado vacío amable cuando no hay destinos
+- ✅ Selector Aventura/Estudiante visible y funcionando
+
+---
+
 ### 2026-04-29 - Rediseño de CountryPage como Nivel País / Directorio Editorial ✅
 
 Mejorada la página de país para que se sienta como un verdadero "nivel país" y directorio editorial de ciudades:

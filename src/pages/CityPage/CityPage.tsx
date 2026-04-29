@@ -1,19 +1,27 @@
 /**
- * Página de ficha de ciudad
+ * Página de ficha de ciudad - Nivel Ciudad / Editorial Local
  * 
  * Propósito: Mostrar información editorial completa de una ciudad y sus destinos
- * Alcance: Ficha funcional con breadcrumb, descripción, metadatos y lista de destinos
+ * como página editorial dentro de Trawel, no como ficha técnica.
+ * 
+ * Alcance: 
+ * - Hero claro de ciudad con relación visible al país
+ * - Introducción editorial según modo (adventure/student)
+ * - Sección principal de destinos/aventuras con protagonismo
+ * - Estado vacío amable si no hay destinos
+ * - Información útil en sección secundaria
  * 
  * Decisiones técnicas:
- * - Usa contenido según el modo global (adventure/student)
- * - Fallback al otro modo si falta contenido del modo activo
- * - Breadcrumb simple: Inicio / País / Ciudad
- * - Avisos editoriales claros para estados no activos
- * - Lista de destinos con metadatos visibles
+ * - Usa getCityPageData para obtener datos agregados
+ * - Contenido según modo global con fallback automático
+ * - Jerarquía visual: Ciudad → Destinos (principal) → Info útil (secundaria)
+ * - Responsive: adaptación progresiva de grids
  * 
- * Limitaciones actuales:
- * - Sin imágenes de la ciudad
- * - Sin mapa de la ciudad
+ * Cambios recientes (2026-04-29):
+ * - Rediseño como página editorial con hero prominente
+ * - Destinos con mayor protagonismo visual
+ * - Info útil movida a sección secundaria
+ * - Mejor integración con modo Aventura/Estudiante
  */
 
 import { useParams, Link } from 'react-router-dom';
@@ -55,10 +63,10 @@ function getCityDescription(
 }
 
 /**
- * CityPage - Ficha editorial de ciudad
+ * CityPage - Página Editorial de Ciudad
  * 
- * Muestra información completa de una ciudad con navegación breadcrumb,
- * descripción, metadatos y lista de destinos disponibles.
+ * Muestra un hero claro de la ciudad y lista sus destinos como contenido principal.
+ * La información útil aparece en sección secundaria.
  */
 export function CityPage() {
   const { countrySlug, citySlug } = useParams<{ countrySlug: string; citySlug: string }>();
@@ -102,91 +110,95 @@ export function CityPage() {
 
   return (
     <div className={styles.container}>
-      {/* Breadcrumb de navegación */}
-      <nav className={styles.breadcrumb} aria-label="Navegación">
-        <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
-        <span className={styles.breadcrumbSeparator}>/</span>
-        {country ? (
-          <Link to={`/pais/${countrySlug}`} className={styles.breadcrumbLink}>
-            {country.displayName}
-          </Link>
-        ) : (
-          <span className={styles.breadcrumbDisabled}>{countrySlug}</span>
-        )}
-        <span className={styles.breadcrumbSeparator}>/</span>
-        <span className={styles.breadcrumbCurrent} aria-current="page">{cityName}</span>
-      </nav>
+      {/* Hero de la Ciudad - Nivel principal */}
+      <header className={styles.hero}>
+        {/* Breadcrumb flotante sobre el hero */}
+        <nav className={styles.breadcrumb} aria-label="Navegación">
+          <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
+          <span className={styles.breadcrumbSeparator}>/</span>
+          {country ? (
+            <Link to={`/pais/${countrySlug}`} className={styles.breadcrumbLink}>
+              {country.displayName}
+            </Link>
+          ) : (
+            <span className={styles.breadcrumbDisabled}>{countrySlug}</span>
+          )}
+          <span className={styles.breadcrumbSeparator}>/</span>
+          <span className={styles.breadcrumbCurrent} aria-current="page">{cityName}</span>
+        </nav>
 
-      {/* Aviso editorial si no está activa */}
-      {showStatusWarning && (
-        <div className={`${styles.statusAlert} ${styles[city.status]}`} role="alert">
-          <span className={styles.statusIcon}>📝</span>
-          <div>
-            <strong>{statusLabel}</strong>
-            <p>Esta ciudad está en preparación y puede cambiar.</p>
+        <div className={styles.heroContent}>
+          <div className={styles.heroMeta}>
+            {city.featured && (
+              <span className={styles.featuredBadge}>⭐ Ciudad destacada</span>
+            )}
+            {showStatusWarning && (
+              <span className={`${styles.statusBadge} ${styles[city.status]}`}>
+                {statusLabel}
+              </span>
+            )}
+            {country && (
+              <span className={styles.countryBadge}>
+                🇪🇸 {country.displayName}
+              </span>
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Encabezado de la ciudad */}
-      <header className={styles.header}>
-        <div className={styles.headerMeta}>
-          {city.featured && (
-            <span className={styles.featuredBadge}>⭐ Destacada</span>
+          
+          <h1 className={styles.heroTitle}>{cityName}</h1>
+          
+          {country && (
+            <p className={styles.heroLocation}>
+              📍 En el corazón de {country.displayName}
+            </p>
           )}
-          {showStatusWarning && (
-            <span className={styles.statusBadge}>{statusLabel}</span>
+
+          {description && (
+            <p className={styles.heroDescription}>{description}</p>
           )}
         </div>
-        
-        <h1 className={styles.title}>{cityName}</h1>
-        
-        <p className={styles.location}>
-          📍 {country?.displayName || 'País no disponible'}
-        </p>
 
-        {description && (
-          <p className={styles.summary}>{description}</p>
+        {/* Estadísticas rápidas en el hero */}
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <span className={styles.heroStatNumber}>{destinations.length}</span>
+            <span className={styles.heroStatLabel}>
+              {destinations.length === 1 ? 'Aventura' : 'Aventuras'}
+            </span>
+          </div>
+          {city.coordinates && (
+            <>
+              <div className={styles.heroStatDivider} />
+              <div className={styles.heroStat}>
+                <span className={styles.heroStatNumber}>📍</span>
+                <span className={styles.heroStatLabel}>Explorable</span>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Aviso editorial si no está activa */}
+        {showStatusWarning && (
+          <div className={`${styles.statusAlert} ${styles[city.status]}`} role="alert">
+            <span className={styles.statusIcon}>📝</span>
+            <div>
+              <strong>{statusLabel}</strong>
+              <p>Esta ciudad está en preparación. Algunos destinos pueden no estar disponibles.</p>
+            </div>
+          </div>
         )}
       </header>
 
-      {/* Contenido principal */}
       <main className={styles.main}>
-        {/* Información y metadatos */}
-        <section className={styles.infoSection}>
-          <div className={styles.infoCard}>
-            <h2 className={styles.infoTitle}>Información general</h2>
-            
-            <div className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Destinos disponibles</span>
-                <span className={styles.infoValue}>{destinations.length}</span>
-              </div>
-              
-              {city.coordinates && (
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Coordenadas</span>
-                  <span className={styles.infoValueCoords}>
-                    {city.coordinates.lat.toFixed(4)}, {city.coordinates.lng.toFixed(4)}
-                  </span>
-                </div>
-              )}
-              
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Estado</span>
-                <span className={`${styles.infoValue} ${styles[city.status]}`}>
-                  {statusLabel}
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Destinos disponibles */}
+        {/* Sección Principal: Destinos y Aventuras */}
         <section className={styles.destinationsSection} aria-labelledby="destinations-title">
-          <h2 id="destinations-title" className={styles.sectionTitle}>
-            Destinos y experiencias
-          </h2>
+          <div className={styles.sectionHeader}>
+            <h2 id="destinations-title" className={styles.sectionTitle}>
+              Descubre sus aventuras
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              Experiencias únicas seleccionadas en {cityName}
+            </p>
+          </div>
 
           {destinations.length > 0 ? (
             <div className={styles.destinationsGrid} role="list">
@@ -205,37 +217,34 @@ export function CityPage() {
                       className={styles.destinationLink}
                       aria-label={`Ver ${title}`}
                     >
-                      <div className={styles.destinationHeader}>
-                        {destination.type && (
-                          <span className={styles.destinationType}>
-                            {getDestinationTypeLabel(destination.type)}
-                          </span>
+                      <div className={styles.destinationCardContent}>
+                        <div className={styles.destinationHeader}>
+                          <h3 className={styles.destinationTitle}>{title}</h3>
+                          {destination.featured && (
+                            <span className={styles.featuredStar} aria-label="Destacado">⭐</span>
+                          )}
+                        </div>
+
+                        <div className={styles.destinationMetaTop}>
+                          {destination.type && (
+                            <span className={styles.destinationType}>
+                              {getDestinationTypeLabel(destination.type)}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {summary && (
+                          <p className={styles.destinationSummary}>{summary}</p>
                         )}
-                        {destination.featured && (
-                          <span className={styles.featuredBadgeSmall}>⭐ Destacado</span>
-                        )}
-                      </div>
-                      
-                      <h3 className={styles.destinationTitle}>{title}</h3>
-                      
-                      {summary && (
-                        <p className={styles.destinationSummary}>{summary}</p>
-                      )}
-                      
-                      <div className={styles.destinationMeta}>
-                        {destination.estimatedVisitTime && (
-                          <span className={styles.visitTime}>
-                            ⏱️ {destination.estimatedVisitTime}
-                          </span>
-                        )}
-                        {destination.tags && destination.tags.length > 0 && (
-                          <div className={styles.tags}>
-                            {destination.tags.slice(0, 3).map(tag => (
-                              <span key={tag} className={styles.tag}>{tag}</span>
-                            ))}
-                          </div>
-                        )}
-                        <span aria-hidden="true" className={styles.arrow}>→</span>
+                        
+                        <div className={styles.destinationMeta}>
+                          {destination.estimatedVisitTime && (
+                            <span className={styles.visitTime}>
+                              ⏱️ {destination.estimatedVisitTime}
+                            </span>
+                          )}
+                          <span aria-hidden="true" className={styles.arrow}>→</span>
+                        </div>
                       </div>
                     </Link>
                   </article>
@@ -244,12 +253,57 @@ export function CityPage() {
             </div>
           ) : (
             <div className={styles.emptyState}>
-              <p>🗺️ Todavía estamos preparando destinos para esta ciudad.</p>
+              <p>🗺️ Todavía estamos preparando aventuras para {cityName}.</p>
               <p className={styles.emptyText}>
-                Vuelve pronto para descubrir aventuras increíbles en {cityName}.
+                Vuelve pronto para descubrir experiencias increíbles en esta ciudad.
               </p>
             </div>
           )}
+        </section>
+
+        {/* Sección Secundaria: Información útil */}
+        <section className={styles.infoSection} aria-labelledby="info-title">
+          <div className={styles.sectionHeaderSecondary}>
+            <h2 id="info-title" className={styles.sectionTitleSecondary}>
+              Información práctica
+            </h2>
+          </div>
+          
+          <div className={styles.infoGrid}>
+            <div className={styles.infoCard}>
+              <span className={styles.infoIcon}>🗺️</span>
+              <span className={styles.infoLabel}>Destinos</span>
+              <span className={styles.infoValue}>{destinations.length}</span>
+            </div>
+            
+            {city.coordinates && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>📍</span>
+                <span className={styles.infoLabel}>Ubicación</span>
+                <span className={styles.infoValueCoords}>
+                  {city.coordinates.lat.toFixed(2)}, {city.coordinates.lng.toFixed(2)}
+                </span>
+              </div>
+            )}
+            
+            <div className={styles.infoCard}>
+              <span className={styles.infoIcon}>✨</span>
+              <span className={styles.infoLabel}>Estado</span>
+              <span className={`${styles.infoValue} ${styles[city.status]}`}>
+                {statusLabel}
+              </span>
+            </div>
+
+            {country && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>🇪🇸</span>
+                <span className={styles.infoLabel}>País</span>
+                <Link to={`/pais/${countrySlug}`} className={styles.infoLink}>
+                  {country.displayName}
+                </Link>
+              </div>
+            )}
+          </div>
         </section>
       </main>
     </div>
@@ -275,6 +329,10 @@ function getDestinationTypeLabel(type: string): string {
     experience: 'Experiencia',
     food: 'Gastronomía',
     hiddenGem: 'Joya escondida',
+    temple: 'Templo',
+    park: 'Parque',
+    landmark: 'Punto de interés',
+    cultural: 'Cultural',
   };
   return labels[type] || type;
 }
