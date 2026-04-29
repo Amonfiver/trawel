@@ -2,35 +2,34 @@
  * Página de inicio de Trawel
  * 
  * Propósito: Punto de entrada de la aplicación con mapa mundial protagonista
- * Alcance: Hero, selector de modo, mapa interactivo, información de países
+ * Alcance: Hero, mapa interactivo, información de países
  * 
  * Decisiones técnicas:
  * - WorldMap como elemento principal visual
- * - Selector de modo de experiencia (Aventura/Estudiante)
- * - Contenido dinámico según modo seleccionado
+ * - Usa modo de experiencia global desde Context (no selector propio)
+ * - Contenido dinámico según modo seleccionado globalmente
  * - Diseño responsive que prioriza el mapa
  * 
- * Limitaciones actuales:
- * - Modo de experiencia no persiste en localStorage (futuro)
- * - Cambio de modo solo afecta textos, no contenido completo
+ * Cambios recientes (2026-04-29):
+ * - Eliminado selector de modo duplicado (ya existe en App.tsx global)
+ * - Ahora usa useExperienceMode del contexto global
  */
 
-import { useState } from 'react';
 import { WorldMap } from '../../features/map/components/WorldMap';
-import { ExperienceModeSwitch } from '../../features/experienceMode/components/ExperienceModeSwitch';
+import { useExperienceMode } from '../../features/experienceMode';
 import { getHomePageData } from '../../features/travelData';
-import { DEFAULT_EXPERIENCE_MODE, getHomePageContent } from '../../features/experienceMode/data/experienceMode.config';
-import type { ExperienceMode } from '../../features/experienceMode/types/experienceMode.types';
+import { getHomePageContent } from '../../features/experienceMode/data/experienceMode.config';
 import styles from './HomePage.module.css';
 
 /**
  * HomePage - Página principal de Trawel
  * 
  * Presenta el mapa mundial como elemento central de exploración,
- * con selector de modo de experiencia y contenido dinámico.
+ * con contenido dinámico según el modo global de experiencia.
  */
 export function HomePage() {
-  const [experienceMode, setExperienceMode] = useState<ExperienceMode>(DEFAULT_EXPERIENCE_MODE);
+  // Usar modo de experiencia global desde Context
+  const { mode: experienceMode } = useExperienceMode();
   
   // Usar travelData.service para obtener datos agregados
   const { activeCountries, comingSoonCountries, counts } = getHomePageData();
@@ -40,17 +39,9 @@ export function HomePage() {
 
   return (
     <div className={styles.container}>
-      {/* Hero con selector de modo y el mapa como protagonista */}
+      {/* Hero con el mapa como protagonista */}
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroContent}>
-          {/* Selector de modo de experiencia */}
-          <div className={styles.modeSelector}>
-            <ExperienceModeSwitch 
-              currentMode={experienceMode}
-              onModeChange={setExperienceMode}
-            />
-          </div>
-          
           <h1 id="hero-title" className={styles.heroTitle}>
             {content.heroTitle}
           </h1>

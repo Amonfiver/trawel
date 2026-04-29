@@ -562,6 +562,31 @@ Documentada como hoja de ruta futura la estrategia para assets cartográficos in
 
 ---
 
+### 2026-04-29 - Corrección: Eliminado selector de modo duplicado en HomePage 🐛
+
+**Incoherencia encontrada:**
+HomePage tenía su propio selector de modo Aventura/Estudiante, mientras que App.tsx ya tenía el selector global. Esto causaba:
+- Dos selectores no sincronizados en la página de inicio
+- El selector de HomePage no persistía en localStorage
+- Comportamiento confuso para el usuario
+
+**Corrección aplicada:**
+- Eliminado selector de modo de `HomePage.tsx`
+- Ahora HomePage usa `useExperienceMode()` del contexto global
+- Eliminados imports innecesarios (`useState`, `ExperienceModeSwitch`, `DEFAULT_EXPERIENCE_MODE`)
+- Actualizada documentación de cabecera
+
+**Archivos modificados:**
+- `src/pages/HomePage/HomePage.tsx`
+
+**Verificación:**
+- ✅ Build exitoso
+- ✅ Un solo selector visible en toda la app (en header global)
+- ✅ HomePage responde al modo global correctamente
+- ✅ Persistencia en localStorage funciona consistentemente
+
+---
+
 ### 2026-04-29 - Rediseño de AdventurePage como Ficha Editorial Publicable ✅
 
 Mejorada la página de destino para que /aventura/castillo-de-morella se sienta como una ficha editorial publicable dentro de Trawel:
