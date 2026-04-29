@@ -562,6 +562,56 @@ Documentada como hoja de ruta futura la estrategia para assets cartográficos in
 
 ---
 
+### 2026-04-29 - Rediseño de AdventurePage como Ficha Editorial Publicable ✅
+
+Mejorada la página de destino para que /aventura/castillo-de-morella se sienta como una ficha editorial publicable dentro de Trawel:
+
+**Cambios visuales principales:**
+- **Hero prominente**: Título destacado del destino, badges (tipo, destacado, estado)
+- **Relación visible**: Ubicación clara "Morella, España"
+- **Navegación de vuelta**: Enlace prominente "Explorar más de Morella"
+- **Contenido editorial estructurado**: Sección "Por qué visitarlo" / "Descubre su historia" según modo
+- **Indicador de modo**: Muestra si se está viendo en Modo Aventura o Estudiante
+- **Sidebar mejorado**: Información práctica, ubicación con enlace a ciudad, fuentes y referencias
+- **Estados amables**: Mensajes claros cuando falta contenido o fuentes
+
+**Archivos modificados:**
+- `src/pages/AdventurePage/AdventurePage.tsx` - Estructura rediseñada con hero y navegación
+- `src/pages/AdventurePage/AdventurePage.module.css` - Nuevos estilos con jerarquía editorial
+
+**Jerarquía visual implementada:**
+```
+Hero (Destino)
+  └── Título destacado + Badges (tipo, destacado, estado)
+  └── Ubicación: "Morella, España"
+  └── Resumen introductorio
+  └── Navegación de vuelta a ciudad
+Contenido Principal (fondo blanco)
+  └── Header: "Por qué visitarlo" + Indicador de modo
+  └── Texto editorial estructurado en párrafos
+  └── Tags (si existen)
+Sidebar (3 tarjetas)
+  └── Información práctica (duración, precio, horario)
+  └── Ubicación con enlace a ciudad
+  └── Fuentes y referencias con trazabilidad
+```
+
+**Modo Aventura/Estudiante:**
+- Título de sección adaptativo: "Por qué visitarlo" vs "Descubre su historia"
+- Indicador visual del modo activo
+- Fallback preservado: modo → otro modo → summary
+
+**Verificación:**
+- ✅ Build exitoso
+- ✅ Responsive (mobile, tablet, desktop)
+- ✅ Funciona con mock y Supabase
+- ✅ Navegación a ciudad funciona
+- ✅ Enlace a fuentes externas funciona
+- ✅ Estados amables cuando faltan datos
+- ✅ Selector Aventura/Estudiante visible y funcionando
+
+---
+
 ### 2026-04-29 - Rediseño de CityPage como Página Editorial de Ciudad ✅
 
 Mejorada la página de ciudad para que /pais/espana/morella se sienta como una verdadera página editorial dentro de Trawel:
