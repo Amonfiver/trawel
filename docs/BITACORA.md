@@ -562,28 +562,59 @@ Documentada como hoja de ruta futura la estrategia para assets cartográficos in
 
 ---
 
+### 2026-04-29 - Sincronización Mock: Morella y Castillo de Morella ✅
+
+Añadidos Morella y Castillo de Morella a los datos mock para que el circuito completo funcione con `VITE_TRAVEL_DATA_SOURCE=mock`:
+
+**Archivos modificados:**
+- `src/features/cities/data/cities.ts` - Añadida ciudad Morella con:
+  - `shortDescription`: Ciudad amurallada medieval en lo alto de la meseta
+  - `contentByMode.adventure`: Empieza tu visita subiendo al castillo por la mañana temprano...
+  - `contentByMode.student`: Morella es una ciudad amurallada de la provincia de Castellón...
+  - `featured: true`, `destinationCount: 1`
+  - `coordinates: { lat: 40.6208, lng: 0.0994 }`
+
+- `src/features/destinations/data/destinations.ts` - Añadido Castillo de Morella con:
+  - `summary`: Fortaleza medieval que corona la ciudad amurallada...
+  - `contentByMode.adventure`: Sube por el camino empedrado hasta el castillo más alto...
+  - `contentByMode.student`: El Castillo de Morella se alza a 1.074 metros...
+  - `type: 'monument'`, `featured: true`
+  - `estimatedVisitTime`: 1-2 horas
+  - `price`: 5€ adultos, 3€ niños y jubilados...
+  - `openingHours`: Martes a domingo: 11:00 - 14:00 y 16:00 - 19:00
+  - `tags`: ['castillo', 'medieval', 'historia', 'vistas', 'imprescindible']
+  - `sources`: URLs oficiales de Morella y Turismo CV
+
+**Circuito ahora funcional en mock:**
+```
+Home → España → Morella → Castillo de Morella
+```
+
+**Verificación:**
+- ✅ Build exitoso
+- ✅ `/pais/espana` muestra Morella en el grid de ciudades
+- ✅ `/pais/espana/morella` carga la CityPage correctamente
+- ✅ `/aventura/castillo-de-morella` carga la AdventurePage correctamente
+- ✅ Contenido se adapta al modo Aventura/Estudiante
+- ✅ Navegación de vuelta funciona en ambos sentidos
+
+---
+
 ### 2026-04-29 - Auditoría Editorial de Datos Demo 📊
 
 Creado informe completo de auditoría editorial para España/Morella/Castillo de Morella:
 
-**Hallazgo crítico:**
-Morella y Castillo de Morella existen en **Supabase** pero **NO en datos mock**, causando inconsistencias en la demo.
+**Hallazgo crítico (YA MITIGADO):**
+~~Morella y Castillo de Morella existen en **Supabase** pero **NO en datos mock**~~ → **RESUELTO** en sincronización mock.
 
 **Archivo creado:**
-- `docs/EDITORIAL_AUDIT.md` - Informe detallado con:
-  - Tablas de campos usados por página
-  - Análisis de datos mock vs Supabase
-  - Carencias identificadas
-  - Recomendaciones priorizadas
+- `docs/EDITORIAL_AUDIT.md` - Informe detallado con tablas de campos, análisis y recomendaciones
 
-**Problemas principales detectados:**
-1. **Morella**: No existe en `cities.ts` (mock) → 404 en `/pais/espana/morella`
-2. **Castillo de Morella**: No existe en `destinations.ts` (mock) → 404 en `/aventura/castillo-de-morella`
-3. **Castellón**: Tiene `destinationCount: 1` pero sin destinos asignados
-4. **Prado**: Fuentes mínimas (solo placeholder)
-
-**Recomendación:**
-Sincronizar datos mock con Supabase para demo consistente, o usar `VITE_TRAVEL_DATA_SOURCE=supabase` para demos.
+**Problemas principales detectados (estado actual):**
+1. ✅ **Morella**: ~~No existe en `cities.ts`~~ → **AÑADIDO**
+2. ✅ **Castillo de Morella**: ~~No existe en `destinations.ts`~~ → **AÑADIDO**
+3. ⚠️ **Castellón**: Tiene `destinationCount: 1` pero sin destinos asignados (pendiente)
+4. ⚠️ **Prado**: Fuentes mínimas (pendiente)
 
 ---
 

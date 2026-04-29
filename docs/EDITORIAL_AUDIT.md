@@ -8,16 +8,19 @@
 
 ## Resumen Ejecutivo
 
-**Hallazgo crítico:** Morella y Castillo de Morella existen en **Supabase** pero **NO en datos mock**. Esto causa que la demo se vea diferente (y pobre) dependiendo de la fuente de datos activa.
+**~~Hallazgo crítico~~ RESUELTO:** ~~Morella y Castillo de Morella existen en **Supabase** pero **NO en datos mock**~~  
+✅ **Sincronización completada el 2026-04-29** - Ambas entidades ahora existen en mock y Supabase.
 
 | Entidad | Mock | Supabase | Impacto Demo |
 |---------|------|----------|--------------|
-| España | ✅ Completo | ✅ Completo | Consistente |
-| Madrid | ✅ Completo | ✅ Completo | Consistente |
-| Barcelona | ✅ Completo | ✅ Completo | Consistente |
-| Castellón | ✅ Completo | ✅ Completo | Consistente |
-| **Morella** | ❌ **NO EXISTE** | ✅ Completo | **Inconsistente** |
-| **Castillo de Morella** | ❌ **NO EXISTE** | ✅ Completo | **Inconsistente** |
+| España | ✅ Completo | ✅ Completo | ✅ Consistente |
+| Madrid | ✅ Completo | ✅ Completo | ✅ Consistente |
+| Barcelona | ✅ Completo | ✅ Completo | ✅ Consistente |
+| Castellón | ✅ Completo | ✅ Completo | ✅ Consistente |
+| **Morella** | ✅ **AÑADIDO** | ✅ Completo | ✅ **Consistente** |
+| **Castillo de Morella** | ✅ **AÑADIDO** | ✅ Completo | ✅ **Consistente** |
+
+**Estado:** El circuito España → Morella → Castillo de Morella funciona correctamente en ambas fuentes de datos.
 
 ---
 
@@ -248,14 +251,32 @@
 
 ## Conclusión
 
-**La demo funciona correctamente con Supabase** (`VITE_TRAVEL_DATA_SOURCE=supabase`), donde Morella y sus 6 destinos están completamente poblados con contenido dual.
+**✅ RESUELTO - Sincronización Mock Completada (2026-04-29)**
 
-**La demo se ve pobre con mock** (`VITE_TRAVEL_DATA_SOURCE=mock`) porque:
-1. Morella no existe (404 en ciudad)
-2. Castillo de Morella no existe (404 en destino)
-3. Solo se ven Madrid/Barcelona con 3 destinos totales
+La demo ahora funciona consistentemente en ambas fuentes de datos:
 
-**Recomendación inmediata:** Sincronizar datos mock con los de Supabase añadiendo Morella y al menos el Castillo de Morella a los archivos TypeScript estáticos.
+| Fuente | Estado | Rutas funcionales |
+|--------|--------|-------------------|
+| **Mock** | ✅ Completo | Home → España → Morella → Castillo de Morella |
+| **Supabase** | ✅ Completo | Home → España → Morella → Castillo de Morella |
+
+**Cambios aplicados:**
+- Añadida ciudad Morella a `src/features/cities/data/cities.ts`
+- Añadido destino Castillo de Morella a `src/features/destinations/data/destinations.ts`
+- Contenido dual (adventure/student) incluido en ambos
+- Fuentes y metadatos prácticos (precio, horario, duración)
+
+**Verificación del circuito completo:**
+- ✅ `/pais/espana` - Muestra Morella en grid de ciudades
+- ✅ `/pais/espana/morella` - CityPage con contenido y navegación
+- ✅ `/aventura/castillo-de-morella` - AdventurePage con sidebar de info
+- ✅ Modo Aventura/Estudiante funciona con fallback
+- ✅ Navegación de vuelta operativa
+
+---
+
+*Auditoría inicial: 2026-04-29*  
+*Sincronización mock completada: 2026-04-29*
 
 ---
 

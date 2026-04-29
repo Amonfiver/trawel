@@ -74,6 +74,22 @@ export const cities: CityDictionary = {
     destinationCount: 1,
     coordinates: { lat: 39.9857, lng: -0.0494 },
   },
+  
+  morella: {
+    id: 'morella',
+    slug: 'morella',
+    countrySlug: 'espana',
+    name: createLocalizedText('Morella'),
+    shortDescription: createLocalizedText('Ciudad amurallada medieval en lo alto de la meseta, con vistas espectaculares del Maestrazgo'),
+    contentByMode: {
+      adventure: createLocalizedText('Empieza tu visita subiendo al castillo por la mañana temprano, cuando la niebla aún envuelve el valle. Camina por murallas milenarias, explora la prisión medieval y contempla vistas que conquistaron romanos, árabes y cristianos. Dedica tiempo a perderte por las calles empedradas sin rumbo fijo, descubriendo rincones secretos entre contrafuertes góticos y ventanas ojivales.'),
+      student: createLocalizedText('Morella es una ciudad amurallada de la provincia de Castellón, situada en lo alto de una meseta rocosa a 1.000 metros de altitud. Su ubicación estratégica en la frontera entre Aragón y Cataluña la convirtió en un enclave militar codiciado durante siglos. El conjunto amurallado conserva restos de ocupación ibérica, romana y medieval, con murallas del siglo XIV y el castillo que domina el paisaje desde la Edad Media.'),
+    },
+    status: 'active',
+    featured: true,
+    destinationCount: 1,
+    coordinates: { lat: 40.6208, lng: 0.0994 },
+  },
 
   // Japón
   tokyo: {

@@ -148,6 +148,31 @@ export const destinations: DestinationDictionary = {
       { type: 'book', title: 'The Fox and the Jewel: Shared and Private Meanings in Contemporary Japanese Inari Worship', author: 'Karen A. Smyers', year: 1999 },
     ],
   },
+
+  // Morella - Castillo de Morella
+  'castillo-de-morella': {
+    id: 'castillo-de-morella',
+    slug: 'castillo-de-morella',
+    countrySlug: 'espana',
+    citySlug: 'morella',
+    title: createLocalizedText('Castillo de Morella'),
+    summary: createLocalizedText('Fortaleza medieval que corona la ciudad amurallada con vistas panorámicas del Maestrazgo'),
+    contentByMode: {
+      adventure: createLocalizedText('Sube por el camino empedrado hasta el castillo más alto de la provincia. Desde la torre del homenaje, el valle se extiende a tus pies en un espectáculo de nieblas matutinas y atardeceres dorados. Explora las mazmorras, camina por las murallas restauradas y siente cómo la historia cobra vida en cada piedra. Es una subida que recompensa con una de las mejores vistas de toda la Comunidad Valenciana.'),
+      student: createLocalizedText('El Castillo de Morella se alza a 1.074 metros sobre el nivel del mar, coronando la meseta donde se asienta la ciudad. Construido durante la Edad Media sobre restos anteriores, ha sido testigo de numerosos conflictos bélicos debido a su posición estratégica. El recinto incluye la torre del homenaje, murallas, una prisión medieval y cisternas subterráneas. Desde 2021 forma parte de la red de castillos turísticos de la Comunidad Valenciana.'),
+    },
+    status: 'published',
+    featured: true,
+    type: 'monument',
+    tags: ['castillo', 'medieval', 'historia', 'vistas', 'imprescindible'],
+    estimatedVisitTime: '1-2 horas',
+    price: createLocalizedText('5€ adultos, 3€ niños y jubilados. Gratis domingos y festivos para residentes en Comunidad Valenciana.'),
+    openingHours: createLocalizedText('Martes a domingo: 11:00 - 14:00 y 16:00 - 19:00. Lunes cerrado.'),
+    sources: [
+      { type: 'website', title: 'Ayuntamiento de Morella - Castillo', url: 'https://www.morella.net/castillo/' },
+      { type: 'website', title: 'Turismo Comunidad Valenciana', url: 'https://www.comunitatvalenciana.com/morella' },
+    ],
+  },
 };
 
 /** Lista de todos los destinos como array */
