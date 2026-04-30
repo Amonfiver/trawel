@@ -17,6 +17,8 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `EDITORIAL_WORKFLOW.md` - Protocolo para alta de ciudades y destinos
 - `EDITORIAL_AUDIT.md` - Auditoría de datos editoriales
 - `DEMO_CHECKLIST.md` - Guion de demo para presentaciones a socios/colaboradores
+- `EXPERIENCE_MODE_AUDIT.md` - Auditoría del modo Aventura/Estudiante
+- `V0_HANDOFF.md` - Handoff para rediseño visual con v0
 - `DECISIONES.md` - Registro de decisiones técnicas
 - `BITACORA.md` - Bitácora activa del proyecto
 - `BITACORA_001.md` - Archivo histórico de bitácora

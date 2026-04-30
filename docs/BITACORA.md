@@ -39,6 +39,34 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Handoff para v0: Documento de rediseño visual 🎨
+
+Creado documento de handoff para equipo de diseño v0 con especificaciones claras de rediseño visual:
+
+**Archivo creado:**
+- `docs/V0_HANDOFF.md` - Documento completo con:
+  - Qué es Trawel (app pública, flujo Mundo→País→Ciudad→Destino)
+  - Objetivo del rediseño (estética premium, UX, responsive)
+  - Páginas a rediseñar (Home, Country, City, Adventure, estados no encontrados)
+  - Componentes/lógica que NO se debe romper (header global, ExperienceModeContext, capa de datos)
+  - Reglas estrictas (no tocar Supabase, mock, rutas, estados editoriales)
+  - Dirección estética (travel premium moderno, mapa protagonista)
+  - Conclusiones del audit de ExperienceMode (mejorar visibilidad del modo)
+  - Entregables esperados y checklist de aceptación
+
+**Principios clave del handoff:**
+- v0 mejora estética y UX sin cambiar arquitectura ni lógica de datos
+- Trawel sigue siendo exhibidor de contenido, no panel editorial
+- Modo Aventura/Estudiante debe ser más visible pero sin inventar diferencias editoriales
+- Checklist de aceptación basada en flujo Morella y Albarracín disabled
+
+**Relación con docs existentes:**
+- Incorpora conclusiones de `EXPERIENCE_MODE_AUDIT.md`
+- Alinea con `AGENT_BRIEF.md` (Trawel como app pública)
+- Soporta `DEMO_CHECKLIST.md` (flujo de demo intacto)
+
+---
+
 ### 2026-05-01 - Auditoría: Modo Aventura/Estudiante 🔍
 
 Auditoría completa del uso del modo de experiencia en el flujo público:
