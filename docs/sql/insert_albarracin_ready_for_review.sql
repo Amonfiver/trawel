@@ -6,12 +6,17 @@
 -- ✅ RESULTADO VERIFICADO CORRECTAMENTE
 -- 
 -- ESTADO ACTUAL EN SUPABASE:
--- - cities: slug='albarracin', name_es='Albarracín', status='comingSoon'
+-- - cities: slug='albarracin', name_es='Albarracín', status='disabled'
 -- - destinations: slug='conjunto-historico-albarracin', status='draft', verification_status='pending'
 -- - destination_sources: 5 fuentes insertadas correctamente (types: official, official, heritage, tourism, other)
 -- 
 -- NOTA: Los datos están insertados en Supabase pero NO están publicados todavía
--- para el usuario final (status = comingSoon/draft, no published).
+-- para el usuario final (status = disabled/draft, no published).
+--
+-- ⚠️ comingSoon SE RESERVA PARA DEMANDA PÚBLICA (DA-028):
+--    - comingSoon = lugar que usuarios buscan pero Trawel aún no tiene
+--    - NO usar comingSoon para contenido editorial en desarrollo
+--    - Contenido interno/oculto: city.status = 'disabled', destination.status = 'draft'
 --
 -- ⚠️  ADVERTENCIA HISTÓRICA: Este SQL ya fue ejecutado. Mantener como referencia.
 -- 
@@ -70,7 +75,7 @@ SELECT
     
     40.4053,                                       -- lat (fuente: ICEARAGON)
     -1.4440,                                       -- lng (fuente: ICEARAGON)
-    'comingSoon',                                  -- status: comingSoon hasta revisión final (draft no válido para cities)
+    'disabled',                                    -- status: disabled = contenido editorial interno/no publicado (DA-028)
     TRUE,                                          -- featured (única representante de Teruel)
     'Medio día (3-4 horas)',                       -- recommended_duration
     'Primavera y otoño',                           -- best_season_es (estimado, verificar)

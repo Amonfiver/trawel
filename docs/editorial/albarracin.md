@@ -1,15 +1,22 @@
 # Ficha Editorial - Albarracín, Teruel, España
 
 > **Estado:** `inserted_in_supabase`  
-> **Aclaración:** Insertada en Supabase, aún no publicada para usuario final.
+> **Aclaración:** Insertada en Supabase como **contenido editorial interno** (NO publicado).
 > **Fecha de creación:** 2026-04-30  
 > **Fecha de inserción en Supabase:** 2026-04-30  
 > **Revisado por:** Pendiente revisión humana final  
 > **Protocolo aplicado:** docs/EDITORIAL_WORKFLOW.md v1.0  
 >  
-> **⚠️ IMPORTANTE:** Los datos están insertados en Supabase (`status: comingSoon/draft`)  
-> pero NO están publicados para el usuario final. Requiere cambio a `published`  
-> tras revisión editorial y verificación de URLs/precios.
+> **⚠️ IMPORTANTE (DA-028):** Contenido insertado con estados internos (`disabled`/`draft`),  
+> NO `comingSoon`. El estado `comingSoon` está reservado para **demanda pública**  
+> (lugares que usuarios buscan pero Trawel aún no tiene).  
+>  
+> **Estados actuales en Supabase:**
+> - `cities.status = 'disabled'` (contenido interno no visible)
+> - `destinations.status = 'draft'` (destino no publicado)
+> - `destinations.verification_status = 'pending'` (pendiente de verificación)
+>  
+> **Para publicar:** Cambiar a `active`/`published` tras revisión editorial final.
 
 ---
 

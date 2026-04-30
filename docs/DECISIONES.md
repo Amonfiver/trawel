@@ -121,6 +121,40 @@ Este archivo registra decisiones técnicas y de diseño importantes del proyecto
 
 ---
 
+## DA-028: comingSoon como demanda pública, no como fase editorial
+
+**Fecha:** 2026-04-30  
+**Estado:** Aprobada  
+**Contexto:** Estábamos usando `comingSoon` como estado intermedio para contenido editorial en desarrollo (ej: Albarracín insertada en Supabase pero no publicada). Esto generaba confusión sobre el propósito real del estado.
+
+**Decisión:** Redefinir `comingSoon` como indicador de **demanda pública**, no como fase editorial interna:
+
+| Aspecto | Definición |
+|---------|------------|
+| **comingSoon origen** | Búsquedas, solicitudes y demanda real de usuarios por lugares que Trawel no tiene |
+| **Función** | Lista de pedidos editoriales para priorizar qué investigar y publicar |
+| **Investighost** | NO inserta contenido como `comingSoon`. Produce contenido revisado que pasa directamente a `active`/`published` |
+| **Contenido interno** | Editorial no publicado permanece oculto: `city.status = 'disabled'`, `destination.status = 'draft'` |
+
+**Principios:**
+- `comingSoon` = "Los usuarios quieren este lugar, lo investigaremos pronto"
+- `disabled` + `draft` = "Estamos trabajando en ello, aún no visible"
+- Investighost solo publica contenido completo y revisado
+- No hay fases públicas de "construcción" del contenido
+
+**Correcciones aplicadas:**
+- Albarracín: `city.status` cambiado de `'comingSoon'` a `'disabled'` (contenido interno no publicado)
+- Destinos: mantener `'draft'` hasta publicación
+
+**Consecuencias:**
+- Estados editoriales más claros y separados de la demanda
+- Investighost tiene cola de prioridades basada en usuarios reales
+- Contenido en desarrollo no aparece públicamente
+
+**Reversibilidad:** Alta. Cambio conceptual con ajustes menores de status.
+
+---
+
 ## DA-027: Estrategia progresiva para assets cartográficos internos
 
 **Fecha:** 2026-04-29  
@@ -155,6 +189,7 @@ Este archivo registra decisiones técnicas y de diseño importantes del proyecto
 
 | ID | Fecha | Título | Estado |
 |----|-------|--------|--------|
+| DA-028 | 2026-04-30 | comingSoon como demanda pública | ✅ Aprobada |
 | DA-027 | 2026-04-29 | Estrategia progresiva para mapas internos | ✅ Hoja de ruta |
 | DA-026 | 2026-04-28 | Mock como fuente por defecto hasta conectar Supabase | ✅ Aprobada |
 | DA-025 | 2026-04-28 | Modelo de base de datos real para Trawel | ✅ Aprobada |

@@ -39,10 +39,26 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-30 - Decisión DA-028: comingSoon como demanda pública
+
+Redefinido el propósito de `comingSoon`: ya no es fase editorial, sino indicador de **demanda pública**.
+
+| Estado | Significado |
+|--------|-------------|
+| `comingSoon` | Lugares que usuarios buscan pero Trawel aún no tiene (cola de prioridades editoriales) |
+| `disabled` + `draft` | Contenido editorial en desarrollo, interno/no visible |
+
+**Consecuencias:**
+- Investighost NO publica contenido incompleto como `comingSoon`
+- Albarracín corregida: `city.status = 'disabled'` (era `comingSoon`)
+- Contenido en desarrollo permanece oculto hasta publicación
+
+---
+
 ### 2026-04-30 - Ejecución SQL Albarracín en Supabase verificada
 
 Verificada ejecución manual del SQL de Albarracín en Supabase:
-- cities.slug = albarracin (status: comingSoon)
+- cities.slug = albarracin (status: disabled - DA-028)
 - destinations.slug = conjunto-historico-albarracin (status: draft, verification_status: pending)
 - destination_sources: 5 fuentes insertadas
 
