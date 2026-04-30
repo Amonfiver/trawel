@@ -583,6 +583,35 @@ Actualizada ficha editorial de Albarracín con verificación de fuentes oficiale
 
 ---
 
+### 2026-04-30 - SQL Revisable: Albarracín preparado para Supabase 🗄️
+
+Creado archivo SQL revisable para futura inserción manual en Supabase:
+
+**Archivo creado:**
+- `docs/sql/insert_albarracin_ready_for_review.sql` - SQL completo con:
+  - **Ciudad Albarracín:** INSERT con coordenadas verificadas (40.4053, -1.4440), contenido dual adventure/student
+  - **Destino Conjunto Histórico:** INSERT completo con metadatos, tags, fuentes
+  - **5 fuentes oficiales:** Ayuntamiento, Historia municipal, Patrimonio Cultural Aragón, Turismo Aragón, ICEARAGON
+  - **Estado seguro:** Ambos registros en `draft` (no publicados automáticamente)
+  - **Precios/horarios:** NULL o texto indicativo (no datos cerrados no verificados)
+
+**Características del SQL:**
+- Usa `ON CONFLICT DO UPDATE` para idempotencia
+- No hardcodea UUIDs (usa subconsultas por slug)
+- Incluye checklist de verificación post-ejecución
+- Marcado con advertencias claras: "REVISAR ANTES DE EJECUTAR"
+- Campos `pending_verification` documentan qué falta por verificar
+
+**Decisiones tomadas:**
+- Estado `draft` para ciudad y destino (requiere revisión humana antes de publicar)
+- Precios de catedral/miradores: NULL (pendientes de verificación)
+- Horarios: texto indicativo de acceso libre exterior (verificar catedral)
+- Fuentes: 5 URLs oficiales verificadas pero no probadas en ejecución
+
+**Estado:** SQL listo para revisión, NO ejecutado en Supabase.
+
+---
+
 ### 2026-04-29 - Protocolo Editorial: Guía para Alta de Ciudades 📝
 
 Creado protocolo documental para añadir nuevas ciudades editoriales a Trawel de forma ordenada:
