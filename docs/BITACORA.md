@@ -46,17 +46,11 @@ Mitigado riesgo de visibilidad de contenido interno detectado en auditoría DA-0
 **Cambios aplicados en `src/features/travelData/sources/supabaseTravelData.source.ts`:**
 - Consulta de cities: añadido filtro `.eq('status', 'active')`
 - Consulta de destinations: añadido filtro `.eq('status', 'published')`
-- Countries: sin cambios (se mantiene carga completa, filtrado en UI)
 
-**Comportamiento tras el cambio:**
-| Ruta | Estado esperado | Resultado |
-|------|-----------------|-----------|
-| `/pais/espana` | Morella visible | ✅ Sí (active) |
-| `/pais/espana/albarracin` | No encontrar | ✅ No resuelve (disabled) |
-| `/aventura/conjunto-historico-albarracin` | No encontrar | ✅ No resuelve (draft) |
-| `/aventura/castillo-de-morella` | Funciona | ✅ Sí (published) |
-
-**Build:** TypeScript compatible, sin errores.
+**Verificación manual con Supabase (VITE_TRAVEL_DATA_SOURCE=supabase):**
+- `/pais/espana/albarracin` → "Ciudad no encontrada" ✅ (disabled filtrado)
+- `/aventura/conjunto-historico-albarracin` → "Aventura no encontrada" ✅ (draft filtrado)
+- `/pais/espana/morella` y `/aventura/castillo-de-morella` funcionan correctamente ✅
 
 ---
 

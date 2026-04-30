@@ -327,6 +327,21 @@ Según DA-028, `comingSoon` es **demanda pública** (usuarios quieren este lugar
 - [x] Mock data sigue funcionando (sin cambios necesarios)
 - [x] No hay regresión en navegación normal
 
+### Verificación Manual (2026-05-01)
+
+**Entorno:** `VITE_TRAVEL_DATA_SOURCE=supabase`
+
+| URL | Estado en DB | Resultado observado |
+|-----|--------------|---------------------|
+| `/pais/espana/albarracin` | `disabled` | "Ciudad no encontrada. La ciudad 'albarracin' no existe en 🇪🇸 España." ✅ |
+| `/aventura/conjunto-historico-albarracin` | `draft` | "Aventura no encontrada." ✅ |
+| `/pais/espana/morella` | `active` | Funciona correctamente ✅ |
+| `/aventura/castillo-de-morella` | `published` | Funciona correctamente ✅ |
+
+**Conclusión:** El filtro público de estados funciona correctamente. Contenido `disabled` y `draft` no es accesible por URL directa.
+
+---
+
 **Fecha de mitigación:** 2026-05-01  
 **Cambio aplicado:** Filtros `.eq('status', 'active')` y `.eq('status', 'published')` en queries de Supabase
 
