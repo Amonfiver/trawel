@@ -39,6 +39,35 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Auditoría: Modo Aventura/Estudiante 🔍
+
+Auditoría completa del uso del modo de experiencia en el flujo público:
+
+**Archivo creado:**
+- `docs/EXPERIENCE_MODE_AUDIT.md` - Análisis con:
+  - Tabla por página (Home, Country, City, Adventure)
+  - Evaluación de fallbacks (robustos pero invisibles)
+  - Análisis UX (débil, falta onboarding)
+  - Veredicto: funcional pero superficial
+
+**Hallazgos clave:**
+| Página | Usa modo | Indicador visual |
+|--------|----------|------------------|
+| HomePage | ✅ Sí | ❌ No |
+| CountryPage | ❌ No | ❌ No |
+| CityPage | ✅ Sí | ❌ No |
+| AdventurePage | ✅ Sí | ✅ Sí (badge) |
+
+**Recomendaciones priorizadas (antes de v0):**
+1. Añadir badge de modo en todas las páginas
+2. Tooltip explicativo en el selector
+3. Indicador cuando se usa contenido fallback
+4. Diferenciar títulos de sección en CityPage
+
+**Conclusión:** El modo está técnicamente implementado pero UX-mente inmaduro. Necesita hacerse visible/comprensible antes de v0.
+
+---
+
 ### 2026-05-01 - Agent Brief: Entrada rápida para agentes 📋
 
 Creado documento de entrada rápida para futuros agentes en microtareas:
