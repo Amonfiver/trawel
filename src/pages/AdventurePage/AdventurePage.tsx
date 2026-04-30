@@ -84,11 +84,20 @@ export function AdventurePage() {
     return (
       <div className={styles.container}>
         <div className={styles.notFound}>
-          <h1>Aventura no encontrada</h1>
-          <p>El destino "{adventureSlug}" no existe en nuestra base de datos.</p>
-          <Link to="/" className={styles.backLink}>
-            ← Volver al inicio
-          </Link>
+          <h1>Esta aventura todavía no está publicada</h1>
+          <p className={styles.notFoundDescription}>
+            Estamos preparando guías de calidad para nuevos destinos. 
+            Las aventuras que publicamos las investigamos a fondo antes de compartirlas.
+          </p>
+          {city && country ? (
+            <Link to={`/pais/${country.slug}/${city.slug}`} className={styles.backLink}>
+              ← Explorar más destinos
+            </Link>
+          ) : (
+            <Link to="/" className={styles.backLink}>
+              ← Volver al inicio
+            </Link>
+          )}
         </div>
       </div>
     );

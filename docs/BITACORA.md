@@ -39,6 +39,26 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Mensajes amables para contenido no disponible 📝
+
+Mejorados los mensajes de "no encontrado" en CityPage y AdventurePage para alinearse con DA-028:
+
+**Cambios aplicados:**
+- `src/pages/CityPage/CityPage.tsx`: Mensaje más amable para ciudades no disponibles
+- `src/pages/AdventurePage/AdventurePage.tsx`: Mensaje más amable para aventuras no publicadas
+- Estilos ajustados en ambos módulos CSS para mejor legibilidad
+
+**Nuevos mensajes:**
+- Ciudad no encontrada: "Esta ciudad todavía no está en Trawel" + explicación del proceso editorial
+- Aventura no encontrada: "Esta aventura todavía no está publicada" + énfasis en investigación previa
+
+**Principio aplicado (DA-028):**
+- No se exponen estados internos (disabled/draft)
+- Mensajes genéricos y honestos sobre disponibilidad
+- Navegación de vuelta mantenida cuando es posible
+
+---
+
 ### 2026-05-01 - Filtro público de estados en SupabaseTravelDataSource 🔒
 
 Mitigado riesgo de visibilidad de contenido interno detectado en auditoría DA-028:

@@ -83,11 +83,14 @@ export function CityPage() {
     return (
       <div className={styles.container}>
         <div className={styles.notFound}>
-          <h1>Ciudad no encontrada</h1>
-          <p>La ciudad "{citySlug}" no existe en {country?.displayName || 'este país'}.</p>
+          <h1>Esta ciudad todavía no está en Trawel</h1>
+          <p className={styles.notFoundDescription}>
+            Estamos preparando nuevos destinos poco a poco. 
+            Las ciudades que añadimos las investigamos a fondo para ofrecerte guías de calidad.
+          </p>
           {country ? (
             <Link to={`/pais/${countrySlug}`} className={styles.backLink}>
-              ← Volver a {country.displayName}
+              ← Explorar {country.displayName}
             </Link>
           ) : (
             <Link to="/" className={styles.backLink}>
