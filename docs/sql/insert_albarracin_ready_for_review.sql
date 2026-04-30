@@ -11,7 +11,7 @@
 -- 
 -- DECISIONES PENDIENTES ANTES DE EJECUTAR:
 -- 1. Revisar contenido editorial (tono, precisión histórica)
--- 2. Verificar si se desea cambiar estado de 'draft' a 'published'
+-- 2. Verificar si se desea cambiar estado de 'comingSoon'/'draft' a 'published'
 -- 3. Confirmar que coordenadas son suficientemente precisas
 -- 4. Verificar URLs de fuentes (hacer clic y confirmar funcionamiento)
 -- 
@@ -62,7 +62,7 @@ SELECT
     
     40.4053,                                       -- lat (fuente: ICEARAGON)
     -1.4440,                                       -- lng (fuente: ICEARAGON)
-    'draft',                                       -- status: mantener en draft hasta revisión final
+    'comingSoon',                                  -- status: comingSoon hasta revisión final (draft no válido para cities)
     TRUE,                                          -- featured (única representante de Teruel)
     'Medio día (3-4 horas)',                       -- recommended_duration
     'Primavera y otoño',                           -- best_season_es (estimado, verificar)
@@ -270,7 +270,7 @@ WHERE d.slug = 'conjunto-historico-albarracin';
 -- ============================================================================
 
 -- ESTADO EDITORIAL ACTUAL:
--- - Ciudad: draft (requiere revisión antes de publicar)
+-- - Ciudad: comingSoon (requiere revisión antes de publicar)
 -- - Destino: draft (requiere revisión antes de publicar)
 -- - Fuentes: URLs verificadas pero no probadas en ejecución
 --
@@ -286,7 +286,7 @@ WHERE d.slug = 'conjunto-historico-albarracin';
 -- 3. Revisar contenido editorial por persona diferente a la que creó la ficha
 -- 4. Completar o eliminar campos NULL (sleeping_advice_es, food_advice_es)
 -- 5. Decidir si mantener price/opening_hours como NULL o añadir texto indicativo
--- 6. Cambiar status de 'draft' a 'published' cuando se considere apropiado
+-- 6. Cambiar status de 'comingSoon'/'draft' a 'published' cuando se considere apropiado
 --
 -- ============================================================================
 -- FIN DEL ARCHIVO SQL
