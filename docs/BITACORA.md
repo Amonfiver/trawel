@@ -37,7 +37,30 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ---
 
-## Historial reciente (últimas entradas)
+## Historial recientes (últimas entradas)
+
+### 2026-04-30 - Auditoría: Visibilidad de estados editoriales en Supabase 🔍
+
+Auditoría de seguridad sobre filtrado de estados editoriales (DA-028):
+
+**Hallazgos críticos:**
+- SupabaseTravelDataSource **NO filtra** por status: carga `disabled` y `draft`
+- CityPage permite acceso por URL a ciudades `disabled` (riesgo: Albarracín visible)
+- AdventurePage permite acceso por URL a destinos `draft` (riesgo: contenido en desarrollo expuesto)
+
+**Estado actual en Supabase:**
+| Entidad | Slug | Status | Visible por URL |
+|---------|------|--------|-----------------|
+| Morella | morella | active | ✅ Sí (correcto) |
+| Castillo de Morella | castillo-de-morella | published | ✅ Sí (correcto) |
+| Albarracín | albarracin | disabled | ❌ **RIESGO** |
+| Conjunto Histórico | conjunto-historico-albarracin | draft | ❌ **RIESGO** |
+
+**Recomendación:** Agregar filtros `.eq('status', 'active')` y `.eq('status', 'published')` en supabaseTravelData.source.ts
+
+**Documento:** `docs/STATE_VISIBILITY_AUDIT.md`
+
+---
 
 ### 2026-04-30 - Decisión DA-028: comingSoon como demanda pública
 
