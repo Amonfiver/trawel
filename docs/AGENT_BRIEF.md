@@ -1,0 +1,160 @@
+# Agent Brief - Trawel
+
+> **Start here.** Documento de entrada rápida para agentes en microtareas.
+> 
+> **Regla de oro:** Lee esto primero, luego los docs específicos que necesites. No releas todo.
+
+---
+
+## 1. Propósito del proyecto
+
+Trawel es una **app pública de exploración de destinos de viaje**:
+
+- Lee contenido aprobado desde Supabase
+- Modo dual: Aventura (viajero) / Estudiante (educativo)
+- **NO es panel editorial** → Investighost es otro proyecto
+- **NO valida contenido** → Solo muestra lo aprobado
+
+---
+
+## 2. Flujo público actual
+
+```
+Home/Mundo → País → Ciudad → Destino
+
+/                      (HomePage)
+/pais/espana           (CountryPage)
+/pais/espana/morella   (CityPage)
+/aventura/castillo-de-morella  (AdventurePage)
+```
+
+**Demo funcional:** Morella + Castillo de Morella (contenido real publicado)
+
+---
+
+## 3. Fuente de datos
+
+**Arquitectura de fuentes:**
+
+```
+travelData.service.ts  ← API interna estable (usa esto en páginas)
+         ↓
+   TravelDataSource (interfaz)
+         ↓
+   ├─ mockTravelData.source.ts    (datos locales)
+   └─ supabaseTravelData.source.ts (Supabase real)
+```
+
+**Variable de entorno:**
+```bash
+VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
+```
+
+**Regla:** Las páginas no saben de dónde vienen los datos. Usan `travelData.service.ts`.
+
+---
+
+## 4. Estados editoriales públicos
+
+| Entidad | Estado | Visible en Trawel |
+|---------|--------|-------------------|
+| **cities** | `active` | ✅ Sí |
+| | `disabled` | ❌ No (interno) |
+| | `comingSoon` | ❌ No (demanda futura) |
+| **destinations** | `published` | ✅ Sí |
+| | `draft` | ❌ No (interno) |
+| | `disabled` | ❌ No |
+| | `comingSoon` | ❌ No (placeholder futuro) |
+
+**Filtro aplicado:** SupabaseTravelDataSource filtra automáticamente.
+
+---
+
+## 5. Decisiones importantes
+
+| ID | Decisión | Implicación |
+|----|----------|-------------|
+| **DA-027** | Mapas internos progresivos | Hoja de ruta futura, no ahora |
+| **DA-028** | `comingSoon` = demanda pública | NO es fase editorial; solo registra qué buscan usuarios |
+| **—** | Estética premium con v0 | No invertir en diseño final aún |
+| **—** | Investighost = proyecto aparte | No mezclar código de investigación en Trawel |
+
+---
+
+## 6. Estado actual de contenido
+
+| Ciudad/Destino | Estado Supabase | Visible en Trawel |
+|----------------|-----------------|-------------------|
+| Morella | `active` | ✅ Sí |
+| Castillo de Morella | `published` | ✅ Sí |
+| **Albarracín** | `disabled` | ❌ **No** (interno) |
+| Conjunto Histórico Albarracín | `draft` | ❌ **No** (interno) |
+
+**Albarracín:** Insertada en Supabase como contenido de prueba. No publicar hasta cambiar a `active`/`published`.
+
+---
+
+## 7. Reglas para futuros agentes
+
+### Flujo de trabajo
+1. **Leer AGENT_BRIEF.md primero** (este doc)
+2. Leer docs específicos según la tarea
+3. `git status` antes de tocar código
+4. Microtareas: un cambio pequeño, una verificación
+
+### Documentación
+- **Actualizar BITACORA.md** si cambias algo significativo
+- **Actualizar CODEMAP/DECISIONES** solo si aplica
+- **NO** documentar cambios triviales
+
+### Límites
+- ❌ No tocar Supabase/schema si no se pide explícitamente
+- ❌ No modificar mock si la tarea es sobre feature real
+- ❌ No cambiar rutas públicas existentes
+- ❌ No implementar features grandes mezcladas
+
+### ¿Qué leer según la tarea?
+| Tarea sobre... | Leer... |
+|----------------|---------|
+| Datos/Supabase | `DATA_MODEL.md`, `SUPABASE_SETUP.md` |
+| Contenido editorial | `EDITORIAL_WORKFLOW.md` |
+| Demo/presentación | `DEMO_CHECKLIST.md` |
+| Decisiones pasadas | `DECISIONES.md` |
+| Arquitectura | `ARCHITECTURE.md`, `CODEMAP.md` |
+
+---
+
+## 8. Checklist rápida antes de tocar código
+
+- [ ] ¿Qué archivo exacto hay que cambiar?
+- [ ] ¿Qué **NO** se debe tocar? (listar explícitamente)
+- [ ] ¿Hace falta `npm run build` para verificar?
+- [ ] ¿Hace falta documentar el cambio?
+- [ ] ¿Puede romper Supabase, mock, o ambos?
+- [ ] ¿Está el cambio alineado con DA-027/DA-028?
+
+---
+
+## 9. Referencias rápidas
+
+**Rutas de ejemplo:**
+- http://localhost:5173/ → Home
+- http://localhost:5173/pais/espana/morella → CityPage
+- http://localhost:5173/aventura/castillo-de-morella → AdventurePage
+- http://localhost:5173/pais/espana/albarracin → "No disponible" (correcto)
+
+**Comandos útiles:**
+```bash
+npm run dev          # Iniciar dev server
+npm run build        # Verificar build sin errores
+```
+
+---
+
+## TL;DR para prompts futuros
+
+> "Trawel es app pública de viajes. Lee datos de Supabase. Flujo: Home → País → Ciudad → Destino. Morella es el caso de éxito. Albarracín está en Supabase pero oculta (disabled/draft). No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
+
+---
+
+*Agent Brief v1.0 - Trawel*

@@ -39,6 +39,27 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Agent Brief: Entrada rápida para agentes 📋
+
+Creado documento de entrada rápida para futuros agentes en microtareas:
+
+**Archivo creado:**
+- `docs/AGENT_BRIEF.md` - Brief corto (200 líneas) con:
+  - Propósito del proyecto (app pública, no panel editorial)
+  - Flujo público actual (Home → País → Ciudad → Destino)
+  - Arquitectura de fuentes de datos
+  - Estados editoriales públicos (qué es visible vs. interno)
+  - Decisiones importantes (DA-027, DA-028)
+  - Estado de contenido (Morella visible, Albarracín oculta)
+  - Reglas para agentes (microtareas, qué leer según tarea)
+  - Checklist antes de tocar código
+
+**Objetivo:** Evitar que agentes relevan toda la documentación en cada tarea. Punto de entrada rápido.
+
+**Actualizado:** `CODEMAP.md` con referencia a AGENT_BRIEF.md como primer documento a leer.
+
+---
+
 ### 2026-05-01 - Guion de Demo para presentaciones 🎬
 
 Creado guion completo para presentar Trawel a socios/colaboradores:

@@ -7,6 +7,7 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 **Estado:** En desarrollo - WorldMap v1 implementado con D3 + TopoJSON + world-atlas CDN
 
 **Documentación relacionada:**
+- `AGENT_BRIEF.md` - **Start here.** Entrada rápida para agentes en microtareas
 - `SPEC.md` - Especificación funcional
 - `ARCHITECTURE.md` - Arquitectura del sistema
 - `DATA_MODEL.md` - Modelo de datos actual y futuro (ver para entender estructura de entidades)
