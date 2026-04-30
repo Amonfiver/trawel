@@ -543,30 +543,43 @@ Implementación del modelo jerárquico con:
 
 ---
 
-### 2026-04-30 - Ficha Editorial: Albarracín (Teruel) 🏘️
+### 2026-04-30 - Revisión Editorial Preventiva: Albarracín 🏘️
 
-Preparada ficha editorial de Albarracín como segunda ciudad para España, siguiendo docs/EDITORIAL_WORKFLOW.md:
+Actualizada ficha editorial de Albarracín con verificación de fuentes oficiales e institucionales:
 
-**Archivo creado:**
-- `docs/editorial/albarracin.md` - Ficha completa con:
-  - Justificación de selección (pueblo más bonito de España, arquitectura rojiza única)
-  - Ciudad Albarracín: shortDescription, contentByMode.adventure/student diferenciados
-  - Destino inicial: Conjunto Histórico de Albarracín
-  - Tags sugeridas: pueblo-medieval, patrimonio, arquitectura-vernacula
-  - Slugs propuestos: `albarracin`, `conjunto-historico-albarracin`
+**Archivo actualizado:**
+- `docs/editorial/albarracin.md` - Ficha verificada con:
+  - **Fuentes oficiales añadidas:**
+    - https://www.albarracin.es/ (Ayuntamiento - fuente principal)
+    - https://www.albarracin.es/historia/ (Historia municipal)
+    - https://patrimonioculturaldearagon.es/ (Patrimonio Cultural Aragón - fuente destino)
+    - https://www.turismodearagon.com/ficha/albarracin/ (Turismo autonómico)
+    - https://icearagon.aragon.es/ (ICEARAGON - coordenadas institucionales)
+  - **Coordenadas verificadas:** lat 40.4053, lng -1.4440 (ICEARAGON)
+  - **Contenido dual:** adventure/student mantenido y diferenciado
+  - **Destino confirmado:** Conjunto Histórico de Albarracín (`conjunto-historico-albarracin`)
 
-**Contenido editorial:**
-- **Modo Aventura:** "Sube por las calles empedradas...", tono sensorial, rutas específicas (Plaza Mayor, Callejón del Toro, Casa de la Julianeta)
-- **Modo Estudiante:** Datos históricos, bereberes, siglo X, candidatura UNESCO 2015
+**Cambios de redacción preventivos:**
+- "Pueblo más bonito de España" → "frecuentemente destacado como uno de los más bellos..."
+- Afirmaciones absolutas → fórmulas prudentes con referencias a "medios especializados"
 
-**Datos pendientes de verificar:**
-- Coordenadas exactas (estimadas: 40.4073, -1.4456)
-- URL oficial del ayuntamiento
-- Precios específicos (acceso gratuito confirmado, pendiente miradores/catedral)
-- Horarios de Catedral de El Salvador
-- Estado actual candidatura UNESCO
+**Datos publicables:**
+- Recorrido exterior por casco histórico: acceso libre / recomendable de día
+- Nota: "verificar condiciones locales antes de publicación final"
 
-**Estado:** Borrador listo para revisión editorial. Requiere verificación de fuentes antes de publicación en Supabase.
+**Datos marcados como pendientes (NO publicar sin verificar):**
+- Precios/horarios de Catedral de El Salvador
+- Tarifas específicas de miradores o puntos concretos
+- Estado actualizado candidatura UNESCO (referencia: 2015)
+
+**Checklist final:**
+- ✅ URLs oficiales añadidas y verificadas
+- ✅ Coordenadas revisadas (fuente institucional)
+- ✅ Contenido dual adventure/student mantenido
+- ⚠️ Precios/horarios internos marcados como pendientes
+- ❌ **NO PUBLICAR** hasta revisión humana final
+
+**Estado:** `ready_for_review` (preparada para revisión final, NO publicada)
 
 ---
 

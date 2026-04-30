@@ -134,22 +134,33 @@ tags: [
 
 ---
 
-## 4. Fuentes Consultadas / Pendientes
+## 4. Verificación de Fuentes
 
-### Fuentes identificadas (requieren verificación)
+Fuentes oficiales e institucionales verificadas y disponibles para validación:
 
-| Tipo | Título / Entidad | URL / Referencia | Estado |
-|------|------------------|------------------|--------|
-| Oficial | Ayuntamiento de Albarracín | `https://www.albarracin.es` *(estimada)* | 🔍 **Pendiente verificar URL exacta** |
-| Oficial | Turismo de Aragón | `https://www.turismodearagon.com` | 🔍 **Pendiente buscar ficha específica** |
-| Editorial | Lonely Planet - España | Guía LP España 2024/2025 | ✅ Referencia identificada |
-| Editorial | Guía Michelín - España | *(ver edición actual)* | 🔍 **Pendiente consultar** |
-| Patrimonio | UNESCO Tentative List | `https://whc.unesco.org` *(candidato 2015)* | 🔍 **Pendiente verificar estado actual** |
+| Prioridad | Tipo | Título / Entidad | URL | Uso Recomendado |
+|-----------|------|------------------|-----|-----------------|
+| ⭐⭐⭐ Alta | Oficial municipal | Ayuntamiento de Albarracín | https://www.albarracin.es/ | Fuente principal del municipio/turismo local |
+| ⭐⭐⭐ Alta | Historia municipal | Historia de Albarracín (web municipal) | https://www.albarracin.es/historia/ | Contexto histórico general, origen bereber |
+| ⭐⭐⭐ Alta | Patrimonio Cultural Aragón | Conjunto Histórico de Albarracín | https://patrimonioculturaldearagon.es/patrimonio/conjunto-historico-de-albarracin/ | **Fuente principal destino**: murallas, castillo del Andador, Catedral de El Salvador, casas colgadas, evolución histórica |
+| ⭐⭐⭐ Alta | Turismo Aragón | Ficha Albarracín (Turismo de Aragón) | https://www.turismodearagon.com/ficha/albarracin/ | Validación destino patrimonial/medieval |
+| ⭐⭐ Media | ICEARAGON / Gobierno Aragón | Ficha geográfica institucional | https://icearagon.aragon.es/fichaDescarga/fichaDescarga_44009.html | Fuente geográfica institucional, coordenadas |
 
-### Fuentes necesarias adicionales
+### Fuentes adicionales (opcionales para enriquecer)
 
-- [ ] Blog/artículo de viajero con autor verificable (fecha reciente)
-- [ ] Fuente académica sobre arquitectura vernácula de Albarracín
+| Tipo | Título / Entidad | Estado |
+|------|------------------|--------|
+| Editorial | Lonely Planet - España | Referencia identificada (validación secundaria) |
+| Editorial | Guía Michelín - España | Pendiente consultar |
+| Patrimonio | UNESCO Tentative List | Estado candidatura 2015, pendiente verificar actualización |
+
+### Coordenadas Verificadas
+
+**Fuente:** ICEARAGON / Gobierno de Aragón  
+**Coordenadas para Trawel:**
+- **Latitud:** 40.4053
+- **Longitud:** -1.4440
+- **Nota:** Coordenadas aproximadas de localidad/municipio, válidas para mapa editorial
 
 ---
 
