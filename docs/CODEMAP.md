@@ -13,6 +13,8 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `SUPABASE_SETUP.md` - Guía de configuración de Supabase
 - `CONTENT_GUIDE.md` - Guía para crear contenido editorial
 - `INVESTIGHOST_CONTRACT.md` - Contrato de compatibilidad con Investighost-GPT
+- `EDITORIAL_WORKFLOW.md` - Protocolo para alta de ciudades y destinos
+- `EDITORIAL_AUDIT.md` - Auditoría de datos editoriales
 - `DECISIONES.md` - Registro de decisiones técnicas
 - `BITACORA.md` - Bitácora activa del proyecto
 - `BITACORA_001.md` - Archivo histórico de bitácora

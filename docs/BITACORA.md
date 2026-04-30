@@ -543,6 +543,31 @@ Implementación del modelo jerárquico con:
 
 ---
 
+### 2026-04-29 - Protocolo Editorial: Guía para Alta de Ciudades 📝
+
+Creado protocolo documental para añadir nuevas ciudades editoriales a Trawel de forma ordenada:
+
+**Archivo creado:**
+- `docs/EDITORIAL_WORKFLOW.md` - Protocolo completo con:
+  - Flujo paso a paso (Selección → Investigación → Creación → Validación → Publicación → Verificación)
+  - Criterios mínimos de calidad editorial
+  - Ejemplos buenos vs malos de contenido
+  - Estructuras de datos City y Destination
+  - Checklist práctica con 20+ ítems
+  - Guía de sincronización mock
+  - Relación futura con Investighost
+
+**Puntos clave del protocolo:**
+- Separación clara entre borradores/investigación y contenido aprobado
+- Criterios de calidad: shortDescription <140 chars, contenido dual diferenciado, fuentes verificables
+- Flujo Investighost (futuro): Investiga → Revisa → Aprueba (humano) → Publica (Trawel)
+- Checklist obligatoria antes de publicar: URLs funcionan, precios cruzados, slugs únicos
+
+**Ejemplo documentado:**
+- Morella como caso de éxito completado (selección → investigación → mock sync)
+
+---
+
 ### 2026-04-29 - Decisión DA-027: Estrategia progresiva para mapas internos 🗺️
 
 Documentada como hoja de ruta futura la estrategia para assets cartográficos internos:
