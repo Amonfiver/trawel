@@ -39,6 +39,17 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial reciente (últimas entradas)
 
+### 2026-04-30 - Ejecución SQL Albarracín en Supabase verificada
+
+Verificada ejecución manual del SQL de Albarracín en Supabase:
+- cities.slug = albarracin (status: comingSoon)
+- destinations.slug = conjunto-historico-albarracin (status: draft, verification_status: pending)
+- destination_sources: 5 fuentes insertadas
+
+**Distinción clave:** Insertado en Supabase ≠ Publicado en Trawel. Los datos requieren cambio manual a `published` tras revisión editorial final.
+
+---
+
 ### 2026-04-29 - Selector global de modo Aventura/Estudiante ✅
 
 Implementado selector de modo de experiencia visible en toda la aplicación:
@@ -609,6 +620,59 @@ Creado archivo SQL revisable para futura inserción manual en Supabase:
 - Fuentes: 5 URLs oficiales verificadas pero no probadas en ejecución
 
 **Estado:** SQL listo para revisión, NO ejecutado en Supabase.
+
+---
+
+### 2026-04-30 - Corrección SQL Albarracín: tipos válidos en destination_sources 🐛
+
+Corregidos los tipos de fuentes en el SQL de Albarracín tras error real en Supabase:
+
+**Problema detectado:**
+- Error: `destination_sources_type_check` al ejecutar en Supabase
+- Causa: El SQL usaba `type = 'website'` pero el CHECK constraint de Supabase solo admite: `official, tourism, heritage, blog, reviews, restaurant, accommodation, other`
+
+**Correcciones aplicadas en `docs/sql/insert_albarracin_ready_for_review.sql`:**
+
+| Fuente | Tipo anterior | Tipo corregido | Razón |
+|--------|---------------|----------------|-------|
+| Ayuntamiento de Albarracín - Web oficial | `website` | `official` | Ayuntamiento = fuente oficial |
+| Historia de Albarracín - Ayuntamiento | `website` | `official` | Web municipal = oficial |
+| Patrimonio Cultural de Aragón | `website` | `heritage` | Patrimonio cultural |
+| Turismo de Aragón | `website` | `tourism` | Oficina de turismo |
+| ICEARAGON | `website` | `other` | Datos geográficos institucionales |
+
+**Notas añadidas:**
+- Comentario explicativo del CHECK constraint real de Supabase
+- Marcas "CORREGIDO" en cada INSERT para trazabilidad
+
+**Estado:** SQL corregido y listo para reintentar en Supabase.
+
+---
+
+### 2026-04-30 - Ejecución SQL Albarracín en Supabase verificada ✅
+
+Ejecutado manualmente el SQL de Albarracín en Supabase SQL Editor y verificado correctamente:
+
+**Resultado de la ejecución:**
+- ✅ **cities**: slug='albarracin', name_es='Albarracín', status='comingSoon'
+- ✅ **destinations**: slug='conjunto-historico-albarracin', title_es='Conjunto Histórico de Albarracín', status='draft', verification_status='pending'
+- ✅ **destination_sources**: 5 fuentes insertadas correctamente
+  - types: `official` (x2), `heritage`, `tourism`, `other`
+
+**Documentación actualizada:**
+- `docs/sql/insert_albarracin_ready_for_review.sql` - Marcado como ejecutado con fecha y resultado
+- `docs/editorial/albarracin.md` - Estado cambiado a "Insertado en Supabase (NO publicado todavía)"
+
+**Distinción clave:**
+> **Insertado en Supabase ≠ Publicado en Trawel**
+
+Los datos están en la base de datos pero con `status: comingSoon/draft`, por lo que:
+- NO aparecen en la app pública (solo usuarios con acceso a datos en desarrollo pueden verlos)
+- Requieren cambio manual a `published` tras revisión editorial final
+- Las URLs de fuentes deben verificarse (hacer clic) antes de publicar
+
+**Próximo paso para publicación:**
+Cambiar `status` de `comingSoon` → `active` (ciudad) y `draft` → `published` (destino) cuando se complete la revisión editorial.
 
 ---
 

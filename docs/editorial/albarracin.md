@@ -1,9 +1,15 @@
 # Ficha Editorial - Albarracín, Teruel, España
 
-> **Estado:** Borrador para revisión  
+> **Estado:** `inserted_in_supabase`  
+> **Aclaración:** Insertada en Supabase, aún no publicada para usuario final.
 > **Fecha de creación:** 2026-04-30  
-> **Revisado por:** Pendiente  
-> **Protocolo aplicado:** docs/EDITORIAL_WORKFLOW.md v1.0
+> **Fecha de inserción en Supabase:** 2026-04-30  
+> **Revisado por:** Pendiente revisión humana final  
+> **Protocolo aplicado:** docs/EDITORIAL_WORKFLOW.md v1.0  
+>  
+> **⚠️ IMPORTANTE:** Los datos están insertados en Supabase (`status: comingSoon/draft`)  
+> pero NO están publicados para el usuario final. Requiere cambio a `published`  
+> tras revisión editorial y verificación de URLs/precios.
 
 ---
 

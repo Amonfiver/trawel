@@ -2,12 +2,20 @@
 -- SQL REVISABLE: Albarracín y Conjunto Histórico de Albarracín
 -- ============================================================================
 -- 
--- ⚠️  ADVERTENCIA: REVISAR ANTES DE EJECUTAR
+-- ✅ EJECUTADO MANUALMENTE EN SUPABASE - FECHA: 2026-04-30
+-- ✅ RESULTADO VERIFICADO CORRECTAMENTE
 -- 
--- Este archivo contiene sentencias SQL preparadas para insertar Albarracín
--- como ciudad de España y su destino inicial "Conjunto Histórico de Albarracín".
+-- ESTADO ACTUAL EN SUPABASE:
+-- - cities: slug='albarracin', name_es='Albarracín', status='comingSoon'
+-- - destinations: slug='conjunto-historico-albarracin', status='draft', verification_status='pending'
+-- - destination_sources: 5 fuentes insertadas correctamente (types: official, official, heritage, tourism, other)
 -- 
--- ESTADO: ready_for_review (listo para revisión, NO ejecutar sin revisión humana)
+-- NOTA: Los datos están insertados en Supabase pero NO están publicados todavía
+-- para el usuario final (status = comingSoon/draft, no published).
+--
+-- ⚠️  ADVERTENCIA HISTÓRICA: Este SQL ya fue ejecutado. Mantener como referencia.
+-- 
+-- ============================================================================
 -- 
 -- DECISIONES PENDIENTES ANTES DE EJECUTAR:
 -- 1. Revisar contenido editorial (tono, precisión histórica)
@@ -176,13 +184,17 @@ ON CONFLICT (slug) DO UPDATE SET
 -- Insertar fuentes verificadas para el destino
 -- Nota: Se ejecuta DESPUÉS de insertar el destino, usando subconsulta para obtener destination_id
 
+-- NOTA: Tipos corregidos según CHECK constraint real de Supabase:
+-- CHECK (type IN ('official', 'tourism', 'heritage', 'blog', 'reviews', 'restaurant', 'accommodation', 'other'))
+-- 'website' no está permitido, se sustituye por tipos válidos.
+
 -- Fuente 1: Ayuntamiento de Albarracín (oficial municipal)
 INSERT INTO destination_sources (destination_id, title, url, type, supports)
 SELECT 
     d.id,
     'Ayuntamiento de Albarracín - Web oficial',
     'https://www.albarracin.es/',
-    'website',
+    'official',                                    -- CORREGIDO: 'website' → 'official' (ayuntamiento = oficial)
     'Fuente oficial del municipio para información turística y de servicios.'
 FROM destinations d
 WHERE d.slug = 'conjunto-historico-albarracin'
@@ -194,7 +206,7 @@ SELECT
     d.id,
     'Historia de Albarracín - Ayuntamiento',
     'https://www.albarracin.es/historia/',
-    'website',
+    'official',                                    -- CORREGIDO: 'website' → 'official' (web municipal = oficial)
     'Contexto histórico general, origen bereber y evolución del municipio.'
 FROM destinations d
 WHERE d.slug = 'conjunto-historico-albarracin'
@@ -206,7 +218,7 @@ SELECT
     d.id,
     'Patrimonio Cultural de Aragón - Conjunto Histórico de Albarracín',
     'https://patrimonioculturaldearagon.es/patrimonio/conjunto-historico-de-albarracin/',
-    'website',
+    'heritage',                                    -- CORREGIDO: 'website' → 'heritage' (patrimonio cultural)
     'Fuente principal del destino: murallas, castillo del Andador, Catedral de El Salvador, casas colgadas, evolución histórica.'
 FROM destinations d
 WHERE d.slug = 'conjunto-historico-albarracin'
@@ -218,7 +230,7 @@ SELECT
     d.id,
     'Turismo de Aragón - Ficha Albarracín',
     'https://www.turismodearagon.com/ficha/albarracin/',
-    'website',
+    'tourism',                                     -- CORREGIDO: 'website' → 'tourism' (oficina turismo = turismo)
     'Validación del destino como patrimonio medieval y recursos turísticos de la Comunidad Autónoma.'
 FROM destinations d
 WHERE d.slug = 'conjunto-historico-albarracin'
@@ -230,7 +242,7 @@ SELECT
     d.id,
     'ICEARAGON - Ficha geográfica institucional',
     'https://icearagon.aragon.es/fichaDescarga/fichaDescarga_44009.html',
-    'website',
+    'other',                                       -- CORREGIDO: 'website' → 'other' (datos geográficos institucionales)
     'Fuente geográfica institucional. Coordenadas: lat 40.4053, lng -1.4440 (aproximadas de localidad/municipio, válidas para mapa editorial).'
 FROM destinations d
 WHERE d.slug = 'conjunto-historico-albarracin'
