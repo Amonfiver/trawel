@@ -15,7 +15,7 @@ Albarracín cumple todos los criterios del protocolo editorial:
 
 | Criterio | Evaluación |
 |----------|------------|
-| **Relevancia** | ⭐⭐⭐⭐⭐ Pueblo más bonito de España (varios premios), Patrimonio de la Humanidad candidato |
+| **Relevancia** | ⭐⭐⭐⭐⭐ Considerado uno de los pueblos más bonitos de España (premios turísticos nacionales), candidato a Patrimonio de la Humanidad |
 | **Diferenciación** | ⭐⭐⭐⭐⭐ Arquitectura rojiza única, casas colgantes, murallas medievales intactas |
 | **Cobertura** | ⭐⭐⭐⭐⭐ Teruel (provincia no representada en Trawel), montaña aragonesa vs costa/litoral |
 | **Viabilidad** | ⭐⭐⭐⭐⭐ Turismo activo, web oficial del ayuntamiento, guías Lonely Planet y Michelin |
@@ -45,7 +45,7 @@ Albarracín cumple todos los criterios del protocolo editorial:
 
 ### shortDescription
 
-> Pueblo medieval de arquitectura rojiza colgado sobre el río Guadalaviar, considerado uno de los más bellos de España.
+> Pueblo medieval de arquitectura rojiza colgado sobre el río Guadalaviar, frecuentemente destacado como uno de los más bellos de España en medios especializados.
 
 **Caracteres:** 108 ✅ (máximo 140)
 
@@ -115,8 +115,8 @@ El Conjunto Histórico de Albarracín fue declarado monumento histórico-artíst
 | Campo | Valor | Estado |
 |-------|-------|--------|
 | **estimatedVisitTime** | "Medio día (3-4 horas)" | ✅ Estimado |
-| **price** | "Gratis (acceso libre al casco antiguo)" | ⚠️ *Pendiente verificar si hay algún mirador/punto de pago* |
-| **openingHours** | "Siempre accesible (recomendable de día por iluminación)" | ⚠️ *Pendiente verificar horarios de catedral/museos específicos* |
+| **price** | "Gratis (acceso libre al casco antiguo)" ⭐ **Pendiente verificar 2024/2025** | ⚠️ *Verificar si hay miradores/catedral con tarifa* |
+| **openingHours** | "24h acceso exterior (recomendable visitar de día)" ⭐ **Pendiente verificar 2024/2025** | ⚠️ *Verificar horarios Catedral de El Salvador y puntos específicos* |
 
 ### Tags Sugeridas
 
@@ -168,9 +168,10 @@ tags: [
 
 ### Red Flags Detectados
 
-- ⚠️ **Sin verificar:** No he confirmado que el acceso al casco antiguo sea 100% gratuito (puede haber algún mirador o punto con tarifa)
-- ⚠️ **Sin verificar:** Horarios de la catedral y si se puede visitar interior
-- ⚠️ **Sin verificar:** Estado actual de la candidatura UNESCO (2015 fue hace años)
+- ⚠️ **Sin verificar:** Acceso gratuito al casco antiguo (pendiente confirmar si hay miradores/catedral con tarifa específica)
+- ⚠️ **Sin verificar:** Horarios y precios de la Catedral de El Salvador (si aplica)
+- ⚠️ **Sin verificar:** Estado actual de la candidatura UNESCO (última referencia: 2015)
+- ⚠️ **Sin verificar:** Fecha de última consulta de precios/horarios (marcar cuando se verifiquen)
 
 ---
 
@@ -239,16 +240,20 @@ tags: [
 | **Preparado para publicación** | ❌ No (faltan verificaciones) |
 
 **Recomendación:** Mantener estado `draft` hasta verificar:
-1. URLs oficiales funcionales
-2. Coordenadas exactas
-3. Al menos 1 precio/horario específico cruzado
+1. URLs oficiales funcionales (fecha de consulta: __/__/____)
+2. Coordenadas exactas (fuente: ___________)
+3. Al menos 1 precio/horario específico cruzado con 2+ fuentes (fecha: __/__/____)
 
 ---
 
 ## 8. SQL Preliminar (para referencia futura)
 
 ```sql
--- NOTA: No ejecutar todavía. Pendiente de verificación de datos.
+-- ⚠️ ADVERTENCIA: Referencia futura. NO EJECUTAR hasta verificar:
+--    - Fuentes oficiales (URLs funcionales)
+--    - Precios actualizados y horarios específicos
+--    - Estado editorial (revisión de tono y datos)
+--    - Coordenadas exactas verificadas
 
 -- Ciudad: Albarracín
 INSERT INTO cities (country_id, slug, name_es, short_description_es, ...)
