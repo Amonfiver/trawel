@@ -12,7 +12,9 @@
 
 La implementación actual de **SupabaseTravelDataSource** NO filtra correctamente los estados editoriales. Carga **todos** los registros de Supabase sin discriminar por `status`, lo que permite que contenido interno (`disabled`, `draft`) sea accesible si se conoce la URL directa.
 
-**Riesgo principal:** Un usuario podría acceder a Albarracín (`disabled`) o su destino (`draft`) mediante URL directa, violando el principio de DA-028 de que el contenido en desarrollo debe permanecer **oculto/interno**.
+**Riesgo principal:** ~~Un usuario podría acceder a Albarracín (`disabled`) o su destino (`draft`) mediante URL directa, violando el principio de DA-028 de que el contenido en desarrollo debe permanecer **oculto/interno**.~~
+
+**Estado:** ✅ **MITIGADO** (2026-05-01) - Filtros implementados en `supabaseTravelData.source.ts`
 
 ---
 
@@ -317,13 +319,16 @@ Según DA-028, `comingSoon` es **demanda pública** (usuarios quieren este lugar
 
 ## Checklist de Verificación Post-Corrección
 
-- [ ] SupabaseTravelDataSource filtra cities por `status = 'active'`
-- [ ] SupabaseTravelDataSource filtra destinations por `status = 'published'`
-- [ ] Albarracín (`disabled`) no es accesible por URL directa
-- [ ] Conjunto Histórico (`draft`) no es accesible por URL directa
-- [ ] Morella (`active`) y Castillo (`published`) siguen funcionando
-- [ ] Mock data sigue funcionando (sin cambios necesarios)
-- [ ] No hay regresión en navegación normal
+- [x] SupabaseTravelDataSource filtra cities por `status = 'active'`
+- [x] SupabaseTravelDataSource filtra destinations por `status = 'published'`
+- [x] Albarracín (`disabled`) no es accesible por URL directa
+- [x] Conjunto Histórico (`draft`) no es accesible por URL directa
+- [x] Morella (`active`) y Castillo (`published`) siguen funcionando
+- [x] Mock data sigue funcionando (sin cambios necesarios)
+- [x] No hay regresión en navegación normal
+
+**Fecha de mitigación:** 2026-05-01  
+**Cambio aplicado:** Filtros `.eq('status', 'active')` y `.eq('status', 'published')` en queries de Supabase
 
 ---
 

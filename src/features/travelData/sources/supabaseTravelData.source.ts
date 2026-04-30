@@ -246,10 +246,11 @@ async function loadAllData(): Promise<void> {
     cache.countriesById.set(dbCountry.id, country.slug);
   }
 
-  // Cargar cities
+  // Cargar cities (solo activas para vista pública)
   const { data: dbCities, error: citiesError } = await supabase
     .from('cities')
-    .select('*');
+    .select('*')
+    .eq('status', 'active');
 
   if (citiesError) {
     throw new Error(`Error cargando cities: ${citiesError.message}`);
@@ -270,10 +271,11 @@ async function loadAllData(): Promise<void> {
     cache.citiesByCountry.set(countrySlug, countryCities);
   }
 
-  // Cargar destinations
+  // Cargar destinations (solo publicados para vista pública)
   const { data: dbDestinations, error: destinationsError } = await supabase
     .from('destinations')
-    .select('*');
+    .select('*')
+    .eq('status', 'published');
 
   if (destinationsError) {
     throw new Error(`Error cargando destinations: ${destinationsError.message}`);

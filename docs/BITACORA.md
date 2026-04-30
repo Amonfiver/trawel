@@ -39,6 +39,27 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Filtro público de estados en SupabaseTravelDataSource 🔒
+
+Mitigado riesgo de visibilidad de contenido interno detectado en auditoría DA-028:
+
+**Cambios aplicados en `src/features/travelData/sources/supabaseTravelData.source.ts`:**
+- Consulta de cities: añadido filtro `.eq('status', 'active')`
+- Consulta de destinations: añadido filtro `.eq('status', 'published')`
+- Countries: sin cambios (se mantiene carga completa, filtrado en UI)
+
+**Comportamiento tras el cambio:**
+| Ruta | Estado esperado | Resultado |
+|------|-----------------|-----------|
+| `/pais/espana` | Morella visible | ✅ Sí (active) |
+| `/pais/espana/albarracin` | No encontrar | ✅ No resuelve (disabled) |
+| `/aventura/conjunto-historico-albarracin` | No encontrar | ✅ No resuelve (draft) |
+| `/aventura/castillo-de-morella` | Funciona | ✅ Sí (published) |
+
+**Build:** TypeScript compatible, sin errores.
+
+---
+
 ### 2026-04-30 - Auditoría: Visibilidad de estados editoriales en Supabase 🔍
 
 Auditoría de seguridad sobre filtrado de estados editoriales (DA-028):
