@@ -39,6 +39,30 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Guion de Demo para presentaciones 🎬
+
+Creado guion completo para presentar Trawel a socios/colaboradores:
+
+**Archivo creado:**
+- `docs/DEMO_CHECKLIST.md` - Guion paso a paso con:
+  - Objetivo de la demo (estructura real, no maqueta)
+  - Preparación previa (verificar entorno, rutas clave)
+  - Guion detallado: Home → España → Morella → Castillo → Cambio de modo
+  - Sección "Qué NO enseñar como error" (Albarracín como ejemplo de filtro funcionando)
+  - Explicación estratégica de comingSoon e Investighost
+  - Checklist de verificación pre-demo
+  - Tabla de riesgos: qué no prometer
+
+**Puntos clave del guion:**
+- Flujo demo: 5 pasos, 10-15 minutos
+- Mensaje principal: "Trawel ya funciona, tiene contenido real"
+- Albarracín como demostración de filtro de estados (no como error)
+- Distinción clara entre lo que existe y lo que es futuro
+
+**Audiencia objetivo:** Vasyl y socios potenciales
+
+---
+
 ### 2026-05-01 - Mensajes amables para contenido no disponible 📝
 
 Mejorados los mensajes de "no encontrado" en CityPage y AdventurePage para alinearse con DA-028:
