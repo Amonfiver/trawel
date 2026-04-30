@@ -543,6 +543,33 @@ Implementación del modelo jerárquico con:
 
 ---
 
+### 2026-04-30 - Ficha Editorial: Albarracín (Teruel) 🏘️
+
+Preparada ficha editorial de Albarracín como segunda ciudad para España, siguiendo docs/EDITORIAL_WORKFLOW.md:
+
+**Archivo creado:**
+- `docs/editorial/albarracin.md` - Ficha completa con:
+  - Justificación de selección (pueblo más bonito de España, arquitectura rojiza única)
+  - Ciudad Albarracín: shortDescription, contentByMode.adventure/student diferenciados
+  - Destino inicial: Conjunto Histórico de Albarracín
+  - Tags sugeridas: pueblo-medieval, patrimonio, arquitectura-vernacula
+  - Slugs propuestos: `albarracin`, `conjunto-historico-albarracin`
+
+**Contenido editorial:**
+- **Modo Aventura:** "Sube por las calles empedradas...", tono sensorial, rutas específicas (Plaza Mayor, Callejón del Toro, Casa de la Julianeta)
+- **Modo Estudiante:** Datos históricos, bereberes, siglo X, candidatura UNESCO 2015
+
+**Datos pendientes de verificar:**
+- Coordenadas exactas (estimadas: 40.4073, -1.4456)
+- URL oficial del ayuntamiento
+- Precios específicos (acceso gratuito confirmado, pendiente miradores/catedral)
+- Horarios de Catedral de El Salvador
+- Estado actual candidatura UNESCO
+
+**Estado:** Borrador listo para revisión editorial. Requiere verificación de fuentes antes de publicación en Supabase.
+
+---
+
 ### 2026-04-29 - Protocolo Editorial: Guía para Alta de Ciudades 📝
 
 Creado protocolo documental para añadir nuevas ciudades editoriales a Trawel de forma ordenada:
