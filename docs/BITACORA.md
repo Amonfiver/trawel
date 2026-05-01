@@ -39,6 +39,40 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Decisión DA-029: Mapas exploratorios con bandera y demanda pública ✅🗺️
+
+Aprobada por Vasyl la nueva dirección para mapas en Trawel: experiencia exploratoria homogénea con banderas y captura de demanda.
+
+**Puntos clave de DA-029:**
+
+| Aspecto | Decisión |
+|---------|----------|
+| **Marcadores** | ❌ NO puntos de ciudad en ningún mapa |
+| **Labels fijos** | ❌ NO nombres siempre visibles |
+| **Información** | ✅ Solo tooltips al hacer hover |
+| **Estilo** | Neutro para todos, sin revelar disponibilidad |
+| **Color hover** | Amarillo/dorado consistente |
+
+**Banderas:**
+- Tooltip WorldMap: nombre del país + bandera (emoji)
+- CountryPage: nombre limpio + bandera (ej: "🇪🇸 España", sin "ES")
+
+**Captura de demanda pública:**
+- Click en país sin contenido → página "Próximamente" atractiva
+- El click se registra como señal de demanda
+- Investighost usa estas métricas para priorizar investigaciones
+- comingSoon = demanda pública detectada (NO fase editorial interna)
+
+**Distinción crítica:**
+- **comingSoon**: usuarios han clickeado, queremos este lugar
+- **draft/disabled**: editorial interno, no es público
+
+**Archivos de referencia:**
+- Decisión completa: `docs/DECISIONES.md` (DA-029)
+- MAP_ASSET_PLAN.md actualizado con principios de mapa exploratorio
+
+---
+
 ### 2026-05-01 - SpainMap v2: Alineación visual con WorldMap y mejora de detalle 🎨
 
 Alineado SpainMap con el lenguaje visual de WorldMap y mejorado el detalle del asset.

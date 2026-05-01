@@ -134,15 +134,28 @@ src/assets/maps/
 
 ## 5. Comportamiento esperado del mapa
 
+> **Actualizado por DA-029 (2026-05-01):** Mapas exploratorios homogéneos sin revelar disponibilidad
+
 ### Interacciones objetivo (reemplazo de SpainMap)
 
 | Interacción | Comportamiento |
 |-------------|----------------|
-| **Hover sobre provincia/zona** | Cambia color de fondo, muestra nombre |
-| **Puntos de ciudad** | Renderizados encima del mapa base |
-| **Click en ciudad publicada** | Navega a `/pais/:country/:city` |
-| **Click en ciudad no publicada** | Tooltip "Próximamente" o similar |
+| **Hover sobre provincia/zona** | Cambia color de fondo, muestra nombre en tooltip |
+| **Puntos de ciudad** | ❌ NO renderizar puntos/marcadores de ciudad sobre el mapa (DA-029) |
+| **Labels fijos** | ❌ NO mostrar nombres siempre visibles sobre el mapa (DA-029) |
+| **Click en ciudad** | Navega a `/pais/:country/:city` (si existe contenido) o página "Próximamente" |
+| **Tooltip de provincia** | Muestra solo nombre (sin bandera, es subdivisión interna) |
 | **Fallback sin asset** | Muestra lista clásica de ciudades (comportamiento actual Japón/Perú) |
+
+### Principios de mapa exploratorio (DA-029)
+
+| Principio | Implementación |
+|-----------|----------------|
+| **Estilo neutro** | Todos los territorios se ven igual, sin revelar disponibilidad |
+| **Sin marcadores** | No hay puntos de ciudades sobre el mapa |
+| **Tooltips informativos** | Nombres solo aparecen al hacer hover |
+| **Color hover** | Amarillo/dorado consistente con WorldMap |
+| **Descubrimiento** | El usuario explora sin saber de antemano qué tiene contenido |
 
 ### Diferencias con SpainMap actual
 

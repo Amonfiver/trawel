@@ -188,10 +188,101 @@ Este archivo registra decisiones técnicas y de diseño importantes del proyecto
 
 ---
 
+## DA-029: Mapas exploratorios con bandera y captura de demanda pública
+
+**Fecha:** 2026-05-01  
+**Estado:** Aprobada por Vasyl  
+**Contexto:** Trawel necesita una experiencia de mapa más exploratoria y homogénea. El objetivo es que los usuarios descubran destinos navegando, sin que el mapa revele anticipadamente qué lugares tienen contenido disponible. Además, se quiere capturar la demanda pública para priorizar el trabajo editorial.
+
+**Decisión:** Implementar mapas exploratorios homogéneos con banderas, tooltips y captura de demanda pública:
+
+### 1. Comportamiento de mapas (WorldMap y mapas internos)
+
+| Aspecto | Regla |
+|---------|-------|
+| **Marcadores de zona** | ❌ NO habrá puntos/marcadores de zona en ningún mapa |
+| **Labels fijos** | ❌ NO habrá títulos/nombres siempre visibles sobre los mapas |
+| **Información** | ✅ Los nombres solo aparecen al pasar el ratón mediante tooltip |
+| **Estilo base** | Todos los territorios se ven en estilo neutro |
+| **Hover** | Cambia color (idealmente amarillo como WorldMap) |
+| **Disponibilidad** | El mapa NO revela visualmente qué países/ciudades tienen contenido |
+
+### 2. Tooltips con bandera
+
+**Tooltip del mapa mundial (hover sobre país):**
+- Muestra: nombre del país + bandera (emoji)
+- Enfoque: "viajar y aprender" (descubrimiento)
+
+**Tooltip de mapas internos (hover sobre provincia/región):**
+- Muestra: nombre de la provincia/región
+- (Sin bandera, ya que es subdivisión interna)
+
+### 3. Página de país (CountryPage)
+
+| Antes | Después |
+|-------|---------|
+| Abreviaturas tipo "ES", "es", "España" | Solo nombre limpio + bandera |
+| Ejemplo: "ES España" | Ejemplo: "🇪🇸 España" |
+
+### 4. Clicks en países y captura de demanda
+
+**Flujo de click en país:**
+1. Usuario hace click en un país en el mapa
+2. Trawel intenta abrir la página del país
+3. **Si el país tiene contenido publicado:** muestra contenido normalmente
+4. **Si el país NO tiene contenido:** muestra página "Próximamente" atractiva
+5. **El click se registra como señal de demanda pública**
+
+**Uso de la demanda:**
+- Los clicks en países sin contenido alimentan métricas de demanda
+- Investighost usa estas métricas para priorizar qué países/ciudades investigar
+- comingSoon representa **demanda pública detectada**, no fase editorial interna
+
+### 5. Distinción crítica: comingSoon vs draft/disabled
+
+| Estado | Significado | Ejemplo |
+|--------|-------------|---------|
+| **comingSoon** | Demanda pública: usuarios han clickeado, queremos este lugar | "Francia está en comingSoon porque 50 usuarios han clickeado" |
+| **draft/disabled** | Editorial interno: estamos trabajando en ello, no es público | "Albarracín está en disabled mientras Investighost termina la investigación" |
+
+**Regla:** El contenido editorial en desarrollo nunca se muestra como comingSoon. Permanece oculto (draft/disabled) hasta su publicación.
+
+### 6. Homogeneidad visual
+
+| Mapa | Estilo |
+|------|--------|
+| **WorldMap** | Exploratorio: sin puntos de ciudades, tooltips con nombre+bandera |
+| **SpainMap** | Exploratorio: sin marcadores de ciudades sobre el mapa, solo hover/nombre |
+| **Futuros mapas** | Mismo patrón: exploratorio, neutro, sin revelar disponibilidad |
+
+### 7. Referencias visuales
+
+- Tooltip estilo oscuro (fondo `rgba(15, 23, 42, 0.95)`) alineado con WorldMap
+- Transiciones `cubic-bezier(0.4, 0, 0.2, 1)` consistentes
+- Hover amarillo/dorado como en WorldMap actual
+
+**Razones:**
+- Experiencia de descubrimiento más orgánica y exploratoria
+- No penaliza visualmente países sin contenido (todos son igual de invitativos)
+- Captura datos reales de interés para priorizar inversión editorial
+- comingSoon como métrica de negocio, no como estado técnico
+- Consistencia visual entre todos los mapas de la aplicación
+
+**Consecuencias:**
+- Los mapas actuales (WorldMap, SpainMap) necesitarán ajustes para eliminar puntos/marcadores
+- Se necesitará sistema de tracking de clicks para demanda pública (futuro)
+- Las páginas "Próximamente" deben ser atractivas, no errores
+- Investighost recibirá reportes de demanda para planificar investigaciones
+
+**Reversibilidad:** Media. Cambio de comportamiento de UI que afecta la experiencia, pero no la arquitectura de datos.
+
+---
+
 ## Índice de Decisiones
 
 | ID | Fecha | Título | Estado |
 |----|-------|--------|--------|
+| DA-029 | 2026-05-01 | Mapas exploratorios con bandera y demanda pública | ✅ Aprobada |
 | DA-028 | 2026-04-30 | comingSoon como demanda pública | ✅ Aprobada |
 | DA-027 | 2026-04-29 | Estrategia progresiva para mapas internos | ✅ Hoja de ruta |
 | DA-026 | 2026-04-28 | Mock como fuente por defecto hasta conectar Supabase | ✅ Aprobada |

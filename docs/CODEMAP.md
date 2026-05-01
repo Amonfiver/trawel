@@ -21,7 +21,7 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `V0_HANDOFF.md` - Handoff para rediseño visual con v0
 - `MAP_ASSET_PLAN.md` - Plan de assets cartográficos (diagnóstico SpainMap)
 - `MAP_SOURCE_COMPARISON.md` - Comparación geoBoundaries vs Natural Earth para España
-- `DECISIONES.md` - Registro de decisiones técnicas
+- `DECISIONES.md` - Registro de decisiones técnicas (incluye DA-029: Mapas exploratorios)
 - `BITACORA.md` - Bitácora activa del proyecto
 - `BITACORA_001.md` - Archivo histórico de bitácora
 
