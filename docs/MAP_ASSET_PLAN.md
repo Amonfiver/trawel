@@ -460,12 +460,95 @@ async function generateMapAsset(countrySlug: string) {
 5. **Fallback controlado:** Estados claros para errores y reintentos
 6. **Costo eficiente:** Solo se almacenan países que los usuarios realmente visitan
 
+### 10. Edge Function: request-country-map
+
+Endpoint seguro para solicitar generación de mapas internos. Actúa como puerta de entrada controlada, usando `SUPABASE_SERVICE_ROLE_KEY` solo en el servidor (nunca en frontend).
+
+#### Ubicación
+```
+supabase/functions/request-country-map/index.ts
+```
+
+#### Variables de entorno requeridas
+| Variable | Descripción |
+|----------|-------------|
+| `SUPABASE_URL` | URL del proyecto Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio (bypass RLS) |
+
+#### Contrato de entrada (Input)
+```typescript
+interface RequestCountryMapInput {
+  countrySlug: string;           // Obligatorio - ej: 'mexico'
+  countryName?: string;          // Opcional - ej: 'México'
+  isoAlpha2?: string;            // Opcional - ej: 'MX'
+  isoAlpha3?: string;            // Recomendable - ej: 'MEX'
+  adminLevel?: 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5';  // Default: ADM2
+  source?: string;               // Default: 'unknown'
+}
+```
+
+#### Contrato de salida (Response)
+```typescript
+interface RequestCountryMapResponse {
+  success: boolean;
+  countrySlug: string;
+  status: 'missing' | 'queued' | 'generating' | 'ready' | 'failed';
+  message: string;
+  requestedCount: number;
+  lastRequestedAt: string | null;
+  error?: string;
+}
+```
+
+#### Comportamiento por estado
+
+| Estado actual | Acción | Respuesta |
+|---------------|--------|-----------|
+| **No existe** | Insertar registro con `status='queued'`, `requested_count=1` | `queued` |
+| **ready** | NO regenerar, solo incrementar `requested_count` | `ready` |
+| **queued** | Incrementar `requested_count`, actualizar `last_requested_at` | `queued` |
+| **generating** | Incrementar `requested_count`, actualizar `last_requested_at` | `generating` |
+| **failed** | Cambiar a `queued`, limpiar `error_message`, incrementar contador | `queued` |
+| **missing** | Cambiar a `queued`, incrementar contador | `queued` |
+
+#### Uso desde frontend
+```typescript
+import { requestCountryMapGeneration } from '@/features/map/services/countryMapAssets.service';
+
+const result = await requestCountryMapGeneration({
+  countrySlug: 'mexico',
+  countryName: 'México',
+  isoAlpha2: 'MX',
+  isoAlpha3: 'MEX',
+  adminLevel: 'ADM2',
+  source: 'world_map'
+});
+
+if (result.success) {
+  console.log('Estado:', result.status);
+  console.log('Mensaje:', result.message);
+}
+```
+
+#### Seguridad
+- ✅ Usa `service role key` solo dentro de la Edge Function
+- ✅ Frontend usa `supabase.functions.invoke()` (sin service role)
+- ✅ Validación de input (countrySlug obligatorio, formato válido)
+- ✅ CORS habilitado para peticiones cross-origin
+
+#### Deploy
+```bash
+supabase functions deploy request-country-map
+```
+
 ### Referencias
 
 - **DA-030:** `docs/DECISIONES.md` - Decisión completa de generación automática
 - **DA-029:** `docs/DECISIONES.md` - Mapas exploratorios con bandera
 - **DA-027:** `docs/DECISIONES.md` - Estrategia progresiva (reemplazada por DA-030)
 - **SpainMap actual:** `src/features/map/components/SpainMap/SpainMap.tsx`
+- **Edge Function:** `supabase/functions/request-country-map/index.ts`
+- **Servicio Frontend:** `src/features/map/services/countryMapAssets.service.ts`
 - **geoBoundaries:** https://www.geoboundaries.org/
 - **Natural Earth:** https://www.naturalearthdata.com/
 

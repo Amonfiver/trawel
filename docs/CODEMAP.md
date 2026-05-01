@@ -231,17 +231,20 @@ src/features/map/
 
 ### `src/features/map/services/countryMapAssets.service.ts` - Servicio de assets cartográficos (DA-030)
 
-**Propósito:** Consulta read-only del estado de mapas internos en Supabase.
+**Propósito:** Consulta read-only del estado de mapas internos en Supabase y solicitud de generación mediante Edge Function.
 
 **Características:**
 - **Frontend-only**: No requiere service role key
 - **Read-only**: Solo SELECT sobre tabla `country_map_assets`
+- **Edge Function**: Solicita generación mediante `request-country-map` (sin service role en frontend)
 - **Safe-fallback**: Devuelve `null` en caso de error sin romper la app
 - **Integración DA-030**: Compatible con arquitectura de generación automática
 
 **Tipos exportados:**
 - `CountryMapAssetStatus`: 'missing' | 'queued' | 'generating' | 'ready' | 'failed'
-- `CountryMapAsset`: Interface completa con todos los campos de la tabla
+- `CountryMapAsset`: Interface completa con metadatos del asset
+- `RequestCountryMapGenerationInput`: Input para solicitar generación
+- `RequestCountryMapGenerationResponse`: Respuesta de la solicitud
 
 **Funciones:**
 
@@ -250,8 +253,9 @@ src/features/map/
 | `getCountryMapAsset(countrySlug)` | Consulta Supabase por country_slug | `Promise<CountryMapAsset \| null>` |
 | `getCountryMapPublicUrl(asset)` | Obtiene URL pública del Storage (solo si status === 'ready') | `string \| null` |
 | `isCountryMapReady(asset)` | Helper para verificar si el asset está listo | `boolean` |
+| `requestCountryMapGeneration(input)` | Solicita generación vía Edge Function | `Promise<RequestCountryMapGenerationResponse>` |
 
-**Uso típico:**
+**Uso típico - Consulta de estado:**
 ```typescript
 import { 
   getCountryMapAsset, 
@@ -273,9 +277,31 @@ if (isCountryMapReady(asset)) {
 }
 ```
 
+**Uso típico - Solicitar generación:**
+```typescript
+import { requestCountryMapGeneration } from '@/features/map/services/countryMapAssets.service';
+
+// Solicitar generación de mapa (seguro, sin service role en frontend)
+const result = await requestCountryMapGeneration({
+  countrySlug: 'mexico',
+  countryName: 'México',
+  isoAlpha2: 'MX',
+  isoAlpha3: 'MEX',
+  adminLevel: 'ADM2',
+  source: 'world_map'
+});
+
+if (result.success) {
+  console.log('Estado:', result.status); // 'queued' | 'generating' | 'ready'
+  console.log('Mensaje:', result.message);
+} else {
+  console.error('Error:', result.error);
+}
+```
+
 **Notas:**
-- El servicio NO solicita generación de mapas (solo consulta estado)
-- NO incluye caching (la capa de hooks/páginas puede implementarlo)
+- La consulta (`getCountryMapAsset`) NO incluye caching (la capa superior puede implementarlo)
+- La solicitud de generación (`requestCountryMapGeneration`) usa la Edge Function `request-country-map`
 - Requiere que Supabase esté configurado (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
 - España (SpainMap) sigue usando asset local por ahora; este servicio es para futuros países
 

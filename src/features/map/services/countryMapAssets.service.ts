@@ -8,12 +8,14 @@
  * Alcance:
  * - Consultar tabla country_map_assets por country_slug
  * - Obtener URL pública de Storage cuando el asset está listo
+ * - Solicitar generación de mapas mediante Edge Function (request-country-map)
  * - Validar estados y condiciones de disponibilidad
  * 
  * Decisiones técnicas:
  * - Usa cliente Supabase anónimo (RLS permite SELECT público)
- * - NO escribe en la base de datos (solo lectura)
- * - NO solicita generación (eso será responsabilidad de otro servicio)
+ * - Usa supabase.functions.invoke para llamar Edge Functions
+ * - NO escribe directamente en la base de datos (usa Edge Function segura)
+ * - NO usa service role key en frontend
  * - Devuelve null de forma segura cuando no hay registro
  * - Maneja errores sin romper la aplicación
  * 
@@ -30,7 +32,6 @@
  * - CountryMap futuro usará este servicio para decidir si cargar desde Storage
  * 
  * Limitaciones:
- * - Solo consulta, no genera
  * - Requiere que el bucket 'map-assets' sea público para lectura
  * - No incluye caching (la capa superior puede implementarlo si es necesario)
  */
@@ -300,4 +301,156 @@ export function getCountryMapPublicUrl(asset: CountryMapAsset | null): string | 
  */
 export function isCountryMapReady(asset: CountryMapAsset | null): boolean {
   return asset !== null && asset.status === 'ready';
+}
+
+// ============================================
+// SOLICITUD DE GENERACIÓN (Edge Function)
+// ============================================
+
+/**
+ * Input para solicitar generación de mapa
+ */
+export interface RequestCountryMapGenerationInput {
+  /** Slug del país (obligatorio) - ej: 'mexico', 'francia', 'japon' */
+  countrySlug: string;
+  /** Nombre del país (opcional pero recomendable) - ej: 'México' */
+  countryName?: string;
+  /** Código ISO Alpha-2 (opcional) - ej: 'MX' */
+  isoAlpha2?: string;
+  /** Código ISO Alpha-3 (recomendable para geoBoundaries) - ej: 'MEX' */
+  isoAlpha3?: string;
+  /** Nivel administrativo (default: ADM2) */
+  adminLevel?: 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5';
+  /** Fuente de datos (default: 'unknown') */
+  source?: string;
+}
+
+/**
+ * Respuesta de la solicitud de generación de mapa
+ */
+export interface RequestCountryMapGenerationResponse {
+  success: boolean;
+  countrySlug: string;
+  status: 'missing' | 'queued' | 'generating' | 'ready' | 'failed';
+  message: string;
+  requestedCount: number;
+  lastRequestedAt: string | null;
+  error?: string;
+}
+
+/**
+ * Solicita la generación de un mapa interno de país mediante Edge Function
+ * 
+ * Esta función invoca la Edge Function 'request-country-map' de forma segura,
+ * sin exponer service role key en el frontend.
+ * 
+ * Comportamiento por estado:
+ * - missing: Crea nuevo registro con status 'queued'
+ * - queued/generating: Incrementa requested_count, actualiza last_requested_at
+ * - ready: No regenera, solo incrementa métricas y devuelve estado
+ * - failed/missing: Reintenta cambiando a 'queued' y limpiando error_message
+ * 
+ * @param input - Datos del país para generar el mapa
+ * @returns Promise con la respuesta de la Edge Function
+ * @throws No lanza errores - devuelve objeto con success: false en caso de fallo
+ * 
+ * @example
+ * ```typescript
+ * const result = await requestCountryMapGeneration({
+ *   countrySlug: 'mexico',
+ *   countryName: 'México',
+ *   isoAlpha2: 'MX',
+ *   isoAlpha3: 'MEX',
+ *   adminLevel: 'ADM2',
+ *   source: 'world_map'
+ * });
+ * 
+ * if (result.success) {
+ *   console.log('Estado:', result.status);
+ *   console.log('Mensaje:', result.message);
+ * } else {
+ *   console.error('Error:', result.error);
+ * }
+ * ```
+ */
+export async function requestCountryMapGeneration(
+  input: RequestCountryMapGenerationInput
+): Promise<RequestCountryMapGenerationResponse> {
+  // Verificar que Supabase está configurado
+  if (!isSupabaseConfigured() || !supabase) {
+    console.warn('[CountryMapAssets] Supabase no está configurado');
+    return {
+      success: false,
+      countrySlug: input.countrySlug,
+      status: 'missing',
+      message: 'Supabase no está configurado',
+      requestedCount: 0,
+      lastRequestedAt: null,
+      error: 'Supabase no está configurado. Verifica las variables de entorno.',
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      'request-country-map',
+      {
+        body: {
+          countrySlug: input.countrySlug,
+          countryName: input.countryName,
+          isoAlpha2: input.isoAlpha2,
+          isoAlpha3: input.isoAlpha3,
+          adminLevel: input.adminLevel,
+          source: input.source,
+        },
+      }
+    );
+
+    if (error) {
+      console.error('[CountryMapAssets] Error invocando Edge Function:', error);
+      return {
+        success: false,
+        countrySlug: input.countrySlug,
+        status: 'missing',
+        message: 'Error al solicitar generación del mapa',
+        requestedCount: 0,
+        lastRequestedAt: null,
+        error: error.message || 'Error desconocido al invocar Edge Function',
+      };
+    }
+
+    if (!data) {
+      return {
+        success: false,
+        countrySlug: input.countrySlug,
+        status: 'missing',
+        message: 'No se recibió respuesta de la Edge Function',
+        requestedCount: 0,
+        lastRequestedAt: null,
+        error: 'Respuesta vacía de la Edge Function',
+      };
+    }
+
+    // Mapear respuesta al tipo esperado
+    return {
+      success: data.success ?? false,
+      countrySlug: data.countrySlug || input.countrySlug,
+      status: data.status || 'missing',
+      message: data.message || 'Sin mensaje',
+      requestedCount: data.requestedCount || 0,
+      lastRequestedAt: data.lastRequestedAt || null,
+      error: data.error,
+    };
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
+    console.error('[CountryMapAssets] Error inesperado:', errorMsg);
+    return {
+      success: false,
+      countrySlug: input.countrySlug,
+      status: 'missing',
+      message: 'Error inesperado al solicitar generación',
+      requestedCount: 0,
+      lastRequestedAt: null,
+      error: errorMsg,
+    };
+  }
 }

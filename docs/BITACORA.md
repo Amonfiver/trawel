@@ -1,6 +1,6 @@
 # BITACORA.md — Bitácora activa del proyecto Trawel
 
-> **Nota:** Este es el archivo de bitácora activo. Para el histórico completo, ver `docs/BITACORA_001.md`.
+> **Nota:** Este es el archivo de bitácora activa. Para el histórico completo, ver `docs/BITACORA_001.md`.
 
 ---
 
@@ -20,6 +20,7 @@
 | Destinos | ✅ | 6 destinos con contenido dual |
 | Páginas | ✅ | HomePage, CountryPage, CityPage, AdventurePage como fichas editoriales |
 | travelData | ✅ | Capa de acceso a datos preparada para persistencia futura |
+| **Edge Function request-country-map** | ✅ | Endpoint seguro para solicitar generación de mapas (DA-030) |
 
 ### Arquitectura de datos
 
@@ -34,10 +35,81 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 - CSS Modules + Variables CSS
 - React Router para navegación
 - Datos estáticos TypeScript (futuro: Supabase)
+- Supabase Edge Functions (Deno)
 
 ---
 
 ## Historial recientes (últimas entradas)
+
+### 2026-05-01 - Edge Function: request-country-map para generación segura de mapas 🗺️⚡
+
+Creada Edge Function `request-country-map` como endpoint seguro para solicitar generación de mapas internos de países (DA-030).
+
+**Archivo creado:** `supabase/functions/request-country-map/index.ts`
+
+**Propósito:** Actuar como puerta de entrada controlada para el sistema de generación automática, usando `SUPABASE_SERVICE_ROLE_KEY` solo en el servidor.
+
+**Variables de entorno requeridas:**
+| Variable | Descripción |
+|----------|-------------|
+| `SUPABASE_URL` | URL del proyecto Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio (bypass RLS, nunca en frontend) |
+
+**Contrato de entrada:**
+```typescript
+{
+  countrySlug: string;      // Obligatorio - ej: 'mexico'
+  countryName?: string;     // Opcional - ej: 'México'
+  isoAlpha2?: string;       // Opcional - ej: 'MX'
+  isoAlpha3?: string;       // Recomendable - ej: 'MEX'
+  adminLevel?: string;      // Default: 'ADM2'
+  source?: string;          // Default: 'unknown'
+}
+```
+
+**Comportamiento por estado:**
+
+| Estado actual | Acción | Respuesta |
+|---------------|--------|-----------|
+| **No existe** | Insertar registro con `status='queued'`, `requested_count=1` | `queued` |
+| **ready** | NO regenerar, solo incrementar `requested_count` | `ready` |
+| **queued** | Incrementar contador, actualizar timestamp | `queued` |
+| **generating** | Incrementar contador, actualizar timestamp | `generating` |
+| **failed/missing** | Cambiar a `queued`, limpiar error, incrementar contador | `queued` |
+
+**Características:**
+- ✅ Validación de input (countrySlug obligatorio, formato válido)
+- ✅ CORS habilitado para peticiones cross-origin
+- ✅ Sin service role en frontend (usa `supabase.functions.invoke`)
+- ✅ Manejo seguro de errores
+- ✅ Documentación completa en JSDoc
+
+**Función frontend creada:** `requestCountryMapGeneration()` en `countryMapAssets.service.ts`
+
+```typescript
+const result = await requestCountryMapGeneration({
+  countrySlug: 'mexico',
+  countryName: 'México',
+  isoAlpha2: 'MX',
+  isoAlpha3: 'MEX'
+});
+```
+
+**Restricciones cumplidas:**
+- NO pone service role en frontend
+- NO genera mapa todavía (solo crea registro `queued`)
+- NO toca CountryPage, WorldMap, SpainMap
+- NO modifica schema SQL
+
+**Deploy:**
+```bash
+supabase functions deploy request-country-map
+```
+
+**Verificación:**
+- ✅ `npm run build` exitoso (688 modules, sin errores TypeScript)
+
+---
 
 ### 2026-05-01 - Servicio CountryMapAssets para consulta de mapas internos (DA-030) 🗺️
 
@@ -1749,4 +1821,4 @@ Sección Secundaria (Destinos - fondo gris, menor prominencia)
 ---
 
 *Bitácora activa - Trawel v3.0*
-*Última actualización: 2026-04-29*
+*Última actualización: 2026-05-01*
