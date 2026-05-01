@@ -242,7 +242,7 @@ src/features/map/
 
 **Tipos exportados:**
 - `CountryMapAssetStatus`: 'missing' | 'queued' | 'generating' | 'ready' | 'failed'
-- `CountryMapAsset`: Interface completa con metadatos del asset
+- `CountryMapAsset`: Interface completa con metadatos del asset (id, countrySlug, status, storagePath, etc.)
 - `RequestCountryMapGenerationInput`: Input para solicitar generación
 - `RequestCountryMapGenerationResponse`: Respuesta de la solicitud
 
@@ -251,7 +251,7 @@ src/features/map/
 | Función | Descripción | Retorno |
 |---------|-------------|---------|
 | `getCountryMapAsset(countrySlug)` | Consulta Supabase por country_slug | `Promise<CountryMapAsset \| null>` |
-| `getCountryMapPublicUrl(asset)` | Obtiene URL pública del Storage (solo si status === 'ready') | `string \| null` |
+| `getCountryMapPublicUrl(asset)` | Obtiene URL pública de Storage (solo si status === 'ready') | `string \| null` |
 | `isCountryMapReady(asset)` | Helper para verificar si el asset está listo | `boolean` |
 | `requestCountryMapGeneration(input)` | Solicita generación vía Edge Function | `Promise<RequestCountryMapGenerationResponse>` |
 
@@ -299,11 +299,34 @@ if (result.success) {
 }
 ```
 
+**Integración en CountryPage (2026-05-02):**
+CountryPage ahora consulta automáticamente el estado del mapa para países que no son España:
+
+```typescript
+// En CountryPage.tsx
+const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
+
+// Estados UI implementados:
+// - loading: Consultando asset en Supabase
+// - ready: Asset listo con publicUrl disponible  
+// - missing: No existe registro → solicita generación
+// - queued/generating: Muestra "Preparando mapa" con animación
+// - failed: Muestra error amable + botón "Reintentar"
+
+// Polling cada 8 segundos mientras status sea queued/generating
+useEffect(() => {
+  if (mapState.status === 'queued' || mapState.status === 'generating') {
+    const interval = setInterval(checkMapAsset, 8000);
+    return () => clearInterval(interval);
+  }
+}, [mapState.status]);
+```
+
 **Notas:**
 - La consulta (`getCountryMapAsset`) NO incluye caching (la capa superior puede implementarlo)
 - La solicitud de generación (`requestCountryMapGeneration`) usa la Edge Function `request-country-map`
 - Requiere que Supabase esté configurado (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
-- España (SpainMap) sigue usando asset local por ahora; este servicio es para futuros países
+- España (`countrySlug === 'espana'`) usa SpainMap local, NO consulta este servicio
 
 ### `src/features/countries/` - Lógica de países
 

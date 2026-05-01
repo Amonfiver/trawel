@@ -337,6 +337,281 @@
   }
 }
 
+/* Estados del mapa automático (DA-030) */
+
+.mapLoadingState,
+.mapReadyState,
+.mapPreparingState,
+.mapErrorState,
+.mapMissingState {
+  text-align: center;
+  padding: var(--space-2xl, 3rem) var(--space-lg, 2rem);
+}
+
+.mapLoadingIcon,
+.mapReadyIcon,
+.mapPreparingIcon,
+.mapErrorIcon,
+.mapMissingIcon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: var(--space-md, 1rem);
+}
+
+.mapLoadingState h3,
+.mapReadyState h3,
+.mapPreparingState h3,
+.mapErrorState h3,
+.mapMissingState h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 var(--space-sm, 0.5rem) 0;
+}
+
+.mapLoadingState p,
+.mapReadyState p,
+.mapPreparingState p,
+.mapErrorState p,
+.mapMissingState p {
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Estado: Loading */
+.mapLoadingState {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+}
+
+/* Estado: Ready */
+.mapReadyState {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 16px;
+  border: 2px solid #86efac;
+}
+
+.mapReadyIcon {
+  color: #22c55e;
+}
+
+.devDetails {
+  margin-top: var(--space-md, 1rem);
+  font-size: 0.75rem;
+}
+
+.devDetails summary {
+  color: var(--color-text-muted, #9ca3af);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.devDetails code {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 6px;
+  word-break: break-all;
+  font-family: monospace;
+}
+
+/* Estado: Preparing (queued/generating) */
+.mapPreparingState {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-radius: 16px;
+  border: 2px solid #93c5fd;
+}
+
+.mapPreparingIcon {
+  color: #3b82f6;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mapProgressIndicator {
+  margin-top: var(--space-lg, 1.5rem);
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mapProgressBar {
+  height: 100%;
+  width: 30%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 3px;
+  animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+/* Estado: Error */
+.mapErrorState {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-radius: 16px;
+  border: 2px solid #fca5a5;
+}
+
+.mapErrorIcon {
+  color: #ef4444;
+}
+
+.errorDetail {
+  display: block;
+  margin-top: var(--space-sm, 0.5rem);
+  font-size: 0.875rem;
+  color: #991b1b;
+  font-style: italic;
+}
+
+.retryButton {
+  margin-top: var(--space-lg, 1.5rem);
+  padding: 0.75rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Estado: Missing */
+.mapMissingState {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+}
+
+.mapMissingIcon {
+  color: #64748b;
+}
+
+.requestMapButton {
+  margin-top: var(--space-lg, 1.5rem);
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.requestMapButton:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+/* ============================================
+   VISTA "PRÓXIMAMENTE" PARA PAÍSES SIN CONTENIDO
+   ============================================ */
+
+.comingSoonViewSection {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 24px;
+  padding: var(--space-3xl, 4rem) var(--space-xl, 2rem);
+  margin-bottom: var(--space-xl, 2rem);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 2px solid #e2e8f0;
+}
+
+.comingSoonViewContent {
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.comingSoonFlag {
+  margin-bottom: var(--space-lg, 1.5rem);
+}
+
+.comingSoonFlagEmoji {
+  font-size: 6rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+.comingSoonViewTitle {
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 800;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 var(--space-lg, 1.5rem) 0;
+  line-height: 1.2;
+}
+
+.comingSoonViewStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #86efac;
+  border-radius: 9999px;
+  margin-bottom: var(--space-md, 1rem);
+  font-weight: 600;
+  color: #166534;
+}
+
+.comingSoonViewStatus:has(.statusIconPreparing) {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.statusIconReady {
+  font-size: 1.25rem;
+}
+
+.statusIconPreparing {
+  font-size: 1.25rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.comingSoonViewText {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+  font-weight: 500;
+}
+
+.comingSoonViewNote {
+  margin-top: var(--space-md, 1rem);
+  font-size: 0.9375rem;
+  color: var(--color-text-muted, #9ca3af);
+  font-style: italic;
+}
+
 /* ============================================
    SECCIÓN PRINCIPAL: CIUDADES
    ============================================ */

@@ -4,6 +4,68 @@
 
 ---
 
+## 2026-05-02 - CountryPage integrada con sistema automático de mapas (DA-030) 🗺️⚡
+
+Conectada CountryPage con el sistema automático de mapas internos persistidos en Supabase.
+
+**Archivos modificados:**
+- `src/pages/CountryPage/CountryPage.tsx` - Integración completa con DA-030
+- `src/pages/CountryPage/CountryPage.module.css` - Estilos para estados de mapa
+
+**Estados UI implementados:**
+| Estado | Descripción | UI |
+|--------|-------------|-----|
+| `loading` | Consultando asset en Supabase | Icono 🗺️ + "Consultando disponibilidad..." |
+| `ready` | Asset listo con publicUrl | ✅ "Mapa interno disponible" + info DEV |
+| `missing` | No existe registro | Botón "Explorar {país}" → solicita generación |
+| `queued` | En cola de procesamiento | ⚙️ Animación + "Preparando mapa..." |
+| `generating` | Procesando (10-30s típico) | Barra de progreso animada |
+| `failed` | Error en generación | ⚠️ Mensaje amable + botón "Reintentar" |
+
+**Cómo mantiene España:**
+- España (`countrySlug === 'espana'`) sigue usando SpainMap local
+- No consulta Supabase para el mapa de España
+- SpainMap funciona exactamente igual que antes
+
+**Cómo se comporta México (ready):**
+- Detecta status `ready` en `country_map_assets`
+- Muestra "Mapa interno disponible" con indicador verde
+- Incluye sección DEV colapsable con la URL pública
+- Si no tiene contenido editorial, muestra vista "Próximamente"
+
+**Cómo se comporta país missing (ej: Francia sin registro):**
+- Detecta que no existe registro (`null`)
+- Muestra estado `missing` con botón "Explorar Francia"
+- Al hacer clic: llama `requestCountryMapGeneration()`
+- Cambia a estado `queued` automáticamente
+
+**Polling configurado:**
+- Intervalo: 8 segundos
+- Solo activo cuando status es `queued` o `generating`
+- Limpia intervalo al desmontar o cambiar estado
+- Actualiza UI automáticamente cuando el asset está listo
+
+**Prevención de duplicados:**
+- `useRef` para tracking de solicitud enviada
+- Flag `requestSentRef` evita múltiples llamadas en StrictMode
+- Cleanup correcto en efectos
+
+**Vista "Próximamente":**
+- Para países sin contenido editorial (`activeCities.length === 0`)
+- Muestra bandera grande + nombre del país
+- Indica estado del mapa (disponible/en preparación)
+- Mensaje amable: "Destinos y lugares de interés próximamente"
+
+**Criterios cumplidos:**
+- ✅ `/pais/espana` sigue mostrando SpainMap
+- ✅ `/pais/mexico` consulta Supabase
+- ✅ México ready muestra estado disponible
+- ✅ País missing solicita generación
+- ✅ Polling cada 8 segundos
+- ✅ Build exitoso (689 modules)
+
+---
+
 ## 2026-05-02 - Worker de procesamiento de cola de mapas (DA-030) 🗺️⚙️
 
 Implementado el worker Node.js que procesa registros `queued` en `country_map_assets` y genera automáticamente assets TopoJSON en Supabase Storage.
