@@ -19,6 +19,7 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `DEMO_CHECKLIST.md` - Guion de demo para presentaciones a socios/colaboradores
 - `EXPERIENCE_MODE_AUDIT.md` - Auditoría del modo Aventura/Estudiante
 - `V0_HANDOFF.md` - Handoff para rediseño visual con v0
+- `MAP_ASSET_PLAN.md` - Plan de assets cartográficos (diagnóstico SpainMap)
 - `DECISIONES.md` - Registro de decisiones técnicas
 - `BITACORA.md` - Bitácora activa del proyecto
 - `BITACORA_001.md` - Archivo histórico de bitácora
@@ -177,8 +178,10 @@ src/features/map/
 │   │   ├── WorldMap.tsx           # Componente principal del mapa mundial
 │   │   ├── WorldMap.module.css    # Estilos específicos
 │   │   └── index.ts
-│   ├── CountryMap/                # (futuro) Mapa interno de país
-│   │   └── ...
+│   ├── SpainMap/                  # ⚠️ PROTOTIPO TEMPORAL - Ver MAP_ASSET_PLAN.md
+│   │   ├── SpainMap.tsx           # Silueta SVG manual, será reemplazado
+│   │   ├── SpainMap.module.css
+│   │   └── index.ts
 │   ├── MapTooltip/
 │   │   ├── MapTooltip.tsx         # Tooltip reutilizable
 │   │   └── MapTooltip.module.css
@@ -203,6 +206,12 @@ src/features/map/
 **Principio:** El mapa no sabe qué es un "país Trawel", solo recibe geometrías y configuración de colores.
 
 **Nota:** WorldMap v1 usa D3 + TopoJSON + world-atlas por CDN. Conecta geometrías UN M.49 con diccionario Trawel.
+
+**⚠️ Nota importante sobre SpainMap:**
+- SpainMap (`src/features/map/components/SpainMap/`) es un **prototipo temporal/piloto arquitectónico** (DA-027 Fase 1)
+- Usa silueta SVG manual no geográficamente precisa (ver comentarios en el código)
+- Será reemplazado por asset cartográfico fiable según `docs/MAP_ASSET_PLAN.md`
+- Para próximos pasos ver: MAP_ASSET_PLAN.md sección "Próximo paso técnico recomendado"
 
 ### `src/features/countries/` - Lógica de países
 

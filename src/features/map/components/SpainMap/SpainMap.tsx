@@ -1,14 +1,24 @@
 /**
+ * ⚠️ COMPONENTE PROTOTIPO TEMPORAL - Ver docs/MAP_ASSET_PLAN.md
+ * 
  * Componente SpainMap - Mapa interno de España con ciudades clickeables
  * 
- * Propósito: Piloto arquitectónico para mapas internos de país (DA-027)
+ * Propósito: Piloto arquitectónico para mapas internos de país (DA-027 Fase 1)
  * Alcance: Mostrar ciudades de España como puntos interactivos sobre mapa simplificado
  * 
+ * ⚠️ ADVERTENCIAS IMPORTANTES:
+ * - Este componente usa SILUETA SVG MANUAL (líneas ~119-146) no geográficamente precisa
+ * - Es un PROTOTIPO TEMPORAL válido funcionalmente pero NO definitivo
+ * - Debe ser reemplazado por asset cartográfico fiable (geoBoundaries/Natural Earth)
+ * - Ver docs/MAP_ASSET_PLAN.md para plan de migración a Fase 2
+ * 
  * Decisiones técnicas:
- * - SVG estático con representación simplificada de España
- * - Proyección manual de coordenadas lat/lng a SVG
+ * - SVG estático con representación simplificada de España (PLACEHOLDER)
+ * - Proyección manual de coordenadas lat/lng a SVG (aproximada)
  * - Puntos clickeables para cada ciudad con tooltip
- * - Diseño placeholder hasta versión definitiva con v0
+ * - v0 puede mejorar estética pero NO sustituye el asset cartográfico
+ * 
+ * Próximo paso: Reemplazar por componente CountryMap con TopoJSON de geoBoundaries
  */
 
 import { useState } from 'react';

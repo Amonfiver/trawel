@@ -62,6 +62,37 @@ Corregido bug en `supabaseTravelData.source.ts` que impedía cargar destinos pub
 
 ---
 
+### 2026-05-01 - Diagnóstico: SpainMap como prototipo temporal 🗺️
+
+Realizado diagnóstico completo del componente SpainMap y creado plan para reemplazo por asset cartográfico fiable:
+
+**Problema detectado:**
+- SpainMap usa silueta SVG manual (path aproximado líneas 122-146) no geográficamente precisa
+- Islas representadas como elipses simplificadas
+- Código de 220 líneas difícil de adaptar a otros países
+- Proyección manual simplificada, no estándar
+
+**Conclusión:** SpainMap es **prototipo temporal/piloto arquitectónico** válido funcionalmente, pero debe reemplazarse antes de producción-ready.
+
+**Documento creado:**
+- `docs/MAP_ASSET_PLAN.md` - Plan completo con:
+  - Principios técnicos (asset local, no runtime externo, no dibujos manuales)
+  - Fuente recomendada: geoBoundaries ADM2 (provincias)
+  - Formato: TopoJSON en `public/maps/countries/`
+  - Plan por fases: Fase 1 (actual prototipo) → Fase 2 (asset real España) → Fase 3 (más países)
+  - Reglas para v0: mejora estética, no crea cartografía
+  - Próximo bloque técnico detallado
+
+**Relación con DA-027:**
+- Alineado con estrategia progresiva de mapas internos
+- Asset local optimizado, procesado una vez desde fuentes fiables
+- v0 mejora presentación visual, no sustituye asset cartográfico
+
+**Próximo paso:**
+- Implementar Fase 2: descargar geoBoundaries ESP-ADM2, crear script de procesado, componente CountryMap genérico
+
+---
+
 ### 2026-05-01 - Handoff para v0: Documento de rediseño visual 🎨
 
 Creado documento de handoff para equipo de diseño v0 con especificaciones claras de rediseño visual:
