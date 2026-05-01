@@ -73,6 +73,54 @@ Aprobada por Vasyl la nueva dirección para mapas en Trawel: experiencia explora
 
 ---
 
+### 2026-05-01 - SQL: Tabla country_map_assets para persistencia de mapas 🗄️
+
+Creada migración SQL completa para persistir metadatos de mapas generados automáticamente.
+
+**Archivo creado:** `supabase/migrations/002_create_country_map_assets.sql`
+
+**Estructura de la tabla:**
+```sql
+country_map_assets
+├── id (UUID PK)
+├── country_slug (TEXT UNIQUE) - identificador del país
+├── country_name, iso_alpha2, iso_alpha3
+├── admin_level (ADM1/ADM2) - nivel administrativo
+├── status (missing/queued/generating/ready/failed)
+├── storage_bucket, storage_path - ubicación en Storage
+├── source, license, attribution - metadatos de fuente
+├── feature_count, size_bytes - estadísticas del asset
+├── requested_count, last_requested_at - métricas de demanda
+├── generated_at, error_message
+└── created_at, updated_at (con trigger automático)
+```
+
+**Constraints:**
+- CHECK status ∈ {missing, queued, generating, ready, failed}
+- CHECK admin_level ∈ {ADM0..ADM5}
+- Índices: status, country_slug, (country_slug, status)
+
+**Seguridad:**
+- RLS activado
+- Policy SELECT: pública (frontend puede consultar estado)
+- NO hay policies INSERT/UPDATE/DELETE públicas
+- Escritura reservada a backend/worker con service role key
+
+**Storage bucket:**
+- Bucket: `map-assets` (documentado, crear en dashboard)
+- Política SELECT: pública (frontend descarga assets)
+- Política INSERT/UPDATE/DELETE: solo service role
+
+**Instrucciones de uso en el SQL:**
+1. Ejecutar migración en Supabase SQL Editor
+2. Crear bucket 'map-assets' en Storage (público)
+3. Configurar política SELECT pública en Storage
+4. Subir assets con service role desde backend/worker
+
+**Nota:** El SQL incluye comentarios documentales y datos iniciales opcionales para España.
+
+---
+
 ### 2026-05-01 - DA-030: Arquitectura definitiva de generación automática de mapas 🗺️⚙️
 
 Documentada la decisión definitiva para generación automática y persistente de mapas internos por país.

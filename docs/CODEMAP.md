@@ -654,21 +654,35 @@ npm run maps:spain:prepare
 ```
 supabase/
 ├── migrations/                    # Migraciones SQL de la base de datos
-│   └── 001_create_trawel_schema.sql  # Schema inicial con tablas, índices y RLS
+│   ├── 001_create_trawel_schema.sql   # Schema inicial (countries, cities, destinations)
+│   └── 002_create_country_map_assets.sql  # Tabla para assets de mapas (DA-030)
 └── seed.sql                       # Datos iniciales generados automáticamente
 ```
 
 **Responsabilidad:** Contener archivos relacionados con Supabase (schema, seeds, migraciones).
 
 **Migraciones:**
-- `001_create_trawel_schema.sql` - Crea tablas countries, cities, destinations, destination_sources con constraints, índices y políticas RLS
+
+1. **`001_create_trawel_schema.sql`** - Schema inicial con 4 tablas:
+   - `countries`, `cities`, `destinations`, `destination_sources`
+   - Constraints, índices y políticas RLS para lectura pública
+
+2. **`002_create_country_map_assets.sql`** - Tabla para persistencia de mapas (DA-030):
+   - `country_map_assets` - Metadatos de assets cartográficos por país
+   - Estados: `missing`, `queued`, `generating`, `ready`, `failed`
+   - RLS: SELECT público, escritura restringida a service role
+   - Índices: `status`, `country_slug`, `(country_slug, status)`
+   - Trigger `updated_at` automático
 
 **Seed:**
 - El archivo `seed.sql` se regenera ejecutando `npm run export:seed`
 - Compatible con el schema definido en migraciones
 - Usa `ON CONFLICT DO UPDATE` para idempotencia
 
-**Nota:** Para aplicar el schema en Supabase, ejecutar la migración antes de cargar el seed.
+**Notas:**
+- Ejecutar migraciones en orden numérico en Supabase SQL Editor
+- La tabla `country_map_assets` requiere crear bucket `map-assets` en Storage
+- Ver instrucciones detalladas en `002_create_country_map_assets.sql`
 
 ---
 

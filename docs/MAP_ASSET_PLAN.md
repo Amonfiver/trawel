@@ -334,19 +334,44 @@ Trawel implementará **generación automática bajo demanda** de mapas internos 
 
 ### Persistencia
 
-**Tabla `country_map_assets`:**
+**Tabla `country_map_assets`** (ver migración completa en `supabase/migrations/002_create_country_map_assets.sql`):
+
 ```sql
 CREATE TABLE country_map_assets (
-  country_slug TEXT PRIMARY KEY,
-  status TEXT CHECK (status IN ('missing', 'queued', 'generating', 'ready', 'failed')),
-  storage_path TEXT,
-  admin_level TEXT, -- ADM1, ADM2
-  source_url TEXT, -- URL geoBoundaries
-  file_size_bytes INTEGER,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
-  error_message TEXT -- Para estado 'failed'
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    country_slug TEXT NOT NULL UNIQUE,
+    country_name TEXT,
+    iso_alpha2 TEXT,
+    iso_alpha3 TEXT,
+    admin_level TEXT NOT NULL DEFAULT 'ADM2',
+    status TEXT NOT NULL DEFAULT 'missing',
+    storage_bucket TEXT DEFAULT 'map-assets',
+    storage_path TEXT,
+    source TEXT DEFAULT 'geoBoundaries',
+    license TEXT,
+    attribution TEXT,
+    feature_count INTEGER,
+    size_bytes INTEGER,
+    requested_count INTEGER NOT NULL DEFAULT 0,
+    last_requested_at TIMESTAMPTZ,
+    generated_at TIMESTAMPTZ,
+    error_message TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Constraints
+CHECK (status IN ('missing', 'queued', 'generating', 'ready', 'failed'))
+CHECK (admin_level IN ('ADM0', 'ADM1', 'ADM2', 'ADM3', 'ADM4', 'ADM5'))
+
+-- Índices
+CREATE INDEX idx_country_map_assets_status ON country_map_assets(status);
+CREATE INDEX idx_country_map_assets_country_slug ON country_map_assets(country_slug);
+
+-- RLS: SELECT público, escritura restringida a service role
+ALTER TABLE country_map_assets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read access to country_map_assets"
+ON country_map_assets FOR SELECT USING (true);
 ```
 
 **Storage bucket `map-assets`:**
@@ -359,6 +384,11 @@ countries/
     francia-adm2.topojson
     metadata.json
 ```
+
+**Políticas de Storage:**
+- Bucket: `map-assets` (público para lectura)
+- SELECT: Público (frontend puede descargar assets)
+- INSERT/UPDATE/DELETE: Solo service role (backend/worker)
 
 ### Componentes del sistema
 
