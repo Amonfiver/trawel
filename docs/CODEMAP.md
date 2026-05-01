@@ -198,6 +198,8 @@ src/features/map/
 │   ├── useCountryMap.ts           # Hook para CountryMap con estados DA-030
 │   ├── useMapProjection.ts        # Proyección geográfica
 │   └── useCountryData.ts          # Datos geoespaciales + Trawel
+├── services/
+│   └── countryMapAssets.service.ts  # Consulta read-only a country_map_assets (DA-030)
 ├── config/
 │   ├── mapTheme.ts                # Tema visual de mapas
 │   └── mapConstants.ts            # Constantes
@@ -226,6 +228,56 @@ src/features/map/
 **Archivos:**
 - `SpainMap.tsx` - Componente con carga de TopoJSON y renderizado D3
 - `SpainMap.module.css` - Estilos para provincias, ciudades, atribución, fallback
+
+### `src/features/map/services/countryMapAssets.service.ts` - Servicio de assets cartográficos (DA-030)
+
+**Propósito:** Consulta read-only del estado de mapas internos en Supabase.
+
+**Características:**
+- **Frontend-only**: No requiere service role key
+- **Read-only**: Solo SELECT sobre tabla `country_map_assets`
+- **Safe-fallback**: Devuelve `null` en caso de error sin romper la app
+- **Integración DA-030**: Compatible con arquitectura de generación automática
+
+**Tipos exportados:**
+- `CountryMapAssetStatus`: 'missing' | 'queued' | 'generating' | 'ready' | 'failed'
+- `CountryMapAsset`: Interface completa con todos los campos de la tabla
+
+**Funciones:**
+
+| Función | Descripción | Retorno |
+|---------|-------------|---------|
+| `getCountryMapAsset(countrySlug)` | Consulta Supabase por country_slug | `Promise<CountryMapAsset \| null>` |
+| `getCountryMapPublicUrl(asset)` | Obtiene URL pública del Storage (solo si status === 'ready') | `string \| null` |
+| `isCountryMapReady(asset)` | Helper para verificar si el asset está listo | `boolean` |
+
+**Uso típico:**
+```typescript
+import { 
+  getCountryMapAsset, 
+  getCountryMapPublicUrl,
+  isCountryMapReady 
+} from '@/features/map/services/countryMapAssets.service';
+
+// Consultar estado del mapa
+const asset = await getCountryMapAsset('francia');
+
+if (isCountryMapReady(asset)) {
+  // Obtener URL y cargar el mapa
+  const url = getCountryMapPublicUrl(asset);
+  const response = await fetch(url!);
+  const topojson = await response.json();
+  // renderizar mapa...
+} else {
+  // Mostrar UI de "preparando mapa" o botón de solicitud
+}
+```
+
+**Notas:**
+- El servicio NO solicita generación de mapas (solo consulta estado)
+- NO incluye caching (la capa de hooks/páginas puede implementarlo)
+- Requiere que Supabase esté configurado (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
+- España (SpainMap) sigue usando asset local por ahora; este servicio es para futuros países
 
 ### `src/features/countries/` - Lógica de países
 

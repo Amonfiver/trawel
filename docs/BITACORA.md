@@ -39,6 +39,42 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Servicio CountryMapAssets para consulta de mapas internos (DA-030) 🗺️
+
+Creado servicio frontend read-only para consultar estado de assets cartográficos en Supabase.
+
+**Archivo creado:** `src/features/map/services/countryMapAssets.service.ts`
+
+**Tipos definidos:**
+- `CountryMapAssetStatus`: 'missing' | 'queued' | 'generating' | 'ready' | 'failed'
+- `CountryMapAsset`: Interface completa con metadatos del asset (id, countrySlug, status, storagePath, etc.)
+
+**Funciones implementadas:**
+
+| Función | Propósito | Retorno |
+|---------|-----------|---------|
+| `getCountryMapAsset(countrySlug)` | Consulta tabla country_map_assets | `Promise<CountryMapAsset \| null>` |
+| `getCountryMapPublicUrl(asset)` | Obtiene URL pública de Storage | `string \| null` |
+| `isCountryMapReady(asset)` | Helper para verificar status === 'ready' | `boolean` |
+
+**Características:**
+- ✅ Read-only (solo SELECT, no escribe)
+- ✅ Sin service role (usa cliente anónimo con RLS)
+- ✅ Manejo seguro de errores (devuelve null, no rompe la app)
+- ✅ Documentación completa en JSDoc
+- ✅ Compatible con DA-030 (arquitectura de generación automática)
+
+**Restricciones cumplidas:**
+- NO modifica Supabase/schema
+- NO toca CountryPage, WorldMap, SpainMap
+- NO genera assets (solo consulta)
+- NO crea estructura de exports innecesaria
+
+**Verificación:**
+- ✅ `npm run build` exitoso (688 modules, sin errores TypeScript)
+
+---
+
 ### 2026-05-01 - Decisión DA-029: Mapas exploratorios con bandera y demanda pública ✅🗺️
 
 Aprobada por Vasyl la nueva dirección para mapas en Trawel: experiencia exploratoria homogénea con banderas y captura de demanda.
