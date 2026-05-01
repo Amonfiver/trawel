@@ -39,6 +39,48 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - SpainMap v2: Reemplazo de prototipo temporal por asset real ✅🗺️
+
+Implementado SpainMap v2 que reemplaza la silueta SVG manual por el asset TopoJSON optimizado de geoBoundaries:
+
+**Cambios realizados:**
+| Aspecto | Anterior (v1) | Nuevo (v2) |
+|---------|---------------|------------|
+| Base cartográfica | SVG manual (~200 líneas) | TopoJSON real (52.59 KB) |
+| Provincias | ❌ No disponibles | ✅ 52 provincias interactivas |
+| Proyección | Manual aproximada | geoMercator con fitSize |
+| Precisión | Kilométrica (~errors) | Exacta (geoBoundaries ADM2) |
+| Atribución | ❌ No visible | ✅ "Datos cartográficos: geoBoundaries (CC BY 4.0)" |
+
+**Archivos modificados:**
+- `src/features/map/components/SpainMap/SpainMap.tsx` - Nueva implementación con D3 + topojson-client
+- `src/features/map/components/SpainMap/SpainMap.module.css` - Estilos para provincias, atribución, fallback
+
+**Características implementadas:**
+- Carga dinámica de `/maps/countries/spain/spain-adm2.topojson`
+- Renderizado de 52 provincias como paths SVG interactivos
+- Hover en provincias (cambio de color)
+- Puntos de ciudades mantenidos (Morella, Albarracín, Madrid, Barcelona)
+- Navegación a CityPage desde puntos de ciudad
+- Atribución visible y clickeable a geoBoundaries
+- Fallback limpio si el asset no carga (lista de botones)
+- Loading state con spinner
+
+**Dependencias utilizadas (ya existentes):**
+- `d3` (geoMercator, geoPath)
+- `topojson-client` (feature)
+
+**Validación:**
+- ✅ Build sin errores TypeScript
+- ✅ Sin nuevas dependencias (usando existentes)
+- ✅ Fallback no rompe CountryPage
+- ✅ Atribución CC BY 4.0 visible
+- ✅ Comportamiento de navegación preservado
+
+**Próximo paso:** Crear componente `CountryMap` genérico para reutilizar lógica con otros países
+
+---
+
 ### 2026-05-01 - Asset de mapa de España optimizado para producción ✅🗺️
 
 Implementada optimización completa del asset ADM2 de España, generando TopoJSON de 52.59 KB apto para producción desde el GeoJSON raw de 40.83 MB:

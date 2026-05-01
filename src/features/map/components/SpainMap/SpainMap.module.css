@@ -1,8 +1,10 @@
 /**
- * Estilos de SpainMap - Mapa interno de España
- * 
- * Propósito: Estilos para el piloto arquitectónico del mapa interno
- * Alcance: Layout del mapa, puntos de ciudad, tooltips, responsive
+ * Estilos de SpainMap v2 - Mapa interno de España con asset TopoJSON real
+ *
+ * Propósito: Estilos para el mapa con provincias reales desde geoBoundaries
+ * Alcance: Provincias interactivas, puntos de ciudad, tooltips, atribución, fallback
+ *
+ * Datos cartográficos: geoBoundaries (CC BY 4.0)
  */
 
 .container {
@@ -19,6 +21,7 @@
   overflow: hidden;
   border-radius: 12px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  min-height: 400px;
 }
 
 .svg {
@@ -27,20 +30,52 @@
   display: block;
 }
 
-/* Silueta del país */
-.outlinePath {
-  transition: all 0.3s ease;
+/* Loading */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
 }
 
-/* Ciudades */
-.cities {
+.loadingSpinner {
+  font-size: 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Provincias */
+.provincesGroup {
+  pointer-events: all;
+}
+
+.province {
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.cityGroup {
-  transition: all 0.2s ease;
+.province:hover {
+  fill: #cbd5e1;
+  stroke: #64748b;
 }
 
+/* Grupo de ciudades */
+.citiesGroup {
+  pointer-events: all;
+}
+
+/* Ciudades */
 .cityDot {
   fill: #3b82f6;
   stroke: white;
@@ -81,6 +116,64 @@
   font-size: 14px;
   font-weight: 700;
   fill: #92400e;
+}
+
+/* Atribución cartográfica */
+.attribution {
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.attributionLink {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.attributionLink:hover {
+  text-decoration: underline;
+  color: #2563eb;
+}
+
+/* Fallback */
+.fallback {
+  padding: 2rem;
+  text-align: center;
+}
+
+.fallbackMessage {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.fallbackCities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.fallbackCity {
+  padding: 0.75rem 1.25rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fallbackCity:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
 }
 
 /* Leyenda */
@@ -180,6 +273,10 @@
     border-radius: 16px;
   }
 
+  .mapWrapper {
+    min-height: 300px;
+  }
+
   .cityLabel {
     font-size: 10px;
   }
@@ -192,6 +289,10 @@
     gap: 1rem;
     font-size: 0.75rem;
   }
+
+  .attribution {
+    font-size: 0.6875rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -199,9 +300,21 @@
     padding: 0.75rem;
   }
 
+  .mapWrapper {
+    min-height: 250px;
+  }
+
   .legend {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  .fallbackCities {
+    flex-direction: column;
+  }
+
+  .fallbackCity {
+    width: 100%;
   }
 }

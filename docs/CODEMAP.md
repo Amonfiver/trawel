@@ -208,11 +208,17 @@ src/features/map/
 
 **Nota:** WorldMap v1 usa D3 + TopoJSON + world-atlas por CDN. Conecta geometrías UN M.49 con diccionario Trawel.
 
-**⚠️ Nota importante sobre SpainMap:**
-- SpainMap (`src/features/map/components/SpainMap/`) es un **prototipo temporal/piloto arquitectónico** (DA-027 Fase 1)
-- Usa silueta SVG manual no geográficamente precisa (ver comentarios en el código)
-- Será reemplazado por asset cartográfico fiable según `docs/MAP_ASSET_PLAN.md`
-- Para próximos pasos ver: MAP_ASSET_PLAN.md sección "Próximo paso técnico recomendado"
+**✅ SpainMap actualizado (v2):**
+- SpainMap (`src/features/map/components/SpainMap/`) ahora usa **asset TopoJSON real** de geoBoundaries
+- Carga dinámicamente: `/maps/countries/spain/spain-adm2.topojson` (52.59 KB)
+- Renderiza 52 provincias españolas con D3 + proyección geoMercator
+- Mantiene puntos interactivos de ciudades (Morella, Albarracín, etc.)
+- Atribución visible: "Datos cartográficos: geoBoundaries (CC BY 4.0)"
+- Fallback limpio si el asset no carga
+
+**Archivos:**
+- `SpainMap.tsx` - Componente con carga de TopoJSON y renderizado D3
+- `SpainMap.module.css` - Estilos para provincias, ciudades, atribución, fallback
 
 ### `src/features/countries/` - Lógica de países
 

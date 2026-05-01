@@ -1,28 +1,26 @@
 /**
- * ⚠️ COMPONENTE PROTOTIPO TEMPORAL - Ver docs/MAP_ASSET_PLAN.md
- * 
- * Componente SpainMap - Mapa interno de España con ciudades clickeables
- * 
- * Propósito: Piloto arquitectónico para mapas internos de país (DA-027 Fase 1)
- * Alcance: Mostrar ciudades de España como puntos interactivos sobre mapa simplificado
- * 
- * ⚠️ ADVERTENCIAS IMPORTANTES:
- * - Este componente usa SILUETA SVG MANUAL (líneas ~119-146) no geográficamente precisa
- * - Es un PROTOTIPO TEMPORAL válido funcionalmente pero NO definitivo
- * - Debe ser reemplazado por asset cartográfico fiable (geoBoundaries/Natural Earth)
- * - Ver docs/MAP_ASSET_PLAN.md para plan de migración a Fase 2
- * 
- * Decisiones técnicas:
- * - SVG estático con representación simplificada de España (PLACEHOLDER)
- * - Proyección manual de coordenadas lat/lng a SVG (aproximada)
- * - Puntos clickeables para cada ciudad con tooltip
- * - v0 puede mejorar estética pero NO sustituye el asset cartográfico
- * 
- * Próximo paso: Reemplazar por componente CountryMap con TopoJSON de geoBoundaries
+ * SpainMap v2 - Mapa interno de España con asset TopoJSON real
+ *
+ * Componente SpainMap - Renderiza provincias españolas desde asset geoBoundaries
+ *
+ * Propósito: Reemplazo del prototipo temporal (DA-027 Fase 2)
+ * Alcance: Mostrar provincias de España como paths interactivos + ciudades como puntos
+ *
+ * Características:
+ * - Carga asset TopoJSON local: /maps/countries/spain/spain-adm2.topojson
+ * - Renderiza 52 provincias con D3 + proyección geográfica real
+ * - Superpone puntos interactivos de ciudades publicadas
+ * - Atribución visible: "Datos cartográficos: geoBoundaries (CC BY 4.0)"
+ * - Fallback limpio si el asset no carga
+ *
+ * Datos cartográficos: geoBoundaries (CC BY 4.0)
+ * Fuente: https://www.geoboundaries.org/ - gbOpen ESP ADM2
  */
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as d3 from 'd3';
+import { feature } from 'topojson-client';
 import type { City } from '../../../cities/types/city.types';
 import { getCityDisplayName } from '../../../cities/data/cities.utils';
 import styles from './SpainMap.module.css';
@@ -39,34 +37,26 @@ interface TooltipData {
   city: City | null;
 }
 
-// Bounding box de España peninsular
-const SPAIN_BOUNDS = {
-  minLat: 36.0,
-  maxLat: 43.8,
-  minLng: -9.3,
-  maxLng: 3.3,
-};
-
-const SVG_WIDTH = 800;
-const SVG_HEIGHT = 500;
-
-/**
- * Proyecta coordenadas lat/lng a coordenadas SVG
- */
-function projectCoordinates(lat: number, lng: number): { x: number; y: number } | null {
-  if (lat < SPAIN_BOUNDS.minLat - 1 || lat > SPAIN_BOUNDS.maxLat + 1 ||
-      lng < SPAIN_BOUNDS.minLng - 1 || lng > SPAIN_BOUNDS.maxLng + 1) {
-    return null;
-  }
-
-  const x = ((lng - SPAIN_BOUNDS.minLng) / (SPAIN_BOUNDS.maxLng - SPAIN_BOUNDS.minLng)) * SVG_WIDTH;
-  const y = SVG_HEIGHT - ((lat - SPAIN_BOUNDS.minLat) / (SPAIN_BOUNDS.maxLat - SPAIN_BOUNDS.minLat)) * SVG_HEIGHT;
-  
-  return { x, y };
+interface ProvinceFeature {
+  type: 'Feature';
+  properties: {
+    shapeName: string;
+    shapeISO: string;
+    shapeID: string;
+    [key: string]: unknown;
+  };
+  geometry: GeoJSON.Geometry;
 }
 
 export function SpainMap({ cities, countrySlug }: SpainMapProps) {
   const navigate = useNavigate();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [provinces, setProvinces] = useState<ProvinceFeature[]>([]);
+
   const [tooltip, setTooltip] = useState<TooltipData>({
     visible: false,
     x: 0,
@@ -74,119 +64,205 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
     city: null,
   });
 
-  const citiesWithCoords = cities.filter(city => city.coordinates);
-  
-  const projectedCities = citiesWithCoords.map(city => {
-    const projected = city.coordinates 
-      ? projectCoordinates(city.coordinates.lat, city.coordinates.lng)
-      : null;
-    return { city, projected };
-  }).filter(item => item.projected !== null) as Array<{
-    city: City;
-    projected: { x: number; y: number };
-  }>;
+  // Cargar TopoJSON
+  useEffect(() => {
+    const loadMapData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch('/maps/countries/spain/spain-adm2.topojson');
+
+        if (!response.ok) {
+          throw new Error(`No se pudo cargar el mapa: ${response.status}`);
+        }
+
+        const topology = await response.json();
+
+        // Convertir TopoJSON a GeoJSON
+        const geojson = feature(topology, topology.objects.spain_adm2) as unknown as {
+          type: 'FeatureCollection';
+          features: ProvinceFeature[];
+        };
+
+        setProvinces(geojson.features);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error cargando mapa de España:', err);
+        setError('No se pudo cargar el mapa. Mostrando lista de ciudades.');
+        setLoading(false);
+      }
+    };
+
+    loadMapData();
+  }, []);
+
+  // Renderizar D3 cuando los datos estén listos
+  useEffect(() => {
+    if (!svgRef.current || provinces.length === 0 || loading) return;
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove(); // Limpiar contenido previo
+
+    const width = 800;
+    const height = 600;
+
+    // Crear proyección (ajustada para España)
+    const projection = d3
+      .geoMercator()
+      .fitSize([width, height], {
+        type: 'FeatureCollection',
+        features: provinces,
+      } as GeoJSON.FeatureCollection);
+
+    const path = d3.geoPath().projection(projection);
+
+    // Grupo para las provincias
+    const g = svg.append('g').attr('class', styles.provincesGroup);
+
+    // Renderizar provincias
+    g.selectAll('path')
+      .data(provinces)
+      .enter()
+      .append('path')
+      .attr('d', (d) => path(d as d3.GeoPermissibleObjects) || '')
+      .attr('class', styles.province)
+      .attr('fill', '#e2e8f0')
+      .attr('stroke', '#94a3b8')
+      .attr('stroke-width', 1)
+      .on('mouseover', function () {
+        d3.select(this).attr('fill', '#cbd5e1').attr('stroke', '#64748b');
+      })
+      .on('mouseout', function () {
+        d3.select(this).attr('fill', '#e2e8f0').attr('stroke', '#94a3b8');
+      });
+
+    // Proyectar y renderizar ciudades
+    const citiesWithCoords = cities.filter((city) => city.coordinates);
+
+    const citiesGroup = svg.append('g').attr('class', styles.citiesGroup);
+
+    citiesGroup
+      .selectAll('circle')
+      .data(citiesWithCoords)
+      .enter()
+      .append('circle')
+      .attr('cx', (d) => {
+        const coords = d.coordinates;
+        return coords ? projection([coords.lng, coords.lat])?.[0] || 0 : 0;
+      })
+      .attr('cy', (d) => {
+        const coords = d.coordinates;
+        return coords ? projection([coords.lng, coords.lat])?.[1] || 0 : 0;
+      })
+      .attr('r', (d) => (d.featured ? 10 : 7))
+      .attr('class', (d) =>
+        d.featured ? `${styles.cityDot} ${styles.featured}` : styles.cityDot
+      )
+      .on('click', (_, d) => {
+        navigate(`/pais/${countrySlug}/${d.slug}`);
+      })
+      .on('mouseover', (event, d) => {
+        setTooltip({
+          visible: true,
+          x: event.clientX + 12,
+          y: event.clientY - 12,
+          city: d,
+        });
+      })
+      .on('mousemove', (event) => {
+        setTooltip((prev) => ({
+          ...prev,
+          x: event.clientX + 12,
+          y: event.clientY - 12,
+        }));
+      })
+      .on('mouseout', () => {
+        setTooltip((prev) => ({ ...prev, visible: false }));
+      });
+
+    // Labels de ciudades
+    citiesGroup
+      .selectAll('text')
+      .data(citiesWithCoords)
+      .enter()
+      .append('text')
+      .attr('x', (d) => {
+        const coords = d.coordinates;
+        return coords ? projection([coords.lng, coords.lat])?.[0] || 0 : 0;
+      })
+      .attr('y', (d) => {
+        const coords = d.coordinates;
+        const y = coords ? projection([coords.lng, coords.lat])?.[1] || 0 : 0;
+        return y - (d.featured ? 18 : 14);
+      })
+      .attr('text-anchor', 'middle')
+      .attr('class', (d) =>
+        d.featured
+          ? `${styles.cityLabel} ${styles.featuredLabel}`
+          : styles.cityLabel
+      )
+      .text((d) => getCityDisplayName(d));
+  }, [provinces, cities, countrySlug, navigate, loading]);
 
   const handleCityClick = (city: City) => {
     navigate(`/pais/${countrySlug}/${city.slug}`);
   };
 
-  const handleMouseEnter = (event: React.MouseEvent, city: City) => {
-    setTooltip({
-      visible: true,
-      x: event.clientX + 12,
-      y: event.clientY - 12,
-      city,
-    });
-  };
-
-  const handleMouseMove = (event: React.MouseEvent) => {
-    setTooltip(prev => ({
-      ...prev,
-      x: event.clientX + 12,
-      y: event.clientY - 12,
-    }));
-  };
-
-  const handleMouseLeave = () => {
-    setTooltip(prev => ({ ...prev, visible: false }));
-  };
+  // Fallback: mostrar solo lista de ciudades si falla la carga
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.fallback}>
+          <p className={styles.fallbackMessage}>🗺️ {error}</p>
+          <div className={styles.fallbackCities}>
+            {cities.map((city) => (
+              <button
+                key={city.id}
+                className={styles.fallbackCity}
+                onClick={() => handleCityClick(city)}
+              >
+                {getCityDisplayName(city)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={containerRef}>
+      {loading && (
+        <div className={styles.loading}>
+          <span className={styles.loadingSpinner}>🗺️</span>
+          <span>Cargando mapa...</span>
+        </div>
+      )}
+
       <div className={styles.mapWrapper}>
         <svg
-          viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+          ref={svgRef}
+          viewBox="0 0 800 600"
           className={styles.svg}
           role="img"
-          aria-label="Mapa de España con ciudades disponibles"
+          aria-label="Mapa de España con provincias y ciudades disponibles"
         >
-          <title>Mapa de España - Ciudades Trawel</title>
-          
-          {/* Fondo del mapa */}
-          <rect width={SVG_WIDTH} height={SVG_HEIGHT} fill="#f8fafc" rx="12" />
-          
-          {/* Silueta simplificada de España - placeholder */}
-          <g className={styles.countryOutline}>
-            {/* Península - forma aproximada con path simple */}
-            <path
-              d="M 50,200 
-                 C 50,150 100,100 200,80 
-                 C 300,60 500,60 600,100 
-                 C 700,140 750,200 750,280 
-                 C 750,360 650,420 550,450 
-                 C 450,480 300,480 200,420 
-                 C 120,380 50,300 50,200 Z"
-              fill="#e2e8f0"
-              stroke="#94a3b8"
-              strokeWidth="2"
-            />
-            
-            {/* Islas Baleares */}
-            <ellipse cx="680" cy="180" rx="25" ry="15" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1.5" />
-            
-            {/* Islas Canarias - representación simplificada en recuadro */}
-            <g transform="translate(80, 380)">
-              <rect width="100" height="60" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="1" rx="4" />
-              <text x="50" y="35" textAnchor="middle" fontSize="10" fill="#64748b">Islas Canarias</text>
-              {/* Gran Canaria */}
-              <ellipse cx="35" cy="25" rx="12" ry="8" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" />
-              {/* Tenerife */}
-              <ellipse cx="65" cy="30" rx="15" ry="10" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" />
-            </g>
-          </g>
-
-          {/* Ciudades como puntos interactivos */}
-          <g className={styles.cities}>
-            {projectedCities.map(({ city, projected }) => (
-              <g key={city.id} className={styles.cityGroup}>
-                {/* Círculo de la ciudad */}
-                <circle
-                  cx={projected.x}
-                  cy={projected.y}
-                  r={city.featured ? 10 : 7}
-                  className={`${styles.cityDot} ${city.featured ? styles.featured : ''}`}
-                  onClick={() => handleCityClick(city)}
-                  onMouseEnter={(e) => handleMouseEnter(e, city)}
-                  onMouseMove={handleMouseMove}
-                  onMouseLeave={handleMouseLeave}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Explorar ${getCityDisplayName(city)}`}
-                />
-                
-                {/* Label de la ciudad */}
-                <text
-                  x={projected.x}
-                  y={projected.y - (city.featured ? 18 : 14)}
-                  textAnchor="middle"
-                  className={`${styles.cityLabel} ${city.featured ? styles.featuredLabel : ''}`}
-                >
-                  {getCityDisplayName(city)}
-                </text>
-              </g>
-            ))}
-          </g>
+          <title>Mapa de España - Provincias y ciudades Trawel</title>
         </svg>
+      </div>
+
+      {/* Atribución cartográfica */}
+      <div className={styles.attribution}>
+        <span>Datos cartográficos: </span>
+        <a
+          href="https://www.geoboundaries.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.attributionLink}
+        >
+          geoBoundaries (CC BY 4.0)
+        </a>
       </div>
 
       {/* Leyenda */}
@@ -212,14 +288,14 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
             <strong>{getCityDisplayName(tooltip.city)}</strong>
             {tooltip.city.shortDescription && (
               <span className={styles.tooltipDescription}>
-                {typeof tooltip.city.shortDescription === 'string' 
-                  ? tooltip.city.shortDescription 
+                {typeof tooltip.city.shortDescription === 'string'
+                  ? tooltip.city.shortDescription
                   : tooltip.city.shortDescription.es}
               </span>
             )}
             <span className={styles.tooltipHint}>
-              {tooltip.city.destinationCount 
-                ? `${tooltip.city.destinationCount} aventuras` 
+              {tooltip.city.destinationCount
+                ? `${tooltip.city.destinationCount} aventuras`
                 : 'Próximamente'}
             </span>
           </div>
