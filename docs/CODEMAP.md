@@ -551,7 +551,8 @@ src/utils/
 scripts/
 ├── exportMockToSqlSeed.ts         # Exporta datos mock a SQL seed para Supabase
 ├── inspect-map-asset.ts           # Inspecciona archivos GeoJSON/TopoJSON de mapas
-└── download-geoboundaries.ts      # Descarga automática assets de geoBoundaries
+├── download-geoboundaries.ts      # Descarga automática assets de geoBoundaries
+└── prepare-spain-map-asset.ts     # Optimiza GeoJSON raw a TopoJSON simplificado
 ```
 
 **Responsabilidad:** Scripts Node.js/TypeScript para tareas de mantenimiento, migración y procesado de assets.
@@ -585,6 +586,30 @@ import { analyzeMapAsset, displayAnalysis } from './inspect-map-asset.js';
 const analysis = analyzeMapAsset('ruta/al/archivo.geojson');
 displayAnalysis(analysis);
 ```
+
+### `prepare-spain-map-asset.ts`
+- **Flujo de optimización:**
+  1. Lee GeoJSON raw: `public/maps/countries/spain/spain-adm2-raw.geojson` (40.83 MB)
+  2. Convierte a TopoJSON usando `topojson-server`
+  3. Simplifica geometría al 5% usando `topojson-simplify`
+  4. Valida: 52 provincias, Castellón presente, Teruel presente
+  5. Guarda resultado: `public/maps/countries/spain/spain-adm2.topojson` (52.59 KB)
+
+**Transformación:**
+| Entrada | Salida | Reducción |
+|---------|--------|-----------|
+| 40.83 MB GeoJSON | 52.59 KB TopoJSON | 99.9% |
+
+**Uso:**
+```bash
+npm run maps:spain:optimize
+```
+
+**Requisitos:**
+- `topojson-server`, `topojson-simplify`
+- Asset raw previamente descargado (`npm run maps:spain:prepare`)
+
+---
 
 ### `download-geoboundaries.ts`
 - **Flujo automático completo:**

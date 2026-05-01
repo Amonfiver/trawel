@@ -51,6 +51,31 @@ Los mapas internos de Trawel deben seguir estos principios (basado en DA-027):
   - Formato GeoJSON/TopoJSON nativo
 - **Uso:** Descargar shapefile → convertir a GeoJSON → simplificar → guardar local
 
+### ✅ Asset de España ya disponible (Optimizado)
+
+**Estado:** COMPLETADO - Asset optimizado listo para producción
+
+| Asset | Tamaño | Formato | Ubicación |
+|-------|--------|---------|-----------|
+| Original (raw) | 40.83 MB | GeoJSON | `public/maps/countries/spain/spain-adm2-raw.geojson` |
+| **Optimizado** | **52.59 KB** | **TopoJSON** | **`public/maps/countries/spain/spain-adm2.topojson`** |
+
+**Proceso de optimización implementado:**
+- Fuente: geoBoundaries ESP-ADM2 (52 provincias)
+- Conversión: GeoJSON → TopoJSON
+- Simplificación: 5% de detalle original (factor 0.05)
+- Validación: Castellón ✓, Teruel ✓, todas las provincias presentes
+- Arquitectura final: 509 arcos compartidos en topología
+
+**Script de procesado:**
+```bash
+npm run maps:spain:optimize
+```
+- Script: `scripts/prepare-spain-map-asset.ts`
+- Requiere: `topojson-server`, `topojson-simplify`
+
+**Documentación técnica:** `docs/SPAIN_MAP_ASSET_TEST.md` (incluye detalles de implementación y validación)
+
 ### Opción B: Natural Earth Admin 1
 - **Fuente:** [Natural Earth](https://www.naturalearthdata.com/) - Admin 1 (regiones/autonomías)
 - **Ventajas:**

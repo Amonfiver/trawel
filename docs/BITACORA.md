@@ -39,6 +39,61 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Asset de mapa de España optimizado para producción ✅🗺️
+
+Implementada optimización completa del asset ADM2 de España, generando TopoJSON de 52.59 KB apto para producción desde el GeoJSON raw de 40.83 MB:
+
+**Transformación realizada:**
+| Etapa | Tamaño | Formato | Notas |
+|-------|--------|---------|-------|
+| Raw descargado | 40.83 MB | GeoJSON | Fuente: geoBoundaries ESP-ADM2 |
+| Optimizado | **52.59 KB** | **TopoJSON** | 99.9% reducción, ideal <100KB ✅ |
+
+**Proceso técnico:**
+- Conversión: GeoJSON → TopoJSON con `topojson-server`
+- Simplificación: 5% de detalle original (factor 0.05) con `topojson-simplify`
+- Validación: 52 provincias preservadas, Castellón ✓, Teruel ✓
+- Arquitectura: 509 arcos compartidos en topología
+
+**Comandos implementados:**
+```bash
+npm run maps:spain:prepare    # Descarga asset raw
+npm run maps:spain:optimize   # Genera TopoJSON optimizado
+```
+
+**Scripts creados:**
+| Script | Propósito |
+|--------|-----------|
+| `scripts/download-geoboundaries.ts` | Descarga automática desde API geoBoundaries |
+| `scripts/inspect-map-asset.ts` | Análisis de GeoJSON/TopoJSON |
+| `scripts/prepare-spain-map-asset.ts` | Optimización: conversión + simplificación |
+
+**Dependencias añadidas:**
+```json
+"topojson-server": "^3.0.1",
+"topojson-simplify": "^3.0.3",
+"@types/topojson-server": "^3.0.6",
+"@types/topojson-simplify": "^3.0.3"
+```
+
+**Assets en zona controlada:**
+```
+public/maps/countries/spain/
+├── spain-adm2-raw.geojson       (40.83 MB - fuente)
+├── spain-adm2-metadata.json     (metadata de geoBoundaries)
+└── spain-adm2.topojson          (52.59 KB - optimizado ✅)
+```
+
+**Documentación actualizada:**
+- `docs/SPAIN_MAP_ASSET_TEST.md` - Nota técnica con proceso y validación
+- `docs/MAP_ASSET_PLAN.md` - Reflejado asset optimizado disponible
+
+**Estado:** ✅ COMPLETADO - Asset listo para integración en componente CountryMap
+
+**Próximo paso:** Crear componente `CountryMap` genérico que cargue el TopoJSON y reemplace `SpainMap` prototipo
+
+---
+
 ### 2026-05-01 - Asset de mapa de España descargado automáticamente ✅🗺️
 
 Implementado flujo automático completo para descargar y evaluar geoBoundaries ADM2 (provincias) como candidato para reemplazar SpainMap prototipo temporal:

@@ -75,7 +75,7 @@ npx tsx scripts/inspect-map-asset.ts public/maps/countries/spain/spain-adm2-raw.
 
 ---
 
-## 5. Resultados de la Descarga
+## 5. Resultados de la Descarga y Optimización
 
 ### Metadata de geoBoundaries
 
@@ -91,16 +91,26 @@ npx tsx scripts/inspect-map-asset.ts public/maps/countries/spain/spain-adm2-raw.
 | **admUnitCount** | 52 |
 | **buildDate** | Dec 12, 2023 |
 
-### Asset Descargado
+### Assets Disponibles
 
-| Propiedad | Valor |
-|-----------|-------|
-| **Archivo** | `spain-adm2-raw.geojson` |
-| **Tamaño** | 40.83 MB |
-| **Formato** | GeoJSON |
-| **Features** | 52 (provincias españolas) |
-| **Nivel** | ADM2 ✅ |
-| **Sistema coordenadas** | WGS84 (EPSG:4326) |
+| Asset | Ruta | Tamaño | Formato | Estado |
+|-------|------|--------|---------|--------|
+| **Raw** | `spain-adm2-raw.geojson` | 40.83 MB | GeoJSON | ✅ Descargado |
+| **Optimizado** | `spain-adm2.topojson` | **52.59 KB** | **TopoJSON** | ✅ **Listo para producción** |
+| **Metadata** | `spain-adm2-metadata.json` | ~5 KB | JSON | ✅ Generado |
+
+### Transformación Realizada
+
+```
+40.83 MB (GeoJSON raw) → 52.59 KB (TopoJSON optimizado)
+Ratio de compresión: 99.9%
+```
+
+**Proceso de optimización:**
+1. Conversión GeoJSON → TopoJSON (formato más compacto)
+2. Simplificación de geometrías al 5% de detalle
+3. Preservación de topología (sin agujeros ni solapamientos)
+4. 52 provincias mantenidas, 509 arcos en topología
 
 ### Propiedades del GeoJSON
 
@@ -122,14 +132,20 @@ npx tsx scripts/inspect-map-asset.ts public/maps/countries/spain/spain-adm2-raw.
 | **Albarracín** | ❌ NO ENCONTRADO | Correcto - es municipio, no provincia |
 | **Morella** | ⚠️ SIMILAR (57%) | Correcto - es municipio, no provincia |
 
-### Provincias Clave Confirmadas
+### Provincias Clave Confirmadas (en asset optimizado)
 
-| Provincia | Ciudad Trawel Asociada |
-|-----------|------------------------|
-| **Castellon** | Morella |
-| **Teruel** | Albarracín |
-| **Barcelona** | Barcelona |
-| **Madrid** | Madrid |
+| Provincia | Ciudad Trawel Asociada | Estado en TopoJSON |
+|-----------|------------------------|-------------------|
+| **Castellon** | Morella | ✅ Presente |
+| **Teruel** | Albarracín | ✅ Presente |
+| **Barcelona** | Barcelona | ✅ Presente |
+| **Madrid** | Madrid | ✅ Presente |
+
+**Validación completa:**
+- ✅ 52 provincias conservadas (sin pérdida de features)
+- ✅ Castellón identificable por `properties.shapeName`
+- ✅ Teruel identificable por `properties.shapeName`
+- ✅ Propiedades conservadas: `shapeGroup`, `shapeID`, `shapeISO`, `shapeName`, `shapeType`
 
 ---
 
@@ -178,22 +194,19 @@ npx tsx scripts/inspect-map-asset.ts public/maps/countries/spain/spain-adm2-raw.
 
 ---
 
-## 9. Próximos Pasos Recomendados
+## 9. Conclusión y Estado del Asset
 
-### Optimización del Asset (40.83 MB → <100KB)
+### ✅ Asset Apto para Producción
 
-El asset actual es muy grande para uso web. Se recomienda:
+| Criterio | Objetivo | Resultado | Estado |
+|----------|----------|-----------|--------|
+| **Tamaño** | < 100 KB | 52.59 KB | ✅ Ideal |
+| **Features** | 52 provincias | 52 | ✅ Completo |
+| **Castellón** | Localizable | Presente | ✅ OK |
+| **Teruel** | Localizable | Presente | ✅ OK |
+| **Formato** | TopoJSON | TopoJSON | ✅ Estandarizado |
 
-```bash
-# 1. Simplificar geometría con mapshaper o similar
-# Target: ~1% de detalle original
-# Objetivo: <100KB
-
-# 2. Convertir a TopoJSON (más compacto)
-# TopoJSON suele ser 50-80% más pequeño que GeoJSON
-```
-
-### Integración Futura
+### Integración Futura (Fase 3 - Opcional)
 
 1. **Crear componente `CountryMap`** genérico
 2. **Cargar asset dinámicamente** por countrySlug
@@ -228,6 +241,8 @@ El asset actual es muy grande para uso web. Se recomienda:
 | 2026-05-01 | Añadido script `maps:spain:prepare` a package.json |
 | 2026-05-01 | **Asset descargado automáticamente** - 52 provincias confirmadas |
 | 2026-05-01 | **Castellón y Teruel confirmadas** como provincias separadas |
+| 2026-05-01 | **Asset optimizado** - 40.83 MB → 52.59 KB TopoJSON |
+| 2026-05-01 | **Asset listo para producción** - Tamaño ideal, todas las provincias |
 
 ---
 

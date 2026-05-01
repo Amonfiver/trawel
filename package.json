@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "export:seed": "tsx scripts/exportMockToSqlSeed.ts",
-    "maps:spain:prepare": "tsx scripts/download-geoboundaries.ts"
+    "maps:spain:prepare": "tsx scripts/download-geoboundaries.ts",
+    "maps:spain:optimize": "tsx scripts/prepare-spain-map-asset.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
@@ -26,11 +27,15 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/topojson-client": "^3.1.5",
+    "@types/topojson-server": "^3.0.4",
+    "@types/topojson-simplify": "^3.0.3",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "topojson-server": "^3.0.1",
+    "topojson-simplify": "^3.0.3",
     "tsx": "^4.19.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
