@@ -278,13 +278,134 @@ Este archivo registra decisiones técnicas y de diseño importantes del proyecto
 
 ---
 
+## DA-030: Generación automática y persistente de mapas internos por país
+
+**Fecha:** 2026-05-01  
+**Estado:** Aprobada  
+**Contexto:** Trawel necesita un sistema escalable para proporcionar mapas internos de países bajo demanda, sin requerir preparación manual previa ni depender de que Investighost genere assets cartográficos.
+
+**Decisión:** Implementar generación automática y persistente de mapas internos mediante arquitectura de worker + Supabase Storage:
+
+### Arquitectura definitiva
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────────┐
+│   Frontend  │────▶│   Supabase  │◀────│  Worker/Backend │
+│  (CountryMap)│    │   (Estado)  │     │  (Generación)   │
+└──────┬──────┘     └──────┬──────┘     └─────────────────┘
+       │                   │
+       │            ┌──────┴──────┐
+       │            │   Storage   │
+       └───────────▶│ map-assets  │
+                    │  (TopoJSON) │
+                    └─────────────┘
+```
+
+### Flujo de generación
+
+| Paso | Frontend | Supabase | Worker |
+|------|----------|----------|--------|
+| 1 | Usuario hace click en país | | |
+| 2 | Consulta estado del mapa | `country_map_assets.status` | |
+| 3 | **Si `ready`** | Devuelve URL del asset | |
+| 4 | Frontend carga TopoJSON desde Storage | | |
+| 5 | **Si `missing`** | | |
+| 6 | Frontend solicita generación | Inserta registro `queued` | |
+| 7 | | Worker detecta nuevo registro | Inicia procesamiento |
+| 8 | | Actualiza a `generating` | Descarga geoBoundaries |
+| 9 | | | Normaliza, simplifica, convierte |
+| 10 | | Actualiza a `ready` | Sube a Storage |
+| 11 | Frontend hace polling/refresh | Devuelve `ready` | |
+
+### Estados del mapa
+
+| Estado | Significado | UI |
+|--------|-------------|-----|
+| `missing` | No existe asset para este país | Botón "Explorar" → inicia generación |
+| `queued` | Solicitado, esperando worker | Pantalla de preparación |
+| `generating` | Procesando (descarga, conversión) | Animación de progreso |
+| `ready` | Asset disponible en Storage | Mapa interactivo |
+| `failed` | Error en generación | Mensaje + reintentar |
+
+### Persistencia
+
+**Tabla `country_map_assets`:**
+```sql
+- country_slug (PK)
+- status (missing/queued/generating/ready/failed)
+- storage_path
+- admin_level (ADM1/ADM2)
+- source_url (geoBoundaries)
+- created_at, updated_at
+- error_message (para failed)
+```
+
+**Storage bucket `map-assets`:**
+```
+countries/
+  {countrySlug}/
+    {countrySlug}-adm2.topojson
+    metadata.json
+```
+
+### Distinción crítica: Investighost vs Trawel
+
+| Aspecto | Investighost | Trawel (sistema técnico) |
+|---------|--------------|--------------------------|
+| **Genera** | Contenido editorial (sitios, rutas, textos) | Mapas cartográficos (assets TopoJSON) |
+| **Input** | Investigación humana/IA | geoBoundaries API |
+| **Output** | Drafts en Supabase | Assets en Storage |
+| **Rol** | Redactor/Investigador | Sistema de generación técnica |
+
+> **Regla:** Investighost NO genera mapas. Los mapas son responsabilidad técnica de Trawel.
+
+### Componentes del sistema
+
+| Componente | Tecnología | Responsabilidad |
+|------------|------------|-----------------|
+| Frontend | React + D3 | Consultar estado, mostrar UI, renderizar mapa |
+| API/DB | Supabase | Tabla de estado, Storage, RLS |
+| Worker | Edge Function / Serverless | Procesar GeoJSON, generar TopoJSON |
+| Fuente | geoBoundaries | Datos cartográficos oficiales |
+
+### Primera carga vs posteriores
+
+| Escenario | Experiencia |
+|-----------|-------------|
+| **Primera vez** | 10-30s de espera (descarga + procesamiento) |
+| **Siguientes visitas** | <1s (asset cacheado en Storage) |
+| **Días después** | Inmediato (persistente en Supabase) |
+
+### Razones
+
+- Escalabilidad: cualquier país del mundo bajo demanda
+- Sin preparación manual: no requiere descargar procesar países por adelantado
+- Separación de responsabilidades: Investighost se enfoca en contenido editorial
+- Persistencia: el trabajo de generación se hace una vez
+- Fallback controlado: estados claros para errores y reintentos
+
+### Consecuencias
+
+- Requiere configurar Supabase Storage bucket `map-assets`
+- Necesita Edge Function o worker para procesamiento
+- Frontend debe manejar estados asíncronos (polling/refresh)
+- Costo de almacenamiento en Supabase (mínimo: ~50KB por país)
+
+### Reversibilidad: Media
+
+- Cambiar de estrategia requiere migrar assets existentes
+- Pero el contrato del frontend (status + URL) permanece estable
+
+---
+
 ## Índice de Decisiones
 
 | ID | Fecha | Título | Estado |
 |----|-------|--------|--------|
+| DA-030 | 2026-05-01 | Generación automática y persistente de mapas internos | ✅ Aprobada |
 | DA-029 | 2026-05-01 | Mapas exploratorios con bandera y demanda pública | ✅ Aprobada |
 | DA-028 | 2026-04-30 | comingSoon como demanda pública | ✅ Aprobada |
-| DA-027 | 2026-04-29 | Estrategia progresiva para mapas internos | ✅ Hoja de ruta |
+| DA-027 | 2026-04-29 | Estrategia progresiva para mapas internos | ✅ Hoja de ruta (reemplazada por DA-030) |
 | DA-026 | 2026-04-28 | Mock como fuente por defecto hasta conectar Supabase | ✅ Aprobada |
 | DA-025 | 2026-04-28 | Modelo de base de datos real para Trawel | ✅ Aprobada |
 | DA-024 | 2026-04-28 | Trawel como plataforma pública de lectura | ✅ Aprobada |

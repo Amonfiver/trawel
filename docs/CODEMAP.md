@@ -176,28 +176,35 @@ src/pages/
 src/features/map/
 ├── components/
 │   ├── WorldMap/
-│   │   ├── WorldMap.tsx           # Componente principal del mapa mundial
+│   │   ├── WorldMap.tsx           # Mapa mundial exploratorio (DA-029)
 │   │   ├── WorldMap.module.css    # Estilos específicos
 │   │   └── index.ts
-│   ├── SpainMap/                  # ⚠️ PROTOTIPO TEMPORAL - Ver MAP_ASSET_PLAN.md
-│   │   ├── SpainMap.tsx           # Silueta SVG manual, será reemplazado
+│   ├── CountryMap/                # Mapa interno de país (DA-030)
+│   │   ├── CountryMap.tsx         # Carga TopoJSON desde Storage
+│   │   ├── CountryMap.module.css
+│   │   └── index.ts
+│   ├── SpainMap/                  # ⚠️ Legacy - usar CountryMap
+│   │   ├── SpainMap.tsx           # Silueta SVG manual (obsoleto)
 │   │   ├── SpainMap.module.css
 │   │   └── index.ts
 │   ├── MapTooltip/
 │   │   ├── MapTooltip.tsx         # Tooltip reutilizable
 │   │   └── MapTooltip.module.css
-│   └── MapLegend/                 # (opcional) Leyenda de colores
-│       └── ...
+│   └── MapLoading/                # Estados de generación (DA-030)
+│       ├── MapLoading.tsx         # Pantalla "Preparando mapa..."
+│       └── index.ts
 ├── hooks/
-│   ├── useWorldMap.ts             # Hook principal para inicializar D3
-│   ├── useMapProjection.ts        # Hook para proyección geográfica
-│   └── useCountryData.ts          # Hook para combinar datos geoespaciales + Trawel
+│   ├── useWorldMap.ts             # Hook para WorldMap
+│   ├── useCountryMap.ts           # Hook para CountryMap con estados DA-030
+│   ├── useMapProjection.ts        # Proyección geográfica
+│   └── useCountryData.ts          # Datos geoespaciales + Trawel
 ├── config/
-│   ├── mapTheme.ts                # Interfaz MapTheme y tema default
-│   └── mapConstants.ts            # Constantes (dimensiones, proyección default)
+│   ├── mapTheme.ts                # Tema visual de mapas
+│   └── mapConstants.ts            # Constantes
 ├── utils/
 │   ├── geoUtils.ts                # Utilidades geográficas
-│   └── colorUtils.ts              # Utilidades para asignar colores por estado
+│   ├── countryCodeToFlagEmoji.ts  # Helper de banderas (DA-029)
+│   └── colorUtils.ts              # Utilidades de color
 └── types/
     └── map.types.ts               # Tipos específicos de mapas
 ```
@@ -240,8 +247,9 @@ src/features/countries/
 │   ├── useCountries.ts            # Hook para obtener lista de países
 │   ├── useCountry.ts              # Hook para obtener un país por slug
 │   └── useCountryStatus.ts        # Hook para saber si un país está activo
-└── utils/
-    └── countryHelpers.ts          # Funciones auxiliares (futuro)
+├── utils/
+│   └── countryHelpers.ts          # Helpers de banderas y formato (DA-029)
+└── index.ts                       # Export público
 ```
 
 **Responsabilidad:** Definición de países, sus metadatos, y componentes relacionados.

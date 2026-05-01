@@ -268,52 +268,178 @@ O texto final equivalente según especifique la metadata del archivo descargado.
 
 ---
 
-## 9. Decisiones pendientes
+## 9. Arquitectura definitiva: Generación automática y persistente (DA-030)
 
-| Decisión | Opciones | Recomendación provisional |
-|----------|----------|---------------------------|
-| **Nivel administrativo** | ADM1 (autonomías) vs ADM2 (provincias) | ADM2 para España (más granular) |
-| **Ubicación de assets** | `public/` vs `src/assets/` | `public/maps/` (más flexible) |
-| **Carga dinámica** | Lazy load por país vs bundle | Lazy load (import dinámico) |
-| **Librería de mapas** | D3 vs Mapbox GL JS vs Leaflet | D3 (consistencia con WorldMap) |
+> **Nota:** Esta sección reemplaza las secciones anteriores de "Próximo paso técnico" y "Decisiones pendientes".  
+> Ver **DA-030** en `docs/DECISIONES.md` para la decisión completa.
 
----
+### Visión general
 
-## 9. Próximo paso técnico recomendado
+Trawel implementará **generación automática bajo demanda** de mapas internos mediante arquitectura de worker + Supabase Storage. Cuando un usuario hace click en un país sin mapa, el sistema:
 
-**Bloque de trabajo inmediato:**
+1. Inicia generación automática del asset
+2. Muestra pantalla de preparación durante el proceso
+3. Persiste el resultado en Supabase Storage
+4. Servirá el mapa cacheado en visitas posteriores
 
-1. **Crear script de procesado:** `scripts/process-map-assets.ts`
-   - Input: GeoJSON de geoBoundaries
-   - Output: TopoJSON simplificado en `public/maps/countries/{country}/`
+### Flujo de generación automática
 
-2. **Descargar y procesar España:**
-   - geoBoundaries ESP-ADM2
-   - Simplificar al ~1% de detalle
-   - Guardar como `public/maps/countries/spain/spain-adm2.topojson`
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────────┐
+│   Frontend  │────▶│   Supabase  │◀────│  Worker/Backend │
+│  (CountryMap)│    │   (Estado)  │     │  (Generación)   │
+└──────┬──────┘     └──────┬──────┘     └─────────────────┘
+       │                   │
+       │            ┌──────┴──────┐
+       │            │   Storage   │
+       └───────────▶│ map-assets  │
+                    │  (TopoJSON) │
+                    └─────────────┘
+```
 
-3. **Crear componente `CountryMap`:**
-   - Reutiliza lógica de SpainMap
-   - Carga TopoJSON dinámicamente
-   - Renderiza provincias como paths interactivos
+| Paso | Acción | Responsable |
+|------|--------|-------------|
+| 1 | Usuario navega a `/pais/{countrySlug}` | Frontend |
+| 2 | Consulta `country_map_assets.status` | Frontend → Supabase |
+| 3 | Si `ready`: carga TopoJSON desde Storage URL | Frontend |
+| 4 | Si `missing`: solicita generación (insert `queued`) | Frontend |
+| 5 | Worker detecta registro `queued` | Worker |
+| 6 | Actualiza estado a `generating` | Worker |
+| 7 | Descarga GeoJSON de geoBoundaries | Worker |
+| 8 | Normaliza winding, simplifica, convierte a TopoJSON | Worker |
+| 9 | Sube asset a Storage bucket `map-assets` | Worker |
+| 10 | Actualiza estado a `ready` con URL | Worker |
+| 11 | Frontend detecta `ready` (polling/refresh) y carga mapa | Frontend |
 
-4. **Migrar CountryPage:**
-   - Reemplaza `<SpainMap />` por `<CountryMap countrySlug="espana" />`
-   - Verificar que todo funciona igual o mejor
+### Estados del mapa
 
-5. **Documentar:**
-   - Actualizar CODEMAP.md
-   - Añadir entrada en BITACORA.md
+| Estado | Significado | UI mostrada |
+|--------|-------------|-------------|
+| `missing` | No existe asset | Botón "Explorar" → inicia generación |
+| `queued` | En cola de procesamiento | Pantalla "Preparando mapa..." |
+| `generating` | Procesando (10-30s típico) | Animación de progreso |
+| `ready` | Asset disponible | Mapa interactivo renderizado |
+| `failed` | Error en generación | Mensaje + botón reintentar |
 
----
+### Distinción crítica: Investighost vs Sistema técnico de Trawel
 
-## Referencias
+| Aspecto | Investighost | Trawel (sistema técnico) |
+|---------|--------------|--------------------------|
+| **Genera** | Contenido editorial (sitios, rutas, textos) | Mapas cartográficos (assets TopoJSON) |
+| **Input** | Investigación humana/IA | geoBoundaries API |
+| **Output** | Drafts en tablas Supabase | Assets en Storage bucket |
+| **Responsabilidad** | Contenido editorial | Infraestructura cartográfica |
 
-- **DA-027:** `docs/DECISIONES.md` - Estrategia progresiva para mapas internos
+> **Regla fundamental:** Investighost **NO** genera mapas. Los mapas son responsabilidad del sistema técnico de Trawel.
+
+### Persistencia
+
+**Tabla `country_map_assets`:**
+```sql
+CREATE TABLE country_map_assets (
+  country_slug TEXT PRIMARY KEY,
+  status TEXT CHECK (status IN ('missing', 'queued', 'generating', 'ready', 'failed')),
+  storage_path TEXT,
+  admin_level TEXT, -- ADM1, ADM2
+  source_url TEXT, -- URL geoBoundaries
+  file_size_bytes INTEGER,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  error_message TEXT -- Para estado 'failed'
+);
+```
+
+**Storage bucket `map-assets`:**
+```
+countries/
+  espana/
+    espana-adm2.topojson
+    metadata.json
+  francia/
+    francia-adm2.topojson
+    metadata.json
+```
+
+### Componentes del sistema
+
+| Componente | Tecnología | Responsabilidad |
+|------------|------------|-----------------|
+| Frontend | React + D3 | UI de estados, renderizado de mapa, polling |
+| Supabase DB | PostgreSQL | Tabla `country_map_assets`, estado |
+| Supabase Storage | S3-compatible | Bucket `map-assets`, archivos TopoJSON |
+| Worker | Edge Function / Serverless | Procesamiento GeoJSON → TopoJSON |
+| Fuente | geoBoundaries API | Datos cartográficos oficiales |
+
+### Proceso del worker (detalle)
+
+El worker ejecuta el pipeline ya probado en scripts locales:
+
+```typescript
+// Pseudo-código del worker
+async function generateMapAsset(countrySlug: string) {
+  // 1. Consultar metadata de geoBoundaries
+  const metadata = await fetchGeoBoundariesMetadata(countrySlug);
+  
+  // 2. Descargar GeoJSON (puede ser 10-40MB)
+  const geojson = await downloadGeoJSON(metadata.downloadUrl);
+  
+  // 3. Normalizar winding de polígonos
+  const normalized = normalizePolygonWinding(geojson);
+  
+  // 4. Simplificar geometría (~1-5% de detalle)
+  const simplified = simplifyGeometry(normalized, 0.02);
+  
+  // 5. Convertir a TopoJSON
+  const topojson = convertToTopoJSON(simplified);
+  
+  // 6. Subir a Storage
+  const path = `countries/${countrySlug}/${countrySlug}-adm2.topojson`;
+  await uploadToStorage(path, topojson);
+  
+  // 7. Actualizar estado a 'ready'
+  await updateAssetStatus(countrySlug, 'ready', path);
+}
+```
+
+### Runtime del navegador: limitaciones claras
+
+| Aspecto | ¿Navegador? | ¿Worker? |
+|---------|-------------|----------|
+| Descargar archivos 10-40MB | ❌ No | ✅ Sí |
+| Escribir archivos locales | ❌ No (seguridad) | ✅ Sí (Storage) |
+| Procesar GeoJSON pesado | ⚠️ Lento/Bloqueante | ✅ Optimizado |
+| Persistencia entre sesiones | ❌ No | ✅ Sí (Storage) |
+
+**Conclusión:** El navegador **nunca** procesa directamente archivos grandes ni escribe assets locales. Todo el procesamiento pesado ocurre en el worker backend.
+
+### Primera visita vs. posteriores
+
+| Escenario | Tiempo estimado | Experiencia |
+|-----------|-----------------|-------------|
+| **Primera visita** (asset no existe) | 10-30 segundos | Pantalla de preparación con animación |
+| **Segunda visita** (misma sesión) | <1 segundo | Mapa cacheado en memoria |
+| **Días después** | <1 segundo | Asset persistido en Storage |
+| **Asset corrupto** | 10-30 segundos | Detecta error, marca `failed`, permite reintentar |
+
+### Ventajas de esta arquitectura
+
+1. **Escalabilidad:** Cualquier país del mundo bajo demanda
+2. **Sin preparación manual:** No requiere descargar/procesar países por adelantado
+3. **Separación de responsabilidades:** Investighost se enfoca en contenido editorial
+4. **Persistencia:** El trabajo de generación se hace una sola vez
+5. **Fallback controlado:** Estados claros para errores y reintentos
+6. **Costo eficiente:** Solo se almacenan países que los usuarios realmente visitan
+
+### Referencias
+
+- **DA-030:** `docs/DECISIONES.md` - Decisión completa de generación automática
+- **DA-029:** `docs/DECISIONES.md` - Mapas exploratorios con bandera
+- **DA-027:** `docs/DECISIONES.md` - Estrategia progresiva (reemplazada por DA-030)
 - **SpainMap actual:** `src/features/map/components/SpainMap/SpainMap.tsx`
 - **geoBoundaries:** https://www.geoboundaries.org/
 - **Natural Earth:** https://www.naturalearthdata.com/
 
 ---
 
-*MAP_ASSET_PLAN v1.0 - Trawel*
+*MAP_ASSET_PLAN v2.0 - Trawel*
+*Actualizado para DA-030: Generación automática y persistente*

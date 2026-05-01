@@ -73,6 +73,101 @@ Aprobada por Vasyl la nueva dirección para mapas en Trawel: experiencia explora
 
 ---
 
+### 2026-05-01 - DA-030: Arquitectura definitiva de generación automática de mapas 🗺️⚙️
+
+Documentada la decisión definitiva para generación automática y persistente de mapas internos por país.
+
+**Arquitectura aprobada:**
+
+| Componente | Tecnología | Rol |
+|------------|------------|-----|
+| **Frontend** | React + D3 | Consultar estado, UI de estados, renderizar |
+| **Supabase DB** | PostgreSQL | Tabla `country_map_assets` con estados |
+| **Supabase Storage** | S3-compatible | Bucket `map-assets` para TopoJSON |
+| **Worker** | Edge Function | Procesar GeoJSON → TopoJSON |
+| **Fuente** | geoBoundaries | Datos cartográficos oficiales |
+
+**Flujo de estados:**
+```
+missing → queued → generating → ready
+              ↓
+            failed (reintentable)
+```
+
+**Estados del mapa:**
+- `missing`: No existe asset → botón "Explorar" inicia generación
+- `queued`: En cola → pantalla de preparación
+- `generating`: Procesando (10-30s) → animación de progreso
+- `ready`: Asset disponible → mapa interactivo
+- `failed`: Error → mensaje + reintentar
+
+**Persistencia:**
+- Tabla: `country_map_assets` (country_slug PK, status, storage_path, etc.)
+- Storage: `map-assets/countries/{slug}/{slug}-adm2.topojson`
+- Una vez generado, permanece disponible para todas las visitas futuras
+
+**Distinción crítica:**
+- **Investighost**: Genera contenido editorial (sitios, rutas, textos)
+- **Trawel (sistema técnico)**: Genera mapas cartográficos (assets TopoJSON)
+
+**Documentación:**
+- Decisión completa: `docs/DECISIONES.md` (DA-030)
+- Plan técnico: `docs/MAP_ASSET_PLAN.md` (Sección 9)
+
+**Nota:** El navegador **nunca** procesa archivos grandes ni escribe locales. Todo el trabajo pesado ocurre en el worker backend.
+
+---
+
+### 2026-05-01 - WorldMap DA-029: Mapa exploratorio neutro con banderas ✅🗺️
+
+Implementada DA-029 en WorldMap: mapa mundial exploratorio donde todos los países se ven igual, con tooltips de bandera + nombre.
+
+**Cambios realizados:**
+
+| Aspecto | Antes | Después (DA-029) |
+|---------|-------|------------------|
+| **Colores de países** | Diferenciados por estado (azul=activo, gris=comingSoon) | Todos iguales (neutro/gris) |
+| **Hover** | Azul oscuro en activos, gris en otros | Amarillo/dorado (`#f59e0b`) para todos |
+| **Tooltip** | Nombre + contador de destinos + badge | Solo bandera + nombre |
+| **Leyenda** | Visible con "Disponible", "Próximamente", "No disponible" | ❌ Eliminada |
+| **Indicadores visuales** | Revelaban qué países tienen contenido | Neutral, no revela disponibilidad |
+
+**Helper de banderas creado:**
+- Archivo: `src/features/countries/utils/countryHelpers.ts`
+- Función `countryCodeToFlagEmoji(isoAlpha2)`: convierte código ISO a emoji
+- Función `formatCountryWithFlag(name, isoAlpha2)`: "🇪🇸 España"
+- España funciona: `formatCountryWithFlag('España', 'ES')` → "🇪🇸 España"
+
+**Archivos modificados:**
+- `src/features/map/components/WorldMap/WorldMap.tsx` - Lógica neutralizada, tooltip simplificado
+- `src/features/map/components/WorldMap/WorldMap.module.css` - Tooltip compacto, CSS limpio
+- `src/features/countries/utils/countryHelpers.ts` - Nuevo helper de banderas
+- `src/features/countries/index.ts` - Export público del helper
+
+**Indicadores visuales eliminados:**
+- ❌ Colores diferenciados por estado (active/comingSoon/disabled)
+- ❌ Contador de destinos en tooltip (`${destinationCount} destinos disponibles`)
+- ❌ Badge "Disponible" / "Próximamente" en tooltip
+- ❌ Leyenda del mapa con estados de disponibilidad
+- ❌ Referencias a `status` en el color base de países
+
+**Comportamiento del click:**
+- Sobre países **con contenido activo** (ES, JP, PE): cursor pointer, navega a `/pais/{slug}`
+- Sobre países **sin contenido** (FR, IT, otros): cursor default, no navega
+- Navegación con teclado (Enter/Espacio) solo en países clickeables
+
+**Notas:**
+- El click queda preparado para futura página "Próximamente" (Prompt 4/5 de DA-029)
+- Actualmente solo navega si `isCountryClickable()` devuelve true
+- Para capturar demanda pública, se necesitará modificar el handler de click
+
+**Verificación:**
+- ✅ Build exitoso (`npm run build`)
+- ✅ Sin errores TypeScript
+- ✅ Tooltip muestra "🇪🇸 España" correctamente
+
+---
+
 ### 2026-05-01 - SpainMap v2: Alineación visual con WorldMap y mejora de detalle 🎨
 
 Alineado SpainMap con el lenguaje visual de WorldMap y mejorado el detalle del asset.
