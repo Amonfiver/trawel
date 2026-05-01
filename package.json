@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "export:seed": "tsx scripts/exportMockToSqlSeed.ts",
     "maps:spain:prepare": "tsx scripts/download-geoboundaries.ts",
-    "maps:spain:optimize": "tsx scripts/prepare-spain-map-asset.ts"
+    "maps:spain:optimize": "tsx scripts/prepare-spain-map-asset.ts",
+    "maps:queue:process": "tsx scripts/process-country-map-queue.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",

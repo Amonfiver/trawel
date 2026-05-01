@@ -4,6 +4,65 @@
 
 ---
 
+## 2026-05-02 - Worker de procesamiento de cola de mapas (DA-030) 🗺️⚙️
+
+Implementado el worker Node.js que procesa registros `queued` en `country_map_assets` y genera automáticamente assets TopoJSON en Supabase Storage.
+
+**Archivos creados:**
+- `scripts/process-country-map-queue.ts` - Script principal del worker
+- `scripts/lib/mapAssetPipeline.ts` - Utilidades compartidas del pipeline
+
+**Variables de entorno requeridas:**
+| Variable | Descripción |
+|----------|-------------|
+| `SUPABASE_URL` | URL del proyecto Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio para acceso a Storage |
+
+**Comandos disponibles:**
+```bash
+npm run maps:queue:process                    # Procesar toda la cola
+npm run maps:queue:process -- --country mexico   # Solo México
+npm run maps:queue:process -- --limit 1          # Solo 1 elemento
+npm run maps:queue:process -- --dry-run          # Simulación
+```
+
+**Flujo del worker:**
+1. Busca registros con `status='queued'` en Supabase
+2. Actualiza a `generating`
+3. Descarga metadata de geoBoundaries
+4. Descarga GeoJSON (10-40MB)
+5. Normaliza winding de polígonos para D3
+6. Simplifica geometría (~2% de detalle)
+7. Convierte a TopoJSON
+8. Sube a Storage bucket `map-assets`
+9. Actualiza a `ready` con metadatos
+
+**Ruta de Storage:**
+```
+map-assets/countries/{slug}/{slug}-adm2.topojson
+```
+
+**Campos actualizados en BD:**
+- `status` → `'ready'`
+- `storage_bucket`, `storage_path`
+- `source`, `license`, `attribution`
+- `feature_count`, `size_bytes`
+- `generated_at`, `error_message = null`
+
+**Características:**
+- ✅ CLI con opciones `--country`, `--limit`, `--dry-run`
+- ✅ Manejo de errores con estado `failed`
+- ✅ Reutiliza lógica de España (refactorizado a `mapAssetPipeline.ts`)
+- ✅ No rompe scripts existentes de España
+- ✅ Service role key solo en contexto seguro del script
+
+**Refactorización:**
+- Pipeline de procesamiento extraído a `scripts/lib/mapAssetPipeline.ts`
+- Funciones reutilizables: `fetchGeoBoundariesMetadata`, `downloadGeoJSON`, `convertToTopoJSON`, `normalizeGeoJSON`
+- Mantiene compatibilidad con `prepare-spain-map-asset.ts`
+
+---
+
 ## Estado actual del proyecto (Resumen ejecutivo)
 
 **Trawel v2.9** — Sistema de exploración de destinos de viaje funcional

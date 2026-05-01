@@ -460,7 +460,79 @@ async function generateMapAsset(countrySlug: string) {
 5. **Fallback controlado:** Estados claros para errores y reintentos
 6. **Costo eficiente:** Solo se almacenan países que los usuarios realmente visitan
 
-### 10. Edge Function: request-country-map
+### 10. Worker: Procesamiento de cola de mapas
+
+Script Node.js que procesa registros `queued` en `country_map_assets` y genera automáticamente los assets TopoJSON en Supabase Storage.
+
+#### Ubicación
+```
+scripts/process-country-map-queue.ts
+scripts/lib/mapAssetPipeline.ts        # Utilidades compartidas
+```
+
+#### Variables de entorno requeridas
+| Variable | Descripción |
+|----------|-------------|
+| `SUPABASE_URL` | URL del proyecto Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio (requerida para Storage) |
+
+#### Uso
+
+```bash
+# Procesar toda la cola
+npm run maps:queue:process
+
+# Procesar solo un país específico
+npm run maps:queue:process -- --country mexico
+
+# Procesar máximo N elementos
+npm run maps:queue:process -- --limit 1
+
+# Simular sin hacer cambios reales
+npm run maps:queue:process -- --country mexico --dry-run
+```
+
+#### Flujo del worker
+
+| Paso | Acción | Descripción |
+|------|--------|-------------|
+| 1 | Consultar cola | Buscar registros con `status='queued'` |
+| 2 | Actualizar a `generating` | Marcar que se está procesando |
+| 3 | Descargar metadata | Consultar API de geoBoundaries |
+| 4 | Descargar GeoJSON | Obtener archivo fuente (10-40MB) |
+| 5 | Normalizar winding | Corregir orientación de polígonos para D3 |
+| 6 | Simplificar | Reducir a ~2% de detalle original |
+| 7 | Convertir a TopoJSON | Generar formato optimizado |
+| 8 | Subir a Storage | Guardar en bucket `map-assets` |
+| 9 | Actualizar a `ready` | Guardar metadatos del asset |
+
+#### Estructura de archivos en Storage
+
+```
+map-assets/
+└── countries/
+    ├── mexico/
+    │   └── mexico-adm2.topojson
+    ├── france/
+    │   └── france-adm2.topojson
+    └── ...
+```
+
+#### Campos actualizados en `country_map_assets`
+
+Al completar con éxito, el worker actualiza:
+- `status` → `'ready'`
+- `storage_bucket` → `'map-assets'`
+- `storage_path` → `'countries/{slug}/{slug}-adm2.topojson'`
+- `source` → `'geoBoundaries'`
+- `license` → Licencia detectada (ej: 'CC BY 4.0')
+- `attribution` → Texto de atribución
+- `feature_count` → Número de provincias/regiones
+- `size_bytes` → Tamaño del archivo
+- `generated_at` → Timestamp de generación
+- `error_message` → `null`
+
+### 11. Edge Function: request-country-map
 
 Endpoint seguro para solicitar generación de mapas internos. Actúa como puerta de entrada controlada, usando `SUPABASE_SERVICE_ROLE_KEY` solo en el servidor (nunca en frontend).
 

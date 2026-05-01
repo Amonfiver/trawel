@@ -644,7 +644,10 @@ scripts/
 ├── exportMockToSqlSeed.ts         # Exporta datos mock a SQL seed para Supabase
 ├── inspect-map-asset.ts           # Inspecciona archivos GeoJSON/TopoJSON de mapas
 ├── download-geoboundaries.ts      # Descarga automática assets de geoBoundaries
-└── prepare-spain-map-asset.ts     # Optimiza GeoJSON raw a TopoJSON simplificado
+├── prepare-spain-map-asset.ts     # Optimiza GeoJSON raw a TopoJSON simplificado
+├── process-country-map-queue.ts   # Worker: procesa cola de mapas (DA-030)
+└── lib/
+    └── mapAssetPipeline.ts        # Utilidades compartidas del pipeline cartográfico
 ```
 
 **Responsabilidad:** Scripts Node.js/TypeScript para tareas de mantenimiento, migración y procesado de assets.
@@ -719,6 +722,42 @@ npm run maps:spain:optimize
 ```bash
 npm run maps:spain:prepare
 ```
+
+---
+
+### `process-country-map-queue.ts` (Worker DA-030)
+- **Propósito:** Procesar registros `queued` en `country_map_assets` y generar assets TopoJSON
+- **Flujo:** Consulta cola → Descarga geoBoundaries → Procesa → Sube a Storage → Actualiza BD
+- **CLI:** Soporta `--country`, `--limit`, `--dry-run`
+
+**Uso:**
+```bash
+npm run maps:queue:process              # Procesar toda la cola
+npm run maps:queue:process -- --country mexico   # Solo México
+npm run maps:queue:process -- --limit 1          # Solo 1 elemento
+npm run maps:queue:process -- --dry-run          # Simulación
+```
+
+**Variables de entorno:**
+- `SUPABASE_URL` - URL de Supabase
+- `SUPABASE_SERVICE_ROLE_KEY` - Clave de servicio (requerida para Storage)
+
+---
+
+### `lib/mapAssetPipeline.ts`
+- **Propósito:** Utilidades compartidas para el pipeline de procesamiento cartográfico
+- **Funciones exportadas:**
+  - `fetchGeoBoundariesMetadata()` - Consulta API de geoBoundaries
+  - `downloadGeoJSON()` - Descarga archivo GeoJSON
+  - `extractGeoJsonUrl()` - Extrae URL de descarga de metadata
+  - `extractLicenseInfo()` - Extrae información de licencia
+  - `convertToTopoJSON()` - Convierte GeoJSON a TopoJSON simplificado
+  - `normalizeGeoJSON()` - Normaliza orientación de polígonos (winding)
+  - `formatBytes()` - Formatea tamaños de archivo
+
+**Usado por:**
+- `process-country-map-queue.ts` (worker de producción)
+- `prepare-spain-map-asset.ts` (procesamiento manual de España)
 
 **Requisitos para todos los scripts:**
 - `@types/node` - Tipos de Node.js
