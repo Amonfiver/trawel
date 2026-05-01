@@ -39,6 +39,32 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Preparada prueba técnica para asset de mapa de España 🗺️
+
+Creada infraestructura para evaluar geoBoundaries ADM2 (provincias) como candidato para reemplazar SpainMap prototipo temporal:
+
+**Zona controlada creada:**
+- `public/maps/countries/spain/` - Carpeta para assets cartográficos de España
+
+**Scripts creados:**
+| Script | Propósito |
+|--------|-----------|
+| `scripts/inspect-map-asset.ts` | Inspección de GeoJSON/TopoJSON (Node nativo, sin dependencias) |
+| `scripts/download-geoboundaries.ts` | Intento automatizado de descarga (fallback) |
+
+**Documentación creada:**
+- `docs/SPAIN_MAP_ASSET_TEST.md` - Nota técnica completa con:
+  - Instrucciones de descarga manual desde geoBoundaries
+  - Especificaciones esperadas del asset (~52 provincias)
+  - Licencia detectada: CC BY 4.0 (requiere atribución visible)
+  - Análisis: ADM2 permite diferenciar Castellón y Teruel ✅
+
+**Estado:** Pendiente descarga manual del archivo GeoJSON (GitHub LFS bloquea descargas automatizadas)
+
+**Próximo paso:** Descargar manualmente `ESP_ADM2.geojson` desde https://www.geoboundaries.org/ y ejecutar script de inspección
+
+---
+
 ### 2026-05-01 - Política de atribución cartográfica documentada 🗺️
 
 Documentada política de atribución para cumplir requisitos legales de fuentes cartográficas externas (especialmente geoBoundaries):

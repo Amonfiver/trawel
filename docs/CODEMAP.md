@@ -549,12 +549,14 @@ src/utils/
 
 ```
 scripts/
-└── exportMockToSqlSeed.ts         # Exporta datos mock a SQL seed para Supabase
+├── exportMockToSqlSeed.ts         # Exporta datos mock a SQL seed para Supabase
+├── inspect-map-asset.ts           # Inspecciona archivos GeoJSON/TopoJSON de mapas
+└── download-geoboundaries.ts      # Descarga assets de geoBoundaries (fallback)
 ```
 
-**Responsabilidad:** Scripts Node.js/TypeScript para tareas de mantenimiento y migración.
+**Responsabilidad:** Scripts Node.js/TypeScript para tareas de mantenimiento, migración y procesado de assets.
 
-**Script `exportMockToSqlSeed.ts`:**
+### `exportMockToSqlSeed.ts`
 - Lee datos de `src/features/countries/data/countries.ts`, `cities.ts`, `destinations.ts`
 - Genera archivo SQL con INSERTS idempotentes (`ON CONFLICT DO UPDATE`)
 - Usa subconsultas para resolver relaciones por slug (evita UUIDs hardcodeados)
@@ -565,7 +567,19 @@ scripts/
 npm run export:seed
 ```
 
-**Requisitos:**
+### `inspect-map-asset.ts`
+- Analiza archivos GeoJSON/TopoJSON descargados
+- Extrae información: tamaño, campos, nombres de provincias, nivel administrativo
+- Busca términos específicos (Castellón, Teruel, etc.)
+- Verifica metadatos de licencia
+- Uso: `npx tsx scripts/inspect-map-asset.ts <ruta-al-archivo>`
+
+### `download-geoboundaries.ts`
+- Intenta descargar assets de geoBoundaries automáticamente
+- Nota: Puede fallar en entornos con restricciones de GitHub LFS
+- Uso: `npx tsx scripts/download-geoboundaries.ts`
+
+**Requisitos para todos los scripts:**
 - `@types/node` - Tipos de Node.js
 - `tsx` - Ejecutor de TypeScript
 - `tsconfig.node.json` incluye `scripts/**/*.ts`
