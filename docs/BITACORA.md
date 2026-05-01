@@ -106,5 +106,66 @@ Este cambio marca el punto de rotación de la bitácora:
 
 ---
 
-*Bitácora activa v3.0 - Trawel*
+## 2026-05-02 - FIX: Tooltips limpios y payload completo para solicitud de mapas
+
+Correcciones urgentes para WorldMap y CountryPage.
+
+### Problemas corregidos
+
+| Problema | Causa | Solución |
+|----------|-------|----------|
+| **Tooltip mostraba abreviaturas/códigos** | Helper `countryCodeToFlagEmoji` usaba offset incorrecto | Unificado a método estándar: `127397 + char.charCodeAt(0)` |
+| **Banderas no aparecían** | Offset del regional indicator incorrecto | Mismo fix: método 127397 estándar |
+| **Francia no se insertaba en Supabase** | Payload incompleto: faltaban `isoAlpha2`, `isoAlpha3`, `adminLevel` | Ahora se construye payload completo desde `worldCountries` como fallback |
+| **Error en UI al pulsar "Explorar"** | No se manejaba el caso `country === undefined` para países sin contenido editorial | Se usa `country || worldCountry` para resolver datos mínimos |
+
+### Archivos modificados
+
+- `src/features/countries/utils/countryHelpers.ts` - Fix `countryCodeToFlagEmoji()` con método 127397 estándar
+- `src/pages/CountryPage/CountryPage.tsx` - Payload completo + logs de desarrollo + manejo de errores
+
+### Payload real enviado para Francia
+
+```typescript
+{
+  countrySlug: "francia",
+  countryName: "Francia",
+  isoAlpha2: "FR",
+  isoAlpha3: "FRA",
+  adminLevel: "ADM2",
+  source: "world_map"
+}
+```
+
+### Formato final del tooltip
+
+```
+"🇪🇸 España"  // Con bandera
+"España"      // Fallback sin bandera (nunca muestra códigos)
+```
+
+### Logs de desarrollo añadidos
+
+```
+[CountryPage] Solicitando generación de mapa: {payload}
+[CountryPage] Respuesta de requestCountryMapGeneration: {result}
+[CountryPage] Éxito - Estado: "queued"
+[CountryPage] Error en solicitud: {error}
+```
+
+### Criterios de aceptación verificados
+
+- ✅ Hover España: "🇪🇸 España" o "España"
+- ✅ Hover México: "🇲🇽 México" o "México"
+- ✅ Hover Francia: "🇫🇷 Francia" o "Francia"
+- ✅ Sin abreviaturas visibles (ES, MX, FR, etc.)
+- ✅ Sin códigos técnicos en tooltip
+- ✅ Click navega correctamente
+- ✅ `/pais/francia` → "Explorar Francia" → inserta registro con datos completos
+- ✅ UI cambia a "Preparando mapa" cuando `success=true`
+- ✅ Build funciona (690 modules)
+
+---
+
+*Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-02*
