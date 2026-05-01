@@ -22,8 +22,9 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `MAP_ASSET_PLAN.md` - Plan de assets cartográficos (diagnóstico SpainMap)
 - `MAP_SOURCE_COMPARISON.md` - Comparación geoBoundaries vs Natural Earth para España
 - `DECISIONES.md` - Registro de decisiones técnicas (incluye DA-029: Mapas exploratorios)
-- `BITACORA.md` - Bitácora activa del proyecto
-- `BITACORA_001.md` - Archivo histórico de bitácora
+- `BITACORA.md` - Bitácora activa del proyecto (cambios recientes desde 2026-05-02)
+- `BITACORA_002.md` - Histórico 2026-04-27 a 2026-05-01
+- `BITACORA_001.md` - Archivo histórico de bitácora (período inicial)
 
 ---
 
@@ -341,7 +342,8 @@ src/features/countries/
 │   └── CountryHero/
 │       └── CountryHero.tsx        # Sección hero de página de país
 ├── data/
-│   ├── countries.ts               # Diccionario de países Trawel
+│   ├── countries.ts               # Diccionario de países Trawel (con contenido editorial)
+│   ├── worldCountries.ts          # Diccionario de 249 países del mundo (identificación geográfica)
 │   ├── countries.types.ts         # Tipos Country, Continent, etc.
 │   └── countries.utils.ts         # Funciones de acceso: getBySlug, getByIso, etc.
 ├── hooks/

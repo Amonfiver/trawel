@@ -33,6 +33,7 @@ import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
 import { formatCountryWithFlag } from '../../features/countries/utils/countryHelpers';
+import { getWorldCountryBySlug, type WorldCountry } from '../../features/countries/data/worldCountries';
 import type { CountryStatus } from '../../features/countries/data/countries.types';
 import type { CountryMapAsset } from '../../features/map/services/countryMapAssets.service';
 import { 
@@ -242,7 +243,21 @@ export function CountryPage() {
     }
   };
 
-  // País no encontrado
+  // Buscar país en worldCountries como fallback (países sin contenido editorial)
+  const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
+  
+  // Si no hay país editorial pero existe en worldCountries, mostrar vista "Descubriendo"
+  if (!country && worldCountry) {
+    return (
+      <DiscoveringCountryView 
+        worldCountry={worldCountry} 
+        mapState={mapState}
+        onRetryGeneration={handleRetryGeneration}
+      />
+    );
+  }
+  
+  // País no encontrado ni en contenido editorial ni en worldCountries
   if (!country) {
     return (
       <div className={styles.container}>
@@ -726,4 +741,124 @@ function getDestinationTypeLabel(type: string): string {
     cultural: 'Cultural',
   };
   return labels[type] || type;
+}
+
+/**
+ * Vista para países sin contenido editorial pero que existen en worldCountries
+ * Muestra una página amable de "descubrimiento" con estado del mapa
+ */
+interface DiscoveringCountryViewProps {
+  worldCountry: WorldCountry;
+  mapState: MapAssetState;
+  onRetryGeneration: () => void;
+}
+
+function DiscoveringCountryView({ worldCountry, mapState, onRetryGeneration }: DiscoveringCountryViewProps) {
+  const flag = getCountryFlag(worldCountry.isoAlpha2);
+  
+  return (
+    <div className={styles.container}>
+      <header className={styles.hero}>
+        <nav className={styles.breadcrumb} aria-label="Navegación">
+          <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
+          <span className={styles.breadcrumbSeparator}>/</span>
+          <span className={styles.breadcrumbCurrent} aria-current="page">
+            {worldCountry.displayName}
+          </span>
+        </nav>
+
+        <div className={styles.heroContent}>
+          <div className={styles.heroFlag}>
+            <span className={styles.flagEmoji} aria-hidden="true">
+              {flag}
+            </span>
+          </div>
+          
+          <div className={styles.heroText}>
+            <h1 className={styles.heroTitle}>{flag} {worldCountry.displayName}</h1>
+            <p className={styles.heroLocation}>
+              📍 Estamos preparando este destino
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <main className={styles.main}>
+        <section className={styles.discoveringSection}>
+          <div className={styles.discoveringContent}>
+            <h2 className={styles.discoveringTitle}>
+              {mapState.status === 'ready' ? '🗺️ Mapa disponible' : '🌍 Descubriendo destino'}
+            </h2>
+            
+            {mapState.status === 'loading' && (
+              <div className={styles.discoveringState}>
+                <p>Consultando disponibilidad del mapa...</p>
+                <div className={styles.mapProgressIndicator}>
+                  <div className={styles.mapProgressBar} style={{ width: '30%' }} />
+                </div>
+              </div>
+            )}
+
+            {mapState.status === 'queued' || mapState.status === 'generating' ? (
+              <div className={styles.discoveringState}>
+                <p>Estamos preparando el mapa de {worldCountry.displayName}.</p>
+                <p>Esto puede tardar un poco la primera vez.</p>
+                <div className={styles.mapProgressIndicator}>
+                  <div className={styles.mapProgressBar} style={{ width: '60%' }} />
+                </div>
+              </div>
+            ) : null}
+
+            {mapState.status === 'ready' && (
+              <div className={styles.discoveringState}>
+                <p className={styles.discoveringReady}>
+                  ✅ ¡El mapa cartográfico está listo!
+                </p>
+                <p>
+                  Estamos trabajando en el contenido editorial. 
+                  Pronto tendrás información detallada sobre destinos, 
+                  ciudades y aventuras en {worldCountry.displayName}.
+                </p>
+              </div>
+            )}
+
+            {mapState.status === 'missing' && (
+              <div className={styles.discoveringState}>
+                <p>
+                  Aún no conocemos bien {worldCountry.displayName}, 
+                  pero lo estamos preparando para ti.
+                </p>
+                <button 
+                  onClick={onRetryGeneration}
+                  className={styles.requestMapButton}
+                >
+                  Explorar {worldCountry.displayName}
+                </button>
+              </div>
+            )}
+
+            {mapState.status === 'failed' && (
+              <div className={styles.discoveringState}>
+                <p className={styles.discoveringError}>
+                  ⚠️ Algo salió mal al preparar el mapa.
+                </p>
+                <p>No te preocupes, lo arreglaremos pronto.</p>
+                <div className={styles.discoveringActions}>
+                  <button 
+                    onClick={onRetryGeneration}
+                    className={styles.retryButton}
+                  >
+                    Reintentar
+                  </button>
+                  <Link to="/" className={styles.backLink}>
+                    ← Explorar otros destinos
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
 }

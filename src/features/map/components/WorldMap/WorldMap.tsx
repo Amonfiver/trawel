@@ -7,9 +7,10 @@
  * Decisiones técnicas (DA-029):
  * - Estilo neutro para todos los países (sin revelar disponibilidad visualmente)
  * - Hover cambia a color amarillo/dorado del tema
- * - Tooltip muestra bandera + nombre del país
- * - Click navega a país solo si tiene contenido activo
+ * - Tooltip muestra bandera + nombre del país (desde worldCountries)
+ * - Click navega a /pais/{slug} para cualquier país resoluble
  * - Sin contadores de destinos ni badges de disponibilidad en tooltip
+ * - CountryPage decide qué mostrar según disponibilidad de contenido
  * 
  * Accesibilidad:
  * - role="img" y aria-label en SVG
@@ -28,10 +29,9 @@
  import { feature } from 'topojson-client';
  import type { Topology } from 'topojson-specification';
  import type { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
- import { getCountryByUnM49, isCountryClickable } from '../../../countries/data/countries.utils';
- import { formatCountryWithFlag } from '../../../countries';
+ import { getWorldCountryByUnM49, type WorldCountry } from '../../../countries/data/worldCountries';
+ import { countryCodeToFlagEmoji } from '../../../countries';
  import { defaultMapTheme } from '../../config/mapTheme';
- import type { Country } from '../../../countries/data/countries.types';
  import styles from './WorldMap.module.css';
  
  // URL del dataset world-atlas
@@ -41,8 +41,7 @@
    visible: boolean;
    x: number;
    y: number;
-   country: Country | null;
-   isClickable: boolean;
+   country: WorldCountry | null;
  }
  
  /**
@@ -50,7 +49,7 @@
   * 
   * Renderiza un mapa mundial con estilo neutro donde todos los países
   * se ven igual. Hover muestra tooltip con bandera + nombre.
-  * Click navega solo en países con contenido activo.
+  * Click navega a la página del país para cualquier país resoluble.
   */
  export function WorldMap() {
    const svgRef = useRef<SVGSVGElement>(null);
@@ -62,7 +61,6 @@
      x: 0,
      y: 0,
      country: null,
-     isClickable: false,
    });
    const [isLoading, setIsLoading] = useState(true);
    const [error, setError] = useState<string | null>(null);
@@ -110,16 +108,16 @@
            .attr('aria-label', (d: unknown) => {
              const feat = d as { id?: string };
              const countryCode = feat.id;
-             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
-             return trawelCountry 
-               ? `País ${trawelCountry.displayName}`
+             const worldCountry = countryCode ? getWorldCountryByUnM49(countryCode) : undefined;
+             return worldCountry 
+               ? `País ${worldCountry.displayName}`
                : 'País no disponible';
            })
            .on('mouseover', function (event: MouseEvent, d: unknown) {
              const feat = d as { id?: string };
              const countryCode = feat.id;
-             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
-             const clickable = trawelCountry ? isCountryClickable(trawelCountry) : false;
+             const worldCountry = countryCode ? getWorldCountryByUnM49(countryCode) : undefined;
+             const isResolvable = !!worldCountry;
              
              // Efecto hover: siempre amarillo/dorado (DA-029)
              d3.select(this)
@@ -128,15 +126,14 @@
                .attr('fill', defaultMapTheme.colors.hover)
                .attr('stroke-width', 1.2)
                .style('filter', 'brightness(1.08) drop-shadow(0 3px 6px rgba(0,0,0,0.15))')
-               .style('cursor', clickable ? 'pointer' : 'default');
+               .style('cursor', isResolvable ? 'pointer' : 'default');
  
              // Mostrar tooltip
              setTooltip({
                visible: true,
                x: event.clientX + 12,
                y: event.clientY - 12,
-               country: trawelCountry || null,
-               isClickable: clickable,
+               country: worldCountry || null,
              });
            })
            .on('mousemove', function (event: MouseEvent) {
@@ -162,11 +159,12 @@
            .on('click', function (_event: MouseEvent, d: unknown) {
              const feat = d as { id?: string };
              const countryCode = feat.id;
-             const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
+             const worldCountry = countryCode ? getWorldCountryByUnM49(countryCode) : undefined;
              
-             // Navegar solo si es país clickeable (tiene contenido)
-             if (trawelCountry && isCountryClickable(trawelCountry)) {
-               navigate(`/pais/${trawelCountry.slug}`);
+             // Navegar a cualquier país resoluble
+             // CountryPage decidirá qué mostrar según disponibilidad de contenido
+             if (worldCountry) {
+               navigate(`/pais/${worldCountry.slug}`);
              }
            })
            .on('keydown', function (event: KeyboardEvent, d: unknown) {
@@ -175,13 +173,13 @@
                event.preventDefault();
                const feat = d as { id?: string };
                const countryCode = feat.id;
-               const trawelCountry = countryCode ? getCountryByUnM49(countryCode) : undefined;
-               if (trawelCountry && isCountryClickable(trawelCountry)) {
-                 navigate(`/pais/${trawelCountry.slug}`);
+               const worldCountry = countryCode ? getWorldCountryByUnM49(countryCode) : undefined;
+               if (worldCountry) {
+                 navigate(`/pais/${worldCountry.slug}`);
                }
              }
            });
-
+ 
          setIsLoading(false);
        })
        .catch(err => {
@@ -190,24 +188,23 @@
          setIsLoading(false);
        });
    }, [navigate]);
-
+ 
    /**
     * Genera el texto del tooltip: bandera + nombre del país
     * DA-029: Sin contadores de destinos ni badges de disponibilidad
     */
    const getTooltipText = (): string => {
      if (!tooltip.country) {
+       // Fallback muy raro: solo si el código UN M.49 no está en nuestro diccionario
        return 'País no disponible';
      }
-
-     return formatCountryWithFlag(
-       tooltip.country.displayName,
-       tooltip.country.isoAlpha2
-     );
+ 
+     const flag = countryCodeToFlagEmoji(tooltip.country.isoAlpha2);
+     return flag ? `${flag} ${tooltip.country.displayName}` : tooltip.country.displayName;
    };
-
+ 
    const tooltipText = getTooltipText();
-
+ 
    return (
      <div 
        ref={containerRef}
@@ -235,7 +232,7 @@
            </div>
          </div>
        )}
-
+ 
        {/* Wrapper del SVG para aspect ratio responsive */}
        <div className={styles.mapWrapper}>
          <svg
@@ -251,7 +248,7 @@
            <desc>Mapa exploratorio para descubrir países del mundo</desc>
          </svg>
        </div>
-
+ 
        {/* Tooltip simplificado - DA-029: solo bandera + nombre */}
        <div
          className={`${styles.tooltip} ${tooltip.visible ? styles.tooltipVisible : ''}`}
