@@ -40,7 +40,10 @@ Los mapas internos de Trawel deben seguir estos principios (basado en DA-027):
 
 ## 3. Fuente recomendada para España
 
-### Opción A: geoBoundaries (Recomendada)
+### Opción A: geoBoundaries (Recomendada) ✅
+
+**Ver análisis detallado en:** `docs/MAP_SOURCE_COMPARISON.md`
+
 - **Fuente:** [geoBoundaries](https://www.geoboundaries.org/) - ADM2 (provincias)
 - **Ventajas:** 
   - Datos abiertos, verificados académicamente
@@ -192,7 +195,42 @@ src/assets/maps/
 
 ---
 
-## 8. Decisiones pendientes
+## 8. Atribución y licencias
+
+### Registro de assets externos
+
+Todo asset cartográfico externo debe registrarse con:
+
+| Campo | Descripción | Ejemplo |
+|-------|-------------|---------|
+| **Fuente** | Nombre de la fuente | geoBoundaries, Natural Earth, IGN |
+| **Licencia** | Tipo de licencia y versión | CC BY 4.0, CC0, ODbL |
+| **Fecha de descarga/procesado** | Cuándo se obtuvo el dato | 2026-05-01 |
+| **Atribución requerida** | Texto exacto o referencia | "Contains data from geoBoundaries" |
+| **URL de verificación** | Dónde verificar la licencia | https://www.geoboundaries.org/ |
+
+### geoBoundaries
+
+- **Licencia típica:** CC BY 4.0 (Creative Commons Attribution 4.0 International)
+- **Requisito:** Atribución visible en la aplicación
+- **Nota importante:** Verificar siempre la metadata del archivo concreto descargado, ya que pueden existir variaciones
+
+**Atribución recomendada (verificar contra metadata del archivo):**
+```
+"Datos cartográficos: geoBoundaries (CC BY 4.0)"
+```
+
+O texto final equivalente según especifique la metadata del archivo descargado.
+
+### Ubicación de la atribución en UI
+
+- Posición: Visible cerca del mapa o en zona legal definida (footer, modal de créditos, etc.)
+- Formato: Discreto pero legible
+- Ejemplo: Pequeño texto en esquina inferior del mapa, o enlace a página de créditos
+
+---
+
+## 9. Decisiones pendientes
 
 | Decisión | Opciones | Recomendación provisional |
 |----------|----------|---------------------------|

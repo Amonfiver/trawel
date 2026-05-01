@@ -39,6 +39,31 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Política de atribución cartográfica documentada 🗺️
+
+Documentada política de atribución para cumplir requisitos legales de fuentes cartográficas externas (especialmente geoBoundaries):
+
+**Cambios en documentación:**
+
+| Archivo | Cambio |
+|---------|--------|
+| `docs/MAP_ASSET_PLAN.md` | Nueva sección "8. Atribución y licencias" con registro de assets y formato de atribución |
+| `docs/MAP_SOURCE_COMPARISON.md` | Añadido criterio "Cumplimiento de atribución visible en UI" y corrección de licencia geoBoundaries a CC BY 4.0 |
+| `docs/V0_HANDOFF.md` | Nueva regla: "NO eliminar ni ocultar atribuciones cartográficas" + sección de atribución obligatoria |
+
+**Texto de atribución recomendado:**
+```
+"Datos cartográficos: geoBoundaries (CC BY 4.0)"
+```
+*(Verificar contra metadata del archivo concreto descargado)*
+
+**Reglas para v0:**
+- No eliminar ni ocultar atribuciones cartográficas
+- Atribución debe estar visible, discreta y legible cerca del mapa
+- Posición: esquina inferior del mapa, footer, o modal de créditos
+
+---
+
 ### 2026-05-01 - Fix Supabase destinations: resolución correcta city_id → citySlug 🐛
 
 Corregido bug en `supabaseTravelData.source.ts` que impedía cargar destinos publicados desde Supabase:
@@ -59,6 +84,28 @@ Corregido bug en `supabaseTravelData.source.ts` que impedía cargar destinos pub
 **Verificación:**
 - ✅ `npm run build` exitoso
 - Build: 683 modules, sin errores TypeScript ni vite
+
+---
+
+### 2026-05-01 - Comparación de fuentes cartográficas para España 🗺️
+
+Creado análisis comparativo entre geoBoundaries y Natural Earth para elegir fuente definitiva del mapa interno de España:
+
+**Documento creado:**
+- `docs/MAP_SOURCE_COMPARISON.md` - Comparación detallada con:
+  - Análisis de geoBoundaries ADM1/ADM2 vs Natural Earth Admin 1
+  - Tabla comparativa por criterios (licencia, nivel administrativo, tamaño, facilidad)
+  - Análisis específico para ciudades Trawel (Morella, Albarracín, Madrid, Barcelona)
+  - Problema clave identificado: Natural Earth ADM1 agrupa Castellón y Teruel en Aragón
+
+**Decisión tomada:**
+- **Fuente recomendada: geoBoundaries ADM2 (provincias)**
+- Justificación: Provincias españolas permiten diferenciar Castellón (Morella) de Teruel (Albarracín)
+- Natural Earth ADM1 (autonomías) descartado: demasiado grueso para España turística
+- Ruta propuesta: `public/maps/countries/spain/spain-adm2.topojson`
+
+**Próximo paso:**
+- Implementar Fase 2 de MAP_ASSET_PLAN.md: descargar geoBoundaries ESP-ADM2, procesar a TopoJSON simplificado, crear componente CountryMap
 
 ---
 

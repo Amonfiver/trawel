@@ -103,6 +103,7 @@ const { mode, setMode, toggleMode } = useExperienceMode();
 | **NO cambiar estados editoriales** | Lógica de publicación estable |
 | **NO introducir dependencias innecesarias** | Mantener build ligero |
 | **NO mover lógica de datos a componentes visuales** | Separación de concerns |
+| **NO eliminar ni ocultar atribuciones cartográficas** | Requisito legal de licencias (CC BY 4.0, ODbL). La atribución debe permanecer visible |
 
 ---
 
@@ -125,6 +126,15 @@ const { mode, setMode, toggleMode } = useExperienceMode();
 
 ### Nota importante: Cartografía vs. Diseño Visual
 > **v0 puede mejorar la presentación visual del mapa** (colores, interacciones, layout), **pero no sustituye el asset cartográfico local**. La cartografía definitiva (siluetas de países, límites administrativos) proviene de fuentes geoespaciales procesadas una vez (Natural Earth, geoBoundaries), no de v0.
+
+### Atribución cartográfica (obligatoria)
+> **La atribución de fuentes cartográficas debe permanecer visible.**
+
+- **No eliminar** textos de atribución como "Datos cartográficos: geoBoundaries (CC BY 4.0)"
+- **No ocultar** tras interacciones o estados del mapa
+- **Posición:** Visible cerca del mapa o en zona legal definida (footer, modal de créditos)
+- **Formato:** Discreto pero legible
+- **Ejemplo:** Pequeño texto en esquina inferior del mapa, o enlace a página de créditos
 
 ---
 
