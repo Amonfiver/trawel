@@ -23,6 +23,7 @@ import * as d3 from 'd3';
 import { feature } from 'topojson-client';
 import type { City } from '../../../cities/types/city.types';
 import { getCityDisplayName } from '../../../cities/data/cities.utils';
+import { defaultMapTheme } from '../../config/mapTheme';
 import styles from './SpainMap.module.css';
 
 interface SpainMapProps {
@@ -129,11 +130,11 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
     const width = 800;
     const height = 600;
 
-    // Fondo del SVG
+    // Fondo del SVG - usando mapTheme
     svg.append('rect')
       .attr('width', width)
       .attr('height', height)
-      .attr('fill', '#f8fafc');
+      .attr('fill', defaultMapTheme.colors.background);
 
     // Crear proyección (ajustada para España)
     const featureCollection: GeoJSON.FeatureCollection = {
@@ -175,26 +176,32 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
         }
       })
       .attr('class', styles.province)
-      // Estilos inline visibles para asegurar que se ven las provincias
-      .attr('fill', '#cbd5e1')           // Gris más oscuro para mejor contraste
-      .attr('stroke', '#475569')         // Gris oscuro para bordes visibles
-      .attr('stroke-width', 0.8)
+      // Usando mapTheme para consistencia con WorldMap
+      .attr('fill', defaultMapTheme.colors.default)
+      .attr('stroke', defaultMapTheme.colors.border)
+      .attr('stroke-width', defaultMapTheme.colors.borderWidth)
       .attr('stroke-linejoin', 'round')
       .attr('vector-effect', 'non-scaling-stroke')
       .attr('opacity', 1)
       .style('cursor', 'pointer');
 
-    // Hover effects con colores más contrastados
+    // Hover effects usando mapTheme
     provincePaths
       .on('mouseover', function () {
         d3.select(this)
-          .attr('fill', '#94a3b8')       // Más oscuro en hover
-          .attr('stroke', '#1e293b');    // Casi negro en hover
+          .transition()
+          .duration(defaultMapTheme.animation.hoverDuration || 150)
+          .attr('fill', defaultMapTheme.colors.hover)
+          .attr('stroke-width', 1.2)
+          .style('filter', 'brightness(1.08) drop-shadow(0 3px 6px rgba(0,0,0,0.15))');
       })
       .on('mouseout', function () {
         d3.select(this)
-          .attr('fill', '#cbd5e1')       // Volver al color base
-          .attr('stroke', '#475569');    // Volver al stroke base
+          .transition()
+          .duration(defaultMapTheme.animation.hoverDuration || 150)
+          .attr('fill', defaultMapTheme.colors.default)
+          .attr('stroke-width', defaultMapTheme.colors.borderWidth)
+          .style('filter', null);
       });
 
     if (errorCount > 0) {

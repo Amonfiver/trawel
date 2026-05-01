@@ -275,6 +275,30 @@ if (interiorArea < 0) reverseRing(interior);  // Interiores deben tener área po
 | Paths SVG | Doble path por provincia | Single path limpio |
 | Renderizado | Incorrecto (complementario) | Correcto |
 
+### Mejora de Detalle Visual (2026-05-01)
+
+**Objetivo:** Alinear SpainMap con el lenguaje visual de WorldMap y mejorar la percepción de calidad del mapa.
+
+**Cambios en el pipeline:**
+- Factor de simplificación: `0.05` (5%) → `0.02` (2%)
+- Mayor detalle en siluetas de provincias
+- Bordes más definidos y naturales
+
+**Resultado:**
+| Aspecto | Antes | Después |
+|---------|-------|---------|
+| Tamaño | 52.59 KB | 57.67 KB |
+| Factor | 5% | 2% |
+| Detalle | Alto | Muy alto |
+| Percepción | Simplificado | Natural |
+
+**Alineación visual con WorldMap:**
+- Usa `defaultMapTheme` para colores consistentes
+- Mismas transiciones (`cubic-bezier(0.4, 0, 0.2, 1)`)
+- Mismo estilo de tooltip (fondo oscuro, texto claro)
+- Mismo sistema de sombras y bordes
+- Container con gradiente y sombras idénticas
+
 ## 12. Registro de Cambios
 
 | Fecha | Cambio |
@@ -288,6 +312,7 @@ if (interiorArea < 0) reverseRing(interior);  // Interiores deben tener área po
 | 2026-05-01 | **Asset optimizado** - 40.83 MB → 52.59 KB TopoJSON |
 | 2026-05-01 | **Asset listo para producción** - Tamaño ideal, todas las provincias |
 | 2026-05-01 | **Corrección de winding** - Añadida normalización de orientación de polígonos para D3 |
+| 2026-05-01 | **Mejora de detalle visual** - Factor de simplificación 5% → 2%, alineación con WorldMap |
 
 ---
 

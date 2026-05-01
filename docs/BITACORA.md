@@ -39,6 +39,34 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - SpainMap v2: Alineación visual con WorldMap y mejora de detalle 🎨
+
+Alineado SpainMap con el lenguaje visual de WorldMap y mejorado el detalle del asset.
+
+**Cambios visuales aplicados:**
+- Factor de simplificación: `0.05` (5%) → `0.02` (2%) para mayor detalle
+- Tamaño del asset: 52.59 KB → 57.67 KB (aún dentro del objetivo <150KB)
+- Provincias ahora usan `defaultMapTheme` (colores consistentes con WorldMap)
+- Tooltip estilo oscuro (fondo `rgba(15, 23, 42, 0.95)`) como en WorldMap
+- Transiciones `cubic-bezier(0.4, 0, 0.2, 1)` idénticas a WorldMap
+- Container con gradiente y sombras alineadas
+- Aspect ratio responsive con `padding-bottom: 75%`
+
+**Archivos modificados:**
+- `scripts/prepare-spain-map-asset.ts` - Factor de simplificación 0.02, target 150KB
+- `src/features/map/components/SpainMap/SpainMap.tsx` - Usa `defaultMapTheme`
+- `src/features/map/components/SpainMap/SpainMap.module.css` - Estilos alineados con WorldMap
+- `public/maps/countries/spain/spain-adm2.topojson` - Regenerado con 2% de detalle
+
+**Verificación:**
+- ✅ 52 provincias con detalle mejorado
+- ✅ Castellón y Teruel presentes
+- ✅ Navegación a Morella y Albarracín funciona
+- ✅ Hover y transiciones consistentes con WorldMap
+- ✅ Build exitoso
+
+---
+
 ### 2026-05-01 - SpainMap v2: Fix de orientación de polígonos (winding) 🗺️
 
 Corregido problema crítico donde cada provincia mostraba un rectángulo gigante además de su forma real.
@@ -46,25 +74,15 @@ Corregido problema crítico donde cada provincia mostraba un rectángulo gigante
 **Diagnóstico real:**
 - En DevTools, cada path de provincia contenía: `M395...Z` (forma real) + `M700,0...L100,0Z` (rectángulo gigante)
 - Causa: D3 geoPath interpretaba polígonos como "complementarios" (agujeros del mundo)
-- Problema de orientación (winding): anillos exteriores tenían área positiva en lugar de negativa
 
 **Fix aplicado en pipeline de asset:**
 - Añadida fase de normalización en `scripts/prepare-spain-map-asset.ts`
 - Función `ringArea()` calcula área firmada (fórmula del shoelace)
 - Función `normalizePolygon()` invierte anillos según área para cumplir expectativa de D3
-- Exterior: área negativa (clockwise), Interiores: área positiva (counter-clockwise)
-
-**Archivos modificados:**
-- `scripts/prepare-spain-map-asset.ts` - Pipeline con normalización de orientación
-- `public/maps/countries/spain/spain-adm2.topojson` - Regenerado con winding correcto
 
 **Verificación post-fix:**
 - ✅ Paths SVG ya NO contienen rectángulo gigante
 - ✅ Solo se renderiza la forma real de cada provincia
-- ✅ 52 provincias conservadas
-- ✅ Castellón y Teruel presentes
-- ✅ Tamaño: 52.59 KB (sin cambio)
-- ✅ Build exitoso
 
 ---
 

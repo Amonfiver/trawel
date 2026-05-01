@@ -25,10 +25,12 @@ import * as topojson from 'topojson-simplify';
 const CONFIG = {
   inputFile: 'public/maps/countries/spain/spain-adm2-raw.geojson',
   outputFile: 'public/maps/countries/spain/spain-adm2.topojson',
-  // Nivel de simplificación: 0.01 = 1% de detalle (muy agresivo pero reconoscible)
-  // 0.05 = 5% (balance), 0.1 = 10% (conservador)
-  simplificationFactor: 0.05,
-  targetSizeKB: 100,
+  // Nivel de simplificación: 0.01 = 1% de detalle (muy agresivo)
+  // 0.02 = 2% (mejor detalle visual, recomendado)
+  // 0.05 = 5% (balance anterior)
+  // 0.1 = 10% (conservador)
+  simplificationFactor: 0.02,
+  targetSizeKB: 150,
   acceptableSizeKB: 250,
 };
 
