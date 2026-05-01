@@ -39,6 +39,41 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - SpainMap v2: Fix clave topology.objects.spain 🐛
+
+Corregido bug que impedía renderizar el mapa (aparecía fallback en lugar de provincias):
+
+**Causa del fallo:**
+- Línea 83 usaba `topology.objects.spain_adm2`
+- La clave real en el asset TopoJSON es `topology.objects.spain`
+- Error no detectado en build (fallo en runtime)
+
+**Fix aplicado:**
+```typescript
+// ANTES (fallaba):
+const geojson = feature(topology, topology.objects.spain_adm2)
+
+// DESPUÉS (funciona):
+const objectKey = 'spain';
+const geojson = feature(topology, topology.objects[objectKey])
+```
+
+**Mejoras adicionales:**
+- Logs de desarrollo detallados (`[SpainMap] ...`)
+- Validación explícita de claves disponibles en `topology.objects`
+- Mensaje de error más descriptivo en fallback
+- Verificación de features convertidos antes de renderizar
+
+**Archivos modificados:**
+- `src/features/map/components/SpainMap/SpainMap.tsx` (líneas 68-98)
+
+**Validación post-fix:**
+- ✅ Build exitoso
+- ✅ Sin errores TypeScript
+- ✅ Logs visibles en consola de desarrollo
+
+---
+
 ### 2026-05-01 - SpainMap v2: Reemplazo de prototipo temporal por asset real ✅🗺️
 
 Implementado SpainMap v2 que reemplaza la silueta SVG manual por el asset TopoJSON optimizado de geoBoundaries:

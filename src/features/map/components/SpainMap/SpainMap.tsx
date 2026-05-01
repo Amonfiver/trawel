@@ -71,25 +71,42 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
         setLoading(true);
         setError(null);
 
+        console.log('[SpainMap] Cargando asset...');
         const response = await fetch('/maps/countries/spain/spain-adm2.topojson');
 
         if (!response.ok) {
-          throw new Error(`No se pudo cargar el mapa: ${response.status}`);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const topology = await response.json();
+        console.log('[SpainMap] Asset loaded, topology keys:', Object.keys(topology));
+        console.log('[SpainMap] topology.objects keys:', Object.keys(topology.objects));
+
+        // La clave correcta es "spain", no "spain_adm2"
+        const objectKey = 'spain';
+        if (!topology.objects[objectKey]) {
+          throw new Error(`Objeto "${objectKey}" no encontrado en topology.objects. Disponibles: ${Object.keys(topology.objects).join(', ')}`);
+        }
 
         // Convertir TopoJSON a GeoJSON
-        const geojson = feature(topology, topology.objects.spain_adm2) as unknown as {
+        const geojson = feature(topology, topology.objects[objectKey]) as unknown as {
           type: 'FeatureCollection';
           features: ProvinceFeature[];
         };
 
+        console.log('[SpainMap] Features convertidos:', geojson.features.length);
+
+        if (!geojson.features || geojson.features.length === 0) {
+          throw new Error('No se encontraron features en el GeoJSON convertido');
+        }
+
         setProvinces(geojson.features);
         setLoading(false);
+        console.log('[SpainMap] Renderizado listo');
       } catch (err) {
-        console.error('Error cargando mapa de España:', err);
-        setError('No se pudo cargar el mapa. Mostrando lista de ciudades.');
+        const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
+        console.error('[SpainMap] Error:', errorMsg);
+        setError(`No se pudo cargar el mapa: ${errorMsg}`);
         setLoading(false);
       }
     };
