@@ -28,25 +28,24 @@ export function countryCodeToFlagEmoji(isoAlpha2: string | undefined): string {
     return '';
   }
 
-  // Validar que solo contenga letras A-Z
+  // Normalizar a mayúsculas y validar que solo contenga letras A-Z
   const upperCode = isoAlpha2.toUpperCase();
   if (!/^[A-Z]{2}$/.test(upperCode)) {
     return '';
   }
 
-  // Convertir cada letra a su regional indicator symbol
-  // 'A' = U+1F1E6 (0x1F1E6), 'B' = U+1F1E7, etc.
-  const REGIONAL_INDICATOR_OFFSET = 0x1F1E6 - 0x41; // 0x41 = 'A'
+  // Método estándar: offset 127397 para regional indicator symbols
+  // 'A' (65) + 127397 = 127462 (0x1F1E6) = 🇦
+  const codePoints = upperCode
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
 
-  const char1 = upperCode.charCodeAt(0);
-  const char2 = upperCode.charCodeAt(1);
-
-  const emoji = String.fromCodePoint(
-    char1 + REGIONAL_INDICATOR_OFFSET,
-    char2 + REGIONAL_INDICATOR_OFFSET
-  );
-
-  return emoji;
+  try {
+    return String.fromCodePoint(...codePoints);
+  } catch {
+    // Fallback si hay error en conversión
+    return '';
+  }
 }
 
 /**

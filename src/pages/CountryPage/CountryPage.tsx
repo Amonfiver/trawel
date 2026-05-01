@@ -108,11 +108,32 @@ export function CountryPage() {
         if (!requestSentRef.current) {
           requestSentRef.current = true;
           
-          const result = await requestCountryMapGeneration({
+          // Resolver datos del país: editorial o worldCountries como fallback
+          const countryData = country || worldCountry;
+          
+          if (!countryData) {
+            console.error('[CountryPage] No se pudieron resolver datos del país:', countrySlug);
+            if (isMounted) {
+              setMapState({ status: 'failed', errorMessage: 'No se pudieron resolver datos del país' });
+            }
+            return;
+          }
+          
+          // Construir payload completo según especificación DA-030
+          const payload = {
             countrySlug,
-            countryName: country?.displayName,
-            source: 'country_page_visit'
-          });
+            countryName: countryData.displayName,
+            isoAlpha2: countryData.isoAlpha2,
+            isoAlpha3: 'isoAlpha3' in countryData ? countryData.isoAlpha3 : undefined,
+            adminLevel: 'ADM2' as const,
+            source: 'world_map'
+          };
+          
+          console.log('[CountryPage] Solicitando generación de mapa (auto):', payload);
+          
+          const result = await requestCountryMapGeneration(payload);
+          
+          console.log('[CountryPage] Respuesta (auto):', result);
           
           if (isMounted) {
             if (result.success) {
@@ -122,6 +143,7 @@ export function CountryPage() {
                   : 'queued' 
               });
             } else {
+              console.error('[CountryPage] Error en solicitud (auto):', result.error);
               setMapState({ status: 'failed', errorMessage: result.error });
             }
           }
@@ -220,25 +242,47 @@ export function CountryPage() {
   }, [mapState.status, countrySlug]);
 
   // Handler para reintentar generación
+  // Usa worldCountry como fallback para datos mínimos cuando no hay contenido editorial
   const handleRetryGeneration = async () => {
     if (!countrySlug || COUNTRIES_WITH_LOCAL_MAP.includes(countrySlug)) return;
     
     setMapState({ status: 'loading' });
     requestSentRef.current = false;
     
-    const result = await requestCountryMapGeneration({
+    // Resolver datos del país: primero editorial, luego worldCountries como fallback
+    const countryData = country || worldCountry;
+    
+    if (!countryData) {
+      console.error('[CountryPage] No se pudieron resolver datos del país:', countrySlug);
+      setMapState({ status: 'failed', errorMessage: 'No se pudieron resolver datos del país' });
+      return;
+    }
+    
+    // Construir payload completo según especificación DA-030
+    const payload = {
       countrySlug,
-      countryName: country?.displayName,
-      source: 'country_page_retry'
-    });
+      countryName: countryData.displayName,
+      isoAlpha2: countryData.isoAlpha2,
+      isoAlpha3: 'isoAlpha3' in countryData ? countryData.isoAlpha3 : undefined,
+      adminLevel: 'ADM2' as const,
+      source: 'world_map'
+    };
+    
+    console.log('[CountryPage] Solicitando generación de mapa:', payload);
+    
+    const result = await requestCountryMapGeneration(payload);
+    
+    console.log('[CountryPage] Respuesta de requestCountryMapGeneration:', result);
     
     if (result.success) {
+      console.log('[CountryPage] Éxito - Estado:', result.status);
       setMapState({ 
         status: result.status === 'queued' || result.status === 'generating' 
           ? result.status 
           : 'queued' 
       });
     } else {
+      console.error('[CountryPage] Error en solicitud:', result.error);
       setMapState({ status: 'failed', errorMessage: result.error });
     }
   };
