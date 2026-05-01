@@ -123,6 +123,18 @@ const { mode, setMode, toggleMode } = useExperienceMode();
 - Tarjetas: Revista de viajes digital
 - Tipografía: Legible, serif opcional para títulos épicos
 
+### Nota importante: Cartografía vs. Diseño Visual
+> **v0 puede mejorar la presentación visual del mapa** (colores, interacciones, layout), **pero no sustituye el asset cartográfico local**. La cartografía definitiva (siluetas de países, límites administrativos) proviene de fuentes geoespaciales procesadas una vez (Natural Earth, geoBoundaries), no de v0.
+
+---
+
+**Separación de responsabilidades:**
+| Aspecto | Fuente | Notas |
+|---------|--------|-------|
+| Cartografía (límites, siluetas) | Asset local optimizado | Generado desde Natural Earth/geoBoundaries |
+| Diseño visual (colores, UX) | v0 | Mejora estética y experiencia de usuario |
+| Puntos de ciudad interactivos | Componente SpainMap actual | v0 mejora estilo, no reemplaza funcionalidad |
+
 ---
 
 ## 7. Conclusiones del audit de ExperienceMode (EXPERIENCE_MODE_AUDIT.md)

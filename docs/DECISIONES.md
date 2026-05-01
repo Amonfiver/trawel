@@ -179,6 +179,9 @@ Este archivo registra decisiones técnicas y de diseño importantes del proyecto
 - Sin dependencias de terceros en tiempo real para usuarios finales
 - Escalabilidad: cargar solo lo necesario, cuando sea necesario
 
+**Nota sobre v0 y diseño visual:**
+> v0 puede mejorar la presentación visual del mapa, pero no sustituye el asset cartográfico local. La cartografía definitiva proviene de fuentes geoespaciales (Natural Earth, geoBoundaries), no de herramientas de diseño.
+
 **Implementación:** Futura. No se desarrolla en este ciclo.
 
 **Reversibilidad:** Alta. Estrategia documental sin código implementado.

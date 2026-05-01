@@ -199,8 +199,8 @@ Creado guion completo para presentar Trawel a socios/colaboradores:
 - ✅ Sin modificar Supabase/schema
 
 **Notas:**
-- Diseño visual es placeholder (piloto arquitectónico), versión definitiva vendrá de v0
-- Cartografía simplificada (silueta aproximada de España), pendiente de mejora cartográfica futura
+- Diseño visual es placeholder (piloto arquitectónico). v0 puede mejorar la presentación visual del mapa, pero no sustituye el asset cartográfico local.
+- Cartografía simplificada (silueta aproximada de España). La cartografía definitiva será un asset local optimizado generado/procesado desde fuentes como Natural Earth o geoBoundaries (DA-027), no proveniente de v0.
 - Estrategia progresiva documentada en DA-027: solo España tiene mapa, otros países se añadirán bajo demanda
 
 ---
