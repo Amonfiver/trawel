@@ -391,19 +391,18 @@ export async function requestCountryMapGeneration(
   }
 
   try {
-    const { data, error } = await supabase.functions.invoke(
-      'request-country-map',
-      {
-        body: {
-          countrySlug: input.countrySlug,
-          countryName: input.countryName,
-          isoAlpha2: input.isoAlpha2,
-          isoAlpha3: input.isoAlpha3,
-          adminLevel: input.adminLevel,
-          source: input.source,
-        },
-      }
-    );
+    const payload = {
+      countrySlug: input.countrySlug,
+      countryName: input.countryName,
+      isoAlpha2: input.isoAlpha2,
+      isoAlpha3: input.isoAlpha3,
+      adminLevel: input.adminLevel,
+      source: input.source,
+    };
+
+    const { data, error } = await supabase.functions.invoke('request-country-map', {
+      body: payload,
+    });
 
     if (error) {
       console.error('[CountryMapAssets] Error invocando Edge Function:', error);
@@ -418,7 +417,7 @@ export async function requestCountryMapGeneration(
       };
     }
 
-    if (!data) {
+    if (!data || typeof data !== 'object') {
       return {
         success: false,
         countrySlug: input.countrySlug,
@@ -430,15 +429,18 @@ export async function requestCountryMapGeneration(
       };
     }
 
-    // Mapear respuesta al tipo esperado
+    const response = data as Partial<RequestCountryMapGenerationResponse>;
+    const success = response.success === true;
+    const status = isCountryMapAssetStatus(response.status) ? response.status : 'missing';
+
     return {
-      success: data.success ?? false,
-      countrySlug: data.countrySlug || input.countrySlug,
-      status: data.status || 'missing',
-      message: data.message || 'Sin mensaje',
-      requestedCount: data.requestedCount || 0,
-      lastRequestedAt: data.lastRequestedAt || null,
-      error: data.error,
+      success,
+      countrySlug: response.countrySlug || input.countrySlug,
+      status,
+      message: response.message || (success ? 'Solicitud procesada' : 'La Edge Function devolvió un error'),
+      requestedCount: response.requestedCount ?? 0,
+      lastRequestedAt: response.lastRequestedAt ?? null,
+      error: response.error,
     };
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
@@ -453,4 +455,14 @@ export async function requestCountryMapGeneration(
       error: errorMsg,
     };
   }
+}
+
+function isCountryMapAssetStatus(value: unknown): value is RequestCountryMapGenerationResponse['status'] {
+  return (
+    value === 'missing' ||
+    value === 'queued' ||
+    value === 'generating' ||
+    value === 'ready' ||
+    value === 'failed'
+  );
 }

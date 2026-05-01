@@ -3,3 +3,4 @@
  */
 
 export { countryCodeToFlagEmoji, formatCountryWithFlag } from './utils/countryHelpers';
+export { CountryFlag } from './components/CountryFlag';

@@ -195,12 +195,13 @@
 }
 
 .tooltipTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 600;
   line-height: 1.3;
   margin: 0;
   text-align: center;
-  /* Asegurar que la bandera se renderice correctamente */
-  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', system-ui, sans-serif;
 }
 
 /* Responsive adjustments */

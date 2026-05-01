@@ -1,0 +1,23 @@
+.flag {
+  display: inline-block;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+  vertical-align: middle;
+}
+
+.small {
+  width: 24px;
+  height: 16px;
+}
+
+.medium {
+  width: 40px;
+  height: 27px;
+}
+
+.large {
+  width: 80px;
+  height: 54px;
+}

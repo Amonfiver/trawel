@@ -29,8 +29,8 @@
  import { feature } from 'topojson-client';
  import type { Topology } from 'topojson-specification';
  import type { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
+ import { CountryFlag } from '../../../countries';
  import { getWorldCountryByUnM49, type WorldCountry } from '../../../countries/data/worldCountries';
- import { countryCodeToFlagEmoji } from '../../../countries';
  import { defaultMapTheme } from '../../config/mapTheme';
  import styles from './WorldMap.module.css';
  
@@ -189,21 +189,7 @@
        });
    }, [navigate]);
  
-   /**
-    * Genera el texto del tooltip: bandera + nombre del país
-    * DA-029: Sin contadores de destinos ni badges de disponibilidad
-    */
-   const getTooltipText = (): string => {
-     if (!tooltip.country) {
-       // Fallback muy raro: solo si el código UN M.49 no está en nuestro diccionario
-       return 'País no disponible';
-     }
- 
-     const flag = countryCodeToFlagEmoji(tooltip.country.isoAlpha2);
-     return flag ? `${flag} ${tooltip.country.displayName}` : tooltip.country.displayName;
-   };
- 
-   const tooltipText = getTooltipText();
+   const tooltipCountryName = tooltip.country?.displayName || 'País no disponible';
  
    return (
      <div 
@@ -249,7 +235,7 @@
          </svg>
        </div>
  
-       {/* Tooltip simplificado - DA-029: solo bandera + nombre */}
+       {/* Tooltip simplificado - DA-029: solo bandera visual + nombre */}
        <div
          className={`${styles.tooltip} ${tooltip.visible ? styles.tooltipVisible : ''}`}
          style={{
@@ -271,7 +257,14 @@
              className={styles.tooltipTitle}
              style={{ fontSize: defaultMapTheme.tooltip.titleFontSize }}
            >
-             {tooltipText}
+             {tooltip.country && (
+               <CountryFlag
+                 isoAlpha2={tooltip.country.isoAlpha2}
+                 countryName={tooltip.country.displayName}
+                 size="small"
+               />
+             )}
+             <span>{tooltipCountryName}</span>
            </div>
          </div>
        </div>

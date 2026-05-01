@@ -32,7 +32,7 @@ import { SpainMap } from '../../features/map/components/SpainMap';
 import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
-import { formatCountryWithFlag } from '../../features/countries/utils/countryHelpers';
+import { CountryFlag } from '../../features/countries';
 import { getWorldCountryBySlug, type WorldCountry } from '../../features/countries/data/worldCountries';
 import type { CountryStatus } from '../../features/countries/data/countries.types';
 import type { CountryMapAsset } from '../../features/map/services/countryMapAssets.service';
@@ -63,6 +63,7 @@ type MapAssetState =
  */
 export function CountryPage() {
   const { countrySlug } = useParams<{ countrySlug: string }>();
+  const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
   
   // Estado para el asset del mapa (DA-030)
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
@@ -108,8 +109,8 @@ export function CountryPage() {
         if (!requestSentRef.current) {
           requestSentRef.current = true;
           
-          // Resolver datos del país: editorial o worldCountries como fallback
-          const countryData = country || worldCountry;
+          // Resolver datos del país desde worldCountries como fuente canónica de ISO.
+          const countryData = worldCountry || country;
           
           if (!countryData) {
             console.error('[CountryPage] No se pudieron resolver datos del país:', countrySlug);
@@ -129,11 +130,15 @@ export function CountryPage() {
             source: 'world_map'
           };
           
-          console.log('[CountryPage] Solicitando generación de mapa (auto):', payload);
+          if (import.meta.env.DEV) {
+            console.info('[CountryPage] request-country-map payload', payload);
+          }
           
           const result = await requestCountryMapGeneration(payload);
           
-          console.log('[CountryPage] Respuesta (auto):', result);
+          if (import.meta.env.DEV) {
+            console.info('[CountryPage] request-country-map response', result);
+          }
           
           if (isMounted) {
             if (result.success) {
@@ -143,7 +148,9 @@ export function CountryPage() {
                   : 'queued' 
               });
             } else {
-              console.error('[CountryPage] Error en solicitud (auto):', result.error);
+              if (import.meta.env.DEV) {
+                console.error('[CountryPage] request-country-map error', result);
+              }
               setMapState({ status: 'failed', errorMessage: result.error });
             }
           }
@@ -183,7 +190,15 @@ export function CountryPage() {
       isMounted = false;
       requestSentRef.current = false;
     };
-  }, [countrySlug, country?.displayName]);
+  }, [
+    countrySlug,
+    country?.displayName,
+    country?.isoAlpha2,
+    'isoAlpha3' in (country || {}) ? country?.isoAlpha3 : undefined,
+    worldCountry?.displayName,
+    worldCountry?.isoAlpha2,
+    worldCountry?.isoAlpha3,
+  ]);
 
   // Polling cuando el estado es queued o generating
   useEffect(() => {
@@ -249,8 +264,8 @@ export function CountryPage() {
     setMapState({ status: 'loading' });
     requestSentRef.current = false;
     
-    // Resolver datos del país: primero editorial, luego worldCountries como fallback
-    const countryData = country || worldCountry;
+    // Resolver datos del país desde worldCountries como fuente canónica de ISO.
+    const countryData = worldCountry || country;
     
     if (!countryData) {
       console.error('[CountryPage] No se pudieron resolver datos del país:', countrySlug);
@@ -268,27 +283,29 @@ export function CountryPage() {
       source: 'world_map'
     };
     
-    console.log('[CountryPage] Solicitando generación de mapa:', payload);
+    if (import.meta.env.DEV) {
+      console.info('[CountryPage] request-country-map payload', payload);
+    }
     
     const result = await requestCountryMapGeneration(payload);
     
-    console.log('[CountryPage] Respuesta de requestCountryMapGeneration:', result);
+    if (import.meta.env.DEV) {
+      console.info('[CountryPage] request-country-map response', result);
+    }
     
     if (result.success) {
-      console.log('[CountryPage] Éxito - Estado:', result.status);
       setMapState({ 
         status: result.status === 'queued' || result.status === 'generating' 
           ? result.status 
           : 'queued' 
       });
     } else {
-      console.error('[CountryPage] Error en solicitud:', result.error);
+      if (import.meta.env.DEV) {
+        console.error('[CountryPage] request-country-map error', result);
+      }
       setMapState({ status: 'failed', errorMessage: result.error });
     }
   };
-
-  // Buscar país en worldCountries como fallback (países sin contenido editorial)
-  const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
   
   // Si no hay país editorial pero existe en worldCountries, mostrar vista "Descubriendo"
   if (!country && worldCountry) {
@@ -388,11 +405,6 @@ export function CountryPage() {
                   ? ' Explora las ciudades disponibles abajo.'
                   : ' Los destinos y lugares de interés estarán disponibles próximamente.'}
               </p>
-              {/* DEV: Mostrar URL para debugging */}
-              <details className={styles.devDetails}>
-                <summary>Info DEV</summary>
-                <code>{mapState.publicUrl}</code>
-              </details>
             </div>
           </section>
         );
@@ -463,21 +475,17 @@ export function CountryPage() {
   const renderComingSoonView = () => {
     if (activeCities.length > 0) return null;
 
-    const flag = country.isoAlpha2 
-      ? formatCountryWithFlag(country.displayName, country.isoAlpha2)
-      : country.displayName;
-
     return (
       <section className={styles.comingSoonViewSection}>
         <div className={styles.comingSoonViewContent}>
           <div className={styles.comingSoonFlag}>
-            {country.isoAlpha2 && (
-              <span className={styles.comingSoonFlagEmoji}>
-                {getCountryFlag(country.isoAlpha2)}
-              </span>
-            )}
+            <CountryFlag
+              isoAlpha2={country.isoAlpha2}
+              countryName={country.displayName}
+              size="large"
+            />
           </div>
-          <h2 className={styles.comingSoonViewTitle}>{flag}</h2>
+          <h2 className={styles.comingSoonViewTitle}>{country.displayName}</h2>
           <div className={styles.comingSoonViewStatus}>
             {mapState.status === 'ready' ? (
               <>
@@ -520,9 +528,11 @@ export function CountryPage() {
 
         <div className={styles.heroContent}>
           <div className={styles.heroFlag}>
-            <span className={styles.flagEmoji} aria-hidden="true">
-              {getCountryFlag(country.isoAlpha2)}
-            </span>
+            <CountryFlag
+              isoAlpha2={country.isoAlpha2}
+              countryName={country.displayName}
+              size="large"
+            />
           </div>
           
           <div className={styles.heroText}>
@@ -738,16 +748,6 @@ export function CountryPage() {
   );
 }
 
-/** Obtiene emoji de bandera a partir de código ISO alpha-2 */
-function getCountryFlag(isoAlpha2: string): string {
-  // Convertir código ISO a emoji de bandera (regional indicators)
-  const codePoints = isoAlpha2
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-}
-
 /** Obtiene label legible del estado del país */
 function getStatusLabel(status: CountryStatus): string {
   const labels: Record<CountryStatus, string> = {
@@ -798,8 +798,6 @@ interface DiscoveringCountryViewProps {
 }
 
 function DiscoveringCountryView({ worldCountry, mapState, onRetryGeneration }: DiscoveringCountryViewProps) {
-  const flag = getCountryFlag(worldCountry.isoAlpha2);
-  
   return (
     <div className={styles.container}>
       <header className={styles.hero}>
@@ -813,13 +811,15 @@ function DiscoveringCountryView({ worldCountry, mapState, onRetryGeneration }: D
 
         <div className={styles.heroContent}>
           <div className={styles.heroFlag}>
-            <span className={styles.flagEmoji} aria-hidden="true">
-              {flag}
-            </span>
+            <CountryFlag
+              isoAlpha2={worldCountry.isoAlpha2}
+              countryName={worldCountry.displayName}
+              size="large"
+            />
           </div>
           
           <div className={styles.heroText}>
-            <h1 className={styles.heroTitle}>{flag} {worldCountry.displayName}</h1>
+            <h1 className={styles.heroTitle}>{worldCountry.displayName}</h1>
             <p className={styles.heroLocation}>
               📍 Estamos preparando este destino
             </p>
