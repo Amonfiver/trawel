@@ -197,6 +197,7 @@ interface Cache {
   countries: Map<string, Country>; // slug -> Country
   countriesById: Map<string, string>; // id -> slug
   cities: Map<string, City>; // `${countrySlug}:${citySlug}` -> City
+  citiesById: Map<string, string>; // city_id (UUID) -> citySlug
   citiesByCountry: Map<string, City[]>; // countrySlug -> City[]
   destinations: Map<string, Destination>; // slug -> Destination
   destinationsByCity: Map<string, Destination[]>; // `${countrySlug}:${citySlug}` -> Destination[]
@@ -207,6 +208,7 @@ const cache: Cache = {
   countries: new Map(),
   countriesById: new Map(),
   cities: new Map(),
+  citiesById: new Map(),
   citiesByCountry: new Map(),
   destinations: new Map(),
   destinationsByCity: new Map(),
@@ -264,6 +266,7 @@ async function loadAllData(): Promise<void> {
     const city = mapDBCityToCity(dbCity, countrySlug);
     const key = `${countrySlug}:${city.slug}`;
     cache.cities.set(key, city);
+    cache.citiesById.set(dbCity.id, city.slug);
 
     // Agregar a lista por país
     const countryCities = cache.citiesByCountry.get(countrySlug) || [];
@@ -287,10 +290,8 @@ async function loadAllData(): Promise<void> {
     
     if (!countrySlug) continue; // Skip si no encontramos el país
 
-    // Encontrar citySlug
-    const citySlug = Array.from(cache.cities.values()).find(
-      c => c.id === cache.countriesById.get(dbDest.city_id)
-    )?.slug;
+    // Encontrar citySlug usando el índice citiesById
+    const citySlug = cache.citiesById.get(dbDest.city_id);
 
     if (!citySlug) continue; // Skip si no encontramos la ciudad
 

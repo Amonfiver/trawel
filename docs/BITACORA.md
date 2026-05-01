@@ -39,6 +39,29 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - Fix Supabase destinations: resolución correcta city_id → citySlug 🐛
+
+Corregido bug en `supabaseTravelData.source.ts` que impedía cargar destinos publicados desde Supabase:
+
+**Problema:**
+- Al indexar destinations, el código intentaba resolver `citySlug` usando `countriesById` con `dbDest.city_id`
+- `countriesById` mapea `country_id` → `countrySlug`, no `city_id` → `citySlug`
+- Resultado: siempre retornaba `undefined`, los destinations se saltaban con `continue`
+
+**Fix aplicado:**
+- Agregado `citiesById` al cache: mapea `city_id` (UUID) → `citySlug`
+- Al indexar ciudades: guardar `cache.citiesById.set(dbCity.id, city.slug)`
+- Al indexar destinations: usar `cache.citiesById.get(dbDest.city_id)`
+
+**Archivo modificado:**
+- `src/features/travelData/sources/supabaseTravelData.source.ts`
+
+**Verificación:**
+- ✅ `npm run build` exitoso
+- Build: 683 modules, sin errores TypeScript ni vite
+
+---
+
 ### 2026-05-01 - Handoff para v0: Documento de rediseño visual 🎨
 
 Creado documento de handoff para equipo de diseño v0 con especificaciones claras de rediseño visual:
