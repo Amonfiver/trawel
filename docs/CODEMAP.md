@@ -20,6 +20,7 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `EXPERIENCE_MODE_AUDIT.md` - Auditoría del modo Aventura/Estudiante
 - `V0_HANDOFF.md` - Handoff para rediseño visual con v0
 - `MAP_ASSET_PLAN.md` - Plan de assets cartográficos (diagnóstico SpainMap)
+- `MAP_SOURCE_COMPARISON.md` - Comparación geoBoundaries vs Natural Earth para España
 - `DECISIONES.md` - Registro de decisiones técnicas
 - `BITACORA.md` - Bitácora activa del proyecto
 - `BITACORA_001.md` - Archivo histórico de bitácora
