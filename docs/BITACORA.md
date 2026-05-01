@@ -39,6 +39,83 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - SpainMap v2: Fix visual - Provincias ahora visibles 🎨
+
+Corregido problema de visibilidad de provincias en el mapa de España. Aunque el renderizado funcionaba (52 provincias sin errores), las provincias eran prácticamente invisibles por falta de contraste con el fondo.
+
+**Causa raíz:**
+- Fill de provincias: `#e2e8f0` (gris muy claro) sobre fondo `#f8fafc` (casi blanco)
+- Stroke: `#94a3b8` (gris claro) sin suficiente contraste
+- Diferencia de contraste insuficiente para distinguir provincias visualmente
+
+**Fix aplicado:**
+```typescript
+// Estilos inline visibles aplicados a cada path de provincia
+.attr('fill', '#cbd5e1')           // Antes: #e2e8f0 → Ahora: gris medio más visible
+.attr('stroke', '#475569')         // Antes: #94a3b8 → Ahora: gris oscuro visible
+.attr('stroke-width', 0.8)
+.attr('vector-effect', 'non-scaling-stroke')
+.attr('opacity', 1)
+```
+
+**Hover mejorado:**
+- Mouseover: `#94a3b8` fill + `#1e293b` stroke (más oscuro)
+- Mouseout: vuelve a colores base
+
+**Logs de debug mejorados:**
+- `JSON.stringify(bounds)` para ver coordenadas reales
+- Primer path logueado (primeros 80 chars) para verificar geometría
+
+**Archivos modificados:**
+- `src/features/map/components/SpainMap/SpainMap.tsx`
+
+**Verificación:**
+- ✅ Build exitoso (sin errores TypeScript)
+- ✅ 52 provincias renderizadas con contraste visible
+- ✅ Ciudades (Morella, Albarracín) siguen visibles encima
+- ✅ Hover interactivo funciona
+- ✅ Fallback, atribución y clicks preservados
+
+---
+
+### 2026-05-01 - SpainMap v2: Debug de renderizado de provincias 🔍
+
+Añadidos logs extensivos de desarrollo para diagnosticar problemas de renderizado visual:
+
+**Cambios realizados:**
+- Logs detallados en cada paso del proceso (carga, conversión, renderizado)
+- Verificación de geometrías válidas antes de procesar
+- Contadores de provincias renderizadas vs errores
+- Cálculo de bounds para debug
+- Validación de paths generados (detecta paths vacíos)
+
+**Estructura SVG mejorada:**
+```svg
+<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+  <rect fill="#f8fafc" />           <!-- Fondo -->
+  <g class="provincesGroup">        <!-- Provincias -->
+    <path d="..." fill="#e2e8f0" stroke="#94a3b8" />
+  </g>
+  <g class="citiesGroup">           <!-- Ciudades (encima) -->
+    <circle />
+    <text />
+  </g>
+</svg>
+```
+
+**Logs disponibles en consola:**
+- `[SpainMap] Asset loaded, topology keys`
+- `[SpainMap] Features convertidos: 52`
+- `[SpainMap] Creando proyección para X features`
+- `[SpainMap] Bounds calculados`
+- `[SpainMap] Provincias renderizadas: X Errores: Y`
+- `[SpainMap] Renderizado completo`
+
+**Archivos modificados:**
+- `src/features/map/components/SpainMap/SpainMap.tsx` (líneas 68-260)
+
+---
+
 ### 2026-05-01 - SpainMap v2: Fix clave topology.objects.spain 🐛
 
 Corregido bug que impedía renderizar el mapa (aparecía fallback en lugar de provincias):

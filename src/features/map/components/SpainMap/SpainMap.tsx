@@ -79,8 +79,6 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
         }
 
         const topology = await response.json();
-        console.log('[SpainMap] Asset loaded, topology keys:', Object.keys(topology));
-        console.log('[SpainMap] topology.objects keys:', Object.keys(topology.objects));
 
         // La clave correcta es "spain", no "spain_adm2"
         const objectKey = 'spain';
@@ -94,15 +92,20 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
           features: ProvinceFeature[];
         };
 
-        console.log('[SpainMap] Features convertidos:', geojson.features.length);
+        console.log('[SpainMap] Asset cargado:', geojson.features.length, 'provincias');
 
         if (!geojson.features || geojson.features.length === 0) {
           throw new Error('No se encontraron features en el GeoJSON convertido');
         }
 
-        setProvinces(geojson.features);
+        // Verificar que las geometrías son válidas
+        const validFeatures = geojson.features.filter((f: ProvinceFeature) => {
+          const geom = f.geometry as { type?: string; coordinates?: unknown } | undefined;
+          return geom && geom.type && geom.coordinates;
+        });
+
+        setProvinces(validFeatures);
         setLoading(false);
-        console.log('[SpainMap] Renderizado listo');
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
         console.error('[SpainMap] Error:', errorMsg);
@@ -116,7 +119,9 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
 
   // Renderizar D3 cuando los datos estén listos
   useEffect(() => {
-    if (!svgRef.current || provinces.length === 0 || loading) return;
+    if (!svgRef.current || provinces.length === 0 || loading) {
+      return;
+    }
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Limpiar contenido previo
@@ -124,13 +129,21 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
     const width = 800;
     const height = 600;
 
+    // Fondo del SVG
+    svg.append('rect')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('fill', '#f8fafc');
+
     // Crear proyección (ajustada para España)
+    const featureCollection: GeoJSON.FeatureCollection = {
+      type: 'FeatureCollection',
+      features: provinces as GeoJSON.Feature[],
+    };
+
     const projection = d3
       .geoMercator()
-      .fitSize([width, height], {
-        type: 'FeatureCollection',
-        features: provinces,
-      } as GeoJSON.FeatureCollection);
+      .fitSize([width, height], featureCollection);
 
     const path = d3.geoPath().projection(projection);
 
@@ -138,26 +151,61 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
     const g = svg.append('g').attr('class', styles.provincesGroup);
 
     // Renderizar provincias
-    g.selectAll('path')
+    let renderedCount = 0;
+    let errorCount = 0;
+
+    const provincePaths = g.selectAll('path')
       .data(provinces)
       .enter()
       .append('path')
-      .attr('d', (d) => path(d as d3.GeoPermissibleObjects) || '')
+      .attr('d', (d) => {
+        try {
+          const dPath = path(d as d3.GeoPermissibleObjects);
+          if (dPath) {
+            renderedCount++;
+          } else {
+            errorCount++;
+            console.warn('[SpainMap] Path vacío para:', d.properties?.shapeName);
+          }
+          return dPath || '';
+        } catch (e) {
+          errorCount++;
+          console.error('[SpainMap] Error generando path para', d.properties?.shapeName, ':', e);
+          return '';
+        }
+      })
       .attr('class', styles.province)
-      .attr('fill', '#e2e8f0')
-      .attr('stroke', '#94a3b8')
-      .attr('stroke-width', 1)
+      // Estilos inline visibles para asegurar que se ven las provincias
+      .attr('fill', '#cbd5e1')           // Gris más oscuro para mejor contraste
+      .attr('stroke', '#475569')         // Gris oscuro para bordes visibles
+      .attr('stroke-width', 0.8)
+      .attr('stroke-linejoin', 'round')
+      .attr('vector-effect', 'non-scaling-stroke')
+      .attr('opacity', 1)
+      .style('cursor', 'pointer');
+
+    // Hover effects con colores más contrastados
+    provincePaths
       .on('mouseover', function () {
-        d3.select(this).attr('fill', '#cbd5e1').attr('stroke', '#64748b');
+        d3.select(this)
+          .attr('fill', '#94a3b8')       // Más oscuro en hover
+          .attr('stroke', '#1e293b');    // Casi negro en hover
       })
       .on('mouseout', function () {
-        d3.select(this).attr('fill', '#e2e8f0').attr('stroke', '#94a3b8');
+        d3.select(this)
+          .attr('fill', '#cbd5e1')       // Volver al color base
+          .attr('stroke', '#475569');    // Volver al stroke base
       });
+
+    if (errorCount > 0) {
+      console.warn('[SpainMap] Renderizado con', errorCount, 'errores de', provinces.length, 'provincias');
+    }
+
+    // Grupo para ciudades (encima de provincias)
+    const citiesGroup = svg.append('g').attr('class', styles.citiesGroup);
 
     // Proyectar y renderizar ciudades
     const citiesWithCoords = cities.filter((city) => city.coordinates);
-
-    const citiesGroup = svg.append('g').attr('class', styles.citiesGroup);
 
     citiesGroup
       .selectAll('circle')
@@ -166,11 +214,15 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
       .append('circle')
       .attr('cx', (d) => {
         const coords = d.coordinates;
-        return coords ? projection([coords.lng, coords.lat])?.[0] || 0 : 0;
+        if (!coords) return 0;
+        const projected = projection([coords.lng, coords.lat]);
+        return projected ? projected[0] : 0;
       })
       .attr('cy', (d) => {
         const coords = d.coordinates;
-        return coords ? projection([coords.lng, coords.lat])?.[1] || 0 : 0;
+        if (!coords) return 0;
+        const projected = projection([coords.lng, coords.lat]);
+        return projected ? projected[1] : 0;
       })
       .attr('r', (d) => (d.featured ? 10 : 7))
       .attr('class', (d) =>
@@ -206,12 +258,15 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
       .append('text')
       .attr('x', (d) => {
         const coords = d.coordinates;
-        return coords ? projection([coords.lng, coords.lat])?.[0] || 0 : 0;
+        if (!coords) return 0;
+        const projected = projection([coords.lng, coords.lat]);
+        return projected ? projected[0] : 0;
       })
       .attr('y', (d) => {
         const coords = d.coordinates;
-        const y = coords ? projection([coords.lng, coords.lat])?.[1] || 0 : 0;
-        return y - (d.featured ? 18 : 14);
+        if (!coords) return 0;
+        const projected = projection([coords.lng, coords.lat]);
+        return projected ? projected[1] - (d.featured ? 18 : 14) : 0;
       })
       .attr('text-anchor', 'middle')
       .attr('class', (d) =>
@@ -261,6 +316,7 @@ export function SpainMap({ cities, countrySlug }: SpainMapProps) {
         <svg
           ref={svgRef}
           viewBox="0 0 800 600"
+          preserveAspectRatio="xMidYMid meet"
           className={styles.svg}
           role="img"
           aria-label="Mapa de España con provincias y ciudades disponibles"
