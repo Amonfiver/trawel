@@ -551,7 +551,7 @@ src/utils/
 scripts/
 ├── exportMockToSqlSeed.ts         # Exporta datos mock a SQL seed para Supabase
 ├── inspect-map-asset.ts           # Inspecciona archivos GeoJSON/TopoJSON de mapas
-└── download-geoboundaries.ts      # Descarga assets de geoBoundaries (fallback)
+└── download-geoboundaries.ts      # Descarga automática assets de geoBoundaries
 ```
 
 **Responsabilidad:** Scripts Node.js/TypeScript para tareas de mantenimiento, migración y procesado de assets.
@@ -569,15 +569,39 @@ npm run export:seed
 
 ### `inspect-map-asset.ts`
 - Analiza archivos GeoJSON/TopoJSON descargados
+- Exporta funciones reutilizables: `analyzeMapAsset()`, `extractFeatures()`, `searchTerms()`, `detectADM2Level()`
 - Extrae información: tamaño, campos, nombres de provincias, nivel administrativo
 - Busca términos específicos (Castellón, Teruel, etc.)
 - Verifica metadatos de licencia
-- Uso: `npx tsx scripts/inspect-map-asset.ts <ruta-al-archivo>`
+
+**Uso directo:**
+```bash
+npx tsx scripts/inspect-map-asset.ts <ruta-al-archivo>
+```
+
+**Uso como módulo:**
+```typescript
+import { analyzeMapAsset, displayAnalysis } from './inspect-map-asset.js';
+const analysis = analyzeMapAsset('ruta/al/archivo.geojson');
+displayAnalysis(analysis);
+```
 
 ### `download-geoboundaries.ts`
-- Intenta descargar assets de geoBoundaries automáticamente
-- Nota: Puede fallar en entornos con restricciones de GitHub LFS
-- Uso: `npx tsx scripts/download-geoboundaries.ts`
+- **Flujo automático completo:**
+  1. Consulta API de geoBoundaries: `https://www.geoboundaries.org/api/current/gbOpen/ESP/ADM2`
+  2. Detecta campo `gjDownloadURL` en metadata
+  3. Descarga GeoJSON automáticamente
+  4. Ejecuta análisis integrado vía `inspect-map-asset.ts`
+  5. Genera reporte completo
+- Sigue redirecciones HTTP automáticamente
+- Limpia archivos corruptos si falla
+- Guarda metadata en: `public/maps/countries/spain/spain-adm2-metadata.json`
+- Guarda GeoJSON en: `public/maps/countries/spain/spain-adm2-raw.geojson`
+
+**Uso:**
+```bash
+npm run maps:spain:prepare
+```
 
 **Requisitos para todos los scripts:**
 - `@types/node` - Tipos de Node.js

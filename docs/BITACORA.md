@@ -39,29 +39,43 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
-### 2026-05-01 - Preparada prueba técnica para asset de mapa de España 🗺️
+### 2026-05-01 - Asset de mapa de España descargado automáticamente ✅🗺️
 
-Creada infraestructura para evaluar geoBoundaries ADM2 (provincias) como candidato para reemplazar SpainMap prototipo temporal:
+Implementado flujo automático completo para descargar y evaluar geoBoundaries ADM2 (provincias) como candidato para reemplazar SpainMap prototipo temporal:
 
-**Zona controlada creada:**
-- `public/maps/countries/spain/` - Carpeta para assets cartográficos de España
+**Zona controlada:**
+```
+public/maps/countries/spain/
+├── spain-adm2-raw.geojson       (40.83 MB - descargado automáticamente)
+└── spain-adm2-metadata.json     (generado desde API)
+```
 
-**Scripts creados:**
+**Comando implementado:**
+```bash
+npm run maps:spain:prepare
+```
+
+**Scripts creados/mejorados:**
 | Script | Propósito |
 |--------|-----------|
-| `scripts/inspect-map-asset.ts` | Inspección de GeoJSON/TopoJSON (Node nativo, sin dependencias) |
-| `scripts/download-geoboundaries.ts` | Intento automatizado de descarga (fallback) |
+| `scripts/download-geoboundaries.ts` | Flujo automático: API → metadata → GeoJSON → análisis |
+| `scripts/inspect-map-asset.ts` | Funciones exportables para análisis de GeoJSON/TopoJSON |
 
-**Documentación creada:**
-- `docs/SPAIN_MAP_ASSET_TEST.md` - Nota técnica completa con:
-  - Instrucciones de descarga manual desde geoBoundaries
-  - Especificaciones esperadas del asset (~52 provincias)
-  - Licencia detectada: CC BY 4.0 (requiere atribución visible)
-  - Análisis: ADM2 permite diferenciar Castellón y Teruel ✅
+**Resultados de la descarga:**
+- **API consultada:** `https://www.geoboundaries.org/api/current/gbOpen/ESP/ADM2`
+- **Asset descargado:** 40.83 MB GeoJSON con 52 provincias
+- **Nivel confirmado:** ADM2 (provincias) ✅
+- **Castellón:** ✅ Encontrado (aparece como "Castellon")
+- **Teruel:** ✅ Encontrado
+- **Licencia:** CC BY 4.0 - Requiere atribución visible
 
-**Estado:** Pendiente descarga manual del archivo GeoJSON (GitHub LFS bloquea descargas automatizadas)
+**Documentación actualizada:**
+- `docs/SPAIN_MAP_ASSET_TEST.md` - Nota técnica completa con resultados reales
+- `package.json` - Añadido script `maps:spain:prepare`
 
-**Próximo paso:** Descargar manualmente `ESP_ADM2.geojson` desde https://www.geoboundaries.org/ y ejecutar script de inspección
+**Estado:** ✅ COMPLETADO - Asset listo para optimización (<100KB) e integración futura
+
+**Próximo paso:** Simplificar geometría (~1% de detalle) y convertir a TopoJSON para uso en producción
 
 ---
 
