@@ -231,7 +231,51 @@ Ratio de compresión: 99.9%
 
 ---
 
-## 11. Registro de Cambios
+## 11. Corrección de Orientación de Polígonos (Winding)
+
+### Problema Detectado (2026-05-01)
+
+Al renderizar el asset en SpainMap, cada provincia mostraba un rectángulo gigante además de su forma real:
+
+```
+Ejemplo de path antes de la corrección:
+M395...Z                          ← Forma real de la provincia
+M700,0L700,12.246L700,78.668...   ← Rectángulo gigante (clip extent)
+```
+
+**Causa raíz:** D3 geoPath interpretaba los polígonos como "complementarios" (agujeros del mundo exterior) en lugar de polígonos normales. Esto ocurre cuando la orientación de los anillos (winding) no coincide con lo que D3 espera.
+
+**Expectativa de D3:**
+- Anillo exterior: área negativa (clockwise en coordenadas de pantalla)
+- Anillos interiores: área positiva (counter-clockwise)
+
+**Realidad del asset geoBoundaries:**
+- Anillo exterior: área positiva (counter-clockwise)
+- Esto causaba que D3 interpretara cada provincia como "el mundo menos esta provincia"
+
+### Solución Implementada
+
+Se añadió una fase de **normalización de orientación** en `scripts/prepare-spain-map-asset.ts`:
+
+1. **Función `ringArea()`**: Calcula área firmada usando fórmula del shoelace
+2. **Función `normalizePolygon()`**: Invierte anillos según su área para cumplir expectativa de D3
+3. **Función `normalizeGeoJSON()`**: Aplica normalización a todas las features (Polygon y MultiPolygon)
+
+```typescript
+// Lógica de normalización:
+if (exteriorArea > 0) reverseRing(exterior);  // Exterior debe tener área negativa
+if (interiorArea < 0) reverseRing(interior);  // Interiores deben tener área positiva
+```
+
+### Resultado Post-Corrección
+
+| Aspecto | Antes | Después |
+|---------|-------|---------|
+| Visualización | Rectángulos gigantes + provincia | Solo provincia |
+| Paths SVG | Doble path por provincia | Single path limpio |
+| Renderizado | Incorrecto (complementario) | Correcto |
+
+## 12. Registro de Cambios
 
 | Fecha | Cambio |
 |-------|--------|
@@ -243,7 +287,8 @@ Ratio de compresión: 99.9%
 | 2026-05-01 | **Castellón y Teruel confirmadas** como provincias separadas |
 | 2026-05-01 | **Asset optimizado** - 40.83 MB → 52.59 KB TopoJSON |
 | 2026-05-01 | **Asset listo para producción** - Tamaño ideal, todas las provincias |
+| 2026-05-01 | **Corrección de winding** - Añadida normalización de orientación de polígonos para D3 |
 
 ---
 
-*Documento actualizado tras descarga exitosa del asset geoBoundaries ESP ADM2.*
+*Documento actualizado tras corrección de orientación de polígonos.*

@@ -39,6 +39,35 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial recientes (últimas entradas)
 
+### 2026-05-01 - SpainMap v2: Fix de orientación de polígonos (winding) 🗺️
+
+Corregido problema crítico donde cada provincia mostraba un rectángulo gigante además de su forma real.
+
+**Diagnóstico real:**
+- En DevTools, cada path de provincia contenía: `M395...Z` (forma real) + `M700,0...L100,0Z` (rectángulo gigante)
+- Causa: D3 geoPath interpretaba polígonos como "complementarios" (agujeros del mundo)
+- Problema de orientación (winding): anillos exteriores tenían área positiva en lugar de negativa
+
+**Fix aplicado en pipeline de asset:**
+- Añadida fase de normalización en `scripts/prepare-spain-map-asset.ts`
+- Función `ringArea()` calcula área firmada (fórmula del shoelace)
+- Función `normalizePolygon()` invierte anillos según área para cumplir expectativa de D3
+- Exterior: área negativa (clockwise), Interiores: área positiva (counter-clockwise)
+
+**Archivos modificados:**
+- `scripts/prepare-spain-map-asset.ts` - Pipeline con normalización de orientación
+- `public/maps/countries/spain/spain-adm2.topojson` - Regenerado con winding correcto
+
+**Verificación post-fix:**
+- ✅ Paths SVG ya NO contienen rectángulo gigante
+- ✅ Solo se renderiza la forma real de cada provincia
+- ✅ 52 provincias conservadas
+- ✅ Castellón y Teruel presentes
+- ✅ Tamaño: 52.59 KB (sin cambio)
+- ✅ Build exitoso
+
+---
+
 ### 2026-05-01 - SpainMap v2: Fix visual - Provincias ahora visibles 🎨
 
 Corregido problema de visibilidad de provincias en el mapa de España. Aunque el renderizado funcionaba (52 provincias sin errores), las provincias eran prácticamente invisibles por falta de contraste con el fondo.
@@ -46,37 +75,18 @@ Corregido problema de visibilidad de provincias en el mapa de España. Aunque el
 **Causa raíz:**
 - Fill de provincias: `#e2e8f0` (gris muy claro) sobre fondo `#f8fafc` (casi blanco)
 - Stroke: `#94a3b8` (gris claro) sin suficiente contraste
-- Diferencia de contraste insuficiente para distinguir provincias visualmente
 
 **Fix aplicado:**
 ```typescript
-// Estilos inline visibles aplicados a cada path de provincia
-.attr('fill', '#cbd5e1')           // Antes: #e2e8f0 → Ahora: gris medio más visible
-.attr('stroke', '#475569')         // Antes: #94a3b8 → Ahora: gris oscuro visible
-.attr('stroke-width', 0.8)
-.attr('vector-effect', 'non-scaling-stroke')
-.attr('opacity', 1)
+.attr('fill', '#cbd5e1')           // Gris medio más visible
+.attr('stroke', '#475569')         // Gris oscuro visible
 ```
-
-**Hover mejorado:**
-- Mouseover: `#94a3b8` fill + `#1e293b` stroke (más oscuro)
-- Mouseout: vuelve a colores base
-
-**Logs de debug mejorados:**
-- `JSON.stringify(bounds)` para ver coordenadas reales
-- Primer path logueado (primeros 80 chars) para verificar geometría
 
 **Archivos modificados:**
 - `src/features/map/components/SpainMap/SpainMap.tsx`
 
-**Verificación:**
-- ✅ Build exitoso (sin errores TypeScript)
-- ✅ 52 provincias renderizadas con contraste visible
-- ✅ Ciudades (Morella, Albarracín) siguen visibles encima
-- ✅ Hover interactivo funciona
-- ✅ Fallback, atribución y clicks preservados
-
 ---
+
 
 ### 2026-05-01 - SpainMap v2: Debug de renderizado de provincias 🔍
 

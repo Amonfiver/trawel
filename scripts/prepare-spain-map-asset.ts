@@ -66,6 +66,111 @@ function normalizeText(text: string): string {
     .replace(/[^a-z0-9]/g, '');
 }
 
+// ============ NORMALIZACIÓN DE ORIENTACIÓN DE POLÍGONOS ============
+
+/**
+ * Calcula el área firmada de un anillo usando la fórmula del shoelace.
+ * Área positiva = counter-clockwise
+ * Área negativa = clockwise
+ */
+function ringArea(ring: number[][]): number {
+  let area = 0;
+  const len = ring.length;
+  for (let i = 0; i < len; i++) {
+    const j = (i + 1) % len;
+    area += ring[i][0] * ring[j][1];
+    area -= ring[j][0] * ring[i][1];
+  }
+  return area / 2;
+}
+
+/**
+ * Invierte el orden de un anillo.
+ */
+function reverseRing(ring: number[][]): number[][] {
+  return [...ring].reverse();
+}
+
+/**
+ * Normaliza la orientación de un polígon para D3:
+ * - Exterior debe tener área negativa (clockwise en proyección cartográfica)
+ * - Interiores deben tener área positiva (counter-clockwise)
+ * 
+ * Esto corrige el problema donde D3 geoPath interpretaba polígonos
+ * invertidos y añadía un rectángulo de clip grande a cada provincia.
+ */
+function normalizePolygon(rings: number[][][]): number[][][] {
+  if (!rings || rings.length === 0) return rings;
+
+  const normalized: number[][][] = [];
+  
+  // El primer anillo es el exterior
+  const exterior = rings[0];
+  const exteriorArea = ringArea(exterior);
+  
+  // Para D3: exterior debe tener área negativa
+  // Si el área es positiva, invertimos el anillo
+  if (exteriorArea > 0) {
+    normalized.push(reverseRing(exterior));
+  } else {
+    normalized.push([...exterior]);
+  }
+  
+  // Los anillos restantes son interiores (holes)
+  for (let i = 1; i < rings.length; i++) {
+    const interior = rings[i];
+    const interiorArea = ringArea(interior);
+    
+    // Para D3: interiores deben tener área positiva
+    // Si el área es negativa, invertimos el anillo
+    if (interiorArea < 0) {
+      normalized.push(reverseRing(interior));
+    } else {
+      normalized.push([...interior]);
+    }
+  }
+  
+  return normalized;
+}
+
+/**
+ * Normaliza la orientación de todas las geometrías de un FeatureCollection.
+ */
+function normalizeGeoJSON(geojson: any): any {
+  if (!geojson || !geojson.features) return geojson;
+
+  const normalizedFeatures = geojson.features.map((feature: any) => {
+    if (!feature.geometry) return feature;
+    
+    const geometry = feature.geometry;
+    let newGeometry = geometry;
+    
+    if (geometry.type === 'Polygon') {
+      newGeometry = {
+        ...geometry,
+        coordinates: normalizePolygon(geometry.coordinates)
+      };
+    } else if (geometry.type === 'MultiPolygon') {
+      newGeometry = {
+        ...geometry,
+        coordinates: geometry.coordinates.map((polygon: number[][][]) => 
+          normalizePolygon(polygon)
+        )
+      };
+    }
+    
+    return {
+      ...feature,
+      geometry: newGeometry
+    };
+  });
+
+  return {
+    ...geojson,
+    features: normalizedFeatures
+  };
+}
+
 // ============ MAIN ============
 
 async function main() {
@@ -115,19 +220,26 @@ ${COLORS.reset}\n`);
   log('Provincia Castellón', hasCastellon ? '✓ Encontrada' : '✗ No encontrada', hasCastellon ? 'green' : 'red');
   log('Provincia Teruel', hasTeruel ? '✓ Encontrada' : '✗ No encontrada', hasTeruel ? 'green' : 'red');
 
-  // PASO 3: Convertir a TopoJSON
-  logSection('PASO 3: CONVERTIR A TOPOJSON');
+  // PASO 3: Normalizar orientación de polígonos para D3
+  logSection('PASO 3: NORMALIZAR ORIENTACIÓN DE POLÍGONOS');
+  
+  console.log(`Normalizando winding de polígonos para D3...`);
+  const normalizedGeoJSON = normalizeGeoJSON(geojson);
+  console.log(`✓ Orientación normalizada para ${normalizedGeoJSON.features.length} features`);
+
+  // PASO 4: Convertir a TopoJSON
+  logSection('PASO 4: CONVERTIR A TOPOJSON');
   
   console.log(`Convirtiendo GeoJSON a TopoJSON...`);
   
   // Usar topojson-server para convertir
   // El objeto debe tener una clave para cada colección de geometrías
-  const topology = geojson2topojson.topology({ spain: geojson });
+  const topology = geojson2topojson.topology({ spain: normalizedGeoJSON });
   
   log('Objetos en topología', Object.keys(topology.objects).join(', '));
   
-  // PASO 4: Simplificar geometrías
-  logSection('PASO 4: SIMPLIFICAR GEOMETRÍAS');
+  // PASO 5: Simplificar geometrías
+  logSection('PASO 5: SIMPLIFICAR GEOMETRÍAS');
   
   console.log(`Factor de simplificación: ${(CONFIG.simplificationFactor * 100).toFixed(1)}%`);
   
@@ -137,8 +249,8 @@ ${COLORS.reset}\n`);
   const simplified: any = topojson.presimplify(topologyAny);
   const simplifiedTopology = topojson.simplify(simplified, CONFIG.simplificationFactor);
   
-  // PASO 5: Guardar resultado
-  logSection('PASO 5: GUARDAR TOPOJSON OPTIMIZADO');
+  // PASO 6: Guardar resultado
+  logSection('PASO 6: GUARDAR TOPOJSON OPTIMIZADO');
   
   // Asegurar que el directorio existe
   const outputDir = path.dirname(outputPath);
@@ -157,8 +269,8 @@ ${COLORS.reset}\n`);
   log('Tamaño final', formatBytes(outputStats.size), outputStats.size <= CONFIG.targetSizeKB * 1024 ? 'green' : outputStats.size <= CONFIG.acceptableSizeKB * 1024 ? 'yellow' : 'red');
   log('Ratio de compresión', `${compressionRatio}%`);
 
-  // PASO 6: Validar resultado
-  logSection('PASO 6: VALIDAR RESULTADO');
+  // PASO 7: Validar resultado
+  logSection('PASO 7: VALIDAR RESULTADO');
   
   const outputTopo = JSON.parse(fs.readFileSync(outputPath, 'utf-8'));
   const outputGeometries = outputTopo.objects?.spain?.geometries?.length || 0;
@@ -177,11 +289,17 @@ ${COLORS.reset}\n`);
   const arcCount = outputTopo.arcs?.length || 0;
   log('Número de arcos', arcCount, 'cyan');
 
-  // PASO 7: Resumen final
+  // PASO 8: Resumen final
   logSection('RESUMEN FINAL');
   
   console.log(`${COLORS.bold}Transformación:${COLORS.reset}`);
   console.log(`  ${formatBytes(inputStats.size)} → ${formatBytes(outputStats.size)} (${compressionRatio}% reducción)`);
+  
+  console.log(`\n${COLORS.bold}Proceso:${COLORS.reset}`);
+  console.log(`  1. GeoJSON raw cargado`);
+  console.log(`  2. Orientación de polígonos normalizada (winding corregido)`);
+  console.log(`  3. Convertido a TopoJSON`);
+  console.log(`  4. Geometrías simplificadas`);
   
   console.log(`\n${COLORS.bold}Archivos:${COLORS.reset}`);
   console.log(`  📄 Raw:      ${CONFIG.inputFile}`);
@@ -191,6 +309,7 @@ ${COLORS.reset}\n`);
   console.log(`  • Features:   ${originalFeatures} → ${outputGeometries} ${originalFeatures === outputGeometries ? '✓' : '⚠'}`);
   console.log(`  • Castellón:  ${outputHasCastellon ? '✓' : '✗'}`);
   console.log(`  • Teruel:     ${outputHasTeruel ? '✓' : '✗'}`);
+  console.log(`  • Winding:    Corregido para D3 ✓`);
   
   // Conclusión
   const sizeOK = outputStats.size <= CONFIG.acceptableSizeKB * 1024;
