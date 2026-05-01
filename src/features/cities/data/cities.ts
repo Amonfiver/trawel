@@ -91,6 +91,22 @@ export const cities: CityDictionary = {
     coordinates: { lat: 40.6208, lng: 0.0994 },
   },
 
+  albarracin: {
+    id: 'albarracin',
+    slug: 'albarracin',
+    countrySlug: 'espana',
+    name: createLocalizedText('Albarracín'),
+    shortDescription: createLocalizedText('Pueblo medieval con casas de entramado de madera y tonos rojizos, entre los más bonitos de España'),
+    contentByMode: {
+      adventure: createLocalizedText('Albarracín te transporta a la Edad Media con sus calles laberínticas, casas de entramado de madera pintadas en tonos rojizos y la imponente muralla que domina el río. Pasea por el barrio medieval, descubre la Plaza Mayor y sube al castillo para vistas panorámicas de este conjunto histórico declarado Monumento Nacional.'),
+      student: createLocalizedText('Albarracín es una ciudad medieval de la provincia de Teruel, capital del antiguo reino taifa de Albarracín. Conserva un conjunto histórico-artístico de gran valor con la plaza Mayor, el ayuntamiento, la catedral y el castillo. Sus casas de entramado de madera y yeso rojizo, adaptadas a la orografía escarpada, crean un paisaje urbano único en España.'),
+    },
+    status: 'active',
+    featured: true,
+    destinationCount: 1,
+    coordinates: { lat: 40.4086, lng: -1.4459 },
+  },
+
   // Japón
   tokyo: {
     id: 'tokyo',

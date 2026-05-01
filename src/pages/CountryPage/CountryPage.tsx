@@ -1,35 +1,39 @@
 /**
- * Página de ficha de país - Nivel País / Directorio Editorial
+ * Página de ficha de país - Nivel País / Exploración con Mapa Interno
  * 
- * Propósito: Mostrar información editorial completa de un país como directorio
- * de ciudades disponibles, con destinos destacados en sección secundaria.
+ * Propósito: Mostrar información de país con mapa interno como pieza principal
+ * de exploración, manteniendo lista de ciudades como apoyo secundario.
  * 
  * Alcance: 
- * - Hero visual claro del país con presentación editorial
- * - Sección principal de ciudades con mayor protagonismo
- * - Separación visual para ciudades comingSoon
- * - Destinos destacados en sección secundaria (no compiten con ciudades)
+ * - Hero visual claro del país
+ * - Mapa interno interactivo (pilot: España)
+ * - Lista de ciudades como sección secundaria
+ * - Fallback a directorio clásico para países sin mapa
+ * - Destinos destacados en sección terciaria
  * 
  * Decisiones técnicas:
- * - Usa getCountryPageData para obtener datos agregados desde travelData.service
- * - Jerarquía visual: País → Ciudades (principal) → Destinos (secundario)
- * - Responsive: adaptación progresiva de grids
- * - Mantiene compatibilidad con ExperienceMode (lee el modo global)
+ * - Usa getCountryPageData para obtener datos agregados
+ * - SpainMap como piloto arquitectónico (DA-027)
+ * - Jerarquía visual: País → Mapa (principal) → Lista Ciudades (secundaria)
+ * - Fallback automático si país no tiene mapa interno implementado
  * 
- * Cambios recientes (2026-04-29):
- * - Rediseño como "nivel país" con hero prominente
- * - Ciudades con mayor protagonismo visual
- * - Destinos destacados movidos a sección secundaria
- * - Mejor separación visual entre secciones
+ * Cambios recientes (2026-05-01):
+ * - Integración de SpainMap como mapa interno piloto
+ * - Estructura progresiva: mapa para España, lista para otros
+ * - Albarracín añadida al catálogo de ciudades españolas
  */
 
 import { useParams, Link } from 'react-router-dom';
 import { getCountryPageData } from '../../features/travelData';
+import { SpainMap } from '../../features/map/components/SpainMap';
 import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
 import type { CountryStatus } from '../../features/countries/data/countries.types';
 import styles from './CountryPage.module.css';
+
+// Países con mapa interno implementado (progresivo según DA-027)
+const COUNTRIES_WITH_INTERNAL_MAP = ['espana'];
 
 /**
  * CountryPage - Nivel País / Directorio Editorial de Ciudades
@@ -77,6 +81,9 @@ export function CountryPage() {
   // Estado editorial
   const statusLabel = getStatusLabel(country.status);
   const showStatusWarning = country.status !== 'active';
+
+  // Determinar si mostrar mapa interno
+  const hasInternalMap = countrySlug ? COUNTRIES_WITH_INTERNAL_MAP.includes(countrySlug) : false;
 
   return (
     <div className={styles.container}>
@@ -156,11 +163,26 @@ export function CountryPage() {
       </header>
 
       <main className={styles.main}>
-        {/* Sección Principal: Ciudades Disponibles */}
+        {/* Sección Principal: Mapa Interno (solo países con implementación) */}
+        {hasInternalMap && activeCities.length > 0 && (
+          <section className={styles.mapSection} aria-labelledby="map-title">
+            <div className={styles.sectionHeader}>
+              <h2 id="map-title" className={styles.sectionTitle}>
+                Explora en el mapa
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Haz clic en una ciudad para descubrir sus aventuras
+              </p>
+            </div>
+            <SpainMap cities={activeCities} countrySlug={countrySlug || ''} />
+          </section>
+        )}
+
+        {/* Sección Secundaria: Lista de Ciudades */}
         <section className={styles.citiesSection} aria-labelledby="cities-title">
           <div className={styles.sectionHeader}>
             <h2 id="cities-title" className={styles.sectionTitle}>
-              Explora sus ciudades
+              {hasInternalMap ? 'Todas las ciudades' : 'Explora sus ciudades'}
             </h2>
             <p className={styles.sectionSubtitle}>
               Selecciona una ciudad para descubrir sus aventuras

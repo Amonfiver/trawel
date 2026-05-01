@@ -163,24 +163,60 @@ Creado guion completo para presentar Trawel a socios/colaboradores:
 **Audiencia objetivo:** Vasyl y socios potenciales
 
 ---
+# BITÁCORA - Trawel
 
-### 2026-05-01 - Mensajes amables para contenido no disponible 📝
+> Registro de cambios significativos del proyecto
+> Formato: Fecha - Descripción concisa + referencias
 
-Mejorados los mensajes de "no encontrado" en CityPage y AdventurePage para alinearse con DA-028:
+---
 
-**Cambios aplicados:**
-- `src/pages/CityPage/CityPage.tsx`: Mensaje más amable para ciudades no disponibles
-- `src/pages/AdventurePage/AdventurePage.tsx`: Mensaje más amable para aventuras no publicadas
-- Estilos ajustados en ambos módulos CSS para mejor legibilidad
+## 2026-05-01
 
-**Nuevos mensajes:**
-- Ciudad no encontrada: "Esta ciudad todavía no está en Trawel" + explicación del proceso editorial
-- Aventura no encontrada: "Esta aventura todavía no está publicada" + énfasis en investigación previa
+### Piloto arquitectónico: Mapa interno de España (DA-027)
 
-**Principio aplicado (DA-028):**
-- No se exponen estados internos (disabled/draft)
-- Mensajes genéricos y honestos sobre disponibilidad
-- Navegación de vuelta mantenida cuando es posible
+**Cambios realizados:**
+- Nuevo componente `SpainMap` para visualización de ciudades españolas en mapa SVG interactivo
+- Integración en `CountryPage`: mapa interno como pieza principal para España, lista de ciudades como apoyo secundario
+- Fallback automático: países sin mapa interno mantienen el directorio clásico de ciudades
+- Añadida Albarracín al catálogo de ciudades españolas (con coordenadas para el mapa)
+- Estructura progresiva: `COUNTRIES_WITH_INTERNAL_MAP` permite activar mapas por país bajo demanda
+
+**Archivos modificados:**
+- `src/features/map/components/SpainMap/` (nuevo: componente, estilos, export)
+- `src/pages/CountryPage/CountryPage.tsx` (integración de SpainMap, lógica de fallback)
+- `src/pages/CountryPage/CountryPage.module.css` (estilos para sección de mapa)
+- `src/features/cities/data/cities.ts` (añadida Albarracín)
+- `docs/BITACORA.md` (este registro)
+
+**Criterios cumplidos:**
+- ✅ `/pais/espana` muestra mapa interno como elemento principal
+- ✅ Morella y Albarracín aparecen como puntos clickeables en el mapa
+- ✅ Navegación a CityPage funciona desde ambos puntos del mapa
+- ✅ Lista de ciudades visible como sección secundaria
+- ✅ Fallback para países sin mapa (Japón, Perú mantienen lista clásica)
+- ✅ Build sin errores
+- ✅ Responsive
+- ✅ Sin modificar Supabase/schema
+
+**Notas:**
+- Diseño visual es placeholder (piloto arquitectónico), versión definitiva vendrá de v0
+- Cartografía simplificada (silueta aproximada de España), pendiente de mejora cartográfica futura
+- Estrategia progresiva documentada en DA-027: solo España tiene mapa, otros países se añadirán bajo demanda
+
+---
+
+## 2026-05-01
+
+### Estado actual
+- Flujo público completo operativo: Home → País → Ciudad → Destino
+- Demo funcional: Morella + Castillo de Morella
+- Albarracín ahora visible en Trawel (status: active, con mapa interno)
+- Mapa interno de España operativo en `/pais/espana`
+
+### Tareas en curso
+- [ ] Revisar criterios de aceptación del proyecto
+- [ ] Verificar consistencia de rutas y navegación
+- [ ] Documentar flujo editorial completo
 
 ---
 
