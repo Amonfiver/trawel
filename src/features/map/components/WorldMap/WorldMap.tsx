@@ -77,6 +77,8 @@
    });
    const [isLoading, setIsLoading] = useState(true);
    const [error, setError] = useState<string | null>(null);
+   const [focusedTouchCountry, setFocusedTouchCountry] = useState<WorldCountry | null>(null);
+   const [hasTouchInteraction, setHasTouchInteraction] = useState(false);
 
    useEffect(() => {
      if (!svgRef.current) return;
@@ -156,6 +158,7 @@
        }
 
        activeTouchCountryRef.current = worldCountry;
+       setFocusedTouchCountry(worldCountry);
        setTooltip({
          visible: true,
          x: event.clientX + 12,
@@ -185,6 +188,7 @@
 
        suppressClickUntilRef.current = Date.now() + 1000;
        activeTouchPointersRef.current.add(event.pointerId);
+       setHasTouchInteraction(true);
 
        if (activeTouchPointersRef.current.size > 1) {
          cancelTouchIntent();
@@ -255,6 +259,9 @@
        cancelTouchIntent({ hideTooltip: false });
      };
 
+     const isTwoFingerTouchGesture = (event: Event) =>
+       'touches' in event && (event as TouchEvent).touches.length >= 2;
+
      svgRef.current.addEventListener('pointerdown', handlePointerDown);
      svgRef.current.addEventListener('pointermove', handlePointerMove);
      svgRef.current.addEventListener('pointerup', handlePointerEnd);
@@ -272,14 +279,19 @@
            return false;
          }
 
+         if (event.type.startsWith('touch')) {
+           return isTwoFingerTouchGesture(event);
+         }
+
          return true;
        })
        .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-         if (event.sourceEvent?.type === 'touchstart') {
+         const sourceEvent = event.sourceEvent as Event | null;
+         if (sourceEvent?.type === 'touchstart' && !isTwoFingerTouchGesture(sourceEvent)) {
            return;
          }
 
-         setTooltip(prev => ({ ...prev, visible: false }));
+         cancelTouchIntent();
        })
        .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
          mapLayer.attr('transform', event.transform.toString());
@@ -288,6 +300,10 @@
          if (sourceType === 'mousemove' || sourceType === 'touchmove' || sourceType === 'pointermove') {
            clearLongPressTimer();
            suppressClickUntilRef.current = Date.now() + 1000;
+
+           if (sourceType === 'touchmove') {
+             cancelTouchIntent();
+           }
          }
        });
 
@@ -420,6 +436,7 @@
    }, [navigate]);
 
    const tooltipCountryName = tooltip.country?.displayName || 'País no disponible';
+   const showTouchCountryButton = hasTouchInteraction && focusedTouchCountry && !isLoading && !error;
 
    return (
      <div
@@ -467,8 +484,22 @@
 
        {!isLoading && !error && (
          <p className={styles.touchHint} aria-hidden="true">
-           Explora con el dedo · mantén pulsado para entrar
+           1 dedo explora · 2 dedos mueven · Ir para entrar
          </p>
+       )}
+
+       {showTouchCountryButton && (
+         <button
+           type="button"
+           className={styles.touchCountryButton}
+           onClick={() => {
+             suppressClickUntilRef.current = Date.now() + 1000;
+             navigate(`/pais/${focusedTouchCountry.slug}`);
+           }}
+           aria-label={`Ir a ${focusedTouchCountry.displayName}`}
+         >
+           Ir a {focusedTouchCountry.displayName}
+         </button>
        )}
 
        {/* Tooltip simplificado - DA-029: solo bandera visual + nombre */}

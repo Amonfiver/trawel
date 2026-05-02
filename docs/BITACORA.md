@@ -637,5 +637,28 @@ Mejora de UX móvil para recuperar la exploración por tooltip del escritorio.
 
 ---
 
+## 2026-05-03 - Gestos táctiles separados en WorldMap
+
+Ajuste de UX móvil para que el mapa mundial distinga exploración y navegación.
+
+### Cambios
+
+- El gesto de un dedo queda reservado para explorar países y actualizar tooltip.
+- `d3.zoom` solo acepta gestos táctiles de dos dedos, manteniendo pinch zoom y pan ampliado.
+- Se añade botón flotante táctil "Ir a {país}" con el último país enfocado.
+- La ayuda móvil cambia a "1 dedo explora · 2 dedos mueven · Ir para entrar".
+- El long press de 700ms se mantiene como atajo, cancelado por movimiento o gestos de varios dedos.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-03*
