@@ -38,7 +38,7 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  padding-bottom: 52%; /* Aspect ratio 960:500 ≈ 1.92:1 */
+  padding-bottom: 52.083333%; /* Aspect ratio exacto del viewBox 960:500 */
   height: 0;
   overflow: hidden;
   touch-action: none;
@@ -268,10 +268,6 @@
     border-radius: 20px;
   }
   
-  .mapWrapper {
-    padding-bottom: 56%; /* Ligeramente más alto */
-  }
-  
   .legend {
     gap: 1rem;
     padding: 0.875rem 1rem 1.25rem;
@@ -290,10 +286,6 @@
     width: 100%;
   }
   
-  .mapWrapper {
-    padding-bottom: 62%; /* Más alto para móvil */
-  }
-
   .touchHint {
     display: block;
   }
@@ -327,13 +319,6 @@
   
   .legendItem {
     font-size: 0.8125rem;
-  }
-}
-
-/* Móvil pequeño */
-@media (max-width: 380px) {
-  .mapWrapper {
-    padding-bottom: 70%;
   }
 }
 

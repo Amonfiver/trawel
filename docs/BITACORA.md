@@ -660,5 +660,29 @@ Ajuste de UX móvil para que el mapa mundial distinga exploración y navegación
 
 ---
 
+## 2026-05-03 - Corrección de centrado en pinch zoom de WorldMap
+
+Ajuste quirúrgico tras prueba en móvil real.
+
+### Problema
+
+El wrapper del SVG usaba alturas responsive mayores que el ratio real del `viewBox` (`960:500`). Con `preserveAspectRatio="xMidYMid meet"`, eso introducía espacio vertical interno y el punto visual del gesto podía no coincidir con el viewport que D3 usa para centrar el zoom.
+
+### Cambios
+
+- `WorldMap` mantiene `extent`, `translateExtent`, `scaleExtent`, filtro táctil y transform sobre la capa `<g>`.
+- El wrapper del SVG queda alineado al ratio exacto del `viewBox` (`52.083333%`) también en tablet y móvil.
+- Se preserva `overflow: hidden` y `touch-action: none`.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-03*
