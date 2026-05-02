@@ -15,11 +15,13 @@
  * 
  * Cambios recientes (2026-04-28):
  * - Eliminada ruta /dev/import-investighost (Trawel no valida Investighost)
+ * - Añadida ruta /pais/:countrySlug/zona/:zoneSlug para zonas internas de mapas
  */
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
 import { CountryPage } from '../pages/CountryPage';
+import { CountryZonePage } from '../pages/CountryZonePage';
 import { CityPage } from '../pages/CityPage';
 import { AdventurePage } from '../pages/AdventurePage';
 
@@ -31,6 +33,10 @@ export const router = createBrowserRouter([
   {
     path: '/pais/:countrySlug',
     element: <CountryPage />,
+  },
+  {
+    path: '/pais/:countrySlug/zona/:zoneSlug',
+    element: <CountryZonePage />,
   },
   {
     path: '/pais/:countrySlug/:citySlug',

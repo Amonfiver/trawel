@@ -1,0 +1,151 @@
+/*
+ * Purpose: Style the country zone placeholder page.
+ * Scope: Breadcrumb, zone hero, coming-soon content panel, and back navigation.
+ * Decisions: Reuses the quiet CountryPage visual language without adding final v0 design.
+ * Limitations: Button is intentionally disabled because publishing is not implemented yet.
+ * Recent changes: Initial styles for /pais/:countrySlug/zona/:zoneSlug.
+ */
+
+.container {
+  max-width: 960px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 1rem;
+  background: #f8f9fa;
+}
+
+.hero {
+  margin: 1rem 0 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 55%, #e8eef3 100%);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.breadcrumbLink {
+  color: #2563eb;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.breadcrumbLink:hover {
+  background: rgba(37, 99, 235, 0.1);
+  text-decoration: underline;
+}
+
+.breadcrumbSeparator {
+  color: #9ca3af;
+}
+
+.breadcrumbCurrent {
+  color: #111827;
+  font-weight: 500;
+}
+
+.kicker {
+  margin: 0 0 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0 0 0.75rem;
+  color: #111827;
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 1.1;
+}
+
+.subtitle {
+  max-width: 640px;
+  margin: 0;
+  color: #4b5563;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel {
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.panelContent {
+  max-width: 680px;
+}
+
+.panelTitle {
+  margin: 0 0 0.75rem;
+  color: #111827;
+  font-size: clamp(1.375rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+.panelText {
+  margin: 0 0 1.5rem;
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.placeholderButton {
+  padding: 0.875rem 1.5rem;
+  color: #475569;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: not-allowed;
+}
+
+.note {
+  margin: 0.75rem 0 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.backLink {
+  width: fit-content;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.backLink:hover {
+  background: rgba(37, 99, 235, 0.16);
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0;
+  }
+
+  .hero,
+  .panel {
+    border-radius: 0;
+  }
+}

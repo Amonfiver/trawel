@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-05-02 - UX: click en zonas de mapa interno
+
+Corregido el comportamiento de click en zonas/regiones/provincias de `CountryInternalMap`. Antes el click/foco podía dejar un tooltip visual suelto sin llevar a ningún destino útil.
+
+### Cambios
+
+- `CountryInternalMap` extrae un nombre amable de la zona y genera un `zoneSlug` estable.
+- `CountryPage` navega al seleccionar una zona del mapa.
+- Nueva ruta pública: `/pais/:countrySlug/zona/:zoneSlug`.
+- Nueva `CountryZonePage` como placeholder editorial con mensaje “Próximamente aventuras en esta zona.”
+
+### Alcance
+
+- No se añadieron puntos, labels fijos ni marcadores al mapa.
+- No se implementó subida real de fotos, formulario complejo ni tablas nuevas.
+- No se tocó worker, GitHub Actions, Supabase, WorldMap ni Investighost.
+
+---
+
 ## 2026-05-02 - FIX: Estados Unidos usa ADM1
 
 Corregido el primer fallo real del worker automático para Estados Unidos: geoBoundaries respondía `HTTP 403` al intentar ADM2, además de ser un nivel demasiado granular para la experiencia pública.

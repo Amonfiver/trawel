@@ -1,3 +1,10 @@
+/**
+ * Purpose: Render an internal country map from local or Storage TopoJSON.
+ * Scope: Loads generic TopoJSON, renders areas, exposes hover tooltips and optional zone selection.
+ * Decisions: Keeps map visual-neutral with no fixed labels, points, or city markers.
+ * Limitations: Zone identity depends on available TopoJSON properties; fallback names stay user-friendly.
+ * Recent changes: Added stable zone selection payload for navigation to country zone placeholders.
+ */
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { feature } from 'topojson-client';
@@ -8,6 +15,12 @@ interface CountryInternalMapProps {
   assetUrl: string;
   countryName: string;
   attribution?: string;
+  onZoneSelect?: (zone: CountryInternalMapZone) => void;
+}
+
+export interface CountryInternalMapZone {
+  name: string;
+  slug: string;
 }
 
 interface TooltipData {
@@ -25,7 +38,12 @@ type TopologyLike = {
 const WIDTH = 900;
 const HEIGHT = 560;
 
-export function CountryInternalMap({ assetUrl, countryName, attribution }: CountryInternalMapProps) {
+export function CountryInternalMap({
+  assetUrl,
+  countryName,
+  attribution,
+  onZoneSelect,
+}: CountryInternalMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [features, setFeatures] = useState<GeoJSON.Feature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -131,6 +149,7 @@ export function CountryInternalMap({ assetUrl, countryName, attribution }: Count
       .attr('vector-effect', 'non-scaling-stroke')
       .attr('tabindex', '0')
       .attr('aria-label', (item) => getAreaName(item.properties))
+      .attr('role', onZoneSelect ? 'link' : 'img')
       .on('mouseover', function (event: MouseEvent, item) {
         d3.select(this)
           .transition()
@@ -180,8 +199,31 @@ export function CountryInternalMap({ assetUrl, countryName, attribution }: Count
           .style('filter', null);
 
         setTooltip((prev) => ({ ...prev, visible: false }));
+      })
+      .on('click', (_event, item) => {
+        if (!onZoneSelect) {
+          return;
+        }
+
+        const zoneName = getAreaName(item.properties);
+        onZoneSelect({
+          name: zoneName,
+          slug: createZoneSlug(zoneName),
+        });
+      })
+      .on('keydown', (event: KeyboardEvent, item) => {
+        if (!onZoneSelect || (event.key !== 'Enter' && event.key !== ' ')) {
+          return;
+        }
+
+        event.preventDefault();
+        const zoneName = getAreaName(item.properties);
+        onZoneSelect({
+          name: zoneName,
+          slug: createZoneSlug(zoneName),
+        });
       });
-  }, [features, isLoading]);
+  }, [features, isLoading, onZoneSelect]);
 
   if (isLoading) {
     return (
@@ -298,5 +340,17 @@ function getAreaName(properties: GeoJSON.GeoJsonProperties): string {
   ];
 
   const name = candidates.find((candidate) => typeof candidate === 'string' && candidate.trim());
-  return typeof name === 'string' ? name : 'Área';
+  return typeof name === 'string' ? name.trim() : 'Zona por descubrir';
+}
+
+function createZoneSlug(zoneName: string): string {
+  const normalized = zoneName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' y ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return normalized || 'zona-por-descubrir';
 }

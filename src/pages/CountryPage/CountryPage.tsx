@@ -23,10 +23,11 @@
  * - Polling para actualización de estado de generación
  * - Vista "Próximamente" para países sin contenido editorial
  * - España usa el mismo render genérico con asset local
+ * - Click en zona del mapa navega a /pais/{countrySlug}/zona/{zoneSlug}
  */
 
-import { useParams, Link } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { getCountryPageData } from '../../features/travelData';
 import { CountryInternalMap } from '../../features/map/components/CountryInternalMap';
 import { getCityDisplayName } from '../../features/cities/data/cities.utils';
@@ -66,6 +67,7 @@ type MapAssetState =
  */
 export function CountryPage() {
   const { countrySlug } = useParams<{ countrySlug: string }>();
+  const navigate = useNavigate();
   const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
   
   // Estado para el asset del mapa (DA-030)
@@ -83,6 +85,19 @@ export function CountryPage() {
     featuredDestinations 
   } = getCountryPageData(countrySlug || '');
   const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM2';
+
+  const handleZoneSelect = useCallback((zone: { name: string; slug: string }) => {
+    if (!countrySlug) {
+      return;
+    }
+
+    navigate(`/pais/${countrySlug}/zona/${zone.slug}`, {
+      state: {
+        zoneName: zone.name,
+        countryName: country?.displayName || worldCountry?.displayName || 'este país',
+      },
+    });
+  }, [countrySlug, country?.displayName, navigate, worldCountry?.displayName]);
 
   // Efecto para consultar estado del mapa en Supabase
   useEffect(() => {
@@ -288,6 +303,7 @@ export function CountryPage() {
         worldCountry={worldCountry} 
         mapState={mapState}
         onRetryGeneration={handleRetryGeneration}
+        onZoneSelect={handleZoneSelect}
       />
     );
   }
@@ -339,6 +355,7 @@ export function CountryPage() {
             assetUrl={SPAIN_LOCAL_MAP_URL}
             countryName={country.displayName}
             attribution={DEFAULT_MAP_ATTRIBUTION}
+            onZoneSelect={handleZoneSelect}
           />
         </section>
       );
@@ -386,6 +403,7 @@ export function CountryPage() {
               assetUrl={mapState.publicUrl}
               countryName={country.displayName}
               attribution={mapState.asset.attribution || DEFAULT_MAP_ATTRIBUTION}
+              onZoneSelect={handleZoneSelect}
             />
             {!hasContent && <EditorialPendingBlock countryName={country.displayName} />}
           </section>
@@ -777,9 +795,15 @@ interface DiscoveringCountryViewProps {
   worldCountry: WorldCountry;
   mapState: MapAssetState;
   onRetryGeneration: () => void;
+  onZoneSelect: (zone: { name: string; slug: string }) => void;
 }
 
-function DiscoveringCountryView({ worldCountry, mapState, onRetryGeneration }: DiscoveringCountryViewProps) {
+function DiscoveringCountryView({
+  worldCountry,
+  mapState,
+  onRetryGeneration,
+  onZoneSelect,
+}: DiscoveringCountryViewProps) {
   return (
     <div className={styles.container}>
       <header className={styles.hero}>
@@ -841,6 +865,7 @@ function DiscoveringCountryView({ worldCountry, mapState, onRetryGeneration }: D
                   assetUrl={mapState.publicUrl}
                   countryName={worldCountry.displayName}
                   attribution={mapState.asset.attribution || DEFAULT_MAP_ATTRIBUTION}
+                  onZoneSelect={onZoneSelect}
                 />
                 <EditorialPendingBlock countryName={worldCountry.displayName} />
               </div>

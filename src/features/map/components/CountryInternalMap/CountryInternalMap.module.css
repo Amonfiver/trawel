@@ -1,3 +1,10 @@
+/*
+ * Purpose: Style the generic internal country map surface and tooltip.
+ * Scope: Map shell, SVG area states, loading/error states, attribution and tooltip.
+ * Decisions: Neutral cartographic styling with hover affordance and no fixed labels or markers.
+ * Limitations: Does not define page layout; parent pages own surrounding sections.
+ * Recent changes: Clickable areas now use pointer cursor while preserving tooltip behavior.
+ */
 .container {
   position: relative;
   width: 100%;
@@ -35,7 +42,7 @@
     fill 150ms cubic-bezier(0.4, 0, 0.2, 1),
     stroke-width 150ms cubic-bezier(0.4, 0, 0.2, 1),
     filter 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: default;
+  cursor: pointer;
   outline: none;
 }
 

@@ -156,6 +156,10 @@ src/pages/
 │   ├── CountryPage.tsx                 # Ficha editorial de país
 │   ├── CountryPage.module.css
 │   └── index.ts
+├── CountryZonePage/
+│   ├── CountryZonePage.tsx             # Placeholder de zona/región desde mapa interno
+│   ├── CountryZonePage.module.css
+│   └── index.ts
 ├── CityPage/
 │   ├── CityPage.tsx                    # Ficha editorial de ciudad
 │   ├── CityPage.module.css
@@ -167,6 +171,11 @@ src/pages/
 ```
 
 **Responsabilidad:** Cada página es un "screen" que corresponde a una ruta. Orquesta componentes de features.
+
+**Rutas relevantes:**
+- `/pais/:countrySlug` - Ficha de país con mapa interno.
+- `/pais/:countrySlug/zona/:zoneSlug` - Placeholder amable para zona/región seleccionada en `CountryInternalMap`.
+- `/pais/:countrySlug/:citySlug` - Ficha de ciudad editorial.
 
 **Convención:** Lazy loading en routes.tsx para code splitting.
 
