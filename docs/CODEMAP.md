@@ -160,6 +160,10 @@ src/pages/
 │   ├── CountryZonePage.tsx             # Placeholder de zona/región desde mapa interno
 │   ├── CountryZonePage.module.css
 │   └── index.ts
+├── WithdrawAdventurePage/
+│   ├── WithdrawAdventurePage.tsx       # Retirada de aventura pending con token privado
+│   ├── WithdrawAdventurePage.module.css
+│   └── index.ts
 ├── CityPage/
 │   ├── CityPage.tsx                    # Ficha editorial de ciudad
 │   ├── CityPage.module.css
@@ -175,6 +179,7 @@ src/pages/
 **Rutas relevantes:**
 - `/pais/:countrySlug` - Ficha de país centrada en mapa interno; ya no prioriza tarjetones heredados de ciudades/aventuras.
 - `/pais/:countrySlug/zona/:zoneSlug` - Placeholder amable para zona/región seleccionada en `CountryInternalMap`.
+- `/retirar-aventura?token=...` - Retira una aventura de viajero todavía `pending` con token privado.
 - `/pais/:countrySlug/:citySlug` - Ficha de ciudad editorial.
 
 **Convención:** Lazy loading en routes.tsx para code splitting.
@@ -471,12 +476,20 @@ src/features/adventures/
 - Inserta `country_slug`, `zone_slug`, `zone_name`, `title`, `story`, `practical_tips`, `author_name`, `author_email`.
 - Exige `privacyAccepted = true` y envía `privacy_accepted_at` con `privacy_version = 2026-05-02`.
 - Envía `marketing_consent` y solo rellena `marketing_consent_at` cuando el usuario acepta comunicaciones opcionales.
+- Genera token privado de retirada en navegador y solo inserta `withdrawal_token_hash` SHA-256.
 - No envía `status`; la base lo deja como `pending`.
 - No envía `photo_path`; fotos quedan para Edge Function futura.
-- Devuelve resultado claro de éxito/error para `CountryZonePage`.
+- Devuelve resultado claro de éxito/error y el enlace/código de retirada para `CountryZonePage`.
+
+`withdrawTravelerAdventure(token)`
+- Usa cliente Supabase frontend/anónimo para invocar Edge Function.
+- Llama a `withdraw-traveler-adventure`.
+- No recibe ni usa `service_role` en frontend.
+- La Edge Function valida el token y solo cambia a `withdrawn` si la aventura sigue `pending`.
 
 **Usado por:**
 - `src/pages/CountryZonePage/CountryZonePage.tsx`
+- `src/pages/WithdrawAdventurePage/WithdrawAdventurePage.tsx`
 
 ### `src/features/travelData/` - Capa de acceso a datos agregados
 
@@ -862,7 +875,11 @@ supabase/
 │   ├── 001_create_trawel_schema.sql   # Schema inicial (countries, cities, destinations)
 │   ├── 002_create_country_map_assets.sql  # Tabla para assets de mapas (DA-030)
 │   ├── 003_create_traveler_adventures.sql # Aventuras de viajeros con moderación
-│   └── 004_add_privacy_consent_to_traveler_adventures.sql # Consentimiento privacidad/marketing
+│   ├── 004_add_privacy_consent_to_traveler_adventures.sql # Consentimiento privacidad/marketing
+│   └── 005_add_withdrawal_token_to_traveler_adventures.sql # Retirada privada de pending
+├── functions/
+│   ├── request-country-map/
+│   └── withdraw-traveler-adventure/    # Valida token y retira aventura pending
 └── seed.sql                       # Datos iniciales generados automáticamente
 ```
 
@@ -894,6 +911,12 @@ supabase/
    - Actualiza datos existentes antes de exigir `privacy_accepted_at NOT NULL`
    - Refuerza RLS: el INSERT público requiere privacidad y marketing coherente
    - Marketing queda separado y opcional; no se implementa newsletter real
+
+5. **`005_add_withdrawal_token_to_traveler_adventures.sql`** - Retirada privada:
+   - Añade `withdrawal_token_hash`, `withdrawal_token_created_at`, `withdrawn_at`
+   - Amplía `status` con `withdrawn`
+   - Refuerza RLS: nuevos INSERT públicos requieren hash de retirada
+   - La retirada la realiza `withdraw-traveler-adventure` con service role
 
 **Seed:**
 - El archivo `seed.sql` se regenera ejecutando `npm run export:seed`

@@ -2,7 +2,7 @@
  * Configuración de rutas de Trawel
  * 
  * Propósito: Definir todas las rutas públicas de la aplicación
- * Alcance: Solo rutas de lectura/visualización (Home, País, Ciudad, Aventura)
+ * Alcance: Rutas públicas de lectura y retirada de aventuras pendientes
  * 
  * Decisiones técnicas:
  * - React Router con createBrowserRouter
@@ -13,15 +13,15 @@
  * - Sin lazy loading (puede agregarse en el futuro)
  * - Sin protección de rutas (no hay autenticación)
  * 
- * Cambios recientes (2026-04-28):
- * - Eliminada ruta /dev/import-investighost (Trawel no valida Investighost)
- * - Añadida ruta /pais/:countrySlug/zona/:zoneSlug para zonas internas de mapas
+ * Cambios recientes (2026-05-02):
+ * - Añadida ruta /retirar-aventura para retirar envíos pending con token privado
  */
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
 import { CountryPage } from '../pages/CountryPage';
 import { CountryZonePage } from '../pages/CountryZonePage';
+import { WithdrawAdventurePage } from '../pages/WithdrawAdventurePage';
 import { CityPage } from '../pages/CityPage';
 import { AdventurePage } from '../pages/AdventurePage';
 
@@ -37,6 +37,10 @@ export const router = createBrowserRouter([
   {
     path: '/pais/:countrySlug/zona/:zoneSlug',
     element: <CountryZonePage />,
+  },
+  {
+    path: '/retirar-aventura',
+    element: <WithdrawAdventurePage />,
   },
   {
     path: '/pais/:countrySlug/:citySlug',

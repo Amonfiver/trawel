@@ -3,7 +3,7 @@
  * Scope: Public read-only route for /pais/:countrySlug/zona/:zoneSlug and approved traveler adventures.
  * Decisions: Uses router state for the best zone name and falls back to a clean title from the slug.
  * Limitations: No upload, moderation UI, auth, or private photo rendering in this phase.
- * Recent changes: Added required privacy acceptance and optional marketing consent to submissions.
+ * Recent changes: Shows withdrawal link/code after a pending adventure submission.
  */
 
 import { type FormEvent, useEffect, useState } from 'react';
@@ -40,7 +40,7 @@ interface AdventureFormValues {
 type SubmitState =
   | { status: 'idle' }
   | { status: 'submitting' }
-  | { status: 'success'; message: string }
+  | { status: 'success'; message: string; withdrawalToken: string; withdrawalUrl: string }
   | { status: 'error'; message: string };
 
 const EMPTY_FORM_VALUES: AdventureFormValues = {
@@ -308,6 +308,8 @@ function AdventureSubmissionForm({
     setSubmitState({
       status: 'success',
       message: 'Hemos recibido tu aventura. La revisaremos antes de publicarla.',
+      withdrawalToken: result.withdrawalToken,
+      withdrawalUrl: result.withdrawalUrl,
     });
   };
 
@@ -465,9 +467,19 @@ function AdventureSubmissionForm({
       </div>
 
       {submitState.status === 'success' && (
-        <p className={styles.formSuccess} role="status">
-          {submitState.message}
-        </p>
+        <div className={styles.formSuccess} role="status">
+          <p>{submitState.message}</p>
+          <div className={styles.withdrawalSummary}>
+            <p>
+              Guarda este enlace o código privado. Te permite retirar la aventura mientras siga
+              pendiente de revisión.
+            </p>
+            <a href={submitState.withdrawalUrl} className={styles.withdrawalLink}>
+              Abrir enlace de retirada
+            </a>
+            <code className={styles.withdrawalCode}>{submitState.withdrawalToken}</code>
+          </div>
+        </div>
       )}
 
       {submitState.status === 'error' && (

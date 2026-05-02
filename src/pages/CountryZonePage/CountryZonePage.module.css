@@ -3,7 +3,7 @@
  * Scope: Breadcrumb, zone hero, approved adventure list, submission form, coming-soon panel, and navigation.
  * Decisions: Reuses the quiet CountryPage visual language without adding final v0 design.
  * Limitations: No photo upload styles yet; form only submits text adventure fields.
- * Recent changes: Added privacy consent and policy panel styles.
+ * Recent changes: Added withdrawal link/code summary styles.
  */
 
 .container {
@@ -369,6 +369,38 @@
   color: #166534;
   background: #dcfce7;
   border: 1px solid #86efac;
+}
+
+.formSuccess p {
+  margin: 0;
+}
+
+.withdrawalSummary {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(22, 101, 52, 0.22);
+}
+
+.withdrawalLink {
+  width: fit-content;
+  color: #166534;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.withdrawalCode {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0.65rem 0.75rem;
+  color: #14532d;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(22, 101, 52, 0.2);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .formError {

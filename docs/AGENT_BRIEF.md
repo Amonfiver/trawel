@@ -80,6 +80,7 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 | **—** | Mapa como corazón de Trawel | Flujo principal: mapa → país → zona → aventuras de viajeros |
 | **—** | Aventuras de viajeros moderadas | Todo envío entra como `pending`; solo webmaster/backend aprueba |
 | **—** | Privacidad obligatoria y marketing separado | Enviar aventura exige privacidad; comunicaciones/promociones son opcionales |
+| **—** | Retirada privada antes de revisión | El usuario recibe token; Edge Function solo retira si sigue `pending` |
 
 ---
 
@@ -156,11 +157,13 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 
 **Aventuras de viajeros:** la tabla `traveler_adventures` acepta envíos públicos como `pending`, pero el público solo puede leer `approved`. El envío requiere aceptación de privacidad (`privacy_accepted_at`, `privacy_version`) y marketing queda separado/opcional. Fotos en bucket privado; subida/serving seguro queda para Edge Function futura.
 
+**Retirada de aventuras:** al enviar una aventura se genera un token privado en navegador; la DB guarda solo `withdrawal_token_hash`. La ruta `/retirar-aventura` invoca la Edge Function `withdraw-traveler-adventure`, que usa `service_role` solo en backend y marca `status = withdrawn` si la aventura sigue `pending`.
+
 ---
 
 ## TL;DR para prompts futuros
 
-> "Trawel es app pública de viajes centrada en mapas. Flujo principal: Home/WorldMap → País → Zona → futuras aventuras de viajeros. CountryPage prioriza mapa interno. Las aventuras de viajeros entran pending, requieren aprobación webmaster y aceptación de privacidad; marketing es separado/opcional. No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
+> "Trawel es app pública de viajes centrada en mapas. Flujo principal: Home/WorldMap → País → Zona → futuras aventuras de viajeros. CountryPage prioriza mapa interno. Las aventuras de viajeros entran pending, requieren aprobación webmaster y aceptación de privacidad; marketing es separado/opcional. El usuario puede retirar envíos pending con token privado validado por Edge Function. No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
 
 ---
 

@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-05-02 - Retirada privada de aventuras pendientes
+
+Añadido flujo para que un viajero pueda retirar una aventura antes de revisión mediante token privado.
+
+### Cambios
+
+- Nueva migración `supabase/migrations/005_add_withdrawal_token_to_traveler_adventures.sql`.
+- `traveler_adventures` guarda `withdrawal_token_hash`, `withdrawal_token_created_at` y `withdrawn_at`.
+- Se añade estado `withdrawn` para retirar sin borrar físicamente la fila.
+- El navegador genera un token privado y solo inserta su hash SHA-256.
+- Nueva Edge Function `withdraw-traveler-adventure` valida el token con `service_role` y solo retira aventuras `pending`.
+- Nueva ruta pública `/retirar-aventura` para usar enlace o código de retirada.
+- Tras enviar una aventura, `CountryZonePage` muestra resumen con enlace y código privado de retirada.
+
+### Alcance
+
+- No se implementó email automático, recuperación de tokens perdidos, borrado físico, panel de soporte ni retirada de aventuras ya aprobadas.
+- El token debe guardarlo el usuario; si se pierde, la retirada futura queda para webmaster/soporte.
+
+---
+
 ## 2026-05-02 - Privacidad obligatoria en aventuras de viajeros
 
 Añadido consentimiento de privacidad al envío real de aventuras desde `CountryZonePage`. El marketing queda separado y opcional, sin bloquear el envío.

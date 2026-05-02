@@ -1,0 +1,152 @@
+/*
+ * Purpose: Style the pending traveler adventure withdrawal page.
+ * Scope: Single public token form, status messages, and navigation back to Trawel.
+ * Decisions: Reuses the quiet card-like visual language from CountryZonePage without final v0 design.
+ * Limitations: No auth, support workflow, or approved-content removal UI.
+ * Recent changes: Initial withdrawal page styles.
+ */
+
+.container {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: #f8f9fa;
+}
+
+.panel {
+  width: min(100%, 720px);
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.kicker {
+  margin: 0 0 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0 0 0.75rem;
+  color: #111827;
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  line-height: 1.1;
+}
+
+.intro,
+.note {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.75rem 0.875rem;
+  color: #111827;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 400;
+}
+
+.field input:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.22);
+  border-color: #2563eb;
+}
+
+.field input:disabled {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.success,
+.error {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.success {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+.error {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}
+
+.submitButton {
+  width: fit-content;
+  padding: 0.875rem 1.5rem;
+  color: #ffffff;
+  background: #2563eb;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.submitButton:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.backLink {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 1.25rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0;
+  }
+
+  .panel {
+    min-height: 100vh;
+    border-radius: 0;
+  }
+}
