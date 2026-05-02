@@ -38,7 +38,8 @@
  const WORLD_ATLAS_URL = 'https://unpkg.com/world-atlas@2/countries-110m.json';
  const WORLD_MAP_WIDTH = 960;
  const WORLD_MAP_HEIGHT = 500;
- const WORLD_MAP_PAN_PADDING_RATIO = 0.75;
+ const WORLD_MAP_MAX_ZOOM = 40;
+ const WORLD_MAP_PAN_PADDING_RATIO = 4;
  
  interface TooltipData {
    visible: boolean;
@@ -90,7 +91,7 @@
        .attr('class', styles.zoomLayer);
 
      const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
-       .scaleExtent([1, 8])
+       .scaleExtent([1, WORLD_MAP_MAX_ZOOM])
        // Keep zoom gestures centered on the viewport, but allow the enlarged map
        // to move beyond the original viewBox inside the clipped map shell.
        .translateExtent(getRelaxedTranslateExtent(width, height, WORLD_MAP_PAN_PADDING_RATIO))

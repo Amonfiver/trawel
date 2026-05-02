@@ -588,5 +588,30 @@ Corrección quirúrgica del comportamiento táctil tras probar en móvil real.
 
 ---
 
+## 2026-05-03 - Aumento de profundidad de zoom en mapas táctiles
+
+Nuevo ajuste funcional para selección precisa de países y zonas pequeñas en móvil.
+
+### Cambios
+
+- `WorldMap` sube su zoom máximo de `8x` a `40x`.
+- `CountryInternalMap` sube su zoom máximo de `8x` a `30x`.
+- `translateExtent` mantiene el enfoque relajado, pero aumenta su margen:
+  - `WorldMap`: margen de pan `4x` el tamaño del viewBox.
+  - `CountryInternalMap`: margen de pan `3x` el tamaño del viewBox.
+- `extent` se mantiene como viewport del SVG para conservar el centro natural del pinch zoom.
+- Wheel zoom sigue desactivado y se mantiene la protección anti-click tras pan.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-03*

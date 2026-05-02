@@ -37,7 +37,8 @@ type TopologyLike = {
 
 const WIDTH = 900;
 const HEIGHT = 560;
-const PAN_PADDING_RATIO = 0.75;
+const MAX_ZOOM = 30;
+const PAN_PADDING_RATIO = 3;
 
 export function CountryInternalMap({
   assetUrl,
@@ -140,7 +141,7 @@ export function CountryInternalMap({
       .attr('class', styles.zoomLayer);
 
     const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([1, 8])
+      .scaleExtent([1, MAX_ZOOM])
       // Keep zoom gestures centered on the viewport, but allow the enlarged map
       // to move beyond the original viewBox inside the clipped map shell.
       .translateExtent(getRelaxedTranslateExtent(WIDTH, HEIGHT, PAN_PADDING_RATIO))
