@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-05-02 - FIX: Estados Unidos usa ADM1
+
+Corregido el primer fallo real del worker automático para Estados Unidos: geoBoundaries respondía `HTTP 403` al intentar ADM2, además de ser un nivel demasiado granular para la experiencia pública.
+
+### Cambio
+
+- `src/features/map/config/countryMapProfiles.ts`: añadido perfil `estados-unidos` con `preferredAdminLevel: 'ADM1'`.
+- `docs/MAP_ASSET_PLAN.md`: documentado Estados Unidos como país ADM1 por utilidad UX/comercial y para evitar errores con ADM2.
+
+### Operativa
+
+Si ya existe un registro `country_map_assets` para `estados-unidos` en `failed` o con `admin_level = ADM2`, hay que reencolar desde la UI o reprocesar con:
+
+```bash
+npm run maps:queue:process -- --country estados-unidos --force
+```
+
+El worker actualizará el registro a `ADM1` al completarlo.
+
+---
+
 ## 2026-05-02 - Automatización inicial de cola de mapas
 
 Se añadió la base CI para procesar automáticamente `country_map_assets` sin mover trabajo pesado al navegador ni a la Edge Function.

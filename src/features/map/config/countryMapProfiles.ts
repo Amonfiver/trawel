@@ -1,3 +1,10 @@
+/**
+ * Purpose: Centralize per-country map asset recommendations for CountryInternalMap.
+ * Scope: Selects the preferred administrative level used by frontend requests and the worker.
+ * Decisions: Defaults to ADM2, with country-specific overrides when ADM1 is more useful.
+ * Limitations: Profiles are keyed by Trawel country slug, not ISO code.
+ * Recent changes: Added Estados Unidos as ADM1 to use states and avoid ADM2 granularity/API failures.
+ */
 export type CountryMapAdminLevel = 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5';
 
 export interface CountryMapProfile {
@@ -18,6 +25,11 @@ export const countryMapProfiles: Record<string, CountryMapProfile> = {
     preferredAdminLevel: 'ADM1',
     technicalLabel: 'Estados',
     note: 'México usa ADM1 para evitar un mapa excesivamente granular y priorizar estados.',
+  },
+  'estados-unidos': {
+    preferredAdminLevel: 'ADM1',
+    technicalLabel: 'Estados',
+    note: 'Estados Unidos usa ADM1 por utilidad UX/comercial y para evitar granularidad excesiva o fallos con ADM2.',
   },
 };
 

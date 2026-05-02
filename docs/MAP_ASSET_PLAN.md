@@ -235,6 +235,7 @@ El nivel interno no es global. Se configura por país según el nivel más útil
 |------|-------------------|--------|
 | España | ADM2 | Provincias |
 | México | ADM1 | Estados, evitando granularidad excesiva |
+| Estados Unidos | ADM1 | Estados, evitando granularidad excesiva y errores observados con ADM2 |
 
 La fuente técnica inicial vive en `src/features/map/config/countryMapProfiles.ts`. El frontend la usa al solicitar/consultar assets, y el worker la usa al procesar/reprocesar.
 
