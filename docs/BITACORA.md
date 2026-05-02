@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-05-02 - FIX: cache-busting para assets de mapas en Storage
+
+Corregido el caso en que el navegador seguía cargando `mexico-adm2.topojson` desde disk cache después de reprocesar el asset.
+
+### Problema
+
+Supabase Storage mantiene la misma URL pública cuando se sobrescribe un archivo con `--force`. Si el navegador tenía el TopoJSON cacheado, `CountryInternalMap` podía seguir recibiendo la versión antigua aunque el asset ya estuviera regenerado.
+
+### Solución
+
+`getCountryMapPublicUrl(asset)` ahora añade un query param `v` estable basado en metadatos:
+
+1. `generatedAt`
+2. `updatedAt`
+3. `sizeBytes`
+
+Ejemplo:
+
+```text
+https://.../mexico-adm2.topojson?v=2026-05-02T...
+```
+
+Al cambiar `generated_at` después de `--force`, cambia también la URL y el navegador descarga el TopoJSON nuevo.
+
+---
+
 ## 2026-05-02 - FIX: winding final en assets y reprocesado forzado
 
 Corregido el pipeline compartido de mapas para evitar polígonos complementarios como el cuadrado amarillo visto en México.

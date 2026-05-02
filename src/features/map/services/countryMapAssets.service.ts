@@ -275,12 +275,26 @@ export function getCountryMapPublicUrl(asset: CountryMapAsset | null): string | 
       return null;
     }
 
-    return data.publicUrl;
+    return addAssetCacheBuster(data.publicUrl, asset);
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
     console.error('[CountryMapAssets] Error obteniendo URL:', errorMsg);
     return null;
   }
+}
+
+function addAssetCacheBuster(publicUrl: string, asset: CountryMapAsset): string {
+  const version =
+    asset.generatedAt?.toISOString() ||
+    asset.updatedAt?.toISOString() ||
+    (asset.sizeBytes !== undefined ? String(asset.sizeBytes) : null);
+
+  if (!version) {
+    return publicUrl;
+  }
+
+  const separator = publicUrl.includes('?') ? '&' : '?';
+  return `${publicUrl}${separator}v=${encodeURIComponent(version)}`;
 }
 
 /**

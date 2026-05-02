@@ -253,7 +253,7 @@ src/features/map/
 | Función | Descripción | Retorno |
 |---------|-------------|---------|
 | `getCountryMapAsset(countrySlug)` | Consulta Supabase por country_slug | `Promise<CountryMapAsset \| null>` |
-| `getCountryMapPublicUrl(asset)` | Obtiene URL pública de Storage (solo si status === 'ready') | `string \| null` |
+| `getCountryMapPublicUrl(asset)` | Obtiene URL pública de Storage con cache-busting por metadatos | `string \| null` |
 | `isCountryMapReady(asset)` | Helper para verificar si el asset está listo | `boolean` |
 | `requestCountryMapGeneration(input)` | Solicita generación vía Edge Function | `Promise<RequestCountryMapGenerationResponse>` |
 
@@ -327,6 +327,7 @@ useEffect(() => {
 **Notas:**
 - La consulta (`getCountryMapAsset`) NO incluye caching (la capa superior puede implementarlo)
 - La solicitud de generación (`requestCountryMapGeneration`) usa la Edge Function `request-country-map`
+- La URL pública de mapas añade `v` usando `generatedAt`, `updatedAt` o `sizeBytes` para evitar servir TopoJSON antiguo desde disk cache tras reprocesar.
 - Para uso público desde el mapa mundial, desplegar la función con JWT verification desactivado:
   `npx supabase functions deploy request-country-map --no-verify-jwt`
 - Requiere que Supabase esté configurado (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
