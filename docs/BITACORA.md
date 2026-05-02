@@ -613,5 +613,29 @@ Nuevo ajuste funcional para selección precisa de países y zonas pequeñas en m
 
 ---
 
+## 2026-05-03 - Hover táctil y long press en WorldMap
+
+Mejora de UX móvil para recuperar la exploración por tooltip del escritorio.
+
+### Cambios
+
+- `WorldMap` detecta interacción táctil con Pointer Events (`pointerType !== 'mouse'`).
+- Tocar un país muestra tooltip con bandera y nombre sin navegar.
+- Mover el dedo sobre países actualiza el tooltip usando `document.elementFromPoint`.
+- La navegación táctil pasa a long press de `700ms` sobre el mismo país.
+- El long press se cancela si hay dos dedos, pan/zoom o movimiento mayor a `12px`.
+- El click de escritorio se mantiene; el tap táctil simple queda suprimido para evitar navegación accidental.
+- Ayuda móvil actualizada: "Explora con el dedo · mantén pulsado para entrar".
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-03*
