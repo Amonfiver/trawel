@@ -398,10 +398,40 @@ countries/
 
 ---
 
+## DA-031: Nivel cartográfico interno configurable por país
+
+**Fecha:** 2026-05-02  
+**Estado:** Aceptada  
+**Contexto:** España funciona bien en ADM2 porque las provincias son reconocibles y útiles para exploración. México en ADM2 resulta demasiado granular para Trawel: el mapa queda dividido en demasiadas áreas y pierde valor comercial/UX.
+
+**Decisión:** El `admin_level` de mapas internos se decide por país, no como regla global. Cada país usará el nivel cartográfico más útil para la experiencia editorial y comercial.
+
+**Configuración inicial:**
+
+| País | Nivel | Criterio |
+|------|-------|----------|
+| España | ADM2 | Provincias |
+| México | ADM1 | Estados |
+
+**Implementación:**
+- Configuración central en `src/features/map/config/countryMapProfiles.ts`.
+- `CountryPage` usa el perfil para consultar el asset esperado y para solicitar generación.
+- El worker usa el perfil para descargar geoBoundaries, nombrar el TopoJSON y actualizar `country_map_assets.admin_level`.
+
+**Consecuencias:**
+- No todos los países tendrán el mismo nivel administrativo.
+- `country_map_assets` sigue teniendo un registro único por `country_slug`; al cambiar el nivel de un país se reprocesa el registro existente.
+- Los paths en Storage reflejan el nivel efectivo, por ejemplo `mexico-adm1.topojson`.
+
+**Reversibilidad:** Alta. Cambiar el nivel recomendado de un país es editar el perfil y reprocesar el asset.
+
+---
+
 ## Índice de Decisiones
 
 | ID | Fecha | Título | Estado |
 |----|-------|--------|--------|
+| DA-031 | 2026-05-02 | Nivel cartográfico interno configurable por país | ✅ Aprobada |
 | DA-030 | 2026-05-01 | Generación automática y persistente de mapas internos | ✅ Aprobada |
 | DA-029 | 2026-05-01 | Mapas exploratorios con bandera y demanda pública | ✅ Aprobada |
 | DA-028 | 2026-04-30 | comingSoon como demanda pública | ✅ Aprobada |

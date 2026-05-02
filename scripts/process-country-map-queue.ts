@@ -34,6 +34,7 @@ import {
   formatBytes,
   DEFAULT_CONFIG,
 } from './lib/mapAssetPipeline.js';
+import { getPreferredAdminLevel } from '../src/features/map/config/countryMapProfiles.js';
 
 // ============================================
 // CONFIGURACIÓN Y TIPOS
@@ -271,6 +272,7 @@ async function updateStatusToReady(
     license: string;
     attribution: string;
     source: string;
+    adminLevel: string;
   },
   dryRun: boolean
 ): Promise<void> {
@@ -290,6 +292,7 @@ async function updateStatusToReady(
       license: result.license,
       attribution: result.attribution,
       source: result.source,
+      admin_level: result.adminLevel,
       generated_at: new Date().toISOString(),
       error_message: null,
       updated_at: new Date().toISOString(),
@@ -373,10 +376,15 @@ async function processCountry(
   record: QueuedRecord
 ): Promise<ProcessingResult> {
   const { id, country_slug, country_name, iso_alpha3, admin_level } = record;
+  const preferredAdminLevel = getPreferredAdminLevel(country_slug);
+  const effectiveAdminLevel = preferredAdminLevel || admin_level;
   
   console.log(`\n${COLORS.bold}Procesando: ${country_name || country_slug}${COLORS.reset}`);
   console.log(`${COLORS.dim}  ISO Alpha-3: ${iso_alpha3 || 'no especificado'}${COLORS.reset}`);
-  console.log(`${COLORS.dim}  Admin Level: ${admin_level}${COLORS.reset}`);
+  console.log(`${COLORS.dim}  Admin Level: ${effectiveAdminLevel}${COLORS.reset}`);
+  if (admin_level !== effectiveAdminLevel) {
+    console.log(`${COLORS.dim}  Admin Level en DB: ${admin_level} -> perfil país: ${effectiveAdminLevel}${COLORS.reset}`);
+  }
   console.log(`${COLORS.dim}  Status actual: ${record.status}${COLORS.reset}`);
 
   try {
@@ -390,7 +398,7 @@ async function processCountry(
 
     // 3. Consultar metadata de geoBoundaries
     console.log(`  ${COLORS.dim}Consultando geoBoundaries API...${COLORS.reset}`);
-    const metadata = await fetchGeoBoundariesMetadata(iso_alpha3, admin_level);
+    const metadata = await fetchGeoBoundariesMetadata(iso_alpha3, effectiveAdminLevel);
     
     // 4. Extraer URL de descarga
     const downloadUrl = extractGeoJsonUrl(metadata);
@@ -423,7 +431,7 @@ async function processCountry(
       config,
       country_slug,
       topology,
-      admin_level
+      effectiveAdminLevel
     );
     console.log(`  ${COLORS.dim}Subido a Storage: ${storagePath}${COLORS.reset}`);
 
@@ -435,6 +443,7 @@ async function processCountry(
       license: licenseInfo.license,
       attribution: licenseInfo.attribution,
       source: 'geoBoundaries',
+      adminLevel: effectiveAdminLevel,
     }, config.dryRun);
 
     logSuccess(`Procesamiento completado: ${country_slug}`);

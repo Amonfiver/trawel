@@ -35,6 +35,7 @@ import { getLocalizedText } from '../../app/i18n';
 import { CountryFlag } from '../../features/countries';
 import { getWorldCountryBySlug, type WorldCountry } from '../../features/countries/data/worldCountries';
 import type { CountryStatus } from '../../features/countries/data/countries.types';
+import { getPreferredAdminLevel } from '../../features/map/config/countryMapProfiles';
 import type { CountryMapAsset } from '../../features/map/services/countryMapAssets.service';
 import { 
   getCountryMapAsset, 
@@ -81,6 +82,7 @@ export function CountryPage() {
     publishedDestinationsCount,
     featuredDestinations 
   } = getCountryPageData(countrySlug || '');
+  const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM2';
 
   // Efecto para consultar estado del mapa en Supabase
   useEffect(() => {
@@ -100,7 +102,7 @@ export function CountryPage() {
       let asset: CountryMapAsset | null;
 
       try {
-        asset = await getCountryMapAsset(countrySlug);
+        asset = await getCountryMapAsset(countrySlug, preferredAdminLevel);
       } catch (err) {
         if (!isMounted) return;
 
@@ -159,6 +161,7 @@ export function CountryPage() {
     worldCountry?.displayName,
     worldCountry?.isoAlpha2,
     worldCountry?.isoAlpha3,
+    preferredAdminLevel,
   ]);
 
   // Polling cuando el estado es queued o generating
@@ -181,7 +184,7 @@ export function CountryPage() {
       let asset: CountryMapAsset | null;
 
       try {
-        asset = await getCountryMapAsset(countrySlug);
+        asset = await getCountryMapAsset(countrySlug, preferredAdminLevel);
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Error desconocido consultando el mapa';
         if (import.meta.env.DEV) {
@@ -226,7 +229,7 @@ export function CountryPage() {
         pollingIntervalRef.current = null;
       }
     };
-  }, [mapState.status, countrySlug]);
+  }, [mapState.status, countrySlug, preferredAdminLevel]);
 
   // Handler para reintentar generación
   // Usa worldCountry como fallback para datos mínimos cuando no hay contenido editorial
@@ -250,7 +253,7 @@ export function CountryPage() {
       countryName: countryData.displayName,
       isoAlpha2: countryData.isoAlpha2,
       isoAlpha3: 'isoAlpha3' in countryData ? countryData.isoAlpha3 : undefined,
-      adminLevel: 'ADM2' as const,
+      adminLevel: preferredAdminLevel,
       source: 'world_map'
     };
     

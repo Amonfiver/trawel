@@ -37,6 +37,7 @@
  */
 
 import { supabase, isSupabaseConfigured } from '../../../lib/supabaseClient';
+import type { CountryMapAdminLevel } from '../config/countryMapProfiles';
 
 // ============================================
 // TIPOS
@@ -181,7 +182,8 @@ function mapDBRecordToAsset(dbRecord: Record<string, unknown>): CountryMapAsset 
  * ```
  */
 export async function getCountryMapAsset(
-  countrySlug: string
+  countrySlug: string,
+  adminLevel?: CountryMapAdminLevel
 ): Promise<CountryMapAsset | null> {
   // Verificar que Supabase está configurado
   if (!isSupabaseConfigured()) {
@@ -190,11 +192,16 @@ export async function getCountryMapAsset(
   }
 
   try {
-    const { data, error } = await supabase!
+    let query = supabase!
       .from('country_map_assets')
       .select('*')
-      .eq('country_slug', countrySlug)
-      .maybeSingle();
+      .eq('country_slug', countrySlug);
+
+    if (adminLevel) {
+      query = query.eq('admin_level', adminLevel);
+    }
+
+    const { data, error } = await query.maybeSingle();
 
     if (error) {
       // Compatibilidad: PGRST116/406 era el caso "sin fila" al usar .single().
@@ -375,7 +382,7 @@ export interface RequestCountryMapGenerationResponse {
  *   countryName: 'México',
  *   isoAlpha2: 'MX',
  *   isoAlpha3: 'MEX',
- *   adminLevel: 'ADM2',
+ *   adminLevel: 'ADM1',
  *   source: 'world_map'
  * });
  * 

@@ -203,6 +203,7 @@ src/features/map/
 │   └── countryMapAssets.service.ts  # Consulta read-only a country_map_assets (DA-030)
 ├── config/
 │   ├── mapTheme.ts                # Tema visual de mapas
+│   ├── countryMapProfiles.ts      # Nivel cartográfico recomendado por país (DA-031)
 │   └── mapConstants.ts            # Constantes
 ├── utils/
 │   ├── geoUtils.ts                # Utilidades geográficas
@@ -252,7 +253,7 @@ src/features/map/
 
 | Función | Descripción | Retorno |
 |---------|-------------|---------|
-| `getCountryMapAsset(countrySlug)` | Consulta Supabase por country_slug | `Promise<CountryMapAsset \| null>` |
+| `getCountryMapAsset(countrySlug, adminLevel?)` | Consulta Supabase por country_slug y, opcionalmente, por admin_level esperado | `Promise<CountryMapAsset \| null>` |
 | `getCountryMapPublicUrl(asset)` | Obtiene URL pública de Storage con cache-busting por metadatos | `string \| null` |
 | `isCountryMapReady(asset)` | Helper para verificar si el asset está listo | `boolean` |
 | `requestCountryMapGeneration(input)` | Solicita generación vía Edge Function | `Promise<RequestCountryMapGenerationResponse>` |
@@ -289,7 +290,7 @@ const result = await requestCountryMapGeneration({
   countryName: 'México',
   isoAlpha2: 'MX',
   isoAlpha3: 'MEX',
-  adminLevel: 'ADM2',
+  adminLevel: 'ADM1',
   source: 'world_map'
 });
 
@@ -327,6 +328,7 @@ useEffect(() => {
 **Notas:**
 - La consulta (`getCountryMapAsset`) NO incluye caching (la capa superior puede implementarlo)
 - La solicitud de generación (`requestCountryMapGeneration`) usa la Edge Function `request-country-map`
+- El nivel cartográfico interno se decide por país en `src/features/map/config/countryMapProfiles.ts`: España usa ADM2 y México usa ADM1.
 - La URL pública de mapas añade `v` usando `generatedAt`, `updatedAt` o `sizeBytes` para evitar servir TopoJSON antiguo desde disk cache tras reprocesar.
 - Para uso público desde el mapa mundial, desplegar la función con JWT verification desactivado:
   `npx supabase functions deploy request-country-map --no-verify-jwt`
@@ -757,7 +759,8 @@ npm run maps:spain:prepare
 ### `process-country-map-queue.ts` (Worker DA-030)
 - **Propósito:** Procesar registros `queued` en `country_map_assets` y generar assets TopoJSON
 - **Flujo:** Consulta cola → Descarga geoBoundaries → Procesa → Sube a Storage → Actualiza BD
-- **CLI:** Soporta `--country`, `--limit`, `--dry-run`
+- **Perfiles:** Aplica `src/features/map/config/countryMapProfiles.ts` para decidir el `admin_level` efectivo por país
+- **CLI:** Soporta `--country`, `--limit`, `--dry-run`, `--force`
 
 **Uso:**
 ```bash
@@ -767,6 +770,8 @@ npm run maps:queue:process -- --limit 1          # Solo 1 elemento
 npm run maps:queue:process -- --dry-run          # Simulación
 npm run maps:queue:process -- --country mexico --force  # Reprocesar aunque esté ready
 ```
+
+Para México, el reprocesado usa ADM1 por perfil, sube `countries/mexico/mexico-adm1.topojson` y actualiza `country_map_assets.admin_level`.
 
 **Variables de entorno:**
 - `SUPABASE_URL` - URL de Supabase

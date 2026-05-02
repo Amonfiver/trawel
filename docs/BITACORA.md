@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-05-02 - DECISIÓN: nivel cartográfico configurable por país
+
+Establecida la regla de producto para mapas internos: el `admin_level` no es global, se decide por país según el nivel más útil para exploración comercial.
+
+### Cambios
+
+- Creada configuración central en `src/features/map/config/countryMapProfiles.ts`.
+- España conserva `ADM2` para mostrar provincias.
+- México pasa a `ADM1` para mostrar estados y evitar un mapa excesivamente granular.
+- CountryPage consulta y solicita mapas usando el nivel preferido del país.
+- El worker aplica el perfil del país al procesar o reprocesar assets y actualiza `admin_level` al dejar el registro en `ready`.
+
+### Reprocesado de México
+
+```bash
+npm run maps:queue:process -- --country mexico --force
+```
+
+Con `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` configuradas, el worker generará `countries/mexico/mexico-adm1.topojson` y actualizará el registro único de `country_map_assets` a `admin_level = ADM1`.
+
+---
+
 ## 2026-05-02 - FIX: cache-busting para assets de mapas en Storage
 
 Corregido el caso en que el navegador seguía cargando `mexico-adm2.topojson` desde disk cache después de reprocesar el asset.

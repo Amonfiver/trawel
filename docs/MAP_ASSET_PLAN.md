@@ -220,11 +220,23 @@ src/assets/maps/
 - Bajo demanda editorial explícita
 
 **Proceso por país:**
-1. Descargar geoBoundaries ADM1/ADM2 del país
-2. Ejecutar script de procesado
-3. Añadir a `public/maps/countries/{country}/`
-4. Añadir `countrySlug` a lista de países con mapa
-5. Verificar posicionamiento de ciudades
+1. Definir el nivel recomendado en `src/features/map/config/countryMapProfiles.ts`
+2. Descargar geoBoundaries ADM1/ADM2 del país según el perfil
+3. Ejecutar script de procesado
+4. Añadir a `public/maps/countries/{country}/`
+5. Añadir `countrySlug` a lista de países con mapa
+6. Verificar posicionamiento de ciudades
+
+### Nivel cartográfico por país (DA-031)
+
+El nivel interno no es global. Se configura por país según el nivel más útil para exploración editorial y comercial:
+
+| País | Nivel recomendado | Motivo |
+|------|-------------------|--------|
+| España | ADM2 | Provincias |
+| México | ADM1 | Estados, evitando granularidad excesiva |
+
+La fuente técnica inicial vive en `src/features/map/config/countryMapProfiles.ts`. El frontend la usa al solicitar/consultar assets, y el worker la usa al procesar/reprocesar.
 
 ---
 
@@ -394,6 +406,9 @@ countries/
   francia/
     francia-adm2.topojson
     metadata.json
+  mexico/
+    mexico-adm1.topojson
+    metadata.json
 ```
 
 **Políticas de Storage:**
@@ -434,7 +449,7 @@ async function generateMapAsset(countrySlug: string) {
   const topojson = convertToTopoJSON(simplified);
   
   // 6. Subir a Storage
-  const path = `countries/${countrySlug}/${countrySlug}-adm2.topojson`;
+  const path = `countries/${countrySlug}/${countrySlug}-${adminLevel.toLowerCase()}.topojson`;
   await uploadToStorage(path, topojson);
   
   // 7. Actualizar estado a 'ready'
@@ -522,6 +537,7 @@ npm run maps:queue:process -- --country mexico --force
 | 10 | Actualizar a `ready` | Guardar metadatos del asset |
 
 > `--force` requiere `--country` para evitar reprocesados masivos accidentales. Está pensado para corregir assets ya generados, por ejemplo después de mejorar normalización de winding.
+> El worker aplica `countryMapProfiles.ts` antes de consultar geoBoundaries; México se reprocesa como ADM1 y actualiza el registro único de `country_map_assets`.
 
 #### Estructura de archivos en Storage
 
@@ -529,7 +545,7 @@ npm run maps:queue:process -- --country mexico --force
 map-assets/
 └── countries/
     ├── mexico/
-    │   └── mexico-adm2.topojson
+    │   └── mexico-adm1.topojson
     ├── france/
     │   └── france-adm2.topojson
     └── ...
@@ -540,7 +556,8 @@ map-assets/
 Al completar con éxito, el worker actualiza:
 - `status` → `'ready'`
 - `storage_bucket` → `'map-assets'`
-- `storage_path` → `'countries/{slug}/{slug}-adm2.topojson'`
+- `admin_level` → nivel efectivo del perfil de país, por ejemplo `ADM1` para México
+- `storage_path` → `'countries/{slug}/{slug}-{admin_level}.topojson'`
 - `source` → `'geoBoundaries'`
 - `license` → Licencia detectada (ej: 'CC BY 4.0')
 - `attribution` → Texto de atribución
@@ -609,7 +626,7 @@ const result = await requestCountryMapGeneration({
   countryName: 'México',
   isoAlpha2: 'MX',
   isoAlpha3: 'MEX',
-  adminLevel: 'ADM2',
+  adminLevel: 'ADM1',
   source: 'world_map'
 });
 
