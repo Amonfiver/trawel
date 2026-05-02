@@ -9,6 +9,7 @@
   position: relative;
   width: 100%;
   max-width: 1200px;
+  min-width: 0;
   margin: 0 auto;
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   border: 1px solid rgba(226, 232, 240, 0.8);
@@ -23,6 +24,7 @@
 .mapWrapper {
   position: relative;
   width: 100%;
+  max-width: 100%;
   padding-bottom: 62%;
   min-height: 320px;
   overflow: hidden;
@@ -101,6 +103,7 @@
   margin: 0;
   color: #64748b;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .tooltip {
@@ -135,6 +138,7 @@
   font-size: 0.75rem;
   line-height: 1.4;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 640px) {
@@ -144,7 +148,20 @@
 
   .mapWrapper {
     padding-bottom: 72%;
-    min-height: 260px;
+    min-height: 220px;
+  }
+
+  .loading,
+  .error {
+    min-height: 220px;
+    padding: 1rem;
+  }
+
+  .tooltipTitle {
+    max-width: min(72vw, 280px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
 }
 

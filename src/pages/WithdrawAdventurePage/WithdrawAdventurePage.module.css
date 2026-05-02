@@ -12,10 +12,12 @@
   min-height: 100vh;
   padding: 1rem;
   background: #f8f9fa;
+  overflow-x: clip;
 }
 
 .panel {
   width: min(100%, 720px);
+  min-width: 0;
   padding: 2rem;
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -44,6 +46,7 @@
   margin: 0;
   color: #4b5563;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .form {
@@ -54,6 +57,7 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
+  min-width: 0;
 }
 
 .field {
@@ -74,6 +78,7 @@
   background: #ffffff;
   font: inherit;
   font-weight: 400;
+  min-height: 44px;
 }
 
 .field input:focus {
@@ -93,6 +98,7 @@
   border-radius: 10px;
   font-weight: 700;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .success {
@@ -109,6 +115,7 @@
 
 .submitButton {
   width: fit-content;
+  min-height: 44px;
   padding: 0.875rem 1.5rem;
   color: #ffffff;
   background: #2563eb;
@@ -129,6 +136,8 @@
 
 .backLink {
   display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   width: fit-content;
   margin-top: 1.25rem;
   color: #2563eb;
@@ -148,5 +157,17 @@
   .panel {
     min-height: 100vh;
     border-radius: 0;
+    padding: 1.5rem 1rem;
+  }
+
+  .form {
+    padding: 1rem;
+  }
+
+  .submitButton,
+  .backLink {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
   }
 }

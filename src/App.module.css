@@ -30,6 +30,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  min-width: 0;
 }
 
 .logo {
@@ -40,6 +41,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .logo:hover {
@@ -63,7 +66,15 @@
     padding: 0.5rem 0.75rem;
   }
 
+  .headerContent {
+    flex-wrap: wrap;
+  }
+
   .logo {
     font-size: 1.1rem;
+  }
+
+  .modeSelector {
+    width: 100%;
   }
 }

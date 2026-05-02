@@ -481,5 +481,35 @@ Correcciones urgentes para WorldMap y CountryPage.
 
 ---
 
+## 2026-05-02 - Auditoría responsive funcional inicial
+
+Pasada acotada de CSS/layout antes del diseño premium con v0.
+
+### Problemas corregidos
+
+| Problema | Solución |
+|----------|----------|
+| Riesgo de overflow horizontal en WorldMap móvil | Eliminado margen negativo y reforzada contención del mapa |
+| Mapas internos y estados podían quedar demasiado rígidos en móvil | Añadidos `min-width: 0`, `max-width: 100%`, alturas móviles más contenidas y wrapping |
+| Vista de país sin contenido editorial tenía clases sin estilos | Añadidos estilos responsive para `DiscoveringCountryView` |
+| Formularios, consentimientos y retirada podían ser incómodos en móvil | Botones de 44px+, ancho completo en móvil, wrapping de textos largos y scroll en panel legal |
+| Header con selector de modo podía apretar el ancho móvil | El header permite wrap y el selector baja a línea propia |
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.module.css`
+- `src/pages/CountryPage/CountryPage.module.css`
+- `src/pages/CountryZonePage/CountryZonePage.module.css`
+- `src/pages/WithdrawAdventurePage/WithdrawAdventurePage.module.css`
+- `src/pages/HomePage/HomePage.module.css`
+- `src/App.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-02*

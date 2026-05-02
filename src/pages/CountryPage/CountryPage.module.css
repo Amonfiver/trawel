@@ -22,10 +22,12 @@
 /* Contenedor principal */
 .container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0;
   min-height: 100vh;
   background-color: var(--color-background, #f8f9fa);
+  overflow-x: clip;
 }
 
 @media (min-width: 768px) {
@@ -121,6 +123,7 @@
 /* Texto del hero */
 .heroText {
   flex: 1;
+  min-width: 0;
 }
 
 .heroMeta {
@@ -202,6 +205,7 @@
   color: var(--color-text-secondary, #4b5563);
   max-width: 600px;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Estadísticas rápidas en hero */
@@ -321,6 +325,8 @@
   border-radius: 20px;
   padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  min-width: 0;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -338,6 +344,7 @@
 .mapMissingState {
   text-align: center;
   padding: var(--space-2xl, 3rem) var(--space-lg, 2rem);
+  overflow-wrap: anywhere;
 }
 
 .mapLoadingIcon,
@@ -452,6 +459,7 @@
 
 .retryButton {
   margin-top: var(--space-lg, 1.5rem);
+  min-height: 44px;
   padding: 0.75rem 1.5rem;
   background: #ef4444;
   color: white;
@@ -499,10 +507,12 @@
   margin: 0;
   color: var(--color-text-secondary, #6b7280);
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .requestMapButton {
   margin-top: var(--space-lg, 1.5rem);
+  min-height: 44px;
   padding: 0.875rem 2rem;
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
@@ -1020,4 +1030,107 @@
 .backLink:hover {
   background-color: rgba(59, 130, 246, 0.2);
   transform: translateX(-2px);
+}
+
+/* ============================================
+   VISTA DESCUBRIENDO DESTINO
+   ============================================ */
+
+.discoveringSection {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.discoveringContent {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.discoveringTitle {
+  margin: 0 0 var(--space-md, 1rem);
+  color: var(--color-text-primary, #111827);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+.discoveringState {
+  display: grid;
+  gap: var(--space-sm, 0.75rem);
+  color: var(--color-text-secondary, #4b5563);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.discoveringState p {
+  margin: 0;
+}
+
+.discoveringError {
+  color: #991b1b;
+  font-weight: 700;
+}
+
+.discoveringActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm, 0.75rem);
+}
+
+@media (max-width: 640px) {
+  .hero {
+    margin-bottom: var(--space-lg, 1.5rem);
+    padding: var(--space-lg, 1.5rem) var(--space-md, 1rem);
+  }
+
+  .main {
+    gap: var(--space-xl, 2rem);
+    padding: 0 var(--space-sm, 0.75rem) var(--space-xl, 2rem);
+  }
+
+  .mapSection,
+  .discoveringSection,
+  .comingSoonViewSection,
+  .citiesSection,
+  .featuredSection {
+    border-radius: 16px;
+    padding: var(--space-lg, 1.25rem) var(--space-md, 1rem);
+  }
+
+  .mapLoadingState,
+  .mapReadyState,
+  .mapPreparingState,
+  .mapErrorState,
+  .mapMissingState,
+  .emptyState,
+  .notFound {
+    padding: var(--space-lg, 1.5rem) var(--space-md, 1rem);
+  }
+
+  .requestMapButton,
+  .retryButton,
+  .backLink {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .mapFutureBlock {
+    padding: var(--space-md, 1rem);
+  }
+}
+
+@media (max-width: 380px) {
+  .heroMeta,
+  .heroStats,
+  .discoveringActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }

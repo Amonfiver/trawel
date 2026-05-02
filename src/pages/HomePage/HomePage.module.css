@@ -106,7 +106,9 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
   padding: 0 0.5rem;
+  overflow: hidden;
 }
 
 /* Contenido principal */
@@ -335,6 +337,10 @@
 @media (max-width: 640px) {
   .hero {
     padding: 2rem 1rem 1rem;
+  }
+
+  .mapContainer {
+    padding: 0;
   }
   
   .heroStats {

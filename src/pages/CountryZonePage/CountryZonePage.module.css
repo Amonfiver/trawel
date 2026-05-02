@@ -8,10 +8,12 @@
 
 .container {
   max-width: 960px;
+  width: 100%;
   min-height: 100vh;
   margin: 0 auto;
   padding: 1rem;
   background: #f8f9fa;
+  overflow-x: clip;
 }
 
 .hero {
@@ -75,6 +77,7 @@
   color: #4b5563;
   font-size: 1.125rem;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .main {
@@ -89,6 +92,8 @@
   border: 1px solid #e2e8f0;
   border-radius: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .sectionHeader {
@@ -134,6 +139,7 @@
   color: #374151;
   line-height: 1.7;
   white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 .tipsBlock {
@@ -155,6 +161,7 @@
   color: #4b5563;
   line-height: 1.6;
   white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 .photoNote {
@@ -182,10 +189,13 @@
   border: 1px solid #e2e8f0;
   border-radius: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .panelContent {
   max-width: 680px;
+  min-width: 0;
 }
 
 .panelTitle {
@@ -200,9 +210,11 @@
   color: #4b5563;
   font-size: 1rem;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .placeholderButton {
+  min-height: 44px;
   padding: 0.875rem 1.5rem;
   color: #475569;
   background: #e2e8f0;
@@ -221,6 +233,7 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
+  min-width: 0;
 }
 
 .adventuresSection + .adventureForm {
@@ -242,6 +255,7 @@
   margin: 0;
   color: #64748b;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .formField {
@@ -263,6 +277,7 @@
   background: #ffffff;
   font: inherit;
   font-weight: 400;
+  min-height: 44px;
 }
 
 .formField textarea {
@@ -310,17 +325,19 @@
   color: #1f2937;
   font-weight: 650;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .checkboxField input {
-  width: 1rem;
-  height: 1rem;
+  width: 1.125rem;
+  height: 1.125rem;
   margin-top: 0.2rem;
   accent-color: #2563eb;
 }
 
 .privacyToggle {
   width: fit-content;
+  min-height: 44px;
   padding: 0;
   color: #2563eb;
   background: transparent;
@@ -344,6 +361,9 @@
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   line-height: 1.6;
+  max-height: min(55vh, 420px);
+  overflow: auto;
+  overflow-wrap: anywhere;
 }
 
 .privacyPanel p {
@@ -388,6 +408,7 @@
   color: #166534;
   font-weight: 800;
   text-decoration: underline;
+  overflow-wrap: anywhere;
 }
 
 .withdrawalCode {
@@ -411,6 +432,7 @@
 
 .submitButton {
   width: fit-content;
+  min-height: 44px;
   padding: 0.875rem 1.5rem;
   color: #ffffff;
   background: #2563eb;
@@ -437,6 +459,9 @@
 
 .backLink {
   width: fit-content;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   color: #2563eb;
   text-decoration: none;
   font-weight: 700;
@@ -458,5 +483,35 @@
   .panel,
   .adventuresSection {
     border-radius: 0;
+    padding: 1.25rem;
+  }
+
+  .main {
+    gap: 1rem;
+  }
+
+  .adventureCard,
+  .adventureForm,
+  .consentGroup,
+  .tipsBlock {
+    padding: 1rem;
+  }
+
+  .submitButton,
+  .placeholderButton,
+  .backLink {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .privacyToggle,
+  .withdrawalLink {
+    width: 100%;
+    text-align: left;
+  }
+
+  .withdrawalCode {
+    font-size: 0.8125rem;
   }
 }
