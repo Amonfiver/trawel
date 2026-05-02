@@ -1,0 +1,37 @@
+# Purpose: Run the country_map_assets worker from trusted CI, outside the browser.
+# Scope: Scheduled and manual processing for queued map assets only.
+# Decisions: Uses Node 22.13.0, npm ci, and a conservative --limit 1 per run.
+# Limitations: Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY repository secrets.
+# Recent changes: Initial automation for the map asset queue, scheduled every 30 minutes.
+name: Process country map queue
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  process-queue:
+    name: Process one queued map asset
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Process queued country map asset
+        run: npm run maps:queue:process -- --limit 1

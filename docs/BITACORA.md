@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-05-02 - Automatización inicial de cola de mapas
+
+Se añadió la base CI para procesar automáticamente `country_map_assets` sin mover trabajo pesado al navegador ni a la Edge Function.
+
+### Cambios
+
+- `.github/workflows/process-country-map-queue.yml`: workflow programado cada 30 minutos y manual con `workflow_dispatch`.
+- `docs/MAP_ASSET_PLAN.md`: documentado flujo navegador → queued → worker automático → ready → `CountryInternalMap`.
+- `docs/CODEMAP.md`: añadido mapa del workflow y su relación con el worker.
+- `docs/AGENT_BRIEF.md`: añadida nota operativa sobre automatización y secretos.
+
+### Decisiones operativas
+
+- Límite inicial recomendado: `npm run maps:queue:process -- --limit 1`.
+- Frecuencia inicial recomendada: cada 30 minutos.
+- GitHub Actions usa `SUPABASE_SERVICE_ROLE_KEY` únicamente como secret de CI/backend.
+- Frontend mantiene flujo anon/public y nunca recibe `service_role`.
+- `request-country-map` sigue limitada a encolar/actualizar registros; el procesamiento pesado queda en worker/CI.
+
+---
+
 ## 2026-05-02 - DECISIÓN: nivel cartográfico configurable por país
 
 Establecida la regla de producto para mapas internos: el `admin_level` no es global, se decide por país según el nivel más útil para exploración comercial.

@@ -147,7 +147,10 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 ```bash
 npm run dev          # Iniciar dev server
 npm run build        # Verificar build sin errores
+npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en cola
 ```
+
+**Automatización de mapas:** GitHub Actions procesa `country_map_assets` cada 30 minutos con `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` como secrets. El frontend nunca usa service role; solo consulta estado público y solicita cola vía Edge Function.
 
 ---
 

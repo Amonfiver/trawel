@@ -32,6 +32,9 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 
 ```
 trawel/
+├── .github/
+│   └── workflows/
+│       └── process-country-map-queue.yml  # CI: procesa cola de mapas cada 30 min con secrets
 ├── docs/                    # Documentación del proyecto
 │   ├── SPEC.md              # Especificación funcional
 │   ├── ARCHITECTURE.md      # Arquitectura y stack
@@ -776,6 +779,14 @@ Para México, el reprocesado usa ADM1 por perfil, sube `countries/mexico/mexico-
 **Variables de entorno:**
 - `SUPABASE_URL` - URL de Supabase
 - `SUPABASE_SERVICE_ROLE_KEY` - Clave de servicio (requerida para Storage)
+
+**Automatización CI:**
+- Workflow: `.github/workflows/process-country-map-queue.yml`
+- Frecuencia inicial: cada 30 minutos (`*/30 * * * *`)
+- Ejecución manual: `workflow_dispatch`
+- Comando: `npm run maps:queue:process -- --limit 1`
+- Secrets requeridos: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- La `SUPABASE_SERVICE_ROLE_KEY` vive solo en GitHub Actions/backend/worker; no se expone al frontend ni a assets públicos.
 
 ---
 

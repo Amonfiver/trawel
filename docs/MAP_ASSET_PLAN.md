@@ -539,6 +539,51 @@ npm run maps:queue:process -- --country mexico --force
 > `--force` requiere `--country` para evitar reprocesados masivos accidentales. Está pensado para corregir assets ya generados, por ejemplo después de mejorar normalización de winding.
 > El worker aplica `countryMapProfiles.ts` antes de consultar geoBoundaries; México se reprocesa como ADM1 y actualiza el registro único de `country_map_assets`.
 
+#### Automatización con GitHub Actions
+
+La cola se procesa automáticamente desde CI mediante:
+
+```
+.github/workflows/process-country-map-queue.yml
+```
+
+Configuración inicial recomendada:
+
+| Aspecto | Valor |
+|---------|-------|
+| Frecuencia | Cada 30 minutos (`*/30 * * * *`) |
+| Límite por ejecución | `--limit 1` |
+| Ejecución manual | `workflow_dispatch` |
+| Runtime | GitHub Actions + Node 22.13.0 |
+| Instalación | `npm ci` |
+| Comando | `npm run maps:queue:process -- --limit 1` |
+
+Secrets requeridos en GitHub:
+
+| Secret | Uso |
+|--------|-----|
+| `SUPABASE_URL` | URL del proyecto Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Escritura en `country_map_assets` y Storage desde worker/CI |
+
+Reglas de seguridad:
+- El frontend usa solo `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y la Edge Function pública.
+- La Edge Function `request-country-map` solo encola o actualiza registros de estado; no procesa GeoJSON pesado.
+- El worker pesado corre en GitHub Actions/backend con `SUPABASE_SERVICE_ROLE_KEY` inyectada como secret.
+- El navegador nunca ejecuta `npm`, nunca procesa assets cartográficos grandes y nunca recibe `SUPABASE_SERVICE_ROLE_KEY`.
+
+#### Flujo navegador → cola → worker → mapa
+
+| Paso | Responsable | Acción |
+|------|-------------|--------|
+| 1 | Frontend | Usuario navega a `/pais/{slug}` desde WorldMap |
+| 2 | Frontend | Consulta `country_map_assets` con flujo anon/public |
+| 3 | Frontend | Si falta o falló, llama a `request-country-map` |
+| 4 | Edge Function | Inserta/actualiza registro como `queued` usando service role en servidor |
+| 5 | GitHub Actions | Cada 30 minutos ejecuta el worker con `--limit 1` |
+| 6 | Worker CI/backend | Descarga geoBoundaries, genera TopoJSON, sube a Storage |
+| 7 | Worker CI/backend | Actualiza `country_map_assets.status` a `ready` |
+| 8 | Frontend | `CountryInternalMap` carga la URL pública de Storage y renderiza el mapa |
+
 #### Estructura de archivos en Storage
 
 ```
