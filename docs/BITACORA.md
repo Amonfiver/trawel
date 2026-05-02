@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-05-02 - CountryInternalMap: mapas internos limpios y homogéneos
+
+Implementado el render genérico de mapas internos para países con asset TopoJSON listo.
+
+### Problemas corregidos
+
+| Problema | Causa | Solución |
+|----------|-------|----------|
+| **Estado `ready` solo mostraba mensaje** | CountryPage no renderizaba el asset de Storage | `CountryInternalMap` carga y pinta el TopoJSON real cuando `status='ready'` |
+| **España mantenía puntos y labels fijos** | `SpainMap` seguía pintando ciudades sobre el mapa | España usa el mismo `CountryInternalMap` con asset local |
+| **Mapas internos revelaban editorial** | Marcadores de ciudad indicaban contenido disponible | Sin puntos, sin labels, solo tooltip de zona al hover |
+
+### Archivos creados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.module.css`
+- `src/features/map/components/CountryInternalMap/index.ts`
+
+### Comportamiento
+
+- España carga `/maps/countries/spain/spain-adm2.topojson`.
+- México, Francia y otros países cargan la `publicUrl` de Supabase Storage cuando el asset está `ready`.
+- El componente detecta automáticamente la primera key válida dentro de `topology.objects`.
+- El mapa usa estilo homogéneo con WorldMap: gris neutro + hover dorado.
+- El tooltip muestra solo el nombre de la zona/área.
+- El contenido editorial queda fuera del mapa.
+
+### SpainMap
+
+`SpainMap` queda como wrapper legado temporal sobre `CountryInternalMap`. Ya no pinta círculos, labels ni leyenda de ciudades.
+
+---
+
 ## 2026-05-02 - FIX: request-country-map pública para usuarios anónimos
 
 Documentada la causa del `401 Unauthorized` al solicitar mapas desde `/pais/francia`.

@@ -477,6 +477,29 @@
   color: #64748b;
 }
 
+.editorialPendingBlock {
+  max-width: 640px;
+  margin: var(--space-xl, 2rem) auto 0;
+  padding: var(--space-lg, 1.5rem);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.editorialPendingTitle {
+  margin: 0 0 var(--space-sm, 0.5rem);
+  color: var(--color-text-primary, #111827);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.editorialPendingText {
+  margin: 0;
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1.6;
+}
+
 .requestMapButton {
   margin-top: var(--space-lg, 1.5rem);
   padding: 0.875rem 2rem;

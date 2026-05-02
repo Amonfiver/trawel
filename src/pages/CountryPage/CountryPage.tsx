@@ -6,14 +6,14 @@
  * 
  * Alcance: 
  * - Hero visual claro del país
- * - Mapa interno interactivo (pilot: España)
+ * - Mapa interno interactivo homogéneo
  * - Lista de ciudades como sección secundaria
  * - Fallback a directorio clásico para países sin mapa
  * - Destinos destacados en sección terciaria
  * 
  * Decisiones técnicas:
  * - Usa getCountryPageData para obtener datos agregados
- * - SpainMap como piloto arquitectónico (DA-027)
+ * - CountryInternalMap como render genérico para assets TopoJSON
  * - Jerarquía visual: País → Mapa (principal) → Lista Ciudades (secundaria)
  * - Fallback automático si país no tiene mapa interno implementado
  * 
@@ -22,13 +22,13 @@
  * - Estados UI: loading, ready, missing, queued/generating, failed
  * - Polling para actualización de estado de generación
  * - Vista "Próximamente" para países sin contenido editorial
- * - España mantiene SpainMap local (sin cambios)
+ * - España usa el mismo render genérico con asset local
  */
 
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { getCountryPageData } from '../../features/travelData';
-import { SpainMap } from '../../features/map/components/SpainMap';
+import { CountryInternalMap } from '../../features/map/components/CountryInternalMap';
 import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
@@ -43,8 +43,10 @@ import {
 } from '../../features/map/services/countryMapAssets.service';
 import styles from './CountryPage.module.css';
 
-// Países con mapa interno local implementado (España usa SpainMap)
+// Países con mapa interno local implementado
 const COUNTRIES_WITH_LOCAL_MAP = ['espana'];
+const SPAIN_LOCAL_MAP_URL = '/maps/countries/spain/spain-adm2.topojson';
+const DEFAULT_MAP_ATTRIBUTION = 'Datos cartográficos: geoBoundaries (CC BY 4.0)';
 
 // Estados del mapa para UI
 type MapAssetState = 
@@ -82,7 +84,7 @@ export function CountryPage() {
 
   // Efecto para consultar estado del mapa en Supabase
   useEffect(() => {
-    // Solo consultar si no es España (España usa SpainMap local)
+    // Solo consultar si no es España (España usa asset local)
     if (!countrySlug || COUNTRIES_WITH_LOCAL_MAP.includes(countrySlug)) {
       setMapState({ status: 'loading' }); // España no consulta Supabase para mapa
       return;
@@ -318,8 +320,8 @@ export function CountryPage() {
 
   // Renderizar componente de mapa según estado
   const renderMapSection = () => {
-    // España usa SpainMap local
-    if (hasLocalMap && activeCities.length > 0) {
+    // España usa el asset local con el mismo render genérico que Storage.
+    if (hasLocalMap) {
       return (
         <section className={styles.mapSection} aria-labelledby="map-title">
           <div className={styles.sectionHeader}>
@@ -327,10 +329,14 @@ export function CountryPage() {
               Explora en el mapa
             </h2>
             <p className={styles.sectionSubtitle}>
-              Haz clic en una ciudad para descubrir sus aventuras
+              Pasa el ratón por una zona para ver su nombre
             </p>
           </div>
-          <SpainMap cities={activeCities} countrySlug={countrySlug || ''} />
+          <CountryInternalMap
+            assetUrl={SPAIN_LOCAL_MAP_URL}
+            countryName={country.displayName}
+            attribution={DEFAULT_MAP_ATTRIBUTION}
+          />
         </section>
       );
     }
@@ -342,7 +348,7 @@ export function CountryPage() {
 
   // Renderizar estado del mapa automático (para países que no son España)
   const renderAutoMapStatus = () => {
-    // No mostrar para España (ya tiene SpainMap)
+    // No mostrar para España (ya tiene asset local)
     if (hasLocalMap) return null;
 
     // Si tiene contenido editorial, mostrar mapa en sección principal
@@ -365,16 +371,20 @@ export function CountryPage() {
       case 'ready':
         return (
           <section className={styles.mapSection} aria-labelledby="map-ready-title">
-            <div className={styles.mapReadyState}>
-              <span className={styles.mapReadyIcon}>✅</span>
-              <h3 id="map-ready-title">Mapa interno disponible</h3>
-              <p>
-                El mapa de {country.displayName} está listo. 
-                {hasContent 
-                  ? ' Explora las ciudades disponibles abajo.'
-                  : ' Los destinos y lugares de interés estarán disponibles próximamente.'}
+            <div className={styles.sectionHeader}>
+              <h2 id="map-ready-title" className={styles.sectionTitle}>
+                Explora en el mapa
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Pasa el ratón por una zona para ver su nombre
               </p>
             </div>
+            <CountryInternalMap
+              assetUrl={mapState.publicUrl}
+              countryName={country.displayName}
+              attribution={mapState.asset.attribution || DEFAULT_MAP_ATTRIBUTION}
+            />
+            {!hasContent && <EditorialPendingBlock countryName={country.displayName} />}
           </section>
         );
 
@@ -824,14 +834,12 @@ function DiscoveringCountryView({ worldCountry, mapState, onRetryGeneration }: D
 
             {mapState.status === 'ready' && (
               <div className={styles.discoveringState}>
-                <p className={styles.discoveringReady}>
-                  ✅ ¡El mapa cartográfico está listo!
-                </p>
-                <p>
-                  Estamos trabajando en el contenido editorial. 
-                  Pronto tendrás información detallada sobre destinos, 
-                  ciudades y aventuras en {worldCountry.displayName}.
-                </p>
+                <CountryInternalMap
+                  assetUrl={mapState.publicUrl}
+                  countryName={worldCountry.displayName}
+                  attribution={mapState.asset.attribution || DEFAULT_MAP_ATTRIBUTION}
+                />
+                <EditorialPendingBlock countryName={worldCountry.displayName} />
               </div>
             )}
 
@@ -872,6 +880,18 @@ function DiscoveringCountryView({ worldCountry, mapState, onRetryGeneration }: D
           </div>
         </section>
       </main>
+    </div>
+  );
+}
+
+function EditorialPendingBlock({ countryName }: { countryName: string }) {
+  return (
+    <div className={styles.editorialPendingBlock}>
+      <h3 className={styles.editorialPendingTitle}>Contenido editorial en preparación</h3>
+      <p className={styles.editorialPendingText}>
+        Estamos trabajando en el contenido editorial. Pronto tendrás información sobre
+        destinos, ciudades y aventuras en {countryName}.
+      </p>
     </div>
   );
 }

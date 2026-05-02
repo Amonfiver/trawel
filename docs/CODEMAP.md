@@ -180,12 +180,12 @@ src/features/map/
 │   │   ├── WorldMap.tsx           # Mapa mundial exploratorio (DA-029)
 │   │   ├── WorldMap.module.css    # Estilos específicos
 │   │   └── index.ts
-│   ├── CountryMap/                # Mapa interno de país (DA-030)
-│   │   ├── CountryMap.tsx         # Carga TopoJSON desde Storage
-│   │   ├── CountryMap.module.css
+│   ├── CountryInternalMap/        # Mapa interno genérico (DA-029/DA-030)
+│   │   ├── CountryInternalMap.tsx # Carga TopoJSON local o Storage
+│   │   ├── CountryInternalMap.module.css
 │   │   └── index.ts
-│   ├── SpainMap/                  # ⚠️ Legacy - usar CountryMap
-│   │   ├── SpainMap.tsx           # Silueta SVG manual (obsoleto)
+│   ├── SpainMap/                  # Wrapper legado temporal
+│   │   ├── SpainMap.tsx           # Delegado a CountryInternalMap
 │   │   ├── SpainMap.module.css
 │   │   └── index.ts
 │   ├── MapTooltip/
@@ -218,17 +218,18 @@ src/features/map/
 
 **Nota:** WorldMap v1 usa D3 + TopoJSON + world-atlas por CDN. Conecta geometrías UN M.49 con diccionario Trawel.
 
-**✅ SpainMap actualizado (v2):**
-- SpainMap (`src/features/map/components/SpainMap/`) ahora usa **asset TopoJSON real** de geoBoundaries
-- Carga dinámicamente: `/maps/countries/spain/spain-adm2.topojson` (52.59 KB)
-- Renderiza 52 provincias españolas con D3 + proyección geoMercator
-- Mantiene puntos interactivos de ciudades (Morella, Albarracín, etc.)
-- Atribución visible: "Datos cartográficos: geoBoundaries (CC BY 4.0)"
-- Fallback limpio si el asset no carga
+**✅ CountryInternalMap (v1):**
+- Carga TopoJSON desde asset local o Supabase Storage.
+- Detecta automáticamente la primera key válida de `topology.objects`.
+- Renderiza subdivisiones con D3 + `geoMercator().fitSize()`.
+- No pinta puntos, marcadores ni labels fijos.
+- Tooltip al hover con el nombre de la zona/área.
+- Estilo homogéneo con WorldMap: gris neutro + hover dorado.
+- Atribución visible y discreta.
 
-**Archivos:**
-- `SpainMap.tsx` - Componente con carga de TopoJSON y renderizado D3
-- `SpainMap.module.css` - Estilos para provincias, ciudades, atribución, fallback
+**SpainMap:**
+- Wrapper legado temporal sobre `CountryInternalMap`.
+- No mantiene círculos, nombres fijos ni leyenda de ciudades.
 
 ### `src/features/map/services/countryMapAssets.service.ts` - Servicio de assets cartográficos (DA-030)
 
@@ -329,7 +330,7 @@ useEffect(() => {
 - Para uso público desde el mapa mundial, desplegar la función con JWT verification desactivado:
   `npx supabase functions deploy request-country-map --no-verify-jwt`
 - Requiere que Supabase esté configurado (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
-- España (`countrySlug === 'espana'`) usa SpainMap local, NO consulta este servicio
+- España (`countrySlug === 'espana'`) usa `CountryInternalMap` con asset local y NO consulta este servicio
 
 ### `src/features/countries/` - Lógica de países
 

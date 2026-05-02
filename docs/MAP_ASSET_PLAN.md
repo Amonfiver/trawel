@@ -8,7 +8,22 @@
 
 ## 1. Problema detectado
 
-### Estado actual de SpainMap (src/features/map/components/SpainMap/)
+### Estado actual de mapas internos
+
+`CountryInternalMap` es el render principal para mapas internos:
+
+| Aspecto | Estado actual |
+|---------|---------------|
+| **España** | Usa `/maps/countries/spain/spain-adm2.topojson` |
+| **Países automáticos** | Usan `publicUrl` desde Supabase Storage cuando `country_map_assets.status = 'ready'` |
+| **Render** | D3 + TopoJSON + `geoMercator().fitSize()` |
+| **Estilo** | Gris neutro + hover dorado, homogéneo con WorldMap |
+| **Marcadores** | No hay puntos ni labels fijos de ciudad |
+| **Tooltip** | Solo nombre de zona/área al pasar el ratón |
+
+`SpainMap` queda como wrapper legado temporal sobre `CountryInternalMap`.
+
+### Estado anterior de SpainMap (src/features/map/components/SpainMap/)
 
 El componente `SpainMap` implementado es **funcional pero no definitivo**:
 
@@ -20,7 +35,7 @@ El componente `SpainMap` implementado es **funcional pero no definitivo**:
 | **Escala** | Bounding box manual | Proyección simplificada, no estándar |
 | **Escalabilidad** | SVG estático inline | No reusable para otros países sin refactor mayor |
 
-**Conclusión:** El SpainMap actual es un **prototipo temporal/piloto arquitectónico** válido para demostrar funcionalidad, pero debe reemplazarse por un asset cartográfico fiable antes de considerarse producción-ready.
+**Conclusión histórica:** este SpainMap fue reemplazado por `CountryInternalMap`. El wrapper `SpainMap` ya no mantiene render propio ni pinta ciudades encima del mapa.
 
 ---
 
@@ -136,14 +151,14 @@ src/assets/maps/
 
 > **Actualizado por DA-029 (2026-05-01):** Mapas exploratorios homogéneos sin revelar disponibilidad
 
-### Interacciones objetivo (reemplazo de SpainMap)
+### Interacciones objetivo
 
 | Interacción | Comportamiento |
 |-------------|----------------|
 | **Hover sobre provincia/zona** | Cambia color de fondo, muestra nombre en tooltip |
 | **Puntos de ciudad** | ❌ NO renderizar puntos/marcadores de ciudad sobre el mapa (DA-029) |
 | **Labels fijos** | ❌ NO mostrar nombres siempre visibles sobre el mapa (DA-029) |
-| **Click en ciudad** | Navega a `/pais/:country/:city` (si existe contenido) o página "Próximamente" |
+| **Click en ciudad** | ❌ No ocurre dentro del mapa; el contenido se navega desde bloques/listas fuera del mapa |
 | **Tooltip de provincia** | Muestra solo nombre (sin bandera, es subdivisión interna) |
 | **Fallback sin asset** | Muestra lista clásica de ciudades (comportamiento actual Japón/Perú) |
 
@@ -157,9 +172,9 @@ src/assets/maps/
 | **Color hover** | Amarillo/dorado consistente con WorldMap |
 | **Descubrimiento** | El usuario explora sin saber de antemano qué tiene contenido |
 
-### Diferencias con SpainMap actual
+### Diferencias con SpainMap anterior
 
-| Aspecto | SpainMap actual | Mapa con asset real |
+| Aspecto | SpainMap anterior | CountryInternalMap |
 |---------|-----------------|---------------------|
 | Base cartográfica | SVG manual (~líneas 119-146) | GeoJSON/TopoJSON preciso |
 | Provincias/zonas | No disponible | Hover con nombre |
@@ -171,35 +186,31 @@ src/assets/maps/
 
 ## 6. Plan por fases
 
-### Fase 1: Actual (COMPLETADA)
-- ✅ SpainMap como prototipo funcional con puntos interactivos
-- ✅ Integración en CountryPage con fallback automático
-- ✅ Albarracín y Morella visibles en mapa
+### Fase 1: Prototipo SpainMap (SUPERADA)
+- ✅ SpainMap funcionó como prototipo con puntos interactivos
+- ✅ Integración inicial en CountryPage
+- ✅ Reemplazado por `CountryInternalMap` para cumplir DA-029
 
-### Fase 2: Asset real de España (SIGUIENTE BLOQUE TÉCNICO)
+### Fase 2: Render genérico limpio (COMPLETADA)
 
 **Tareas:**
-1. Descargar geoJSON de geoBoundaries (ADM2 España)
-2. Crear script de procesado (scripts/process-map-assets.ts):
-   - Simplificación de geometría
-   - Conversión a TopoJSON
-   - Validación de formato
-3. Guardar asset en `public/maps/countries/spain/`
-4. Crear componente `CountryMap` genérico (reemplaza SpainMap):
-   - Acepta `countrySlug` y carga asset dinámicamente
+1. ✅ Usar asset real de España desde `public/maps/countries/spain/`
+2. ✅ Crear `CountryInternalMap` genérico:
+   - Recibe `assetUrl`, `countryName`, `attribution`
+   - Detecta automáticamente `topology.objects`
    - Renderiza provincias/zonas como paths
-   - Superpone puntos de ciudad
-   - Hover/click en provincias
-5. Actualizar CountryPage para usar `CountryMap` en lugar de `SpainMap`
-6. Marcar `SpainMap` como deprecated/legacy
+   - No superpone puntos de ciudad
+   - No muestra labels fijos
+3. ✅ Actualizar CountryPage para usar `CountryInternalMap` en España y assets `ready` de Storage
+4. ✅ Marcar `SpainMap` como wrapper legado temporal
 
 **Criterios de aceptación:**
-- [ ] Asset de España < 100KB
-- [ ] Provincias visibles con hover
-- [ ] Puntos de ciudad posicionados correctamente sobre provincias
-- [ ] Navegación a CityPage funciona
-- [ ] Fallback sin asset mantiene lista clásica
-- [ ] Build sin errores
+- [x] Asset de España < 100KB
+- [x] Provincias visibles con hover
+- [x] Sin puntos de ciudad
+- [x] Sin labels fijos
+- [x] Contenido editorial fuera del mapa
+- [x] Build sin errores
 
 ### Fase 3: Añadir más países bajo demanda
 
@@ -285,10 +296,10 @@ Trawel implementará **generación automática bajo demanda** de mapas internos 
 ### Flujo de generación automática
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────────┐
-│   Frontend  │────▶│   Supabase  │◀────│  Worker/Backend │
-│  (CountryMap)│    │   (Estado)  │     │  (Generación)   │
-└──────┬──────┘     └──────┬──────┘     └─────────────────┘
+┌────────────────────┐     ┌─────────────┐     ┌─────────────────┐
+│ Frontend           │────▶│   Supabase  │◀────│  Worker/Backend │
+│ CountryInternalMap │     │   (Estado)  │     │  (Generación)   │
+└─────────┬──────────┘     └──────┬──────┘     └─────────────────┘
        │                   │
        │            ┌──────┴──────┐
        │            │   Storage   │
@@ -621,7 +632,8 @@ npx supabase functions deploy request-country-map --no-verify-jwt
 - **DA-030:** `docs/DECISIONES.md` - Decisión completa de generación automática
 - **DA-029:** `docs/DECISIONES.md` - Mapas exploratorios con bandera
 - **DA-027:** `docs/DECISIONES.md` - Estrategia progresiva (reemplazada por DA-030)
-- **SpainMap actual:** `src/features/map/components/SpainMap/SpainMap.tsx`
+- **CountryInternalMap:** `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+- **SpainMap legado:** `src/features/map/components/SpainMap/SpainMap.tsx`
 - **Edge Function:** `supabase/functions/request-country-map/index.ts`
 - **Servicio Frontend:** `src/features/map/services/countryMapAssets.service.ts`
 - **geoBoundaries:** https://www.geoboundaries.org/
