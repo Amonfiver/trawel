@@ -501,6 +501,9 @@ npm run maps:queue:process -- --limit 1
 
 # Simular sin hacer cambios reales
 npm run maps:queue:process -- --country mexico --dry-run
+
+# Reprocesar un país aunque ya esté ready (uso admin/desarrollo)
+npm run maps:queue:process -- --country mexico --force
 ```
 
 #### Flujo del worker
@@ -513,9 +516,12 @@ npm run maps:queue:process -- --country mexico --dry-run
 | 4 | Descargar GeoJSON | Obtener archivo fuente (10-40MB) |
 | 5 | Normalizar winding | Corregir orientación de polígonos para D3 |
 | 6 | Simplificar | Reducir a ~2% de detalle original |
-| 7 | Convertir a TopoJSON | Generar formato optimizado |
-| 8 | Subir a Storage | Guardar en bucket `map-assets` |
-| 9 | Actualizar a `ready` | Guardar metadatos del asset |
+| 7 | Re-normalizar winding | Corregir posibles cambios de orientación tras simplificar |
+| 8 | Convertir a TopoJSON final | Generar formato optimizado |
+| 9 | Subir a Storage | Guardar en bucket `map-assets` |
+| 10 | Actualizar a `ready` | Guardar metadatos del asset |
+
+> `--force` requiere `--country` para evitar reprocesados masivos accidentales. Está pensado para corregir assets ya generados, por ejemplo después de mejorar normalización de winding.
 
 #### Estructura de archivos en Storage
 

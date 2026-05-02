@@ -12,6 +12,7 @@
 import * as https from 'https';
 import * as geojson2topojson from 'topojson-server';
 import * as topojson from 'topojson-simplify';
+import { feature as topojsonFeature } from 'topojson-client';
 
 // ============================================
 // TIPOS
@@ -130,38 +131,60 @@ export function normalizePolygon(rings: number[][][]): number[][][] {
  * Normaliza la orientación de todas las geometrías de un FeatureCollection.
  */
 export function normalizeGeoJSON(geojson: any): any {
-  if (!geojson || !geojson.features) return geojson;
+  if (!geojson) return geojson;
 
-  const normalizedFeatures = geojson.features.map((feature: any) => {
+  if (geojson.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
+    const normalizedFeatures = geojson.features.map((feature: any) => normalizeFeatureGeometry(feature));
+
+    return {
+      ...geojson,
+      features: normalizedFeatures
+    };
+  }
+
+  if (geojson.type === 'Feature') {
+    return normalizeFeatureGeometry(geojson);
+  }
+
+  return normalizeGeometry(geojson);
+}
+
+function normalizeFeatureGeometry(feature: any): any {
     if (!feature.geometry) return feature;
-    
-    const geometry = feature.geometry;
-    let newGeometry = geometry;
-    
-    if (geometry.type === 'Polygon') {
-      newGeometry = {
-        ...geometry,
-        coordinates: normalizePolygon(geometry.coordinates)
-      };
-    } else if (geometry.type === 'MultiPolygon') {
-      newGeometry = {
-        ...geometry,
-        coordinates: geometry.coordinates.map((polygon: number[][][]) => 
-          normalizePolygon(polygon)
-        )
-      };
-    }
-    
+
     return {
       ...feature,
-      geometry: newGeometry
+      geometry: normalizeGeometry(feature.geometry)
     };
-  });
+}
 
-  return {
-    ...geojson,
-    features: normalizedFeatures
-  };
+function normalizeGeometry(geometry: any): any {
+  if (!geometry) return geometry;
+
+  if (geometry.type === 'Polygon') {
+    return {
+      ...geometry,
+      coordinates: normalizePolygon(geometry.coordinates)
+    };
+  }
+
+  if (geometry.type === 'MultiPolygon') {
+    return {
+      ...geometry,
+      coordinates: geometry.coordinates.map((polygon: number[][][]) =>
+        normalizePolygon(polygon)
+      )
+    };
+  }
+
+  if (geometry.type === 'GeometryCollection' && Array.isArray(geometry.geometries)) {
+    return {
+      ...geometry,
+      geometries: geometry.geometries.map((item: any) => normalizeGeometry(item))
+    };
+  }
+
+  return geometry;
 }
 
 // ============================================
@@ -377,10 +400,19 @@ export function convertToTopoJSON(
   const topologyAny: any = topology;
   const presimplified = topojson.presimplify(topologyAny);
   const simplified = topojson.simplify(presimplified, fullConfig.simplificationFactor);
+
+  // 4. Re-normalizar después de simplificar. La simplificación puede cambiar
+  // anillos pequeños y dejar winding inválido para D3 en algunos países.
+  const simplifiedGeoJSON = topojsonFeature(
+    simplified as any,
+    (simplified.objects as any)[objectName]
+  );
+  const finalGeoJSON = normalizeGeoJSON(simplifiedGeoJSON);
+  const finalTopology = geojson2topojson.topology({ [objectName]: finalGeoJSON });
   
-  const featureCount = (simplified.objects as any)?.[objectName]?.geometries?.length || 0;
+  const featureCount = (finalTopology.objects as any)?.[objectName]?.geometries?.length || 0;
   
-  return { topology: simplified, featureCount };
+  return { topology: finalTopology, featureCount };
 }
 
 /**

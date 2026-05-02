@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-05-02 - FIX: winding final en assets y reprocesado forzado
+
+Corregido el pipeline compartido de mapas para evitar polígonos complementarios como el cuadrado amarillo visto en México.
+
+### Problema
+
+México cargaba el TopoJSON y los tooltips funcionaban, pero algunas geometrías se renderizaban como complementos del mapa. El síntoma visible era un rectángulo/área enorme en hover, causado por anillos con winding inválido para D3 en el asset final.
+
+### Solución
+
+- `mapAssetPipeline.convertToTopoJSON()` ahora normaliza winding antes de convertir y vuelve a normalizar después de `topojson-simplify`.
+- `normalizeGeoJSON()` soporta `FeatureCollection`, `Feature`, `Polygon`, `MultiPolygon` y `GeometryCollection`.
+- El worker acepta `--force` para reprocesar un país aunque su registro esté `ready`.
+
+### Comando de reprocesado
+
+```bash
+npm run maps:queue:process -- --country mexico --force
+```
+
+Requiere `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` en el entorno. En esta sesión no se ejecutó contra Supabase porque `SUPABASE_URL` no estaba configurada en la shell.
+
+---
+
 ## 2026-05-02 - CountryInternalMap: mapas internos limpios y homogéneos
 
 Implementado el render genérico de mapas internos para países con asset TopoJSON listo.

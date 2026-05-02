@@ -764,6 +764,7 @@ npm run maps:queue:process              # Procesar toda la cola
 npm run maps:queue:process -- --country mexico   # Solo México
 npm run maps:queue:process -- --limit 1          # Solo 1 elemento
 npm run maps:queue:process -- --dry-run          # Simulación
+npm run maps:queue:process -- --country mexico --force  # Reprocesar aunque esté ready
 ```
 
 **Variables de entorno:**
@@ -782,6 +783,7 @@ npm run maps:queue:process -- --dry-run          # Simulación
   - `convertToTopoJSON()` - Convierte GeoJSON a TopoJSON simplificado
   - `normalizeGeoJSON()` - Normaliza orientación de polígonos (winding)
   - `formatBytes()` - Formatea tamaños de archivo
+- **Winding:** `convertToTopoJSON()` normaliza antes de convertir y vuelve a normalizar después de `topojson-simplify`, para evitar polígonos complementarios en D3.
 
 **Usado por:**
 - `process-country-map-queue.ts` (worker de producción)

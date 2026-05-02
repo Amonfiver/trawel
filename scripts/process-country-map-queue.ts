@@ -15,6 +15,7 @@
  *   npm run maps:queue:process              # Procesar toda la cola
  *   npm run maps:queue:process -- --country mexico  # Procesar solo México
  *   npm run maps:queue:process -- --limit 1         # Procesar solo 1 elemento
+ *   npm run maps:queue:process -- --country mexico --force  # Reprocesar aunque esté ready
  * 
  * Variables de entorno requeridas:
  *   SUPABASE_URL              - URL del proyecto Supabase
@@ -43,6 +44,7 @@ interface WorkerConfig {
   supabaseServiceKey: string;
   storageBucket: string;
   dryRun: boolean;
+  force: boolean;
   countryFilter?: string;
   limit?: number;
 }
@@ -55,6 +57,7 @@ interface QueuedRecord {
   iso_alpha3: string | null;
   admin_level: string;
   source: string | null;
+  status: string;
 }
 
 interface ProcessingResult {
@@ -107,10 +110,11 @@ function logWarning(message: string) {
 // PARSEADO DE ARGUMENTOS CLI
 // ============================================
 
-function parseArgs(): { country?: string; limit?: number; dryRun: boolean } {
+function parseArgs(): { country?: string; limit?: number; dryRun: boolean; force: boolean } {
   const args = process.argv.slice(2);
-  const result: { country?: string; limit?: number; dryRun: boolean } = {
+  const result: { country?: string; limit?: number; dryRun: boolean; force: boolean } = {
     dryRun: false,
+    force: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -125,6 +129,8 @@ function parseArgs(): { country?: string; limit?: number; dryRun: boolean } {
       }
     } else if (arg === '--dry-run') {
       result.dryRun = true;
+    } else if (arg === '--force') {
+      result.force = true;
     } else if (arg === '--help' || arg === '-h') {
       showHelp();
       process.exit(0);
@@ -145,11 +151,13 @@ Opciones:
   --country <slug>   Procesar solo un país específico (ej: mexico)
   --limit <n>        Procesar máximo n elementos de la cola
   --dry-run          Simular proceso sin modificar datos
+  --force            Reprocesar el país indicado aunque no esté queued
   --help, -h         Mostrar esta ayuda
 
 Ejemplos:
   npm run maps:queue:process              # Procesar toda la cola
   npm run maps:queue:process -- --country mexico     # Solo México
+  npm run maps:queue:process -- --country mexico --force  # Reprocesar México aunque esté ready
   npm run maps:queue:process -- --limit 1            # Solo 1 elemento
   npm run maps:queue:process -- --country mexico --dry-run  # Simular
 
@@ -168,6 +176,11 @@ function loadConfig(): WorkerConfig {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const args = parseArgs();
 
+  if (args.force && !args.country) {
+    logError('--force requiere --country <slug> para evitar reprocesados masivos');
+    process.exit(1);
+  }
+
   if (!supabaseUrl) {
     logError('Variable de entorno SUPABASE_URL no configurada');
     process.exit(1);
@@ -184,6 +197,7 @@ function loadConfig(): WorkerConfig {
     supabaseServiceKey,
     storageBucket: 'map-assets',
     dryRun: args.dryRun,
+    force: args.force,
     countryFilter: args.country,
     limit: args.limit,
   };
@@ -199,8 +213,11 @@ async function getQueuedRecords(
 ): Promise<QueuedRecord[]> {
   let query = supabase
     .from('country_map_assets')
-    .select('id, country_slug, country_name, iso_alpha2, iso_alpha3, admin_level, source')
-    .eq('status', 'queued');
+    .select('id, country_slug, country_name, iso_alpha2, iso_alpha3, admin_level, source, status');
+
+  if (!config.force) {
+    query = query.eq('status', 'queued');
+  }
 
   // Si hay filtro por país, buscar ese específico
   if (config.countryFilter) {
@@ -360,6 +377,7 @@ async function processCountry(
   console.log(`\n${COLORS.bold}Procesando: ${country_name || country_slug}${COLORS.reset}`);
   console.log(`${COLORS.dim}  ISO Alpha-3: ${iso_alpha3 || 'no especificado'}${COLORS.reset}`);
   console.log(`${COLORS.dim}  Admin Level: ${admin_level}${COLORS.reset}`);
+  console.log(`${COLORS.dim}  Status actual: ${record.status}${COLORS.reset}`);
 
   try {
     // 1. Actualizar estado a 'generating'
@@ -464,12 +482,16 @@ ${COLORS.reset}\n`);
   if (config.dryRun) {
     logWarning('MODO DRY-RUN: No se realizarán cambios en la base de datos');
   }
+  if (config.force) {
+    logWarning('MODO FORCE: se reprocesará el país indicado aunque no esté queued');
+  }
 
   logSection('CONFIGURACIÓN');
   log('Supabase URL', config.supabaseUrl.replace(/https:\/\/([^.]+).*/, '$1...****'));
   log('Storage Bucket', config.storageBucket);
   if (config.countryFilter) log('Filtro país', config.countryFilter, 'yellow');
   if (config.limit) log('Límite', config.limit.toString(), 'yellow');
+  if (config.force) log('Force', 'activado', 'yellow');
 
   // Crear cliente Supabase con service role
   const supabase = createClient(config.supabaseUrl, config.supabaseServiceKey, {
