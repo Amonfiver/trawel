@@ -37,6 +37,7 @@ type TopologyLike = {
 
 const WIDTH = 900;
 const HEIGHT = 560;
+const PAN_PADDING_RATIO = 0.75;
 
 export function CountryInternalMap({
   assetUrl,
@@ -140,7 +141,9 @@ export function CountryInternalMap({
 
     const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 8])
-      .translateExtent([[0, 0], [WIDTH, HEIGHT]])
+      // Keep zoom gestures centered on the viewport, but allow the enlarged map
+      // to move beyond the original viewBox inside the clipped map shell.
+      .translateExtent(getRelaxedTranslateExtent(WIDTH, HEIGHT, PAN_PADDING_RATIO))
       .extent([[0, 0], [WIDTH, HEIGHT]])
       .clickDistance(8)
       .filter((event: Event) => {
@@ -394,4 +397,18 @@ function createZoneSlug(zoneName: string): string {
     .replace(/^-+|-+$/g, '');
 
   return normalized || 'zona-por-descubrir';
+}
+
+function getRelaxedTranslateExtent(
+  width: number,
+  height: number,
+  paddingRatio: number
+): [[number, number], [number, number]] {
+  const paddingX = width * paddingRatio;
+  const paddingY = height * paddingRatio;
+
+  return [
+    [-paddingX, -paddingY],
+    [width + paddingX, height + paddingY],
+  ];
 }

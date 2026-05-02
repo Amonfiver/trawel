@@ -28,6 +28,7 @@
   padding-bottom: 62%;
   min-height: 320px;
   overflow: hidden;
+  touch-action: none;
 }
 
 .svg {

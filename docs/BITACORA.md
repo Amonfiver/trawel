@@ -559,5 +559,34 @@ Misma mejora funcional aplicada al mapa interno de país, manteniendo el alcance
 
 ---
 
+## 2026-05-03 - Ajuste de pan en mapas con zoom táctil
+
+Corrección quirúrgica del comportamiento táctil tras probar en móvil real.
+
+### Problema
+
+`translateExtent` estaba limitado al viewBox original del SVG. Con el mapa ampliado, D3 restringía demasiado la traslación y el usuario no podía reacomodar el mapa con libertad.
+
+### Cambios
+
+- `WorldMap` y `CountryInternalMap` mantienen `extent` como viewport para conservar el centro natural del pinch zoom.
+- `translateExtent` se relajó con margen interno alrededor del viewBox para permitir pan más amplio del contenido ampliado.
+- Se mantiene clipping visual con `overflow: hidden`, evitando overflow horizontal de página.
+- `touch-action: none` también se aplica al wrapper del mapa para estabilizar gestos táctiles en móvil real.
+- Wheel zoom sigue desactivado en escritorio.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
-*Última actualización: 2026-05-02*
+*Última actualización: 2026-05-03*

@@ -41,6 +41,7 @@
   padding-bottom: 52%; /* Aspect ratio 960:500 ≈ 1.92:1 */
   height: 0;
   overflow: hidden;
+  touch-action: none;
 }
 
 /* SVG del mapa */
