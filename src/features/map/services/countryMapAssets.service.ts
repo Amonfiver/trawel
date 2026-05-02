@@ -166,7 +166,7 @@ function mapDBRecordToAsset(dbRecord: Record<string, unknown>): CountryMapAsset 
  * 
  * @param countrySlug - Slug del país (ej: 'espana', 'francia')
  * @returns Promise<CountryMapAsset | null> - Datos del asset o null si no existe
- * @throws No lanza errores - devuelve null en caso de fallo
+ * @throws Lanza errores reales de consulta. Devuelve null solo si no existe registro.
  * 
  * @example
  * ```typescript
@@ -194,16 +194,16 @@ export async function getCountryMapAsset(
       .from('country_map_assets')
       .select('*')
       .eq('country_slug', countrySlug)
-      .single();
+      .maybeSingle();
 
     if (error) {
-      // Código PGRST116 = no se encontró registro (no es error real)
+      // Compatibilidad: PGRST116/406 era el caso "sin fila" al usar .single().
       if (error.code === 'PGRST116') {
         return null;
       }
       
       console.error('[CountryMapAssets] Error consultando asset:', error.message);
-      return null;
+      throw error;
     }
 
     if (!data) {
@@ -214,7 +214,7 @@ export async function getCountryMapAsset(
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
     console.error('[CountryMapAssets] Error inesperado:', errorMsg);
-    return null;
+    throw err;
   }
 }
 

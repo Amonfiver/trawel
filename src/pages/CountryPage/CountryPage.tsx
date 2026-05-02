@@ -68,8 +68,6 @@ export function CountryPage() {
   // Estado para el asset del mapa (DA-030)
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
   
-  // Ref para evitar duplicados por React StrictMode
-  const requestSentRef = useRef(false);
   const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   // Usar travelData.service para obtener datos agregados
@@ -97,64 +95,26 @@ export function CountryPage() {
       
       setMapState({ status: 'loading' });
       
-      const asset = await getCountryMapAsset(countrySlug);
+      let asset: CountryMapAsset | null;
+
+      try {
+        asset = await getCountryMapAsset(countrySlug);
+      } catch (err) {
+        if (!isMounted) return;
+
+        const errorMsg = err instanceof Error ? err.message : 'Error desconocido consultando el mapa';
+        if (import.meta.env.DEV) {
+          console.error('[CountryPage] country_map_assets query error', err);
+        }
+        setMapState({ status: 'failed', errorMessage: errorMsg });
+        return;
+      }
       
       if (!isMounted) return;
 
       if (!asset) {
-        // No existe registro: solicitar generación
+        // No existe registro: mostrar CTA para solicitar generación.
         setMapState({ status: 'missing' });
-        
-        // Evitar duplicados por React StrictMode
-        if (!requestSentRef.current) {
-          requestSentRef.current = true;
-          
-          // Resolver datos del país desde worldCountries como fuente canónica de ISO.
-          const countryData = worldCountry || country;
-          
-          if (!countryData) {
-            console.error('[CountryPage] No se pudieron resolver datos del país:', countrySlug);
-            if (isMounted) {
-              setMapState({ status: 'failed', errorMessage: 'No se pudieron resolver datos del país' });
-            }
-            return;
-          }
-          
-          // Construir payload completo según especificación DA-030
-          const payload = {
-            countrySlug,
-            countryName: countryData.displayName,
-            isoAlpha2: countryData.isoAlpha2,
-            isoAlpha3: 'isoAlpha3' in countryData ? countryData.isoAlpha3 : undefined,
-            adminLevel: 'ADM2' as const,
-            source: 'world_map'
-          };
-          
-          if (import.meta.env.DEV) {
-            console.info('[CountryPage] request-country-map payload', payload);
-          }
-          
-          const result = await requestCountryMapGeneration(payload);
-          
-          if (import.meta.env.DEV) {
-            console.info('[CountryPage] request-country-map response', result);
-          }
-          
-          if (isMounted) {
-            if (result.success) {
-              setMapState({ 
-                status: result.status === 'queued' || result.status === 'generating' 
-                  ? result.status 
-                  : 'queued' 
-              });
-            } else {
-              if (import.meta.env.DEV) {
-                console.error('[CountryPage] request-country-map error', result);
-              }
-              setMapState({ status: 'failed', errorMessage: result.error });
-            }
-          }
-        }
         return;
       }
 
@@ -188,7 +148,6 @@ export function CountryPage() {
     // Cleanup
     return () => {
       isMounted = false;
-      requestSentRef.current = false;
     };
   }, [
     countrySlug,
@@ -217,7 +176,18 @@ export function CountryPage() {
     pollingIntervalRef.current = setInterval(async () => {
       if (!countrySlug || COUNTRIES_WITH_LOCAL_MAP.includes(countrySlug)) return;
       
-      const asset = await getCountryMapAsset(countrySlug);
+      let asset: CountryMapAsset | null;
+
+      try {
+        asset = await getCountryMapAsset(countrySlug);
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Error desconocido consultando el mapa';
+        if (import.meta.env.DEV) {
+          console.error('[CountryPage] country_map_assets polling error', err);
+        }
+        setMapState({ status: 'failed', errorMessage: errorMsg });
+        return;
+      }
       
       if (!asset) {
         setMapState({ status: 'failed', errorMessage: 'Registro no encontrado durante polling' });
@@ -262,7 +232,6 @@ export function CountryPage() {
     if (!countrySlug || COUNTRIES_WITH_LOCAL_MAP.includes(countrySlug)) return;
     
     setMapState({ status: 'loading' });
-    requestSentRef.current = false;
     
     // Resolver datos del país desde worldCountries como fuente canónica de ISO.
     const countryData = worldCountry || country;
