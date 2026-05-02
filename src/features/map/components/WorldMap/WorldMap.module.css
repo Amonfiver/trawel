@@ -52,6 +52,12 @@
   height: 100%;
   display: block;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+  touch-action: none;
+  user-select: none;
+}
+
+.zoomLayer {
+  transform-origin: center;
 }
 
 /* Estilos de los países (aplicados por D3) */
@@ -206,6 +212,16 @@
   text-align: center;
 }
 
+.touchHint {
+  display: none;
+  margin: 0;
+  padding: 0 1rem 1rem;
+  color: #64748b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 /* Responsive adjustments */
 
 /* Tablet */
@@ -238,6 +254,10 @@
   
   .mapWrapper {
     padding-bottom: 62%; /* Más alto para móvil */
+  }
+
+  .touchHint {
+    display: block;
   }
   
   .loading,

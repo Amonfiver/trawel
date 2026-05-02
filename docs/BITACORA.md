@@ -511,5 +511,29 @@ Pasada acotada de CSS/layout antes del diseño premium con v0.
 
 ---
 
+## 2026-05-02 - WorldMap con zoom táctil en móvil
+
+Mejora funcional acotada del mapa mundial para teléfonos pequeños.
+
+### Cambios
+
+- Añadido `d3.zoom` sobre una capa `<g>` interna del SVG.
+- Pinch zoom táctil habilitado con escala limitada `1x` a `8x`.
+- Pan/arrastre permitido cuando el mapa está ampliado.
+- Wheel zoom desactivado para mantener el comportamiento de escritorio lo más estable posible.
+- Protección simple para evitar navegación si un arrastre acaba generando click.
+- Indicador móvil discreto: "Pellizca para acercar".
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-02*

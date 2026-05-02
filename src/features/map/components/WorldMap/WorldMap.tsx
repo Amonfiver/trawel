@@ -36,6 +36,8 @@
  
  // URL del dataset world-atlas
  const WORLD_ATLAS_URL = 'https://unpkg.com/world-atlas@2/countries-110m.json';
+ const WORLD_MAP_WIDTH = 960;
+ const WORLD_MAP_HEIGHT = 500;
  
  interface TooltipData {
    visible: boolean;
@@ -54,6 +56,7 @@
  export function WorldMap() {
    const svgRef = useRef<SVGSVGElement>(null);
    const containerRef = useRef<HTMLDivElement>(null);
+   const suppressClickUntilRef = useRef(0);
    const navigate = useNavigate();
    
    const [tooltip, setTooltip] = useState<TooltipData>({
@@ -69,8 +72,8 @@
      if (!svgRef.current) return;
  
      const svg = d3.select(svgRef.current);
-     const width = 960;
-     const height = 500;
+     const width = WORLD_MAP_WIDTH;
+     const height = WORLD_MAP_HEIGHT;
  
      // Configurar proyección Mercator responsive
      const projection = d3.geoMercator()
@@ -81,6 +84,35 @@
  
      // Limpiar SVG previo
      svg.selectAll('*').remove();
+
+     const mapLayer = svg.append('g')
+       .attr('class', styles.zoomLayer);
+
+     const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
+       .scaleExtent([1, 8])
+       .translateExtent([[0, 0], [width, height]])
+       .extent([[0, 0], [width, height]])
+       .clickDistance(8)
+       .filter((event: Event) => {
+         if (event.type === 'wheel') {
+           return false;
+         }
+
+         return true;
+       })
+       .on('start', () => {
+         setTooltip(prev => ({ ...prev, visible: false }));
+       })
+       .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+         mapLayer.attr('transform', event.transform.toString());
+
+         const sourceType = event.sourceEvent?.type || '';
+         if (sourceType === 'mousemove' || sourceType === 'touchmove' || sourceType === 'pointermove') {
+           suppressClickUntilRef.current = Date.now() + 250;
+         }
+       });
+
+     svg.call(zoomBehavior);
  
      // Cargar datos world-atlas
      fetch(WORLD_ATLAS_URL)
@@ -94,7 +126,7 @@
          const geojson = feature(topology, countriesObject) as FeatureCollection<Geometry, GeoJsonProperties>;
  
          // Dibujar países
-         svg.selectAll('path')
+         mapLayer.selectAll('path')
            .data(geojson.features)
            .enter()
            .append('path')
@@ -103,6 +135,7 @@
            .attr('fill', defaultMapTheme.colors.default)
            .attr('stroke', defaultMapTheme.colors.border)
            .attr('stroke-width', defaultMapTheme.colors.borderWidth)
+           .attr('vector-effect', 'non-scaling-stroke')
            .attr('role', 'button')
            .attr('tabindex', '0')
            .attr('aria-label', (d: unknown) => {
@@ -157,6 +190,10 @@
              setTooltip(prev => ({ ...prev, visible: false }));
            })
            .on('click', function (_event: MouseEvent, d: unknown) {
+             if (Date.now() < suppressClickUntilRef.current) {
+               return;
+             }
+
              const feat = d as { id?: string };
              const countryCode = feat.id;
              const worldCountry = countryCode ? getWorldCountryByUnM49(countryCode) : undefined;
@@ -187,6 +224,10 @@
          setError('No se pudo cargar el mapa. Por favor, verifica tu conexión e inténtalo de nuevo.');
          setIsLoading(false);
        });
+
+     return () => {
+       svg.on('.zoom', null);
+     };
    }, [navigate]);
  
    const tooltipCountryName = tooltip.country?.displayName || 'País no disponible';
@@ -223,7 +264,7 @@
        <div className={styles.mapWrapper}>
          <svg
            ref={svgRef}
-           viewBox="0 0 960 500"
+           viewBox={`0 0 ${WORLD_MAP_WIDTH} ${WORLD_MAP_HEIGHT}`}
            preserveAspectRatio="xMidYMid meet"
            className={styles.svg}
            style={{ opacity: isLoading ? 0.3 : 1 }}
@@ -234,6 +275,12 @@
            <desc>Mapa exploratorio para descubrir países del mundo</desc>
          </svg>
        </div>
+
+       {!isLoading && !error && (
+         <p className={styles.touchHint} aria-hidden="true">
+           Pellizca para acercar
+         </p>
+       )}
  
        {/* Tooltip simplificado - DA-029: solo bandera visual + nombre */}
        <div
