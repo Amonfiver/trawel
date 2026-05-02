@@ -1,9 +1,9 @@
 /*
  * Purpose: Style the country zone placeholder page.
- * Scope: Breadcrumb, zone hero, coming-soon content panel, and back navigation.
+ * Scope: Breadcrumb, zone hero, approved adventure list, submission form, coming-soon panel, and navigation.
  * Decisions: Reuses the quiet CountryPage visual language without adding final v0 design.
- * Limitations: Button is intentionally disabled because publishing is not implemented yet.
- * Recent changes: Initial styles for /pais/:countrySlug/zona/:zoneSlug.
+ * Limitations: No photo upload styles yet; form only submits text adventure fields.
+ * Recent changes: Added privacy consent and policy panel styles.
  */
 
 .container {
@@ -83,6 +83,99 @@
   gap: 1.5rem;
 }
 
+.adventuresSection {
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.sectionHeader {
+  max-width: 680px;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem;
+  color: #111827;
+  font-size: clamp(1.5rem, 4vw, 2.125rem);
+  line-height: 1.2;
+}
+
+.sectionSubtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.adventuresList {
+  display: grid;
+  gap: 1rem;
+}
+
+.adventureCard {
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.adventureTitle {
+  margin: 0 0 0.75rem;
+  color: #111827;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.adventureStory {
+  margin: 0;
+  color: #374151;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.tipsBlock {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  border-left: 4px solid #2563eb;
+  border-radius: 10px;
+}
+
+.tipsTitle {
+  margin: 0 0 0.5rem;
+  color: #1f2937;
+  font-size: 0.9375rem;
+}
+
+.tipsText {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.photoNote {
+  margin: 1rem 0 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.adventureMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
 .panel {
   padding: 2rem;
   background: #ffffff;
@@ -119,6 +212,191 @@
   cursor: not-allowed;
 }
 
+.adventureForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.adventuresSection + .adventureForm {
+  margin-top: 0;
+}
+
+.formHeader {
+  max-width: 680px;
+}
+
+.formTitle {
+  margin: 0 0 0.5rem;
+  color: #111827;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.formIntro {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.formField input,
+.formField textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.75rem 0.875rem;
+  color: #111827;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 400;
+}
+
+.formField textarea {
+  resize: vertical;
+}
+
+.formField input:focus,
+.formField textarea:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.22);
+  border-color: #2563eb;
+}
+
+.formField input:disabled,
+.formField textarea:disabled {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.formGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .formGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.consentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.checkboxField {
+  display: grid;
+  grid-template-columns: 1.125rem minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  color: #1f2937;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.checkboxField input {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.2rem;
+  accent-color: #2563eb;
+}
+
+.privacyToggle {
+  width: fit-content;
+  padding: 0;
+  color: #2563eb;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.privacyToggle:hover {
+  color: #1d4ed8;
+}
+
+.privacyPanel {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  color: #374151;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  line-height: 1.6;
+}
+
+.privacyPanel p {
+  margin: 0;
+}
+
+.privacyReviewNote {
+  color: #64748b;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.formSuccess,
+.formError {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.formSuccess {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+.formError {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}
+
+.submitButton {
+  width: fit-content;
+  padding: 0.875rem 1.5rem;
+  color: #ffffff;
+  background: #2563eb;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.submitButton:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
 .note {
   margin: 0.75rem 0 0;
   color: #64748b;
@@ -145,7 +423,8 @@
   }
 
   .hero,
-  .panel {
+  .panel,
+  .adventuresSection {
     border-radius: 0;
   }
 }

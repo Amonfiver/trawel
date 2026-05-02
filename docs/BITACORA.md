@@ -4,6 +4,66 @@
 
 ---
 
+## 2026-05-02 - Privacidad obligatoria en aventuras de viajeros
+
+Añadido consentimiento de privacidad al envío real de aventuras desde `CountryZonePage`. El marketing queda separado y opcional, sin bloquear el envío.
+
+### Cambios
+
+- Nueva migración `supabase/migrations/004_add_privacy_consent_to_traveler_adventures.sql`.
+- `traveler_adventures` guarda `privacy_accepted_at`, `privacy_version`, `marketing_consent` y `marketing_consent_at`.
+- La policy pública de INSERT exige privacidad aceptada y coherencia entre `marketing_consent` y `marketing_consent_at`.
+- `createTravelerAdventure(input)` rechaza envíos sin privacidad y envía la versión de privacidad vigente.
+- El formulario añade checkbox obligatorio de privacidad, checkbox opcional de comunicaciones/promociones y panel informativo.
+
+### Alcance
+
+- No se implementaron fotos, newsletter real, cookies, panel legal, autenticación, captcha ni borrado automático.
+- El texto de privacidad es operativo e informativo; debe revisarse por asesoría/legal antes de producción pública.
+
+---
+
+## 2026-05-02 - CountryZonePage envía aventuras pendientes
+
+Añadido formulario real para que un viajero envíe una aventura desde una zona del mapa. El envío se guarda en `traveler_adventures` y queda pendiente de revisión.
+
+### Cambios
+
+- `createTravelerAdventure(input)` inserta aventuras usando el cliente Supabase público.
+- El formulario pide título, historia, consejos prácticos, nombre y email.
+- Validación mínima frontend: campos obligatorios no vacíos y email con forma básica.
+- El insert no envía `status` ni `photo_path`; Supabase deja `status = pending` por default.
+- Tras éxito se limpia el formulario y se muestra “Hemos recibido tu aventura. La revisaremos antes de publicarla.”
+- La aventura enviada no aparece en la lista pública hasta que se apruebe.
+
+### Alcance
+
+- No se implementaron fotos, Storage, Edge Function, panel de moderación, captcha, autenticación ni diseño final.
+- `author_email` se usa solo en el INSERT y no se consulta ni renderiza públicamente.
+
+---
+
+## 2026-05-02 - CountryZonePage muestra aventuras aprobadas
+
+Conectada la página de zona con `traveler_adventures` para mostrar aventuras reales aprobadas por país y zona.
+
+### Cambios
+
+- Nuevo servicio frontend `src/features/adventures/adventures.service.ts`.
+- Nuevo tipo público `TravelerAdventurePublic` sin `author_email` ni `moderation_notes`.
+- Nueva función `getApprovedAdventuresByZone(countrySlug, zoneSlug)`.
+- `CountryZonePage` carga aventuras `approved` al montar o cambiar de zona.
+- Si hay aventuras aprobadas, muestra título, historia, consejos prácticos y autor.
+- Si no hay aventuras aprobadas, mantiene el mensaje “Próximamente aventuras” y el CTA de estrenar destino.
+- Si hay error de consulta, muestra un mensaje amable sin romper navegación.
+
+### Alcance
+
+- No se añadió formulario, subida de fotos, panel de moderación, edición, borrado, autenticación ni render de fotos privadas.
+- `photo_path` queda como metadata preparada; las imágenes privadas se servirán en una fase segura posterior.
+
+---
+
 ## 2026-05-02 - Infraestructura: aventuras de viajeros pendientes de aprobación
 
 Creada la base real para que futuras aventuras publicadas por viajeros nazcan desde zonas del mapa y queden pendientes hasta revisión webmaster.

@@ -446,6 +446,38 @@ src/features/destinations/
 - `getDestinationTitle(destination)` - Obtiene título localizado
 - `getDestinationSummary(destination)` - Obtiene resumen localizado
 
+### `src/features/adventures/` - Aventuras reales de viajeros
+
+```
+src/features/adventures/
+├── adventures.service.ts          # Lectura pública de traveler_adventures approved
+└── index.ts                       # Export público
+```
+
+**Responsabilidad:** Leer aventuras reales enviadas por viajeros y aprobadas por webmaster.
+
+**Servicios:**
+
+`getApprovedAdventuresByZone(countrySlug, zoneSlug)`
+- Usa cliente Supabase frontend/anónimo.
+- Consulta `traveler_adventures`.
+- Filtra `country_slug`, `zone_slug` y `status = 'approved'`.
+- Ordena por `approved_at` y `created_at` descendente.
+- Selecciona solo columnas públicas; no pide `author_email` ni `moderation_notes`.
+- No renderiza fotos aunque exista `photo_path`, porque el bucket es privado.
+
+`createTravelerAdventure(input)`
+- Usa cliente Supabase frontend/anónimo.
+- Inserta `country_slug`, `zone_slug`, `zone_name`, `title`, `story`, `practical_tips`, `author_name`, `author_email`.
+- Exige `privacyAccepted = true` y envía `privacy_accepted_at` con `privacy_version = 2026-05-02`.
+- Envía `marketing_consent` y solo rellena `marketing_consent_at` cuando el usuario acepta comunicaciones opcionales.
+- No envía `status`; la base lo deja como `pending`.
+- No envía `photo_path`; fotos quedan para Edge Function futura.
+- Devuelve resultado claro de éxito/error para `CountryZonePage`.
+
+**Usado por:**
+- `src/pages/CountryZonePage/CountryZonePage.tsx`
+
 ### `src/features/travelData/` - Capa de acceso a datos agregados
 
 ```
@@ -829,7 +861,8 @@ supabase/
 ├── migrations/                    # Migraciones SQL de la base de datos
 │   ├── 001_create_trawel_schema.sql   # Schema inicial (countries, cities, destinations)
 │   ├── 002_create_country_map_assets.sql  # Tabla para assets de mapas (DA-030)
-│   └── 003_create_traveler_adventures.sql # Aventuras de viajeros con moderación
+│   ├── 003_create_traveler_adventures.sql # Aventuras de viajeros con moderación
+│   └── 004_add_privacy_consent_to_traveler_adventures.sql # Consentimiento privacidad/marketing
 └── seed.sql                       # Datos iniciales generados automáticamente
 ```
 
@@ -855,6 +888,12 @@ supabase/
    - RLS: INSERT público controlado, SELECT público solo de `approved`, sin UPDATE/DELETE público
    - Grants de columnas: `author_email` y `moderation_notes` no quedan expuestos públicamente
    - Storage: crea bucket privado `traveler-adventure-photos` sin políticas públicas; fotos mediante Edge Function futura
+
+4. **`004_add_privacy_consent_to_traveler_adventures.sql`** - Consentimiento para aventuras:
+   - Añade `privacy_accepted_at`, `privacy_version`, `marketing_consent`, `marketing_consent_at`
+   - Actualiza datos existentes antes de exigir `privacy_accepted_at NOT NULL`
+   - Refuerza RLS: el INSERT público requiere privacidad y marketing coherente
+   - Marketing queda separado y opcional; no se implementa newsletter real
 
 **Seed:**
 - El archivo `seed.sql` se regenera ejecutando `npm run export:seed`
