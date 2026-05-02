@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-05-02 - Infraestructura: aventuras de viajeros pendientes de aprobación
+
+Creada la base real para que futuras aventuras publicadas por viajeros nazcan desde zonas del mapa y queden pendientes hasta revisión webmaster.
+
+### Cambios
+
+- Nueva migración `supabase/migrations/003_create_traveler_adventures.sql`.
+- Nueva tabla `traveler_adventures` con país, zona, historia, consejos prácticos, autor, estado de moderación y timestamps.
+- Estado por defecto: `pending`.
+- RLS activado:
+  - INSERT público/anónimo controlado solo para nuevas aventuras `pending`.
+  - SELECT público solo para aventuras `approved`.
+  - Sin UPDATE/DELETE público.
+- Grants de columnas evitan exponer `author_email` y `moderation_notes` en lecturas públicas.
+- Bucket privado `traveler-adventure-photos` creado por SQL, sin políticas públicas de Storage.
+
+### Decisión de Storage
+
+No se habilitó subida pública directa de fotos. La opción segura queda para una Edge Function futura que valide tamaño, MIME, país/zona y asociación con una aventura `pending`, y que solo sirva fotos cuando la aventura esté aprobada.
+
+---
+
 ## 2026-05-02 - Producto: CountryPage centrada en mapa
 
 Se limpió la experiencia principal de `CountryPage` para que Trawel avance hacia el flujo mapa → país → zona → aventuras de viajeros.

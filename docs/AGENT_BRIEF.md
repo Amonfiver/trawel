@@ -78,6 +78,7 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 | **—** | Estética premium con v0 | No invertir en diseño final aún |
 | **—** | Investighost = proyecto aparte | No mezclar código de investigación en Trawel |
 | **—** | Mapa como corazón de Trawel | Flujo principal: mapa → país → zona → aventuras de viajeros |
+| **—** | Aventuras de viajeros moderadas | Todo envío entra como `pending`; solo webmaster/backend aprueba |
 
 ---
 
@@ -152,11 +153,13 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 
 **Automatización de mapas:** GitHub Actions procesa `country_map_assets` cada 30 minutos con `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` como secrets. El frontend nunca usa service role; solo consulta estado público y solicita cola vía Edge Function.
 
+**Aventuras de viajeros:** la tabla `traveler_adventures` acepta envíos públicos como `pending`, pero el público solo puede leer `approved`. Fotos en bucket privado; subida/serving seguro queda para Edge Function futura.
+
 ---
 
 ## TL;DR para prompts futuros
 
-> "Trawel es app pública de viajes centrada en mapas. Flujo principal: Home/WorldMap → País → Zona → futuras aventuras de viajeros. CountryPage prioriza mapa interno y no tarjetones heredados. No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
+> "Trawel es app pública de viajes centrada en mapas. Flujo principal: Home/WorldMap → País → Zona → futuras aventuras de viajeros. CountryPage prioriza mapa interno. Las aventuras de viajeros entran pending y requieren aprobación webmaster. No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
 
 ---
 

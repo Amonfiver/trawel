@@ -828,7 +828,8 @@ Para México, el reprocesado usa ADM1 por perfil, sube `countries/mexico/mexico-
 supabase/
 ├── migrations/                    # Migraciones SQL de la base de datos
 │   ├── 001_create_trawel_schema.sql   # Schema inicial (countries, cities, destinations)
-│   └── 002_create_country_map_assets.sql  # Tabla para assets de mapas (DA-030)
+│   ├── 002_create_country_map_assets.sql  # Tabla para assets de mapas (DA-030)
+│   └── 003_create_traveler_adventures.sql # Aventuras de viajeros con moderación
 └── seed.sql                       # Datos iniciales generados automáticamente
 ```
 
@@ -846,6 +847,14 @@ supabase/
    - RLS: SELECT público, escritura restringida a service role
    - Índices: `status`, `country_slug`, `(country_slug, status)`
    - Trigger `updated_at` automático
+
+3. **`003_create_traveler_adventures.sql`** - Tabla para aventuras reales de viajeros:
+   - `traveler_adventures` - Historias/consejos enviados desde zonas del mapa
+   - Estados: `pending`, `approved`, `rejected`
+   - Default: toda aventura entra como `pending`
+   - RLS: INSERT público controlado, SELECT público solo de `approved`, sin UPDATE/DELETE público
+   - Grants de columnas: `author_email` y `moderation_notes` no quedan expuestos públicamente
+   - Storage: crea bucket privado `traveler-adventure-photos` sin políticas públicas; fotos mediante Edge Function futura
 
 **Seed:**
 - El archivo `seed.sql` se regenera ejecutando `npm run export:seed`
