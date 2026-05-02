@@ -535,5 +535,29 @@ Mejora funcional acotada del mapa mundial para teléfonos pequeños.
 
 ---
 
+## 2026-05-02 - CountryInternalMap con zoom táctil en móvil
+
+Misma mejora funcional aplicada al mapa interno de país, manteniendo el alcance en el componente cartográfico.
+
+### Cambios
+
+- Añadido `d3.zoom` sobre una capa `<g>` interna del SVG.
+- Pinch zoom táctil habilitado con escala limitada `1x` a `8x`.
+- Pan/arrastre permitido cuando el mapa está ampliado.
+- Wheel zoom desactivado para conservar la experiencia de escritorio.
+- Protección simple para evitar navegación accidental a una zona tras pan.
+- Indicador móvil discreto: "Pellizca para acercar".
+
+### Archivos modificados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-02*

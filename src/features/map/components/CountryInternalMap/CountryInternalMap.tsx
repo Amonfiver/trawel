@@ -45,6 +45,7 @@ export function CountryInternalMap({
   onZoneSelect,
 }: CountryInternalMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const suppressClickUntilRef = useRef(0);
   const [features, setFeatures] = useState<GeoJSON.Feature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,8 +135,36 @@ export function CountryInternalMap({
       .attr('height', HEIGHT)
       .attr('fill', defaultMapTheme.colors.background);
 
-    svg
-      .append('g')
+    const mapLayer = svg.append('g')
+      .attr('class', styles.zoomLayer);
+
+    const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([1, 8])
+      .translateExtent([[0, 0], [WIDTH, HEIGHT]])
+      .extent([[0, 0], [WIDTH, HEIGHT]])
+      .clickDistance(8)
+      .filter((event: Event) => {
+        if (event.type === 'wheel') {
+          return false;
+        }
+
+        return true;
+      })
+      .on('start', () => {
+        setTooltip((prev) => ({ ...prev, visible: false }));
+      })
+      .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        mapLayer.attr('transform', event.transform.toString());
+
+        const sourceType = event.sourceEvent?.type || '';
+        if (sourceType === 'mousemove' || sourceType === 'touchmove' || sourceType === 'pointermove') {
+          suppressClickUntilRef.current = Date.now() + 250;
+        }
+      });
+
+    svg.call(zoomBehavior);
+
+    mapLayer
       .selectAll('path')
       .data(features)
       .enter()
@@ -205,6 +234,10 @@ export function CountryInternalMap({
           return;
         }
 
+        if (Date.now() < suppressClickUntilRef.current) {
+          return;
+        }
+
         const zoneName = getAreaName(item.properties);
         onZoneSelect({
           name: zoneName,
@@ -223,6 +256,10 @@ export function CountryInternalMap({
           slug: createZoneSlug(zoneName),
         });
       });
+
+    return () => {
+      svg.on('.zoom', null);
+    };
   }, [features, isLoading, onZoneSelect]);
 
   if (isLoading) {
@@ -270,6 +307,10 @@ export function CountryInternalMap({
           <desc>Mapa exploratorio con subdivisiones internas. Los nombres aparecen al pasar el ratón.</desc>
         </svg>
       </div>
+
+      <p className={styles.touchHint} aria-hidden="true">
+        Pellizca para acercar
+      </p>
 
       <div className={styles.attribution}>{attributionText}</div>
 
