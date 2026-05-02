@@ -238,7 +238,7 @@ src/features/map/
 - **Frontend-only**: No requiere service role key
 - **Read-only**: Solo SELECT sobre tabla `country_map_assets`
 - **Edge Function**: Solicita generación mediante `request-country-map` (sin service role en frontend)
-- **Safe-fallback**: Devuelve `null` en caso de error sin romper la app
+- **Missing limpio**: Devuelve `null` cuando no existe registro; errores reales se reportan a la UI
 - **Integración DA-030**: Compatible con arquitectura de generación automática
 
 **Tipos exportados:**
@@ -326,6 +326,8 @@ useEffect(() => {
 **Notas:**
 - La consulta (`getCountryMapAsset`) NO incluye caching (la capa superior puede implementarlo)
 - La solicitud de generación (`requestCountryMapGeneration`) usa la Edge Function `request-country-map`
+- Para uso público desde el mapa mundial, desplegar la función con JWT verification desactivado:
+  `npx supabase functions deploy request-country-map --no-verify-jwt`
 - Requiere que Supabase esté configurado (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
 - España (`countrySlug === 'espana'`) usa SpainMap local, NO consulta este servicio
 

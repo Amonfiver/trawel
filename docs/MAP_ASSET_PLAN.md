@@ -607,11 +607,14 @@ if (result.success) {
 - ✅ Frontend usa `supabase.functions.invoke()` (sin service role)
 - ✅ Validación de input (countrySlug obligatorio, formato válido)
 - ✅ CORS habilitado para peticiones cross-origin
+- ✅ Función pública para usuarios anónimos del mapa mundial: desplegar sin verificación JWT
 
 #### Deploy
 ```bash
-supabase functions deploy request-country-map
+npx supabase functions deploy request-country-map --no-verify-jwt
 ```
+
+> Importante: si se despliega sin `--no-verify-jwt`, Supabase bloqueará la llamada anónima desde `CountryPage` con `401 Unauthorized` antes de ejecutar la función. La seguridad de escritura sigue estando en la Edge Function, que usa `SUPABASE_SERVICE_ROLE_KEY` solo en servidor y valida el payload.
 
 ### Referencias
 

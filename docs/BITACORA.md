@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-05-02 - FIX: request-country-map pública para usuarios anónimos
+
+Documentada la causa del `401 Unauthorized` al solicitar mapas desde `/pais/francia`.
+
+### Problema confirmado
+
+La llamada frontend a `request-country-map` enviaba el payload correcto, pero Supabase bloqueaba la Edge Function antes de ejecutarla porque estaba desplegada con verificación JWT activa. En el flujo público de Trawel, usuarios anónimos deben poder solicitar que un país entre en cola de generación.
+
+### Solución
+
+La función debe desplegarse como pública, sin exponer `service_role` en frontend:
+
+```bash
+npx supabase functions deploy request-country-map --no-verify-jwt
+```
+
+La escritura sigue protegida dentro de la Edge Function, que usa `SUPABASE_SERVICE_ROLE_KEY` solo en servidor y valida el payload antes de crear o actualizar `country_map_assets`.
+
+### Archivos modificados
+
+- `docs/MAP_ASSET_PLAN.md` - Deploy correcto con `--no-verify-jwt`
+- `docs/CODEMAP.md` - Nota operativa para despliegue público
+- `docs/BITACORA.md` - Causa y solución del `401 Unauthorized`
+
+---
+
 ## 2026-05-02 - WorldMap exploratorio real: tooltips con bandera + navegación universal 🗺️✨
 
 Implementada la corrección fundamental de WorldMap para que sea un mapa exploratorio real donde todos los países son navegables.
