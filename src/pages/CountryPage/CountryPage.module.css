@@ -6,9 +6,9 @@
  * 
  * Decisiones técnicas:
  * - Hero con fondo sutil y bandera grande
- * - Ciudades en grid prominente (3 columnas en desktop)
- * - Destinos destacados en sección visualmente secundaria
- * - Jerarquía clara: País → Ciudades → Destinos
+ * - Mapa interno como experiencia principal de exploración
+ * - Tarjetas heredadas de ciudades/destinos conservadas fuera de la UI principal
+ * - Jerarquía clara: País → Mapa → Zona → Aventuras futuras
  * - Responsive: adaptación progresiva
  * 
  * Cambios recientes (2026-04-29):
@@ -16,6 +16,7 @@
  * - Ciudades con mayor protagonismo visual
  * - Separación visual clara entre comingSoon y disponibles
  * - Sección de destinos como contenido secundario
+ * - Flujo principal limpiado para priorizar mapa interno y zonas
  */
 
 /* Contenedor principal */
@@ -477,7 +478,7 @@
   color: #64748b;
 }
 
-.editorialPendingBlock {
+.mapFutureBlock {
   max-width: 640px;
   margin: var(--space-xl, 2rem) auto 0;
   padding: var(--space-lg, 1.5rem);
@@ -487,14 +488,14 @@
   text-align: center;
 }
 
-.editorialPendingTitle {
+.mapFutureTitle {
   margin: 0 0 var(--space-sm, 0.5rem);
   color: var(--color-text-primary, #111827);
   font-size: 1.125rem;
   font-weight: 700;
 }
 
-.editorialPendingText {
+.mapFutureText {
   margin: 0;
   color: var(--color-text-secondary, #6b7280);
   line-height: 1.6;

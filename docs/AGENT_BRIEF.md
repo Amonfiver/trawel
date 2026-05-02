@@ -20,15 +20,14 @@ Trawel es una **app pública de exploración de destinos de viaje**:
 ## 2. Flujo público actual
 
 ```
-Home/Mundo → País → Ciudad → Destino
+Home/Mundo → País → Zona → Aventuras futuras
 
 /                      (HomePage)
 /pais/espana           (CountryPage)
-/pais/espana/morella   (CityPage)
-/aventura/castillo-de-morella  (AdventurePage)
+/pais/espana/zona/castilla-y-leon  (CountryZonePage)
 ```
 
-**Demo funcional:** Morella + Castillo de Morella (contenido real publicado)
+**Dirección de producto:** Trawel pasa a ser principalmente interactivo por mapa. Las rutas antiguas de ciudad/aventura pueden existir, pero CountryPage ya no debe depender de tarjetones heredados como experiencia principal.
 
 ---
 
@@ -78,6 +77,7 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 | **DA-028** | `comingSoon` = demanda pública | NO es fase editorial; solo registra qué buscan usuarios |
 | **—** | Estética premium con v0 | No invertir en diseño final aún |
 | **—** | Investighost = proyecto aparte | No mezclar código de investigación en Trawel |
+| **—** | Mapa como corazón de Trawel | Flujo principal: mapa → país → zona → aventuras de viajeros |
 
 ---
 
@@ -139,9 +139,9 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 
 **Rutas de ejemplo:**
 - http://localhost:5173/ → Home
-- http://localhost:5173/pais/espana/morella → CityPage
-- http://localhost:5173/aventura/castillo-de-morella → AdventurePage
-- http://localhost:5173/pais/espana/albarracin → "No disponible" (correcto)
+- http://localhost:5173/pais/italia → CountryPage con mapa interno
+- http://localhost:5173/pais/italia/zona/lombardia → CountryZonePage placeholder
+- http://localhost:5173/pais/espana → CountryPage con mapa local
 
 **Comandos útiles:**
 ```bash
@@ -156,7 +156,7 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 
 ## TL;DR para prompts futuros
 
-> "Trawel es app pública de viajes. Lee datos de Supabase. Flujo: Home → País → Ciudad → Destino. Morella es el caso de éxito. Albarracín está en Supabase pero oculta (disabled/draft). No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
+> "Trawel es app pública de viajes centrada en mapas. Flujo principal: Home/WorldMap → País → Zona → futuras aventuras de viajeros. CountryPage prioriza mapa interno y no tarjetones heredados. No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
 
 ---
 

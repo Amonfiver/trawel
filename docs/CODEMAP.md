@@ -153,7 +153,7 @@ src/pages/
 │   ├── HomePage.module.css
 │   └── index.ts
 ├── CountryPage/
-│   ├── CountryPage.tsx                 # Ficha editorial de país
+│   ├── CountryPage.tsx                 # Ficha de país centrada en mapa interno
 │   ├── CountryPage.module.css
 │   └── index.ts
 ├── CountryZonePage/
@@ -173,7 +173,7 @@ src/pages/
 **Responsabilidad:** Cada página es un "screen" que corresponde a una ruta. Orquesta componentes de features.
 
 **Rutas relevantes:**
-- `/pais/:countrySlug` - Ficha de país con mapa interno.
+- `/pais/:countrySlug` - Ficha de país centrada en mapa interno; ya no prioriza tarjetones heredados de ciudades/aventuras.
 - `/pais/:countrySlug/zona/:zoneSlug` - Placeholder amable para zona/región seleccionada en `CountryInternalMap`.
 - `/pais/:countrySlug/:citySlug` - Ficha de ciudad editorial.
 

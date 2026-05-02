@@ -2,20 +2,19 @@
  * Página de ficha de país - Nivel País / Exploración con Mapa Interno
  * 
  * Propósito: Mostrar información de país con mapa interno como pieza principal
- * de exploración, manteniendo lista de ciudades como apoyo secundario.
+ * de exploración, retirando tarjetas heredadas del flujo principal.
  * 
  * Alcance: 
  * - Hero visual claro del país
  * - Mapa interno interactivo homogéneo
- * - Lista de ciudades como sección secundaria
  * - Fallback a directorio clásico para países sin mapa
- * - Destinos destacados en sección terciaria
+ * - Mensaje futuro orientado a aventuras publicadas por viajeros
  * 
  * Decisiones técnicas:
  * - Usa getCountryPageData para obtener datos agregados
  * - CountryInternalMap como render genérico para assets TopoJSON
- * - Jerarquía visual: País → Mapa (principal) → Lista Ciudades (secundaria)
- * - Fallback automático si país no tiene mapa interno implementado
+ * - Jerarquía visual: País → Mapa (principal) → Zona → Aventuras futuras
+ * - Las rutas/datos heredados se conservan, pero sus tarjetas no dominan CountryPage
  * 
  * Cambios recientes (2026-05-02):
  * - Integración con sistema automático de mapas internos (DA-030)
@@ -24,15 +23,13 @@
  * - Vista "Próximamente" para países sin contenido editorial
  * - España usa el mismo render genérico con asset local
  * - Click en zona del mapa navega a /pais/{countrySlug}/zona/{zoneSlug}
+ * - Se retiran tarjetas heredadas de ciudades/aventuras del flujo principal
  */
 
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { getCountryPageData } from '../../features/travelData';
 import { CountryInternalMap } from '../../features/map/components/CountryInternalMap';
-import { getCityDisplayName } from '../../features/cities/data/cities.utils';
-import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
-import { getLocalizedText } from '../../app/i18n';
 import { CountryFlag } from '../../features/countries';
 import { getWorldCountryBySlug, type WorldCountry } from '../../features/countries/data/worldCountries';
 import type { CountryStatus } from '../../features/countries/data/countries.types';
@@ -77,12 +74,7 @@ export function CountryPage() {
   
   // Usar travelData.service para obtener datos agregados
   const { 
-    country, 
-    activeCities, 
-    comingSoonCities,
-    totalCitiesCount,
-    publishedDestinationsCount,
-    featuredDestinations 
+    country
   } = getCountryPageData(countrySlug || '');
   const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM2';
 
@@ -348,7 +340,7 @@ export function CountryPage() {
               Explora en el mapa
             </h2>
             <p className={styles.sectionSubtitle}>
-              Pasa el ratón por una zona para ver su nombre
+              Elige una zona para descubrir o estrenar aventuras.
             </p>
           </div>
           <CountryInternalMap
@@ -357,6 +349,7 @@ export function CountryPage() {
             attribution={DEFAULT_MAP_ATTRIBUTION}
             onZoneSelect={handleZoneSelect}
           />
+          <MapFutureBlock countryName={country.displayName} />
         </section>
       );
     }
@@ -370,11 +363,6 @@ export function CountryPage() {
   const renderAutoMapStatus = () => {
     // No mostrar para España (ya tiene asset local)
     if (hasLocalMap) return null;
-
-    // Si tiene contenido editorial, mostrar mapa en sección principal
-    // Si no tiene contenido, mostrar vista "Próximamente"
-
-    const hasContent = activeCities.length > 0;
 
     switch (mapState.status) {
       case 'loading':
@@ -396,7 +384,7 @@ export function CountryPage() {
                 Explora en el mapa
               </h2>
               <p className={styles.sectionSubtitle}>
-                Pasa el ratón por una zona para ver su nombre
+                Elige una zona para descubrir o estrenar aventuras.
               </p>
             </div>
             <CountryInternalMap
@@ -405,7 +393,7 @@ export function CountryPage() {
               attribution={mapState.asset.attribution || DEFAULT_MAP_ATTRIBUTION}
               onZoneSelect={handleZoneSelect}
             />
-            {!hasContent && <EditorialPendingBlock countryName={country.displayName} />}
+            <MapFutureBlock countryName={country.displayName} />
           </section>
         );
 
@@ -471,48 +459,6 @@ export function CountryPage() {
     }
   };
 
-  // Vista "Próximamente" para países sin contenido editorial
-  const renderComingSoonView = () => {
-    if (activeCities.length > 0) return null;
-
-    return (
-      <section className={styles.comingSoonViewSection}>
-        <div className={styles.comingSoonViewContent}>
-          <div className={styles.comingSoonFlag}>
-            <CountryFlag
-              isoAlpha2={country.isoAlpha2}
-              countryName={country.displayName}
-              size="large"
-            />
-          </div>
-          <h2 className={styles.comingSoonViewTitle}>{country.displayName}</h2>
-          <div className={styles.comingSoonViewStatus}>
-            {mapState.status === 'ready' ? (
-              <>
-                <span className={styles.statusIconReady}>✅</span>
-                <span>Mapa interno disponible</span>
-              </>
-            ) : (
-              <>
-                <span className={styles.statusIconPreparing}>🗺️</span>
-                <span>Mapa en preparación</span>
-              </>
-            )}
-          </div>
-          <p className={styles.comingSoonViewText}>
-            Destinos y lugares de interés próximamente
-          </p>
-          {mapState.status === 'ready' && (
-            <p className={styles.comingSoonViewNote}>
-              Los datos cartográficos están listos. 
-              Estamos trabajando en el contenido editorial.
-            </p>
-          )}
-        </div>
-      </section>
-    );
-  };
-
   return (
     <div className={styles.container}>
       {/* Hero del País - Nivel principal */}
@@ -562,24 +508,6 @@ export function CountryPage() {
           </div>
         </div>
 
-        {/* Estadísticas rápidas en el hero */}
-        <div className={styles.heroStats}>
-          <div className={styles.heroStat}>
-            <span className={styles.heroStatNumber}>{activeCities.length}</span>
-            <span className={styles.heroStatLabel}>Ciudades</span>
-          </div>
-          <div className={styles.heroStatDivider} />
-          <div className={styles.heroStat}>
-            <span className={styles.heroStatNumber}>{publishedDestinationsCount}</span>
-            <span className={styles.heroStatLabel}>Aventuras</span>
-          </div>
-          <div className={styles.heroStatDivider} />
-          <div className={styles.heroStat}>
-            <span className={styles.heroStatNumber}>{totalCitiesCount}</span>
-            <span className={styles.heroStatLabel}>Total</span>
-          </div>
-        </div>
-
         {/* Aviso editorial si no está activo */}
         {showStatusWarning && (
           <div className={`${styles.statusAlert} ${styles[country.status]}`} role="alert">
@@ -593,156 +521,11 @@ export function CountryPage() {
       </header>
 
       <main className={styles.main}>
-        {/* Vista "Próximamente" para países sin contenido editorial */}
-        {renderComingSoonView()}
-
         {/* Sección de mapa automático (para países que no son España) */}
         {!hasLocalMap && renderAutoMapStatus()}
 
         {/* Sección Principal: Mapa Interno Local (solo España) */}
         {renderMapSection()}
-
-        {/* Sección Secundaria: Lista de Ciudades */}
-        {activeCities.length > 0 && (
-          <section className={styles.citiesSection} aria-labelledby="cities-title">
-            <div className={styles.sectionHeader}>
-              <h2 id="cities-title" className={styles.sectionTitle}>
-                {hasLocalMap ? 'Todas las ciudades' : 'Explora sus ciudades'}
-              </h2>
-              <p className={styles.sectionSubtitle}>
-                Selecciona una ciudad para descubrir sus aventuras
-              </p>
-            </div>
-
-            <div className={styles.citiesGrid} role="list">
-              {activeCities.map(city => {
-                const cityName = getCityDisplayName(city);
-                const cityDescription = city.shortDescription 
-                  ? getLocalizedText(city.shortDescription, 'es')
-                  : null;
-
-                return (
-                  <article 
-                    key={city.id} 
-                    className={styles.cityCard}
-                    role="listitem"
-                  >
-                    <Link
-                      to={`/pais/${countrySlug}/${city.slug}`}
-                      className={styles.cityLink}
-                      aria-label={`Explorar ${cityName}`}
-                    >
-                      <div className={styles.cityCardContent}>
-                        <div className={styles.cityHeader}>
-                          <h3 className={styles.cityName}>{cityName}</h3>
-                          {city.featured && (
-                            <span className={styles.featuredStar} aria-label="Destacada">⭐</span>
-                          )}
-                        </div>
-                        
-                        {cityDescription && (
-                          <p className={styles.cityDescription}>{cityDescription}</p>
-                        )}
-                        
-                        <div className={styles.cityMeta}>
-                          {city.destinationCount !== undefined && city.destinationCount > 0 ? (
-                            <span className={styles.cityDestinations}>
-                              {city.destinationCount} {city.destinationCount === 1 ? 'aventura' : 'aventuras'}
-                            </span>
-                          ) : (
-                            <span className={styles.cityDestinations}>Próximamente</span>
-                          )}
-                          <span aria-hidden="true" className={styles.arrow}>→</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
-                );
-              })}
-            </div>
-
-            {/* Ciudades próximamente - Separación visual clara */}
-            {comingSoonCities.length > 0 && (
-              <div className={styles.comingSoonSection}>
-                <div className={styles.comingSoonHeader}>
-                  <h3 className={styles.comingSoonTitle}>Próximamente</h3>
-                  <p className={styles.comingSoonSubtitle}>Ciudades en preparación</p>
-                </div>
-                <div className={styles.comingSoonGrid} role="list">
-                  {comingSoonCities.map(city => {
-                    const cityName = getCityDisplayName(city);
-                    
-                    return (
-                      <div key={city.id} className={styles.comingSoonCard} role="listitem">
-                        <span className={styles.comingSoonName}>{cityName}</span>
-                        <span className={styles.comingSoonBadge}>Muy pronto</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Sección Secundaria: Destinos Destacados */}
-        {featuredDestinations.length > 0 && (
-          <section className={styles.featuredSection} aria-labelledby="featured-title">
-            <div className={styles.sectionHeaderSecondary}>
-              <h2 id="featured-title" className={styles.sectionTitleSecondary}>
-                Aventuras destacadas
-              </h2>
-              <p className={styles.sectionSubtitleSecondary}>
-                Experiencias únicas seleccionadas en {country.displayName}
-              </p>
-            </div>
-            <div className={styles.featuredGrid} role="list">
-              {featuredDestinations.map(destination => {
-                const title = getDestinationTitle(destination);
-                const summary = getDestinationSummary(destination);
-
-                return (
-                  <article 
-                    key={destination.id} 
-                    className={styles.featuredCard}
-                    role="listitem"
-                  >
-                    <Link
-                      to={`/aventura/${destination.slug}`}
-                      className={styles.featuredLink}
-                      aria-label={`Ver ${title}`}
-                    >
-                      <div className={styles.featuredCardContent}>
-                        <div className={styles.featuredHeader}>
-                          {destination.type && (
-                            <span className={styles.featuredType}>
-                              {getDestinationTypeLabel(destination.type)}
-                            </span>
-                          )}
-                        </div>
-                        
-                        <h3 className={styles.featuredName}>{title}</h3>
-                        
-                        {summary && (
-                          <p className={styles.featuredSummary}>{summary}</p>
-                        )}
-                        
-                        <div className={styles.featuredMeta}>
-                          {destination.estimatedVisitTime && (
-                            <span className={styles.visitTime}>
-                              ⏱️ {destination.estimatedVisitTime}
-                            </span>
-                          )}
-                          <span aria-hidden="true" className={styles.arrow}>→</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        )}
       </main>
     </div>
   );
@@ -768,23 +551,6 @@ function getContinentLabel(continent: string): string {
     oceania: 'Oceanía',
   };
   return labels[continent] || continent;
-}
-
-/** Obtiene label legible del tipo de destino */
-function getDestinationTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    monument: 'Monumento',
-    museum: 'Museo',
-    nature: 'Naturaleza',
-    experience: 'Experiencia',
-    food: 'Gastronomía',
-    hiddenGem: 'Joya escondida',
-    temple: 'Templo',
-    park: 'Parque',
-    landmark: 'Punto de interés',
-    cultural: 'Cultural',
-  };
-  return labels[type] || type;
 }
 
 /**
@@ -867,7 +633,7 @@ function DiscoveringCountryView({
                   attribution={mapState.asset.attribution || DEFAULT_MAP_ATTRIBUTION}
                   onZoneSelect={onZoneSelect}
                 />
-                <EditorialPendingBlock countryName={worldCountry.displayName} />
+                <MapFutureBlock countryName={worldCountry.displayName} />
               </div>
             )}
 
@@ -912,13 +678,14 @@ function DiscoveringCountryView({
   );
 }
 
-function EditorialPendingBlock({ countryName }: { countryName: string }) {
+function MapFutureBlock({ countryName }: { countryName: string }) {
   return (
-    <div className={styles.editorialPendingBlock}>
-      <h3 className={styles.editorialPendingTitle}>Contenido editorial en preparación</h3>
-      <p className={styles.editorialPendingText}>
-        Estamos trabajando en el contenido editorial. Pronto tendrás información sobre
-        destinos, ciudades y aventuras en {countryName}.
+    <div className={styles.mapFutureBlock}>
+      <h3 className={styles.mapFutureTitle}>Explora el mapa y elige una zona</h3>
+      <p className={styles.mapFutureText}>
+        Cada zona de {countryName} podrá reunir aventuras de viajeros con fotos,
+        rutas, consejos y experiencias. Por ahora puedes entrar en una zona y ver
+        la pantalla de próxima fase.
       </p>
     </div>
   );

@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-05-02 - Producto: CountryPage centrada en mapa
+
+Se limpió la experiencia principal de `CountryPage` para que Trawel avance hacia el flujo mapa → país → zona → aventuras de viajeros.
+
+### Cambios
+
+- Se ocultaron del flujo principal los tarjetones heredados de ciudades activas, ciudades próximamente y aventuras destacadas.
+- Se retiraron las estadísticas del hero basadas en conteos antiguos de ciudades/aventuras.
+- `CountryPage` queda centrada en encabezado de país, bandera, estado del mapa y `CountryInternalMap`.
+- Se añadió un bloque simple: “Explora el mapa y elige una zona” orientado a futuras aventuras con fotos, rutas, consejos y experiencias.
+
+### Alcance
+
+- Los datos antiguos y rutas antiguas se conservaron.
+- No se implementó subida de fotos, tablas nuevas, autenticación, moderación ni formulario funcional.
+- No se tocó WorldMap, worker, GitHub Actions, Supabase, generación de mapas, CountryFlag ni Investighost.
+
+---
+
 ## 2026-05-02 - UX: click en zonas de mapa interno
 
 Corregido el comportamiento de click en zonas/regiones/provincias de `CountryInternalMap`. Antes el click/foco podía dejar un tooltip visual suelto sin llevar a ningún destino útil.
