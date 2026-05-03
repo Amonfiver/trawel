@@ -2,7 +2,7 @@
  * Página de inicio de Trawel
  * 
  * Propósito: Punto de entrada de la aplicación con mapa mundial protagonista
- * Alcance: Hero, mapa interactivo, información de países
+ * Alcance: Hero, mapa interactivo, flujo de exploración y espacio futuro de servicios
  * 
  * Decisiones técnicas:
  * - WorldMap como elemento principal visual
@@ -17,9 +17,35 @@
 
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { useExperienceMode } from '../../features/experienceMode';
-import { getHomePageData } from '../../features/travelData';
-import { getHomePageContent } from '../../features/experienceMode/data/experienceMode.config';
 import styles from './HomePage.module.css';
+
+const flowSteps = [
+  {
+    title: 'Elige un país',
+    text: 'Empieza en el mapa mundial y entra en el destino que despierte tu curiosidad.',
+  },
+  {
+    title: 'Explora sus zonas',
+    text: 'Avanza dentro de cada país para descubrir regiones y lugares con más precisión.',
+  },
+  {
+    title: 'Lee aventuras reales',
+    text: 'Encuentra experiencias compartidas por viajeros y publicadas tras revisión.',
+  },
+  {
+    title: 'Comparte la tuya',
+    text: 'Envía tu historia desde una zona del mapa; aparecerá públicamente cuando sea aprobada.',
+  },
+];
+
+const servicePlaceholders = [
+  'Hoteles recomendados',
+  'Vuelos y transporte',
+  'Seguros de viaje',
+  'Actividades y tours',
+  'eSIM y conexión',
+  'Alquiler de coche',
+];
 
 /**
  * HomePage - Página principal de Trawel
@@ -28,14 +54,11 @@ import styles from './HomePage.module.css';
  * con contenido dinámico según el modo global de experiencia.
  */
 export function HomePage() {
-  // Usar modo de experiencia global desde Context
   const { mode: experienceMode } = useExperienceMode();
-  
-  // Usar travelData.service para obtener datos agregados
-  const { activeCountries, comingSoonCountries, counts } = getHomePageData();
-  
-  // Contenido dinámico según modo de experiencia
-  const content = getHomePageContent(experienceMode);
+  const heroSubtitle =
+    experienceMode === 'student'
+      ? 'Recorre países y zonas desde el mapa para entender lugares a través de experiencias reales de viajeros, siempre revisadas antes de publicarse.'
+      : 'Entra en países y zonas para descubrir aventuras reales de viajeros. También puedes compartir tu propia experiencia: se revisa antes de aparecer públicamente.';
 
   return (
     <div className={styles.container}>
@@ -43,27 +66,11 @@ export function HomePage() {
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroContent}>
           <h1 id="hero-title" className={styles.heroTitle}>
-            {content.heroTitle}
+            Explora el mundo desde el mapa
           </h1>
           <p className={styles.heroSubtitle}>
-            {content.heroSubtitle}
+            {heroSubtitle}
           </p>
-          
-          {/* Estadísticas rápidas */}
-          <div className={styles.heroStats} role="region" aria-label="Estadísticas de destinos">
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{counts.active}</span>
-              <span className={styles.statLabel}>Países disponibles</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>{counts.comingSoon}</span>
-              <span className={styles.statLabel}>Próximamente</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statNumber}>15+</span>
-              <span className={styles.statLabel}>Destinos</span>
-            </div>
-          </div>
         </div>
 
         {/* Mapa mundial - Elemento principal */}
@@ -74,97 +81,54 @@ export function HomePage() {
 
       {/* Información contextual */}
       <main className={styles.main}>
-        {/* Sección de países activos */}
-        <section className={styles.section} aria-labelledby="active-countries-title">
-          <h2 id="active-countries-title" className={styles.sectionTitle}>
-            Destinos disponibles
+        <section className={styles.section} aria-labelledby="live-map-title">
+          <h2 id="live-map-title" className={styles.sectionTitle}>
+            Un mapa vivo de aventuras
           </h2>
           <p className={styles.sectionDescription}>
-            {content.sectionDescription}
+            Trawel no funciona como un catálogo cerrado: el viaje empieza en el mapa, baja a países y zonas, y crece con historias reales enviadas por viajeros.
           </p>
-          
-          <div className={styles.countriesGrid} role="list">
-            {activeCountries.map(country => (
-              <a
-                key={country.isoAlpha2}
-                href={`/pais/${country.slug}`}
-                className={styles.countryCard}
-                role="listitem"
-                aria-label={`Explorar ${country.displayName}, ${country.destinationCount || 0} destinos disponibles`}
-              >
-                <div className={styles.countryCardHeader}>
-                  <span className={styles.countryFlag} aria-hidden="true">
-                    {getCountryFlag(country.isoAlpha2)}
-                  </span>
-                  <span className={styles.countryStatus} data-status="active">
-                    Disponible
-                  </span>
-                </div>
-                <h3 className={styles.countryName}>{country.displayName}</h3>
-                <p className={styles.countryDescription}>{country.shortDescription}</p>
-                <div className={styles.countryMeta}>
-                  <span>{country.destinationCount || 0} destinos</span>
-                  <span aria-hidden="true">→</span>
-                </div>
-              </a>
+
+          <div className={styles.flowGrid}>
+            {flowSteps.map(step => (
+              <article key={step.title} className={styles.flowCard}>
+                <h3 className={styles.flowTitle}>{step.title}</h3>
+                <p className={styles.flowText}>{step.text}</p>
+              </article>
             ))}
           </div>
         </section>
 
-        {/* Sección de próximos países */}
-        {comingSoonCountries.length > 0 && (
-          <section className={styles.section} aria-labelledby="coming-soon-title">
-            <h2 id="coming-soon-title" className={styles.sectionTitle}>
-              Próximamente
+        <section className={styles.services} aria-labelledby="services-title">
+          <div className={styles.servicesHeader}>
+            <span className={styles.servicesEyebrow}>Espacio futuro</span>
+            <h2 id="services-title" className={styles.sectionTitle}>
+              Servicios útiles para tu viaje
             </h2>
             <p className={styles.sectionDescription}>
-              Estamos preparando contenido para estos destinos:
+              Más adelante reuniremos aquí recursos para preparar mejor tu aventura. Esta zona es provisional y no tiene integraciones activas.
             </p>
-            
-            <div className={styles.comingSoonGrid} role="list">
-              {comingSoonCountries.map(country => (
-                <div
-                  key={country.isoAlpha2}
-                  className={styles.comingSoonCard}
-                  role="listitem"
-                >
-                  <span className={styles.countryFlag} aria-hidden="true">
-                    {getCountryFlag(country.isoAlpha2)}
-                  </span>
-                  <div>
-                    <h3 className={styles.comingSoonName}>{country.displayName}</h3>
-                    <span className={styles.comingSoonBadge}>Próximamente</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+          </div>
 
-        {/* CTA final */}
-        <section className={styles.cta} aria-labelledby="cta-title">
-          <h2 id="cta-title" className={styles.ctaTitle}>
-            {content.ctaTitle}
+          <div className={styles.servicesGrid} aria-label="Servicios previstos">
+            {servicePlaceholders.map(service => (
+              <article key={service} className={styles.serviceCard}>
+                <h3 className={styles.serviceTitle}>{service}</h3>
+                <p className={styles.serviceText}>Reservado para una futura selección de recursos.</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.note} aria-labelledby="review-title">
+          <h2 id="review-title" className={styles.noteTitle}>
+            Historias revisadas antes de publicarse
           </h2>
-          <p className={styles.ctaText}>
-            {content.ctaText}
+          <p className={styles.noteText}>
+            Las aventuras enviadas por viajeros entran en revisión y solo aparecen públicamente cuando están aprobadas.
           </p>
         </section>
       </main>
     </div>
   );
-}
-
-/**
- * Helper para obtener emoji de bandera según código ISO
- */
-function getCountryFlag(isoAlpha2: string): string {
-  const flags: Record<string, string> = {
-    ES: '🇪🇸',
-    JP: '🇯🇵',
-    PE: '🇵🇪',
-    FR: '🇫🇷',
-    IT: '🇮🇹',
-  };
-  return flags[isoAlpha2] || '🌍';
 }

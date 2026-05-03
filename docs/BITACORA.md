@@ -775,5 +775,29 @@ Corrección quirúrgica de la interacción móvil del mapa mundial.
 
 ---
 
+## 2026-05-03 - Limpieza de Home hacia mapa vivo
+
+Ajuste pequeño de producto para retirar el enfoque heredado de catálogo cerrado en la página principal.
+
+### Cambios
+
+- Eliminados de Home los contadores y bloques de "Países disponibles", "Próximamente" y "Destinos disponibles".
+- La Home deja de consultar datos agregados de países para pintar listados heredados.
+- El copy principal ahora presenta Trawel como flujo mapa mundial → país → zona → aventuras reales revisadas.
+- Añadido bloque contextual "Un mapa vivo de aventuras" con pasos simples de exploración.
+- Añadida sección provisional "Servicios útiles para tu viaje" con placeholders discretos, sin enlaces ni integraciones reales.
+- WorldMap no se modifica.
+
+### Archivos modificados
+
+- `src/pages/HomePage/HomePage.tsx`
+- `src/pages/HomePage/HomePage.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-03*
