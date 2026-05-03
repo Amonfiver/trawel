@@ -797,7 +797,43 @@ Ajuste pequeño de producto para retirar el enfoque heredado de catálogo cerrad
 
 - ✅ `npm run build` pasa (702 modules)
 
+
 ---
 
-*Bitácora activa v3.1 - Trawel*
+## 2026-05-03 - Footer en HomePage y rollback parcial de WorldMap
+
+Dos ajustes concretos: reemplazo del último recuadro de Home por un footer real, y rollback parcial del intento de zoom táctil con CSS transform en WorldMap.
+
+### Footer en HomePage
+
+**Problema:** El último recuadro "Historias revisadas antes de publicarse..." ya no tenía sentido en el flujo actual centrado en el mapa.
+
+**Cambios:**
+- Eliminada la sección `.note` con el recuadro informativo
+- Añadido footer típico con:
+  - Copyright: "© 2026 Trawel"
+  - Frase de marca: "Explora el mundo a través de aventuras reales de viajeros."
+  - Enlaces placeholder: Mapa del sitio, Conócenos, Quiénes somos, Privacidad, Contacto
+- Diseño discreto, responsive, sin overflow en móvil
+- Enlaces usan `href="#"` (no funcionales) sin romper navegación
+
+### Rollback de WorldMap
+
+- Revertido el intento de aplicar zoom mediante CSS transform sobre un wrapper interno.
+- Restaurado WorldMap al estado previo: transform único aplicado a la capa `<g>` interna del SVG.
+- Se conservan la exploración con 1 dedo, tooltip táctil arriba-izquierda, foco amarillo persistente, botón "Ir a {país} →" debajo del mapa y zoom/pan con 2 dedos.
+
+**Archivos afectados:**
+- `src/pages/HomePage/HomePage.tsx`
+- `src/pages/HomePage/HomePage.module.css`
+- `src/features/map/components/WorldMap/WorldMap.tsx` (restaurado al checkpoint previo)
+- `src/features/map/components/WorldMap/WorldMap.module.css` (restaurado al checkpoint previo)
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
+*Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-03*

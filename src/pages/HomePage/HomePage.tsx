@@ -120,15 +120,24 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className={styles.note} aria-labelledby="review-title">
-          <h2 id="review-title" className={styles.noteTitle}>
-            Historias revisadas antes de publicarse
-          </h2>
-          <p className={styles.noteText}>
-            Las aventuras enviadas por viajeros entran en revisión y solo aparecen públicamente cuando están aprobadas.
-          </p>
-        </section>
       </main>
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <div className={styles.footerContent}>
+          <p className={styles.footerTagline}>
+            Explora el mundo a través de aventuras reales de viajeros.
+          </p>
+          <nav className={styles.footerNav} aria-label="Enlaces de pie de página">
+            <a href="#" className={styles.footerLink}>Mapa del sitio</a>
+            <a href="#" className={styles.footerLink}>Conócenos</a>
+            <a href="#" className={styles.footerLink}>Quiénes somos</a>
+            <a href="#" className={styles.footerLink}>Privacidad</a>
+            <a href="#" className={styles.footerLink}>Contacto</a>
+          </nav>
+          <p className={styles.footerCopyright}>© 2026 Trawel</p>
+        </div>
+      </footer>
     </div>
   );
 }
