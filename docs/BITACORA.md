@@ -855,5 +855,27 @@ Ajuste visual acotado para dar más superficie táctil al mapa mundial sin tocar
 
 ---
 
+## 2026-05-04 - CountryInternalMap más alto en móvil
+
+Ajuste responsive del mapa interno de país/zona para seguir el mismo criterio UX aplicado al WorldMap.
+
+### Cambios
+
+- En móvil, el wrapper del mapa interno deja de depender del `padding-bottom: 72%`.
+- El área táctil usa `height: clamp(300px, 54vh, 460px)` y `padding-bottom: 0`.
+- Los estados de carga/error usan la misma altura mínima responsive para evitar saltos visuales.
+- Escritorio conserva el aspect ratio y layout previos.
+- Criterio responsive documentado: los mapas interactivos de Trawel mantienen aspect-ratio en escritorio, pero en móvil priorizan superficie táctil útil.
+
+### Archivos modificados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-04*
