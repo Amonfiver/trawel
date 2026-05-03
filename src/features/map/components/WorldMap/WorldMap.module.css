@@ -288,6 +288,8 @@
 
   .mapWrapper {
     border-radius: 16px;
+    height: clamp(280px, 52vh, 440px);
+    padding-bottom: 0;
   }
   
   .touchHint {

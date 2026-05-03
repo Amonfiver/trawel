@@ -835,5 +835,25 @@ Dos ajustes concretos: reemplazo del último recuadro de Home por un footer real
 
 ---
 
+## 2026-05-04 - WorldMap más alto en móvil
+
+Ajuste visual acotado para dar más superficie táctil al mapa mundial sin tocar la lógica de zoom, foco ni navegación.
+
+### Cambios
+
+- En móvil, el wrapper del SVG deja de depender solo del ratio `960:500`.
+- El área visible usa `height: clamp(280px, 52vh, 440px)` y mantiene `padding-bottom: 0` en ese breakpoint.
+- Escritorio conserva el aspect ratio anterior.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-05-03*
+*Última actualización: 2026-05-04*
