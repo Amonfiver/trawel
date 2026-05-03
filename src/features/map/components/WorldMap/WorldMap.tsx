@@ -42,12 +42,24 @@
  const WORLD_MAP_PAN_PADDING_RATIO = 4;
  const TOUCH_LONG_PRESS_MS = 700;
  const TOUCH_MOVE_CANCEL_PX = 12;
+ const MIN_PINCH_DISTANCE_PX = 1;
 
  interface TooltipData {
    visible: boolean;
    x: number;
    y: number;
    country: WorldCountry | null;
+ }
+
+ interface TouchPoint {
+   clientX: number;
+   clientY: number;
+ }
+
+ interface PinchGesture {
+   startDistance: number;
+   startMidpoint: { x: number; y: number };
+   startTransform: d3.ZoomTransform;
  }
 
  /**
@@ -63,10 +75,13 @@
    const suppressClickUntilRef = useRef(0);
    const longPressTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
    const activeTouchPointersRef = useRef(new Set<number>());
+   const touchPointerPositionsRef = useRef(new Map<number, TouchPoint>());
    const activeTouchCountryRef = useRef<WorldCountry | null>(null);
    const activeTouchElementRef = useRef<SVGPathElement | null>(null);
    const touchStartPointRef = useRef<{ x: number; y: number } | null>(null);
    const hasTouchMovedRef = useRef(false);
+   const pinchGestureRef = useRef<PinchGesture | null>(null);
+   const currentTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
    const navigate = useNavigate();
 
    const [tooltip, setTooltip] = useState<TooltipData>({
@@ -99,6 +114,114 @@
 
      const mapLayer = svg.append('g')
        .attr('class', styles.zoomLayer);
+
+     const applyMapTransform = (transform: d3.ZoomTransform) => {
+       const constrainedTransform = constrainWorldMapTransform(
+         transform,
+         width,
+         height,
+         WORLD_MAP_PAN_PADDING_RATIO
+       );
+
+       currentTransformRef.current = constrainedTransform;
+       mapLayer.attr('transform', constrainedTransform.toString());
+
+       if (svgRef.current) {
+         (svgRef.current as SVGSVGElement & { __zoom?: d3.ZoomTransform }).__zoom = constrainedTransform;
+       }
+     };
+
+     const getSvgPointFromClient = (clientX: number, clientY: number) => {
+       const svgNode = svgRef.current;
+       const screenMatrix = svgNode?.getScreenCTM();
+
+       if (!svgNode || !screenMatrix) {
+         return null;
+       }
+
+       const point = svgNode.createSVGPoint();
+       point.x = clientX;
+       point.y = clientY;
+
+       const svgPoint = point.matrixTransform(screenMatrix.inverse());
+       return { x: svgPoint.x, y: svgPoint.y };
+     };
+
+     const getTwoTouchPoints = () => {
+       const points = Array.from(touchPointerPositionsRef.current.values());
+       return points.length >= 2 ? ([points[0], points[1]] as const) : null;
+     };
+
+     const getTouchDistance = (a: TouchPoint, b: TouchPoint) =>
+       Math.max(MIN_PINCH_DISTANCE_PX, Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY));
+
+     const getTouchMidpoint = (a: TouchPoint, b: TouchPoint) => ({
+       clientX: (a.clientX + b.clientX) / 2,
+       clientY: (a.clientY + b.clientY) / 2,
+     });
+
+     const startPinchGesture = () => {
+       const points = getTwoTouchPoints();
+       if (!points) {
+         pinchGestureRef.current = null;
+         return;
+       }
+
+       const midpoint = getTouchMidpoint(points[0], points[1]);
+       const svgMidpoint = getSvgPointFromClient(midpoint.clientX, midpoint.clientY);
+
+       if (!svgMidpoint) {
+         pinchGestureRef.current = null;
+         return;
+       }
+
+       pinchGestureRef.current = {
+         startDistance: getTouchDistance(points[0], points[1]),
+         startMidpoint: svgMidpoint,
+         startTransform: currentTransformRef.current,
+       };
+     };
+
+     const updatePinchGesture = () => {
+       const points = getTwoTouchPoints();
+       if (!points) {
+         return;
+       }
+
+       if (!pinchGestureRef.current) {
+         startPinchGesture();
+       }
+
+       const gesture = pinchGestureRef.current;
+       if (!gesture) {
+         return;
+       }
+
+       const midpoint = getTouchMidpoint(points[0], points[1]);
+       const svgMidpoint = getSvgPointFromClient(midpoint.clientX, midpoint.clientY);
+
+       if (!svgMidpoint) {
+         return;
+       }
+
+       const nextScale = clamp(
+         gesture.startTransform.k * (getTouchDistance(points[0], points[1]) / gesture.startDistance),
+         1,
+         WORLD_MAP_MAX_ZOOM
+       );
+       const anchoredMapPoint = gesture.startTransform.invert([
+         gesture.startMidpoint.x,
+         gesture.startMidpoint.y,
+       ]);
+       const nextTransform = d3.zoomIdentity
+         .translate(
+           svgMidpoint.x - anchoredMapPoint[0] * nextScale,
+           svgMidpoint.y - anchoredMapPoint[1] * nextScale
+         )
+         .scale(nextScale);
+
+       applyMapTransform(nextTransform);
+     };
 
      const clearLongPressTimer = () => {
        if (longPressTimerRef.current) {
@@ -188,10 +311,20 @@
 
        suppressClickUntilRef.current = Date.now() + 1000;
        activeTouchPointersRef.current.add(event.pointerId);
+       touchPointerPositionsRef.current.set(event.pointerId, {
+         clientX: event.clientX,
+         clientY: event.clientY,
+       });
        setHasTouchInteraction(true);
+       try {
+         svgRef.current?.setPointerCapture?.(event.pointerId);
+       } catch {
+         // Pointer capture is best-effort; zoom still works if the browser declines it.
+       }
 
        if (activeTouchPointersRef.current.size > 1) {
          cancelTouchIntent();
+         startPinchGesture();
          return;
        }
 
@@ -212,10 +345,15 @@
          return;
        }
 
+       touchPointerPositionsRef.current.set(event.pointerId, {
+         clientX: event.clientX,
+         clientY: event.clientY,
+       });
        suppressClickUntilRef.current = Date.now() + 1000;
 
        if (activeTouchPointersRef.current.size > 1) {
          cancelTouchIntent();
+         updatePinchGesture();
          return;
        }
 
@@ -255,7 +393,19 @@
 
        suppressClickUntilRef.current = Date.now() + 1000;
        activeTouchPointersRef.current.delete(event.pointerId);
+       touchPointerPositionsRef.current.delete(event.pointerId);
+       try {
+         svgRef.current?.releasePointerCapture?.(event.pointerId);
+       } catch {
+         // Some browsers release capture automatically on pointer cancel/end.
+       }
        hasTouchMovedRef.current = false;
+       pinchGestureRef.current = null;
+
+       if (activeTouchPointersRef.current.size > 1) {
+         startPinchGesture();
+       }
+
        cancelTouchIntent({ hideTooltip: false });
      };
 
@@ -280,7 +430,7 @@
          }
 
          if (event.type.startsWith('touch')) {
-           return isTwoFingerTouchGesture(event);
+           return false;
          }
 
          return true;
@@ -294,7 +444,7 @@
          cancelTouchIntent();
        })
        .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-         mapLayer.attr('transform', event.transform.toString());
+         applyMapTransform(event.transform);
 
          const sourceType = event.sourceEvent?.type || '';
          if (sourceType === 'mousemove' || sourceType === 'touchmove' || sourceType === 'pointermove') {
@@ -427,6 +577,8 @@
      return () => {
        clearLongPressTimer();
        activeTouchPointersRef.current.clear();
+       touchPointerPositionsRef.current.clear();
+       pinchGestureRef.current = null;
        svgRef.current?.removeEventListener('pointerdown', handlePointerDown);
        svgRef.current?.removeEventListener('pointermove', handlePointerMove);
        svgRef.current?.removeEventListener('pointerup', handlePointerEnd);
@@ -445,29 +597,29 @@
        role="region"
        aria-label="Mapa mundial interactivo de destinos de viaje"
      >
-       {/* Estado de carga */}
-       {isLoading && (
-         <div className={styles.loading} role="status" aria-live="polite">
-           <div className={styles.loadingContent}>
-             <div className={styles.spinner} aria-hidden="true" />
-             <span className={styles.loadingText}>Cargando mapa del mundo...</span>
-           </div>
-         </div>
-       )}
-
-       {/* Estado de error */}
-       {error && (
-         <div className={styles.error} role="alert" aria-live="assertive">
-           <div className={styles.errorContent}>
-             <div className={styles.errorIcon} aria-hidden="true">🗺️</div>
-             <h3 className={styles.errorTitle}>Error al cargar el mapa</h3>
-             <p className={styles.errorText}>{error}</p>
-           </div>
-         </div>
-       )}
-
        {/* Wrapper del SVG para aspect ratio responsive */}
        <div className={styles.mapWrapper}>
+         {/* Estado de carga */}
+         {isLoading && (
+           <div className={styles.loading} role="status" aria-live="polite">
+             <div className={styles.loadingContent}>
+               <div className={styles.spinner} aria-hidden="true" />
+               <span className={styles.loadingText}>Cargando mapa del mundo...</span>
+             </div>
+           </div>
+         )}
+
+         {/* Estado de error */}
+         {error && (
+           <div className={styles.error} role="alert" aria-live="assertive">
+             <div className={styles.errorContent}>
+               <div className={styles.errorIcon} aria-hidden="true">🗺️</div>
+               <h3 className={styles.errorTitle}>Error al cargar el mapa</h3>
+               <p className={styles.errorText}>{error}</p>
+             </div>
+           </div>
+         )}
+
          <svg
            ref={svgRef}
            viewBox={`0 0 ${WORLD_MAP_WIDTH} ${WORLD_MAP_HEIGHT}`}
@@ -482,24 +634,24 @@
          </svg>
        </div>
 
-       {!isLoading && !error && (
-         <p className={styles.touchHint} aria-hidden="true">
-           1 dedo explora · 2 dedos mueven · Ir para entrar
-         </p>
-       )}
-
        {showTouchCountryButton && (
          <button
            type="button"
            className={styles.touchCountryButton}
            onClick={() => {
              suppressClickUntilRef.current = Date.now() + 1000;
-             navigate(`/pais/${focusedTouchCountry.slug}`);
-           }}
-           aria-label={`Ir a ${focusedTouchCountry.displayName}`}
-         >
-           Ir a {focusedTouchCountry.displayName}
-         </button>
+           navigate(`/pais/${focusedTouchCountry.slug}`);
+         }}
+         aria-label={`Ir a ${focusedTouchCountry.displayName}`}
+       >
+         Ir a {focusedTouchCountry.displayName} →
+       </button>
+     )}
+
+       {!isLoading && !error && (
+         <p className={styles.touchHint} aria-hidden="true">
+           1 dedo explora · 2 dedos mueven · Ir para entrar
+         </p>
        )}
 
        {/* Tooltip simplificado - DA-029: solo bandera visual + nombre */}
@@ -551,4 +703,28 @@
      [-paddingX, -paddingY],
      [width + paddingX, height + paddingY],
    ];
+ }
+
+ function constrainWorldMapTransform(
+   transform: d3.ZoomTransform,
+   width: number,
+   height: number,
+   paddingRatio: number
+ ) {
+   const [[minX, minY], [maxX, maxY]] = getRelaxedTranslateExtent(width, height, paddingRatio);
+   const minTranslateX = width - maxX * transform.k;
+   const maxTranslateX = -minX * transform.k;
+   const minTranslateY = height - maxY * transform.k;
+   const maxTranslateY = -minY * transform.k;
+
+   return d3.zoomIdentity
+     .translate(
+       clamp(transform.x, minTranslateX, maxTranslateX),
+       clamp(transform.y, minTranslateY, maxTranslateY)
+     )
+     .scale(transform.k);
+ }
+
+ function clamp(value: number, min: number, max: number) {
+   return Math.min(max, Math.max(min, value));
  }

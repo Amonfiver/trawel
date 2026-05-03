@@ -684,5 +684,54 @@ El wrapper del SVG usaba alturas responsive mayores que el ratio real del `viewB
 
 ---
 
+## 2026-05-03 - Botón táctil fuera del área del WorldMap
+
+Ajuste de UX móvil para evitar que el CTA de país interfiera con pinch zoom y pan.
+
+### Cambios
+
+- El botón "Ir a {país}" deja de estar flotante sobre el mapa.
+- El CTA táctil se renderiza debajo del wrapper SVG, fuera del área interactiva de pinch/zoom.
+- Se mantiene el último país enfocado como destino del botón.
+- El botón conserva tamaño táctil cómodo y ancho limitado para evitar overflow.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
+## 2026-05-03 - CTA discreto y pinch zoom anclado en WorldMap
+
+Corrección funcional tras prueba en móvil real.
+
+### Problemas
+
+- El botón "Ir a {país}" seguía dentro del recuadro visual del mapa y resultaba demasiado protagonista.
+- El pinch zoom podía fugarse lejos del punto localizado porque el gesto táctil dependía del cálculo interno de D3 sobre un SVG responsive.
+
+### Cambios
+
+- El marco visual se limita al wrapper del SVG; el contenedor general queda limpio.
+- El CTA táctil queda debajo del recuadro del mapa, con estilo secundario y ancho más contenido.
+- El gesto de dos dedos se calcula con Pointer Events: se ancla el punto del mapa bajo el centro inicial de los dedos y se recoloca bajo el centro actual.
+- `d3.zoom` conserva wheel desactivado y queda para interacciones no táctiles; el touch zoom/pan lo gestiona el componente para estabilizar el centro.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `src/features/map/components/WorldMap/WorldMap.module.css`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-03*
