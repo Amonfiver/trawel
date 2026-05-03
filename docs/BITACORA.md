@@ -733,5 +733,47 @@ Corrección funcional tras prueba en móvil real.
 
 ---
 
+## 2026-05-03 - Tooltip táctil visible y ancla SVG de pinch zoom
+
+Ajuste sobre la interacción táctil del mapa mundial.
+
+### Cambios
+
+- El tooltip táctil intenta aparecer arriba-izquierda del dedo y se recoloca si chocaría con bordes de pantalla.
+- La conversión pantalla → SVG sigue usando `createSVGPoint()` con `getScreenCTM().inverse()`.
+- El gesto de pinch guarda explícitamente el punto del mapa bajo el centro inicial de los dedos (`anchorMapPoint`) y lo mantiene bajo el centro actual al recalcular escala/traslación.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
+## 2026-05-03 - Transform único y foco táctil persistente en WorldMap
+
+Corrección quirúrgica de la interacción móvil del mapa mundial.
+
+### Cambios
+
+- `d3.zoom` deja de registrar listeners sobre el SVG para evitar doble fuente de transform.
+- El transform único vive en `currentTransformRef` y se aplica solo a la capa `<g>` del mapa.
+- El pinch/pan táctil de dos dedos sigue usando el centro real convertido a coordenadas SVG.
+- El último país enfocado en móvil queda resaltado en amarillo tras levantar el dedo.
+- Al enfocar otro país, se limpia el anterior y el foco amarillo pasa al nuevo.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.1 - Trawel*
 *Última actualización: 2026-05-03*

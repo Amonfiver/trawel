@@ -58,8 +58,8 @@
 
  interface PinchGesture {
    startDistance: number;
-   startMidpoint: { x: number; y: number };
-   startTransform: d3.ZoomTransform;
+   startScale: number;
+   anchorMapPoint: [number, number];
  }
 
  /**
@@ -72,6 +72,7 @@
  export function WorldMap() {
    const svgRef = useRef<SVGSVGElement>(null);
    const containerRef = useRef<HTMLDivElement>(null);
+   const tooltipRef = useRef<HTMLDivElement>(null);
    const suppressClickUntilRef = useRef(0);
    const longPressTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
    const activeTouchPointersRef = useRef(new Set<number>());
@@ -125,10 +126,6 @@
 
        currentTransformRef.current = constrainedTransform;
        mapLayer.attr('transform', constrainedTransform.toString());
-
-       if (svgRef.current) {
-         (svgRef.current as SVGSVGElement & { __zoom?: d3.ZoomTransform }).__zoom = constrainedTransform;
-       }
      };
 
      const getSvgPointFromClient = (clientX: number, clientY: number) => {
@@ -145,6 +142,40 @@
 
        const svgPoint = point.matrixTransform(screenMatrix.inverse());
        return { x: svgPoint.x, y: svgPoint.y };
+     };
+
+     const getTouchTooltipPosition = (event: PointerEvent) => {
+       const margin = 8;
+       const gap = 14;
+       const tooltipRect = tooltipRef.current?.getBoundingClientRect();
+       const tooltipWidth = tooltipRect?.width || 180;
+       const tooltipHeight = tooltipRect?.height || 44;
+       const viewportWidth = window.innerWidth;
+       const viewportHeight = window.innerHeight;
+
+       let x = event.clientX - tooltipWidth - gap;
+       let y = event.clientY - tooltipHeight - gap;
+
+       if (x < margin) {
+         x = event.clientX + gap;
+       }
+
+       if (x + tooltipWidth > viewportWidth - margin) {
+         x = viewportWidth - tooltipWidth - margin;
+       }
+
+       if (y < margin) {
+         y = event.clientY + gap;
+       }
+
+       if (y + tooltipHeight > viewportHeight - margin) {
+         y = viewportHeight - tooltipHeight - margin;
+       }
+
+       return {
+         x: Math.max(margin, x),
+         y: Math.max(margin, y),
+       };
      };
 
      const getTwoTouchPoints = () => {
@@ -175,10 +206,11 @@
          return;
        }
 
+       const startTransform = currentTransformRef.current;
        pinchGestureRef.current = {
          startDistance: getTouchDistance(points[0], points[1]),
-         startMidpoint: svgMidpoint,
-         startTransform: currentTransformRef.current,
+         startScale: startTransform.k,
+         anchorMapPoint: startTransform.invert([svgMidpoint.x, svgMidpoint.y]),
        };
      };
 
@@ -205,18 +237,14 @@
        }
 
        const nextScale = clamp(
-         gesture.startTransform.k * (getTouchDistance(points[0], points[1]) / gesture.startDistance),
+         gesture.startScale * (getTouchDistance(points[0], points[1]) / gesture.startDistance),
          1,
          WORLD_MAP_MAX_ZOOM
        );
-       const anchoredMapPoint = gesture.startTransform.invert([
-         gesture.startMidpoint.x,
-         gesture.startMidpoint.y,
-       ]);
        const nextTransform = d3.zoomIdentity
          .translate(
-           svgMidpoint.x - anchoredMapPoint[0] * nextScale,
-           svgMidpoint.y - anchoredMapPoint[1] * nextScale
+           svgMidpoint.x - gesture.anchorMapPoint[0] * nextScale,
+           svgMidpoint.y - gesture.anchorMapPoint[1] * nextScale
          )
          .scale(nextScale);
 
@@ -250,7 +278,6 @@
        clearLongPressTimer();
        activeTouchCountryRef.current = null;
        touchStartPointRef.current = null;
-       clearTouchHighlight();
 
        if (hideTooltip) {
          setTooltip(prev => ({ ...prev, visible: false }));
@@ -282,10 +309,11 @@
 
        activeTouchCountryRef.current = worldCountry;
        setFocusedTouchCountry(worldCountry);
+       const tooltipPosition = getTouchTooltipPosition(event);
        setTooltip({
          visible: true,
-         x: event.clientX + 12,
-         y: event.clientY - 12,
+         x: tooltipPosition.x,
+         y: tooltipPosition.y,
          country: worldCountry,
        });
      };
@@ -409,55 +437,10 @@
        cancelTouchIntent({ hideTooltip: false });
      };
 
-     const isTwoFingerTouchGesture = (event: Event) =>
-       'touches' in event && (event as TouchEvent).touches.length >= 2;
-
      svgRef.current.addEventListener('pointerdown', handlePointerDown);
      svgRef.current.addEventListener('pointermove', handlePointerMove);
      svgRef.current.addEventListener('pointerup', handlePointerEnd);
      svgRef.current.addEventListener('pointercancel', handlePointerEnd);
-
-     const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
-       .scaleExtent([1, WORLD_MAP_MAX_ZOOM])
-       // Keep zoom gestures centered on the viewport, but allow the enlarged map
-       // to move beyond the original viewBox inside the clipped map shell.
-       .translateExtent(getRelaxedTranslateExtent(width, height, WORLD_MAP_PAN_PADDING_RATIO))
-       .extent([[0, 0], [width, height]])
-       .clickDistance(8)
-       .filter((event: Event) => {
-         if (event.type === 'wheel') {
-           return false;
-         }
-
-         if (event.type.startsWith('touch')) {
-           return false;
-         }
-
-         return true;
-       })
-       .on('start', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-         const sourceEvent = event.sourceEvent as Event | null;
-         if (sourceEvent?.type === 'touchstart' && !isTwoFingerTouchGesture(sourceEvent)) {
-           return;
-         }
-
-         cancelTouchIntent();
-       })
-       .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-         applyMapTransform(event.transform);
-
-         const sourceType = event.sourceEvent?.type || '';
-         if (sourceType === 'mousemove' || sourceType === 'touchmove' || sourceType === 'pointermove') {
-           clearLongPressTimer();
-           suppressClickUntilRef.current = Date.now() + 1000;
-
-           if (sourceType === 'touchmove') {
-             cancelTouchIntent();
-           }
-         }
-       });
-
-     svg.call(zoomBehavior);
 
      // Cargar datos world-atlas
      fetch(WORLD_ATLAS_URL)
@@ -583,7 +566,6 @@
        svgRef.current?.removeEventListener('pointermove', handlePointerMove);
        svgRef.current?.removeEventListener('pointerup', handlePointerEnd);
        svgRef.current?.removeEventListener('pointercancel', handlePointerEnd);
-       svg.on('.zoom', null);
      };
    }, [navigate]);
 
@@ -656,6 +638,7 @@
 
        {/* Tooltip simplificado - DA-029: solo bandera visual + nombre */}
        <div
+         ref={tooltipRef}
          className={`${styles.tooltip} ${tooltip.visible ? styles.tooltipVisible : ''}`}
          style={{
            left: tooltip.x,
