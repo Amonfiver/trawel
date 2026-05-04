@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-05-04 - Zoom con rueda centrado y estable en WorldMap
+
+Simplificación del wheel zoom de escritorio tras detectar fuga visual con el anclaje al puntero.
+
+### Cambios
+
+- `handleWheel` deja de usar `clientX/clientY` como ancla del zoom.
+- La rueda calcula el cambio de escala respecto al centro del viewBox (`width / 2`, `height / 2`), manteniendo estable el centro visual.
+- La recolocación del mapa queda en el pan desktop con click sostenido y arrastre.
+- No se modifica la lógica táctil móvil, navegación, tooltip, Home, CSS ni `CountryInternalMap`.
+- Antártida sigue oculta filtrando UN M.49 `010`.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `docs/MAP_UI_GUIDELINES.md`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 ## 2026-05-04 - Corrección de coordenadas del wheel zoom en WorldMap
 
 Ajuste acotado del anclaje de zoom con rueda en escritorio.
