@@ -437,12 +437,36 @@
        cancelTouchIntent({ hideTooltip: false });
      };
 
-     svgRef.current.addEventListener('pointerdown', handlePointerDown);
-     svgRef.current.addEventListener('pointermove', handlePointerMove);
-     svgRef.current.addEventListener('pointerup', handlePointerEnd);
-     svgRef.current.addEventListener('pointercancel', handlePointerEnd);
+      const handleWheel = (event: WheelEvent) => {
+        // Solo zoom con rueda cuando el cursor está sobre el mapa
+        // Evitar scroll de página cuando se hace zoom sobre el mapa
+        event.preventDefault();
 
-     // Cargar datos world-atlas
+        const svgPoint = getSvgPointFromClient(event.clientX, event.clientY);
+        if (!svgPoint) return;
+
+        const currentTransform = currentTransformRef.current;
+        const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
+        const nextScale = clamp(currentTransform.k * zoomFactor, 1, WORLD_MAP_MAX_ZOOM);
+
+        // Calcular nueva traslación para mantener el punto bajo el cursor
+        const nextTransform = d3.zoomIdentity
+          .translate(
+            svgPoint.x - (svgPoint.x - currentTransform.x) * (nextScale / currentTransform.k),
+            svgPoint.y - (svgPoint.y - currentTransform.y) * (nextScale / currentTransform.k)
+          )
+          .scale(nextScale);
+
+        applyMapTransform(nextTransform);
+      };
+
+      svgRef.current.addEventListener('pointerdown', handlePointerDown);
+      svgRef.current.addEventListener('pointermove', handlePointerMove);
+      svgRef.current.addEventListener('pointerup', handlePointerEnd);
+      svgRef.current.addEventListener('pointercancel', handlePointerEnd);
+      svgRef.current.addEventListener('wheel', handleWheel, { passive: false });
+
+      // Cargar datos world-atlas
      fetch(WORLD_ATLAS_URL)
        .then(response => {
          if (!response.ok) throw new Error('Error cargando world-atlas');

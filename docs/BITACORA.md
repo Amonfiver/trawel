@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-05-04 - Wheel zoom en WorldMap (escritorio)
+
+Añadido zoom con rueda de ratón en escritorio para mejorar exploración del mapa mundial.
+
+### Cambios
+
+- `WorldMap.tsx` añade listener `wheel` sobre el SVG.
+- El zoom solo activa cuando el cursor está sobre el mapa (`event.preventDefault()` para evitar scroll de página).
+- Si el cursor está fuera, la rueda sigue haciendo scroll normal de la página.
+- Usa la misma función `applyMapTransform` y referencia `currentTransformRef` que el pinch zoom táctil.
+- Escala limitada: 1x a 40x (mismos límites que zoom táctil).
+- El punto bajo el cursor se mantiene anclado al hacer zoom (comportamiento estándar).
+
+### Alcance
+
+- Solo `WorldMap.tsx`; sin cambios en `CountryInternalMap`.
+- Sin modificaciones de lógica táctil móvil (1 dedo explora, 2 dedos pan/zoom).
+- Sin cambios en tooltips, botón "Ir a {país}", CSS ni Home.
+- Antártida sigue oculta (filtro `'010'` preservado).
+
+---
+
 ## 2026-05-04 - Ocultar Antártida del WorldMap
 
 Ocultada Antártida del mapa mundial para evitar confusión visual y táctil en móvil.
