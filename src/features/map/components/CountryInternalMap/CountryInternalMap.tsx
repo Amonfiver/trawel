@@ -39,6 +39,10 @@ const WIDTH = 900;
 const HEIGHT = 560;
 const MAX_ZOOM = 30;
 const PAN_PADDING_RATIO = 3;
+const INITIAL_ZOOM_DESKTOP = 1.08;
+const INITIAL_ZOOM_MOBILE = 1.18;
+const MOBILE_MEDIA_QUERY = '(max-width: 640px)';
+const TOUCH_TOOLTIP_GAP = 14;
 
 export function CountryInternalMap({
   assetUrl,
@@ -168,6 +172,40 @@ export function CountryInternalMap({
 
     svg.call(zoomBehavior);
 
+    const getTouchTooltipPosition = (touch: Touch) => ({
+      x: touch.clientX + TOUCH_TOOLTIP_GAP,
+      y: touch.clientY - TOUCH_TOOLTIP_GAP,
+    });
+
+    const getTouchedArea = (touch: Touch) => {
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      return element?.closest?.('[data-internal-area-name]') as SVGPathElement | null;
+    };
+
+    const showTouchTooltip = (event: TouchEvent) => {
+      if (event.touches.length !== 1) {
+        setTooltip((prev) => ({ ...prev, visible: false }));
+        return;
+      }
+
+      const touch = event.touches[0];
+      const area = getTouchedArea(touch);
+      const title = area?.dataset.internalAreaName;
+
+      if (!area || !title) {
+        setTooltip((prev) => ({ ...prev, visible: false }));
+        return;
+      }
+
+      const tooltipPosition = getTouchTooltipPosition(touch);
+      setTooltip({
+        visible: true,
+        x: tooltipPosition.x,
+        y: tooltipPosition.y,
+        title,
+      });
+    };
+
     mapLayer
       .selectAll('path')
       .data(features)
@@ -182,6 +220,7 @@ export function CountryInternalMap({
       .attr('vector-effect', 'non-scaling-stroke')
       .attr('tabindex', '0')
       .attr('aria-label', (item) => getAreaName(item.properties))
+      .attr('data-internal-area-name', (item) => getAreaName(item.properties))
       .attr('role', onZoneSelect ? 'link' : 'img')
       .on('mouseover', function (event: MouseEvent, item) {
         d3.select(this)
@@ -261,8 +300,18 @@ export function CountryInternalMap({
         });
       });
 
+    const initialTransform = getInitialMapTransform();
+    svg.call(zoomBehavior.transform, initialTransform);
+    svg
+      .on('touchstart.tooltip', showTouchTooltip)
+      .on('touchmove.tooltip', showTouchTooltip)
+      .on('touchend.tooltip touchcancel.tooltip', () => {
+        setTooltip((prev) => ({ ...prev, visible: false }));
+      });
+
     return () => {
       svg.on('.zoom', null);
+      svg.on('.tooltip', null);
     };
   }, [features, isLoading, onZoneSelect]);
 
@@ -398,6 +447,17 @@ function createZoneSlug(zoneName: string): string {
     .replace(/^-+|-+$/g, '');
 
   return normalized || 'zona-por-descubrir';
+}
+
+function getInitialMapTransform() {
+  const isMobile = window.matchMedia?.(MOBILE_MEDIA_QUERY).matches ?? false;
+  const initialScale = isMobile ? INITIAL_ZOOM_MOBILE : INITIAL_ZOOM_DESKTOP;
+  const centerX = WIDTH / 2;
+  const centerY = HEIGHT / 2;
+
+  return d3.zoomIdentity
+    .translate(centerX - centerX * initialScale, centerY - centerY * initialScale)
+    .scale(initialScale);
 }
 
 function getRelaxedTranslateExtent(

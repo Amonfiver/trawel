@@ -877,5 +877,49 @@ Ajuste responsive del mapa interno de país/zona para seguir el mismo criterio U
 
 ---
 
+## 2026-05-04 - CountryInternalMap empieza más cercano
+
+Ajuste acotado del encaje inicial del mapa interno para aprovechar mejor la altura móvil añadida.
+
+### Cambios
+
+- El mapa interno sigue calculando geometría con `geoMercator().fitSize([900, 560], featureCollection)`.
+- Tras dibujar las áreas, se aplica un transform inicial mediante el mismo `zoomBehavior` de D3.
+- El arranque usa zoom centrado `1.18x` en móvil y `1.08x` en escritorio.
+- Pan/zoom existente queda sincronizado porque el transform inicial se registra en D3, no solo en el `<g>`.
+- No se modifican tooltips, navegación, datos ni WorldMap.
+
+### Archivos modificados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
+## 2026-05-04 - Tooltip interactivo en CountryInternalMap
+
+Añadido tooltip de nombres al mapa interno de país/zona sin etiquetas permanentes.
+
+### Cambios
+
+- Cada área interna expone `data-internal-area-name` con el nombre calculado desde propiedades GeoJSON.
+- Escritorio mantiene tooltip por hover con el nombre de zona/provincia/ciudad.
+- Móvil añade tooltip con 1 dedo usando `touchstart`/`touchmove` y `elementFromPoint`.
+- Los listeners táctiles no hacen `preventDefault`, por lo que pan/zoom existente sigue en D3.
+- Regla documentada: los mapas internos muestran nombres bajo interacción, no como etiquetas fijas sobre el mapa.
+
+### Archivos modificados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-04*
