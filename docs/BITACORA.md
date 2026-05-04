@@ -921,5 +921,27 @@ Añadido tooltip de nombres al mapa interno de país/zona sin etiquetas permanen
 
 ---
 
+## 2026-05-04 - Encaje desktop y rueda en CountryInternalMap
+
+Ajuste acotado del mapa interno tras detectar recorte visual en escritorio.
+
+### Cambios
+
+- El encaje inicial pasa de `fitSize` a `fitExtent` con margen interno para que el territorio completo respire dentro del viewBox.
+- El zoom inicial de escritorio vuelve a identidad (`1x`) para evitar recortes; móvil conserva acercamiento moderado (`1.12x`).
+- La rueda del ratón vuelve a usar el `zoomBehavior` de D3 solo cuando el cursor está sobre el SVG del mapa.
+- Fuera del mapa, la rueda sigue haciendo scroll normal de la página.
+- Tooltips de hover/táctil, selección de zonas y navegación se mantienen sin cambios.
+
+### Archivos modificados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-04*

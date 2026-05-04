@@ -39,8 +39,9 @@ const WIDTH = 900;
 const HEIGHT = 560;
 const MAX_ZOOM = 30;
 const PAN_PADDING_RATIO = 3;
-const INITIAL_ZOOM_DESKTOP = 1.08;
-const INITIAL_ZOOM_MOBILE = 1.18;
+const MAP_FIT_PADDING = 24;
+const INITIAL_ZOOM_DESKTOP = 1;
+const INITIAL_ZOOM_MOBILE = 1.12;
 const MOBILE_MEDIA_QUERY = '(max-width: 640px)';
 const TOUCH_TOOLTIP_GAP = 14;
 
@@ -132,7 +133,10 @@ export function CountryInternalMap({
       features,
     };
 
-    const projection = d3.geoMercator().fitSize([WIDTH, HEIGHT], featureCollection);
+    const projection = d3.geoMercator().fitExtent(
+      [[MAP_FIT_PADDING, MAP_FIT_PADDING], [WIDTH - MAP_FIT_PADDING, HEIGHT - MAP_FIT_PADDING]],
+      featureCollection
+    );
     const path = d3.geoPath().projection(projection);
 
     svg
@@ -153,10 +157,14 @@ export function CountryInternalMap({
       .clickDistance(8)
       .filter((event: Event) => {
         if (event.type === 'wheel') {
-          return false;
+          return !window.matchMedia?.(MOBILE_MEDIA_QUERY).matches;
         }
 
         return true;
+      })
+      .wheelDelta((event: WheelEvent) => {
+        const deltaModeMultiplier = event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002;
+        return -event.deltaY * deltaModeMultiplier;
       })
       .on('start', () => {
         setTooltip((prev) => ({ ...prev, visible: false }));
