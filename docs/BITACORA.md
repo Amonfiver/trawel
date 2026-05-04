@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-05-04 - Normativa UI de mapas interactivos
+
+Creado documento oficial de UX/UI para todos los componentes de mapa.
+
+### Cambios
+
+- Nuevo documento `docs/MAP_UI_GUIDELINES.md` con normativa completa:
+  - Principios generales de mapas exploratorios limpios
+  - Reglas para Home y experiencia de mapa vivo
+  - Especificaciones de WorldMap (escritorio y móvil)
+  - Especificaciones de CountryInternalMap (escritorio y móvil)
+  - Criterios responsive
+  - Reglas para agentes
+- Actualizado `docs/AGENT_BRIEF.md` con referencia a `MAP_UI_GUIDELINES.md`
+- Actualizado `docs/CODEMAP.md` con referencia a `MAP_UI_GUIDELINES.md`
+
+### Alcance
+
+- Documentación únicamente; sin cambios de código funcional.
+- No se modificó CSS, lógica de zoom, tooltips, navegación, responsive ni datos.
+- Este documento debe leerse antes de tocar `WorldMap`, `CountryInternalMap`, `HomePage` relacionada con mapa o responsive de mapas.
+
+---
+
 ## 2026-05-02 - Retirada privada de aventuras pendientes
 
 Añadido flujo para que un viajero pueda retirar una aventura antes de revisión mediante token privado.
@@ -932,6 +956,50 @@ Ajuste acotado del mapa interno tras detectar recorte visual en escritorio.
 - La rueda del ratón vuelve a usar el `zoomBehavior` de D3 solo cuando el cursor está sobre el SVG del mapa.
 - Fuera del mapa, la rueda sigue haciendo scroll normal de la página.
 - Tooltips de hover/táctil, selección de zonas y navegación se mantienen sin cambios.
+
+### Archivos modificados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
+## 2026-05-04 - CountryInternalMap separa exploración táctil y multitouch
+
+Ajuste acotado de interacción móvil para que el mapa interno distinga exploración con 1 dedo de gestos de mapa con 2 dedos.
+
+### Cambios
+
+- El tooltip táctil de 1 dedo usa una guardia breve de 80 ms en `touchstart` para cancelar el cambio si aparece un segundo dedo.
+- Durante un gesto multitouch se congela el tooltip de zona y no se recalcula por la posición de ningún dedo.
+- D3 zoom solo gestiona eventos táctiles multitouch; la exploración de 1 dedo queda dedicada a nombres de zonas.
+- Al terminar un pinch, no se muestra automáticamente otra zona por el dedo restante; hay que levantar y volver a explorar.
+- Escritorio mantiene encaje, hover tooltip y zoom con rueda solo sobre el SVG.
+
+### Archivos modificados
+
+- `src/features/map/components/CountryInternalMap/CountryInternalMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
+## 2026-05-04 - Tooltip táctil cómodo en CountryInternalMap
+
+Ajuste acotado del posicionamiento móvil del tooltip del mapa interno.
+
+### Cambios
+
+- El tooltip táctil se coloca por encima del dedo y separado lateralmente para evitar tapar el nombre.
+- Si no cabe hacia la izquierda, cambia al lado derecho del dedo.
+- Si se acerca al borde derecho, se limita al viewport con margen mínimo.
+- Se reutiliza la idea de medición del tooltip del WorldMap sin modificar WorldMap.
+- Hover de escritorio, pan/zoom móvil y separación 1 dedo/2 dedos se mantienen sin cambios.
 
 ### Archivos modificados
 

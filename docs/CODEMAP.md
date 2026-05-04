@@ -19,7 +19,8 @@ Este archivo describe la estructura esperada del código fuente. Sirve como guí
 - `DEMO_CHECKLIST.md` - Guion de demo para presentaciones a socios/colaboradores
 - `EXPERIENCE_MODE_AUDIT.md` - Auditoría del modo Aventura/Estudiante
 - `V0_HANDOFF.md` - Handoff para rediseño visual con v0
-- `MAP_ASSET_PLAN.md` - Plan de assets cartográficos (diagnóstico SpainMap)
+- `MAP_UI_GUIDELINES.md` - **Normativa UX/UI oficial para mapas** (leer antes de tocar WorldMap/CountryInternalMap)
+- `MAP_ASSET_PLAN.md` - Plan técnico de assets cartográficos (diagnóstico SpainMap)
 - `MAP_SOURCE_COMPARISON.md` - Comparación geoBoundaries vs Natural Earth para España
 - `DECISIONES.md` - Registro de decisiones técnicas (incluye DA-029: Mapas exploratorios)
 - `BITACORA.md` - Bitácora activa del proyecto (cambios recientes desde 2026-05-02)

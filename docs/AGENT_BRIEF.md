@@ -124,6 +124,7 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 | Demo/presentación | `DEMO_CHECKLIST.md` |
 | Decisiones pasadas | `DECISIONES.md` |
 | Arquitectura | `ARCHITECTURE.md`, `CODEMAP.md` |
+| **Mapas (UI/UX)** | **`MAP_UI_GUIDELINES.md`** primero, luego `CODEMAP.md` |
 
 ---
 
