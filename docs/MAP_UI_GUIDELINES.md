@@ -61,7 +61,8 @@ El footer actual debe respetarse:
 |-------------|----------------|
 | `hover` | Muestra tooltip con bandera + nombre de país |
 | `click` | Navega al país |
-| `wheel` (sobre el mapa) | Zoom del mapa; scroll de página fuera del mapa |
+| `wheel` (sobre el mapa) | Zoom anclado al puntero; scroll de página fuera del mapa |
+| click sostenido + arrastre | Pan del mapa cuando está ampliado |
 
 ### Móvil
 

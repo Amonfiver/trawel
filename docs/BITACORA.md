@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-05-04 - Zoom anclado y pan de ratón en WorldMap
+
+Ajuste acotado de interacción desktop del mapa mundial, sin tocar la ruta táctil móvil.
+
+### Cambios
+
+- La rueda sobre el WorldMap calcula el punto de mapa bajo el cursor antes de cambiar escala, manteniéndolo anclado al puntero todo lo posible.
+- Con el mapa ampliado, click sostenido y arrastre desplaza la misma capa `<g>` interna mediante `currentTransformRef`/`applyMapTransform`.
+- Un drag real suprime temporalmente el click posterior para evitar navegación accidental.
+- La rueda fuera del mapa sigue haciendo scroll normal porque el listener permanece limitado al SVG.
+- Antártida sigue oculta filtrando UN M.49 `010`.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+- `docs/MAP_UI_GUIDELINES.md`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 ## 2026-05-04 - Wheel zoom en WorldMap (escritorio)
 
 Añadido zoom con rueda de ratón en escritorio para mejorar exploración del mapa mundial.

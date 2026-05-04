@@ -43,6 +43,7 @@
  const TOUCH_LONG_PRESS_MS = 700;
  const TOUCH_MOVE_CANCEL_PX = 12;
  const MIN_PINCH_DISTANCE_PX = 1;
+ const MOUSE_DRAG_CANCEL_PX = 4;
 
  interface TooltipData {
    visible: boolean;
@@ -83,6 +84,11 @@
    const hasTouchMovedRef = useRef(false);
    const pinchGestureRef = useRef<PinchGesture | null>(null);
    const currentTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
+   const isMousePanningRef = useRef(false);
+   const mousePanStartClientRef = useRef<{ x: number; y: number } | null>(null);
+   const mousePanStartSvgRef = useRef<{ x: number; y: number } | null>(null);
+   const mousePanStartTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
+   const hasMouseDraggedRef = useRef(false);
    const navigate = useNavigate();
 
    const [tooltip, setTooltip] = useState<TooltipData>({
@@ -334,6 +340,25 @@
 
      const handlePointerDown = (event: PointerEvent) => {
        if (event.pointerType === 'mouse') {
+         if (event.button !== 0 || currentTransformRef.current.k <= 1) {
+           return;
+         }
+
+         const svgPoint = getSvgPointFromClient(event.clientX, event.clientY);
+         if (!svgPoint) {
+           return;
+         }
+
+         isMousePanningRef.current = true;
+         hasMouseDraggedRef.current = false;
+         mousePanStartClientRef.current = { x: event.clientX, y: event.clientY };
+         mousePanStartSvgRef.current = svgPoint;
+         mousePanStartTransformRef.current = currentTransformRef.current;
+         try {
+           svgRef.current?.setPointerCapture?.(event.pointerId);
+         } catch {
+           // Pointer capture is best-effort; mouseleave also closes the pan gesture.
+         }
          return;
        }
 
@@ -369,7 +394,44 @@
      };
 
      const handlePointerMove = (event: PointerEvent) => {
-       if (event.pointerType === 'mouse' || !activeTouchPointersRef.current.has(event.pointerId)) {
+       if (event.pointerType === 'mouse') {
+         if (!isMousePanningRef.current) {
+           return;
+         }
+
+         const startSvg = mousePanStartSvgRef.current;
+         const currentSvg = getSvgPointFromClient(event.clientX, event.clientY);
+         if (!startSvg || !currentSvg) {
+           return;
+         }
+
+         const startClient = mousePanStartClientRef.current;
+         if (startClient) {
+           const distance = Math.hypot(event.clientX - startClient.x, event.clientY - startClient.y);
+           if (distance > MOUSE_DRAG_CANCEL_PX) {
+             hasMouseDraggedRef.current = true;
+             suppressClickUntilRef.current = Date.now() + 500;
+           }
+
+           if (!hasMouseDraggedRef.current) {
+             return;
+           }
+         }
+
+         const startTransform = mousePanStartTransformRef.current;
+         applyMapTransform(
+           d3.zoomIdentity
+             .translate(
+               startTransform.x + currentSvg.x - startSvg.x,
+               startTransform.y + currentSvg.y - startSvg.y
+             )
+             .scale(startTransform.k)
+         );
+         event.preventDefault();
+         return;
+       }
+
+       if (!activeTouchPointersRef.current.has(event.pointerId)) {
          return;
        }
 
@@ -416,6 +478,19 @@
 
      const handlePointerEnd = (event: PointerEvent) => {
        if (event.pointerType === 'mouse') {
+         if (isMousePanningRef.current && hasMouseDraggedRef.current) {
+           suppressClickUntilRef.current = Date.now() + 500;
+         }
+
+         isMousePanningRef.current = false;
+         mousePanStartClientRef.current = null;
+         mousePanStartSvgRef.current = null;
+         hasMouseDraggedRef.current = false;
+         try {
+           svgRef.current?.releasePointerCapture?.(event.pointerId);
+         } catch {
+           // Some browsers release capture automatically on pointer cancel/end.
+         }
          return;
        }
 
@@ -435,7 +510,27 @@
        }
 
        cancelTouchIntent({ hideTooltip: false });
-     };
+      };
+
+      const handlePointerLeave = (event: PointerEvent) => {
+        if (event.pointerType !== 'mouse' || !isMousePanningRef.current) {
+          return;
+        }
+
+        if (hasMouseDraggedRef.current) {
+          suppressClickUntilRef.current = Date.now() + 500;
+        }
+
+        isMousePanningRef.current = false;
+        mousePanStartClientRef.current = null;
+        mousePanStartSvgRef.current = null;
+        hasMouseDraggedRef.current = false;
+        try {
+          svgRef.current?.releasePointerCapture?.(event.pointerId);
+        } catch {
+          // Some browsers release capture automatically on pointer leave.
+        }
+      };
 
       const handleWheel = (event: WheelEvent) => {
         // Solo zoom con rueda cuando el cursor está sobre el mapa
@@ -448,12 +543,13 @@
         const currentTransform = currentTransformRef.current;
         const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
         const nextScale = clamp(currentTransform.k * zoomFactor, 1, WORLD_MAP_MAX_ZOOM);
+        const anchorMapPoint = currentTransform.invert([svgPoint.x, svgPoint.y]);
 
-        // Calcular nueva traslación para mantener el punto bajo el cursor
+        // Mantener el mismo punto del mapa bajo el cursor tras cambiar escala.
         const nextTransform = d3.zoomIdentity
           .translate(
-            svgPoint.x - (svgPoint.x - currentTransform.x) * (nextScale / currentTransform.k),
-            svgPoint.y - (svgPoint.y - currentTransform.y) * (nextScale / currentTransform.k)
+            svgPoint.x - anchorMapPoint[0] * nextScale,
+            svgPoint.y - anchorMapPoint[1] * nextScale
           )
           .scale(nextScale);
 
@@ -464,6 +560,7 @@
       svgRef.current.addEventListener('pointermove', handlePointerMove);
       svgRef.current.addEventListener('pointerup', handlePointerEnd);
       svgRef.current.addEventListener('pointercancel', handlePointerEnd);
+      svgRef.current.addEventListener('pointerleave', handlePointerLeave);
       svgRef.current.addEventListener('wheel', handleWheel, { passive: false });
 
       // Cargar datos world-atlas
@@ -597,6 +694,8 @@
        svgRef.current?.removeEventListener('pointermove', handlePointerMove);
        svgRef.current?.removeEventListener('pointerup', handlePointerEnd);
        svgRef.current?.removeEventListener('pointercancel', handlePointerEnd);
+       svgRef.current?.removeEventListener('pointerleave', handlePointerLeave);
+       svgRef.current?.removeEventListener('wheel', handleWheel);
      };
    }, [navigate]);
 
