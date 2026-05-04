@@ -448,15 +448,22 @@
          if (!response.ok) throw new Error('Error cargando world-atlas');
          return response.json();
        })
-       .then((topology: Topology) => {
-         // Convertir TopoJSON a GeoJSON
-         const countriesObject = topology.objects.countries;
-         const geojson = feature(topology, countriesObject) as FeatureCollection<Geometry, GeoJsonProperties>;
+        .then((topology: Topology) => {
+          // Convertir TopoJSON a GeoJSON
+          const countriesObject = topology.objects.countries;
+          const geojson = feature(topology, countriesObject) as FeatureCollection<Geometry, GeoJsonProperties>;
 
-         // Dibujar países
-         mapLayer.selectAll('path')
-           .data(geojson.features)
-           .enter()
+          // Filtrar Antártida (código UN M.49 '010') para evitar confusión visual en móvil
+          // Decisión de producto: MVP sin navegación a Antártida
+          const filteredFeatures = geojson.features.filter((feat) => {
+            const countryCode = (feat as { id?: string }).id;
+            return countryCode !== '010';
+          });
+
+          // Dibujar países
+          mapLayer.selectAll('path')
+            .data(filteredFeatures)
+            .enter()
            .append('path')
            .attr('d', path as never)
            .attr('class', styles.country)

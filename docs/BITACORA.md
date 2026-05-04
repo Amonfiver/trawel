@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-05-04 - Ocultar Antártida del WorldMap
+
+Ocultada Antártida del mapa mundial para evitar confusión visual y táctil en móvil.
+
+### Cambios
+
+- `WorldMap.tsx` filtra la geometría con código UN M.49 `'010'` antes de renderizar paths.
+- Identificación robusta por código numérico de la ONU, no por nombre.
+
+### Alcance
+
+- Solo `WorldMap.tsx`; sin cambios en `CountryInternalMap`.
+- Sin modificaciones de zoom, tooltip, responsive, CSS ni Home.
+- Decisión reversible: si en el futuro se crea caso de uso específico, basta con eliminar el filtro.
+
+---
+
 ## 2026-05-04 - Normativa UI de mapas interactivos
 
 Creado documento oficial de UX/UI para todos los componentes de mapa.

@@ -83,6 +83,12 @@ El footer actual debe respetarse:
 - El zoom táctil con dos dedos del WorldMap existe pero no está perfecto.
 - **No reabrir el problema del anclaje del zoom** sin experimento aislado, checkpoint y rollback fácil.
 
+### Excepciones de renderizado (MVP)
+
+| País/Región | Estado | Motivo |
+|-------------|--------|--------|
+| **Antártida** | Oculta | No participa en navegación principal; genera confusión visual y táctil en móvil |
+
 ---
 
 ## 4. CountryInternalMap
