@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-05-04 - Corrección de coordenadas del wheel zoom en WorldMap
+
+Ajuste acotado del anclaje de zoom con rueda en escritorio.
+
+### Cambios
+
+- `WorldMap` deja de convertir `clientX/clientY` con `getScreenCTM()` para el anclaje de zoom.
+- La conversión a coordenadas del viewBox usa `getBoundingClientRect()`, escala real de `preserveAspectRatio="xMidYMid meet"` y offsets de letterboxing.
+- El zoom mantiene el punto bajo cursor usando `currentTransformRef.invert(...)` y aplica el resultado sobre la misma capa `<g>` interna.
+- No se modifica la lógica táctil móvil, navegación, tooltip, Home ni `CountryInternalMap`.
+- Antártida sigue oculta filtrando UN M.49 `010`.
+
+### Archivos modificados
+
+- `src/features/map/components/WorldMap/WorldMap.tsx`
+
+### Verificación
+
+- ✅ `npm run build` pasa (702 modules)
+
+---
+
 ## 2026-05-04 - Zoom anclado y pan de ratón en WorldMap
 
 Ajuste acotado de interacción desktop del mapa mundial, sin tocar la ruta táctil móvil.

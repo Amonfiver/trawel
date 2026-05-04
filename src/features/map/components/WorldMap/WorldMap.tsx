@@ -136,18 +136,26 @@
 
      const getSvgPointFromClient = (clientX: number, clientY: number) => {
        const svgNode = svgRef.current;
-       const screenMatrix = svgNode?.getScreenCTM();
 
-       if (!svgNode || !screenMatrix) {
+       if (!svgNode) {
          return null;
        }
 
-       const point = svgNode.createSVGPoint();
-       point.x = clientX;
-       point.y = clientY;
+       const rect = svgNode.getBoundingClientRect();
+       if (rect.width <= 0 || rect.height <= 0) {
+         return null;
+       }
 
-       const svgPoint = point.matrixTransform(screenMatrix.inverse());
-       return { x: svgPoint.x, y: svgPoint.y };
+       const scale = Math.min(rect.width / width, rect.height / height);
+       const renderedWidth = width * scale;
+       const renderedHeight = height * scale;
+       const offsetX = (rect.width - renderedWidth) / 2;
+       const offsetY = (rect.height - renderedHeight) / 2;
+
+       return {
+         x: (clientX - rect.left - offsetX) / scale,
+         y: (clientY - rect.top - offsetY) / scale,
+       };
      };
 
      const getTouchTooltipPosition = (event: PointerEvent) => {
