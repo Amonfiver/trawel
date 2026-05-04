@@ -44,6 +44,10 @@ const INITIAL_ZOOM_DESKTOP = 1;
 const INITIAL_ZOOM_MOBILE = 1.12;
 const MOBILE_MEDIA_QUERY = '(max-width: 640px)';
 const TOUCH_TOOLTIP_GAP = 14;
+const TOUCH_MULTITOUCH_GUARD_MS = 80;
+const TOUCH_TOOLTIP_MARGIN = 8;
+const TOUCH_TOOLTIP_FALLBACK_WIDTH = 180;
+const TOUCH_TOOLTIP_FALLBACK_HEIGHT = 44;
 
 export function CountryInternalMap({
   assetUrl,
@@ -53,6 +57,9 @@ export function CountryInternalMap({
 }: CountryInternalMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const suppressClickUntilRef = useRef(0);
+  const isMultitouchGestureRef = useRef(false);
+  const pendingTouchTooltipTimeoutRef = useRef<number | null>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const [features, setFeatures] = useState<GeoJSON.Feature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -160,6 +167,11 @@ export function CountryInternalMap({
           return !window.matchMedia?.(MOBILE_MEDIA_QUERY).matches;
         }
 
+        if (event.type.startsWith('touch')) {
+          const touchEvent = event as TouchEvent;
+          return touchEvent.touches.length >= 2 || isMultitouchGestureRef.current;
+        }
+
         return true;
       })
       .wheelDelta((event: WheelEvent) => {
@@ -180,38 +192,143 @@ export function CountryInternalMap({
 
     svg.call(zoomBehavior);
 
-    const getTouchTooltipPosition = (touch: Touch) => ({
-      x: touch.clientX + TOUCH_TOOLTIP_GAP,
-      y: touch.clientY - TOUCH_TOOLTIP_GAP,
-    });
-
-    const getTouchedArea = (touch: Touch) => {
-      const element = document.elementFromPoint(touch.clientX, touch.clientY);
-      return element?.closest?.('[data-internal-area-name]') as SVGPathElement | null;
-    };
-
-    const showTouchTooltip = (event: TouchEvent) => {
-      if (event.touches.length !== 1) {
-        setTooltip((prev) => ({ ...prev, visible: false }));
+    const clearPendingTouchTooltip = () => {
+      if (pendingTouchTooltipTimeoutRef.current === null) {
         return;
       }
 
-      const touch = event.touches[0];
-      const area = getTouchedArea(touch);
+      window.clearTimeout(pendingTouchTooltipTimeoutRef.current);
+      pendingTouchTooltipTimeoutRef.current = null;
+    };
+
+    const hideTouchTooltip = () => {
+      setTooltip((prev) => ({ ...prev, visible: false }));
+    };
+
+    const getTouchTooltipPosition = (clientX: number, clientY: number) => {
+      const tooltipRect = tooltipRef.current?.getBoundingClientRect();
+      const tooltipWidth = tooltipRect?.width || TOUCH_TOOLTIP_FALLBACK_WIDTH;
+      const tooltipHeight = tooltipRect?.height || TOUCH_TOOLTIP_FALLBACK_HEIGHT;
+      const viewportWidth = window.innerWidth;
+
+      let x = clientX - tooltipWidth - TOUCH_TOOLTIP_GAP;
+      let y = clientY - tooltipHeight - TOUCH_TOOLTIP_GAP;
+
+      if (x < TOUCH_TOOLTIP_MARGIN) {
+        x = clientX + TOUCH_TOOLTIP_GAP;
+      }
+
+      if (x + tooltipWidth > viewportWidth - TOUCH_TOOLTIP_MARGIN) {
+        x = viewportWidth - tooltipWidth - TOUCH_TOOLTIP_MARGIN;
+      }
+
+      if (y < TOUCH_TOOLTIP_MARGIN) {
+        y = TOUCH_TOOLTIP_MARGIN;
+      }
+
+      return {
+        x: Math.max(TOUCH_TOOLTIP_MARGIN, x),
+        y,
+      };
+    };
+
+    const showTouchTooltipAt = (clientX: number, clientY: number) => {
+      if (isMultitouchGestureRef.current) {
+        return;
+      }
+
+      const element = document.elementFromPoint(clientX, clientY);
+      const area = element?.closest?.('[data-internal-area-name]') as SVGPathElement | null;
       const title = area?.dataset.internalAreaName;
 
       if (!area || !title) {
-        setTooltip((prev) => ({ ...prev, visible: false }));
+        hideTouchTooltip();
         return;
       }
 
-      const tooltipPosition = getTouchTooltipPosition(touch);
+      const tooltipPosition = getTouchTooltipPosition(clientX, clientY);
       setTooltip({
         visible: true,
         x: tooltipPosition.x,
         y: tooltipPosition.y,
         title,
       });
+    };
+
+    const queueTouchTooltip = (touch: Touch) => {
+      const clientX = touch.clientX;
+      const clientY = touch.clientY;
+
+      clearPendingTouchTooltip();
+      pendingTouchTooltipTimeoutRef.current = window.setTimeout(() => {
+        pendingTouchTooltipTimeoutRef.current = null;
+        showTouchTooltipAt(clientX, clientY);
+      }, TOUCH_MULTITOUCH_GUARD_MS);
+    };
+
+    const lockMultitouchGesture = () => {
+      isMultitouchGestureRef.current = true;
+      clearPendingTouchTooltip();
+      hideTouchTooltip();
+    };
+
+    const getTouchedArea = (clientX: number, clientY: number) => {
+      const element = document.elementFromPoint(clientX, clientY);
+      return element?.closest?.('[data-internal-area-name]') as SVGPathElement | null;
+    };
+
+    const showImmediateTouchTooltip = (event: TouchEvent) => {
+      if (event.touches.length >= 2) {
+        lockMultitouchGesture();
+        return;
+      }
+
+      if (event.touches.length !== 1 || isMultitouchGestureRef.current) {
+        clearPendingTouchTooltip();
+        hideTouchTooltip();
+        return;
+      }
+
+      const touch = event.touches[0];
+      const area = getTouchedArea(touch.clientX, touch.clientY);
+      const title = area?.dataset.internalAreaName;
+
+      if (!area || !title) {
+        hideTouchTooltip();
+        return;
+      }
+
+      const tooltipPosition = getTouchTooltipPosition(touch.clientX, touch.clientY);
+      setTooltip({
+        visible: true,
+        x: tooltipPosition.x,
+        y: tooltipPosition.y,
+        title,
+      });
+    };
+
+    const handleTouchStartTooltip = (event: TouchEvent) => {
+      if (event.touches.length >= 2) {
+        lockMultitouchGesture();
+        return;
+      }
+
+      if (event.touches.length === 1 && !isMultitouchGestureRef.current) {
+        queueTouchTooltip(event.touches[0]);
+      }
+    };
+
+    const handleTouchMoveTooltip = (event: TouchEvent) => {
+      showImmediateTouchTooltip(event);
+    };
+
+    const handleTouchEndTooltip = (event: TouchEvent) => {
+      clearPendingTouchTooltip();
+      hideTouchTooltip();
+
+      if (event.touches.length === 0) {
+        isMultitouchGestureRef.current = false;
+      }
     };
 
     mapLayer
@@ -311,13 +428,13 @@ export function CountryInternalMap({
     const initialTransform = getInitialMapTransform();
     svg.call(zoomBehavior.transform, initialTransform);
     svg
-      .on('touchstart.tooltip', showTouchTooltip)
-      .on('touchmove.tooltip', showTouchTooltip)
-      .on('touchend.tooltip touchcancel.tooltip', () => {
-        setTooltip((prev) => ({ ...prev, visible: false }));
-      });
+      .on('touchstart.tooltip', handleTouchStartTooltip)
+      .on('touchmove.tooltip', handleTouchMoveTooltip)
+      .on('touchend.tooltip touchcancel.tooltip', handleTouchEndTooltip);
 
     return () => {
+      clearPendingTouchTooltip();
+      isMultitouchGestureRef.current = false;
       svg.on('.zoom', null);
       svg.on('.tooltip', null);
     };
@@ -376,6 +493,7 @@ export function CountryInternalMap({
       <div className={styles.attribution}>{attributionText}</div>
 
       <div
+        ref={tooltipRef}
         className={`${styles.tooltip} ${tooltip.visible ? styles.tooltipVisible : ''}`}
         style={{
           left: tooltip.x,
