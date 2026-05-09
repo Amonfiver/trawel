@@ -57,7 +57,7 @@
 }
 
 .zoomLayer {
-  transform-origin: center;
+  transform-origin: 0 0;
 }
 
 /* Estilos de los países (aplicados por D3) */

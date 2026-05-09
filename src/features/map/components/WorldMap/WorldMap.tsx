@@ -545,17 +545,19 @@
         // Evitar scroll de página cuando se hace zoom sobre el mapa
         event.preventDefault();
 
-        const centerPoint: [number, number] = [width / 2, height / 2];
+        const mousePoint = getSvgPointFromClient(event.clientX, event.clientY);
+        if (!mousePoint) return;
+
+        const anchorSvgPoint: [number, number] = [mousePoint.x, mousePoint.y];
         const currentTransform = currentTransformRef.current;
         const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
         const nextScale = clamp(currentTransform.k * zoomFactor, 1, WORLD_MAP_MAX_ZOOM);
-        const anchorMapPoint = currentTransform.invert(centerPoint);
+        const anchorMapPoint = currentTransform.invert(anchorSvgPoint);
 
-        // Mantener estable el centro visual; el usuario recoloca el mapa con drag.
         const nextTransform = d3.zoomIdentity
           .translate(
-            centerPoint[0] - anchorMapPoint[0] * nextScale,
-            centerPoint[1] - anchorMapPoint[1] * nextScale
+            anchorSvgPoint[0] - anchorMapPoint[0] * nextScale,
+            anchorSvgPoint[1] - anchorMapPoint[1] * nextScale
           )
           .scale(nextScale);
 
