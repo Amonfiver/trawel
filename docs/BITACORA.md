@@ -1,6 +1,7 @@
 # BITACORA.md — Bitácora activa del proyecto Trawel
 
 > **Nota:** Este es el archivo de bitácora activa. Para el histórico completo, ver `docs/BITACORA_002.md` (2026-04-27 a 2026-05-01) y `docs/BITACORA_001.md` (inicio del proyecto).
+> **Continuidad:** las entradas nuevas continúan en `docs/BITACORA_002.md`.
 
 ---
 

@@ -44,6 +44,23 @@ País → Ciudad → Destino → ContentByMode (adventure/student)
 
 ## Historial completo del período
 
+### 2026-05-10 - Fix del zoom al puntero en WorldMap
+
+Se corrigió el zoom con rueda del WorldMap para que quede anclado al puntero.
+
+**Diagnóstico:** la fórmula de anclaje era correcta, pero `.zoomLayer` usaba `transform-origin: center`, desincronizando el render visual del `<g>` SVG respecto al transform matemático guardado en `currentTransformRef`.
+
+**Solución:**
+- `handleWheel` usa `getSvgPointFromClient(event.clientX, event.clientY)` para calcular el punto SVG bajo el cursor.
+- `.zoomLayer` usa `transform-origin: 0 0`.
+
+**Verificación visual:**
+- Confirmado que el zoom queda bonito y anclado al puntero.
+- No se tocó móvil/touch, `CountryInternalMap` ni Home.
+- No se reintrodujo Antártida.
+
+---
+
 ### 2026-05-01 - Edge Function: request-country-map para generación segura de mapas 🗺️⚡
 
 Creada Edge Function `request-country-map` como endpoint seguro para solicitar generación de mapas internos de países (DA-030).
