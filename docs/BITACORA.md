@@ -5,6 +5,103 @@
 
 ---
 
+## 2026-05-10 - Corrección de rumbo: CountryPage ya no es catálogo de ciudades
+
+Corrección de producto antes de commitear la estructura MVP. CountryPage no debe mostrar un listado genérico amplio de ciudades porque países como España tienen cientos de ciudades y eso no escala bien.
+
+### Nueva jerarquía de Trawel
+
+| Nivel | Contenido | Ejemplo |
+|-------|-----------|---------|
+| **CountryPage / País** | Mapa por regiones/zonas, resumen editorial, aventuras destacadas de nivel país, CTA | España: mapa de provincias, por qué explorar España |
+| **CountryZonePage / Zona** | Contenido local, aventuras aprobadas, eventos de esa zona, formulario de aporte | Madrid como zona: planes locales, conciertos, rutas |
+| **CityPage / Ciudad** | Cosas locales concretas | Madrid: El Retiro, Museo del Prado, conciertos específicos |
+
+### Cambios en CountryPage
+
+- **Eliminado**: Concepto de "Ciudades destacadas" como catálogo nacional amplio.
+- **Nuevo**: "Zonas de entrada" — máximo 4 ciudades como puntos de acceso al mapa, no como listado completo.
+- **Copy actualizado**: El subtítulo explica que "cada zona contiene ciudades, lugares y aventuras".
+- **CTA mejorado**: 
+  - Título: "¿Conoces un plan en {país}?" (antes: "¿Conoces {país}?")
+  - Descripción: "Comparte una aventura, evento o lugar especial."
+  - Nota: "Muy pronto podrás enviar recomendaciones directamente desde esta página." (antes sonaba a obra inacabada)
+- **Estado vacío**: Orientado a explorar el mapa, no a esperar contenido.
+
+### Archivos modificados
+
+- `src/pages/CountryPage/CountryPage.tsx`:
+  - Límite de ciudades: 6 → 4
+  - Sección renombrada: "Ciudades destacadas" → "Zonas de entrada"
+  - Copy de sección y CTA actualizados
+  - Docstring del componente actualizado con nueva jerarquía
+
+### Alcance
+
+- No se tocó WorldMap, CountryInternalMap, zoom, pan, touch.
+- No se tocó pipeline de mapas, Supabase, Storage.
+- No se tocó rutas existentes ni Home.
+- No se usó v0.
+- Build: pendiente de verificación.
+
+---
+
+## 2026-05-10 - Estructura MVP de CountryPage implementada
+
+Implementada estructura mínima funcional en CountryPage para convertirla en página de país útil, comercial y preparada para monetización futura.
+
+### Cambios
+
+- `src/pages/CountryPage/CountryPage.tsx`:
+  - Integración con `useExperienceMode` para contenido adaptativo (Aventura/Estudiante).
+  - Uso completo de datos de `getCountryPageData`: `activeCities`, `comingSoonCities`, `featuredDestinations`, `publishedDestinationsCount`, `totalCitiesCount`.
+  - Nueva sección "Por qué explorar {país}" con copy diferenciado por modo.
+  - Sección "Ciudades destacadas": grid de hasta 6 cards (activas primero, comingSoon después).
+  - Sección "Aventuras destacadas": grid de hasta 6 cards de destinos.
+  - Sección "Estado vacío" cuando no hay contenido editorial.
+  - CTA de participación de usuarios: "Comparte tu aventura" con enlace al mapa.
+  - Componentes internos: `CityCard`, `DestinationCard` con navegación a páginas correspondientes.
+
+- `src/pages/CountryPage/CountryPage.module.css`:
+  - Estilos para badge de modo (Aventura/Estudiante) en hero.
+  - Estilos para sección editorial con contenido centrado.
+  - Grid responsive para ciudades (1/2/3 columnas).
+  - Grid responsive para aventuras (1/2/3 columnas).
+  - Cards de ciudad con estados active/comingSoon.
+  - Cards de aventura con tipo, summary y metadatos.
+  - Sección vacía con mensaje amigable.
+  - Sección CTA con fondo oscuro y botón primario.
+
+### Datos utilizados
+
+- `country.shortDescription` → descripción base del país.
+- `activeCities` → ciudades navegables con link.
+- `comingSoonCities` → ciudades con badge "Próximamente".
+- `featuredDestinations` → aventuras destacadas con link a `/aventura/{slug}`.
+
+### Estados manejados
+
+- País con contenido editorial + ciudades + aventuras → Todas las secciones visibles.
+- País con contenido editorial sin ciudades/aventuras → Estado vacío + CTA.
+- País sin contenido editorial pero en worldCountries → Vista "Descubriendo destino" con mapa.
+
+### AdSense-safe (preparación futura)
+
+- Las nuevas secciones editoriales proporcionan espacio entre el mapa y el CTA.
+- Posibles ubicaciones futuras documentadas en código entre secciones.
+- No se implementaron placeholders visuales para no afectar UX actual.
+
+### Alcance
+
+- No se tocó WorldMap, CountryInternalMap, zoom, pan, touch ni pipeline de mapas.
+- No se tocó Supabase, Storage, ni rutas existentes.
+- No se tocó HomePage.
+- No se usó v0.
+- Build: ✅ exitoso (tsc + vite).
+- Archivos modificados: 2 (+593 líneas netas).
+
+---
+
 ## 2026-05-10 - Threshold visual base 0.0001 para mapas internos
 
 Elevado el estándar visual de simplificación tras validar India ADM1 y Rumanía ADM1 generadas con `0.0002`.

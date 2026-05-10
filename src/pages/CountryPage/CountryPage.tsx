@@ -40,6 +40,11 @@ import {
   getCountryMapPublicUrl, 
   requestCountryMapGeneration 
 } from '../../features/map/services/countryMapAssets.service';
+import { useExperienceMode } from '../../features/experienceMode';
+import type { City } from '../../features/cities/types/city.types';
+import type { Destination } from '../../features/destinations/types/destination.types';
+import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
+import { getLocalizedText } from '../../app/i18n';
 import styles from './CountryPage.module.css';
 
 // Países con mapa interno local implementado
@@ -57,24 +62,43 @@ type MapAssetState =
   | { status: 'failed'; errorMessage?: string };
 
 /**
- * CountryPage - Nivel País / Directorio Editorial de Ciudades
+ * CountryPage - Nivel País / Mapa y Zonas como punto de entrada
  * 
- * Muestra un hero claro del país y lista sus ciudades como contenido principal.
- * Los destinos destacados aparecen en sección secundaria.
+ * Muestra un hero claro del país con el mapa como experiencia principal.
+ * NO es un catálogo genérico de ciudades (eso no escala para países grandes).
+ * Las ciudades/lugares concretos viven en Zona → Ciudad → Aventura.
+ * 
+ * Jerarquía de contenido:
+ * - Mapa interno (principal): zonas/provincias para explorar
+ * - Zonas de entrada: máximo 4 ciudades como puntos de acceso al mapa
+ * - Aventuras destacadas: experiencias del país
+ * - CTA para contribución de viajeros
+ * 
+ * Cambios recientes (2026-05-10):
+ * - Corrección de rumbo: eliminado catálogo genérico de ciudades
+ * - "Zonas de entrada" reemplaza "Ciudades destacadas" (máx 4, no listado nacional)
+ * - Copy del CTA más natural, sin lenguaje provisional
+ * - Integración con useExperienceMode para contenido por modo
  */
 export function CountryPage() {
   const { countrySlug } = useParams<{ countrySlug: string }>();
   const navigate = useNavigate();
   const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
+  const { mode } = useExperienceMode();
   
   // Estado para el asset del mapa (DA-030)
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
   
   const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
-  // Usar travelData.service para obtener datos agregados
+  // Usar travelData.service para obtener datos agregados completos
   const { 
-    country
+    country,
+    activeCities,
+    comingSoonCities,
+    featuredDestinations,
+    publishedDestinationsCount,
+    totalCitiesCount,
   } = getCountryPageData(countrySlug || '');
   const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM2';
 
@@ -459,6 +483,24 @@ export function CountryPage() {
     }
   };
 
+  // Helper para obtener descripción del país según modo
+  const getCountryDescriptionByMode = (): string => {
+    const baseText = country.shortDescription 
+      ? (typeof country.shortDescription === 'string' 
+          ? country.shortDescription 
+          : getLocalizedText(country.shortDescription, 'es'))
+      : null;
+    
+    if (mode === 'adventure') {
+      return baseText || `Descubre ${country.displayName} con una mirada de aventurero. Explora sus rincones, vive experiencias únicas y conecta con la esencia de este destino.`;
+    }
+    return baseText || `Explora ${country.displayName} desde una perspectiva cultural y educativa. Descubre su historia, tradiciones y patrimonio.`;
+  };
+
+  // Combinar ciudades para mostrar (activas primero, luego comingSoon)
+  // Máximo 4: son puntos de entrada al mapa, no catálogo nacional
+  const citiesToShow = [...activeCities, ...comingSoonCities].slice(0, 4);
+
   return (
     <div className={styles.container}>
       {/* Hero del País - Nivel principal */}
@@ -491,6 +533,9 @@ export function CountryPage() {
                   {statusLabel}
                 </span>
               )}
+              <span className={styles.modeBadge}>
+                {mode === 'adventure' ? '🎒 Modo Aventura' : '🎓 Modo Estudiante'}
+              </span>
               <span className={styles.continentBadge}>
                 {getContinentLabel(country.continent)}
               </span>
@@ -526,6 +571,112 @@ export function CountryPage() {
 
         {/* Sección Principal: Mapa Interno Local (solo España) */}
         {renderMapSection()}
+
+        {/* Bloque editorial: Por qué explorar */}
+        <section className={styles.editorialSection} aria-labelledby="editorial-title">
+          <div className={styles.sectionHeader}>
+            <h2 id="editorial-title" className={styles.sectionTitle}>
+              Por qué explorar {country.displayName}
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              {mode === 'adventure' 
+                ? 'Vive la aventura de descubrir algo nuevo cada día' 
+                : 'Aprende y conecta con la cultura y el patrimonio'}
+            </p>
+          </div>
+          <div className={styles.editorialContent}>
+            <p className={styles.editorialText}>{getCountryDescriptionByMode()}</p>
+            {publishedDestinationsCount > 0 && (
+              <p className={styles.editorialStats}>
+                📍 {publishedDestinationsCount} {publishedDestinationsCount === 1 ? 'aventura' : 'aventuras'} disponibles en {totalCitiesCount} {totalCitiesCount === 1 ? 'ciudad' : 'ciudades'}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Sección: Zonas de entrada (antes "Ciudades destacadas") */}
+        {citiesToShow.length > 0 && (
+          <section className={styles.citiesSection} aria-labelledby="cities-title">
+            <div className={styles.sectionHeader}>
+              <h2 id="cities-title" className={styles.sectionTitle}>
+                Zonas de entrada
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Explora el mapa para descubrir más. Cada zona contiene ciudades, lugares y aventuras.
+              </p>
+            </div>
+            <div className={styles.citiesGrid}>
+              {citiesToShow.map((city) => (
+                <CityCard 
+                  key={city.slug} 
+                  city={city} 
+                  countrySlug={countrySlug || ''}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Sección: Aventuras destacadas */}
+        {featuredDestinations.length > 0 && (
+          <section className={styles.adventuresSection} aria-labelledby="adventures-title">
+            <div className={styles.sectionHeader}>
+              <h2 id="adventures-title" className={styles.sectionTitle}>
+                Aventuras destacadas
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Experiencias únicas seleccionadas para ti
+              </p>
+            </div>
+            <div className={styles.adventuresGrid}>
+              {featuredDestinations.slice(0, 6).map((destination) => (
+                <DestinationCard 
+                  key={destination.id} 
+                  destination={destination}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Sección: Estado vacío si no hay contenido */}
+        {citiesToShow.length === 0 && featuredDestinations.length === 0 && (
+          <section className={styles.emptySection} aria-labelledby="empty-title">
+            <div className={styles.emptyContent}>
+              <h2 id="empty-title" className={styles.emptyTitle}>
+                Explora el mapa de {country.displayName}
+              </h2>
+              <p className={styles.emptyText}>
+                Usa el mapa para navegar por zonas y descubrir aventuras. 
+                Los lugares concretos aparecen dentro de cada zona.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* CTA: Participación de usuarios */}
+        <section className={styles.ctaSection} aria-labelledby="cta-title">
+          <div className={styles.ctaContent}>
+            <h2 id="cta-title" className={styles.ctaTitle}>
+              ¿Conoces un plan en {country.displayName}?
+            </h2>
+            <p className={styles.ctaText}>
+              Comparte una aventura, evento o lugar especial.
+              Cada recomendación se revisa antes de publicarse.
+            </p>
+            <div className={styles.ctaActions}>
+              <Link 
+                to={countrySlug ? `/pais/${countrySlug}` : '/'} 
+                className={styles.ctaButtonPrimary}
+              >
+                Explora una zona para compartir
+              </Link>
+              <span className={styles.ctaNote}>
+                Muy pronto podrás enviar recomendaciones directamente desde esta página.
+              </span>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );
@@ -676,6 +827,113 @@ function DiscoveringCountryView({
       </main>
     </div>
   );
+}
+
+/**
+ * Componente para mostrar una ciudad en la lista
+ */
+interface CityCardProps {
+  city: City;
+  countrySlug: string;
+}
+
+function CityCard({ city, countrySlug }: CityCardProps) {
+  const cityName = typeof city.name === 'string' ? city.name : getLocalizedText(city.name, 'es') || city.slug;
+  const isActive = city.status === 'active';
+  const description = city.shortDescription 
+    ? (typeof city.shortDescription === 'string' 
+        ? city.shortDescription 
+        : getLocalizedText(city.shortDescription, 'es'))
+    : null;
+
+  return (
+    <article className={styles.cityCard}>
+      {isActive ? (
+        <Link to={`/pais/${countrySlug}/${city.slug}`} className={styles.cityCardLink}>
+          <div className={styles.cityCardContent}>
+            <div className={styles.cityCardHeader}>
+              <h3 className={styles.cityCardTitle}>{cityName}</h3>
+              {city.featured && <span className={styles.cityCardBadge}>⭐</span>}
+            </div>
+            {description && (
+              <p className={styles.cityCardDescription}>{description}</p>
+            )}
+            <span className={styles.cityCardAction}>
+              Explorar →
+            </span>
+          </div>
+        </Link>
+      ) : (
+        <div className={`${styles.cityCardContent} ${styles.cityCardInactive}`}>
+          <div className={styles.cityCardHeader}>
+            <h3 className={styles.cityCardTitle}>{cityName}</h3>
+            <span className={styles.cityCardComingSoon}>Próximamente</span>
+          </div>
+          {description && (
+            <p className={styles.cityCardDescription}>{description}</p>
+          )}
+        </div>
+      )}
+    </article>
+  );
+}
+
+/**
+ * Componente para mostrar un destino/aventura destacada
+ */
+interface DestinationCardProps {
+  destination: Destination;
+}
+
+function DestinationCard({ destination }: DestinationCardProps) {
+  const title = getDestinationTitle(destination);
+  const summary = getDestinationSummary(destination);
+
+  return (
+    <article className={styles.adventureCard}>
+      <Link 
+        to={`/aventura/${destination.slug}`} 
+        className={styles.adventureCardLink}
+      >
+        <div className={styles.adventureCardContent}>
+          <div className={styles.adventureCardHeader}>
+            <h3 className={styles.adventureCardTitle}>{title}</h3>
+            {destination.featured && <span className={styles.adventureCardBadge}>⭐</span>}
+          </div>
+          {destination.type && (
+            <span className={styles.adventureCardType}>
+              {getDestinationTypeLabel(destination.type)}
+            </span>
+          )}
+          {summary && (
+            <p className={styles.adventureCardSummary}>{summary}</p>
+          )}
+          {destination.estimatedVisitTime && (
+            <span className={styles.adventureCardMeta}>
+              ⏱️ {destination.estimatedVisitTime}
+            </span>
+          )}
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+/** Helper para obtener label legible del tipo de destino */
+function getDestinationTypeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    monument: 'Monumento',
+    museum: 'Museo',
+    nature: 'Naturaleza',
+    experience: 'Experiencia',
+    food: 'Gastronomía',
+    hiddenGem: 'Joya escondida',
+    temple: 'Templo',
+    park: 'Parque',
+    landmark: 'Punto de interés',
+    cultural: 'Cultural',
+  };
+  return labels[type] || type;
 }
 
 function MapFutureBlock({ countryName }: { countryName: string }) {
