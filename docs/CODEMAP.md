@@ -856,7 +856,7 @@ Para México, Italia, Rumanía, India y otros países sin excepción específica
   - `normalizeGeoJSON()` - Normaliza orientación de polígonos (winding)
   - `formatBytes()` - Formatea tamaños de archivo
 - **Winding:** `convertToTopoJSON()` normaliza antes de convertir y vuelve a normalizar después de `topojson-simplify`, para evitar polígonos complementarios en D3.
-- **Calidad cartográfica:** `resolveSimplificationThreshold()` aplica default `0.0002` y overrides por `countrySlug + adminLevel`, con `mexico/ADM1 = 0.0001` como primer override.
+- **Calidad cartográfica:** `resolveSimplificationThreshold()` aplica default `0.0001` y overrides por `countrySlug + adminLevel`; `mexico/ADM1 = 0.0001` queda como caso validado explícito aunque coincida con el default.
 
 **Usado por:**
 - `process-country-map-queue.ts` (worker de producción)

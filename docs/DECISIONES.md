@@ -448,10 +448,12 @@ countries/
 | WorldMap | Usar `world-atlas@2/countries-50m.json` como estándar MVP |
 | WorldMap futuro | Evaluar `countries-10m.json` solo si rendimiento/peso lo permiten |
 | Mapas internos | No usar `0.02` como simplificación global |
-| Default interno | Usar `0.0002` como punto de partida conservador |
+| Default interno | Usar `0.0001` como estándar visual principal |
 | Overrides | Permitir configuración por `countrySlug + adminLevel` |
 | España ADM2 | Validada visualmente con `0.0002` |
 | México ADM1 | Validado visualmente con `0.0001` |
+| Opción ligera | `0.0002` solo por excepción |
+| Opción de mayor detalle | `0.00005` para países costeros/insulares difíciles si `0.0001` no basta |
 
 **Reglas de validación:**
 
@@ -463,8 +465,9 @@ countries/
 
 **Consecuencias:**
 
-- `scripts/lib/mapAssetPipeline.ts` debe evolucionar para soportar configuración explícita por país/nivel.
+- `scripts/lib/mapAssetPipeline.ts` soporta configuración explícita por país/nivel mediante `resolveSimplificationThreshold()`.
 - Los assets antiguos generados con `0.02` deberán revisarse o regenerarse cuando entren en alcance.
+- India ADM1 y Rumanía ADM1 generados con `0.0002` deben regenerarse con `0.0001` para elevar calidad visual.
 - El peso máximo deja de ser una cifra rígida: se acepta más peso si evita geometrías pobres y mantiene buen rendimiento.
 
 **Reversibilidad:** Media. Se puede ajustar cada threshold por país, pero la dirección de calidad cartográfica más alta queda establecida.

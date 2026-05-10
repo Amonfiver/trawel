@@ -140,9 +140,10 @@ El footer actual debe respetarse:
 - Las ciudades importantes no deben aparecer como polígonos ADM2 masivos; son contenido editorial/aventuras/listados de Trawel.
 - No aprobar mapas internos con islas, costas o zonas pequeñas colapsadas en triángulos/cajas.
 - El threshold global `0.02` de `topojson.simplify` no debe usarse como estándar de calidad.
-- Punto de partida recomendado para nuevos assets: `0.0002`.
+- Punto de partida recomendado para nuevos assets: `0.0001`.
 - Permitir overrides por `countrySlug + adminLevel`; México ADM1 está validado con `0.0001`.
 - España ADM2 está validada con `0.0002`.
+- `0.0002` queda como opción ligera excepcional; `0.00005` queda reservado para países costeros/insulares difíciles.
 - Antes de aprobar un asset, revisar visualmente islas, costas, fronteras complejas y zonas pequeñas.
 - Medir tamaño, gzip, features, arcos, puntos totales y puntos en features pequeñas.
 

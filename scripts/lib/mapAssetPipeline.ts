@@ -57,7 +57,7 @@ export interface PipelineResult {
 export const DEFAULT_CONFIG: PipelineConfig = {
   // Threshold de topojson.simplify. No es un porcentaje de detalle:
   // valores altos pueden colapsar features pequeñas, islas y costas.
-  simplificationFactor: 0.0002,
+  simplificationFactor: 0.0001,
   targetSizeKB: 150,
   acceptableSizeKB: 250,
 };

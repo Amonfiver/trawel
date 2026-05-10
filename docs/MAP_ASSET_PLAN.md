@@ -141,7 +141,7 @@ src/assets/maps/
 |-----------|-------------------|
 | **Formato** | TopoJSON (más compacto) o GeoJSON |
 | **Tamaño objetivo** | Peso razonable por país; priorizar calidad visual si gzip sigue asumible |
-| **Simplificación** | Threshold configurable por país/nivel; default recomendado `0.0002` |
+| **Simplificación** | Threshold configurable por país/nivel; default recomendado `0.0001` |
 | **Proyección** | WGS84 (EPSG:4326) para consistencia |
 | **Metadatos** | Fuente, fecha, versión en JSON |
 
@@ -177,9 +177,11 @@ Regla actual:
 |------|--------------------|-----------|
 | España ADM2 | `0.0002` | Aceptado visualmente; islas pequeñas ya no aparecen como triángulos perfectos |
 | México ADM1 | `0.0001` | Aceptado visualmente tras probar que `0.0002` seguía algo rectilíneo |
-| Default propuesto | `0.0002` | Punto de partida conservador para MVP |
+| India ADM1 | `0.0001` pendiente de regenerar | `0.0002` funciona, pero queda algo rectilíneo |
+| Rumanía ADM1 | `0.0001` pendiente de regenerar | `0.0002` funciona, pero queda algo rectilíneo |
+| Default actual | `0.0001` | Estándar visual principal para MVP |
 
-El pipeline resuelve la simplificación por `countrySlug + adminLevel`, con overrides explícitos para países costeros, insulares o con fronteras complejas. México ADM1 usa el override `0.0001`; España ADM2 usa el default `0.0002`.
+El pipeline resuelve la simplificación por `countrySlug + adminLevel`, con overrides explícitos para países costeros, insulares o con fronteras complejas. `0.0002` queda como opción ligera excepcional; `0.00005` queda reservado para países costeros/insulares difíciles si `0.0001` no basta.
 
 ### Validación mínima antes de aprobar un asset
 
@@ -600,7 +602,7 @@ npm run maps:queue:process -- --country mexico --force
 
 > `--force` requiere `--country` para evitar reprocesados masivos accidentales. Está pensado para corregir assets ya generados, por ejemplo después de mejorar normalización de winding.
 > El worker aplica `countryMapProfiles.ts` antes de consultar geoBoundaries; México se reprocesa como ADM1 y actualiza el registro único de `country_map_assets`.
-> La simplificación se resuelve por `countrySlug + adminLevel` mediante `resolveSimplificationThreshold()`: default `0.0002` y override inicial `mexico/ADM1 = 0.0001`.
+> La simplificación se resuelve por `countrySlug + adminLevel` mediante `resolveSimplificationThreshold()`: default `0.0001`; `mexico/ADM1 = 0.0001` puede mantenerse como caso validado explícito aunque coincida con el default.
 
 #### Automatización con GitHub Actions
 

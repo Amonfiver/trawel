@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-05-10 - Threshold visual base 0.0001 para mapas internos
+
+Elevado el estándar visual de simplificación tras validar India ADM1 y Rumanía ADM1 generadas con `0.0002`.
+
+### Cambios
+
+- `scripts/lib/mapAssetPipeline.ts` cambia el default de simplificación de `0.0002` a `0.0001`.
+- México ADM1 sigue documentado como caso validado con `0.0001`, aunque coincida con el default.
+- España ADM2 conserva `0.0002` como asset ya validado visualmente.
+- `0.0002` queda como opción ligera excepcional.
+- `0.00005` queda reservado para países costeros/insulares difíciles si `0.0001` no basta.
+- Documentado que India ADM1 y Rumanía ADM1 deben regenerarse con `0.0001` en un bloque posterior.
+
+### Alcance
+
+- No se tocaron assets ni Supabase.
+- No se regeneraron mapas.
+- No se tocó WorldMap, CountryInternalMap, Home ni CSS.
+
+---
+
 ## 2026-05-10 - ADM1 como default para mapas internos
 
 Actualizada la norma de nivel administrativo tras probar Rumanía e India con ADM2.
