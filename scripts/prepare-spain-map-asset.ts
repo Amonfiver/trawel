@@ -1,7 +1,7 @@
 /**
  * Script de optimización de asset cartográfico para España
  * 
- * Convierte el GeoJSON raw (40+ MB) a TopoJSON optimizado (<100KB objetivo)
+ * Convierte el GeoJSON raw (40+ MB) a TopoJSON optimizado para web
  * 
  * Proceso:
  * 1. Lee el GeoJSON raw descargado de geoBoundaries
@@ -25,11 +25,9 @@ import * as topojson from 'topojson-simplify';
 const CONFIG = {
   inputFile: 'public/maps/countries/spain/spain-adm2-raw.geojson',
   outputFile: 'public/maps/countries/spain/spain-adm2.topojson',
-  // Nivel de simplificación: 0.01 = 1% de detalle (muy agresivo)
-  // 0.02 = 2% (mejor detalle visual, recomendado)
-  // 0.05 = 5% (balance anterior)
-  // 0.1 = 10% (conservador)
-  simplificationFactor: 0.02,
+  // Threshold de topojson.simplify. No es un porcentaje de detalle:
+  // valores altos pueden colapsar features pequeñas, islas y costas.
+  simplificationFactor: 0.0002,
   targetSizeKB: 150,
   acceptableSizeKB: 250,
 };
@@ -243,7 +241,7 @@ ${COLORS.reset}\n`);
   // PASO 5: Simplificar geometrías
   logSection('PASO 5: SIMPLIFICAR GEOMETRÍAS');
   
-  console.log(`Factor de simplificación: ${(CONFIG.simplificationFactor * 100).toFixed(1)}%`);
+  console.log(`Threshold de simplificación: ${CONFIG.simplificationFactor}`);
   
   // Preservar topología durante la simplificación
   // Usar any para evitar problemas de tipos con las librerías de topojson
@@ -328,7 +326,7 @@ ${COLORS.reset}\n`);
       console.log(`  ${COLORS.green}✓ Tamaño ideal (<${CONFIG.targetSizeKB}KB)${COLORS.reset}`);
     } else {
       console.log(`  ${COLORS.yellow}⚠ Tamaño aceptable pero no ideal (>${CONFIG.targetSizeKB}KB)${COLORS.reset}`);
-      console.log(`    Considera aumentar simplificaciónFactor a 0.1 si la forma se mantiene`);
+      console.log(`    Valida visualmente antes de ajustar el threshold de simplificación`);
     }
   } else {
     console.log(`${COLORS.yellow}⚠ ASSET NECESITA REVISIÓN${COLORS.reset}`);

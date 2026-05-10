@@ -34,6 +34,8 @@ export interface PipelineConfig {
   simplificationFactor: number;
   targetSizeKB: number;
   acceptableSizeKB: number;
+  countrySlug?: string;
+  adminLevel?: string;
 }
 
 export interface PipelineResult {
@@ -53,10 +55,38 @@ export interface PipelineResult {
 // ============================================
 
 export const DEFAULT_CONFIG: PipelineConfig = {
-  simplificationFactor: 0.02, // 2% de detalle (balance calidad/tamaño)
+  // Threshold de topojson.simplify. No es un porcentaje de detalle:
+  // valores altos pueden colapsar features pequeñas, islas y costas.
+  simplificationFactor: 0.0002,
   targetSizeKB: 150,
   acceptableSizeKB: 250,
 };
+
+const SIMPLIFICATION_THRESHOLD_OVERRIDES: Record<string, Record<string, number>> = {
+  mexico: {
+    ADM1: 0.0001,
+  },
+};
+
+export function resolveSimplificationThreshold(config: Partial<PipelineConfig> = {}): number {
+  if (typeof config.simplificationFactor === 'number') {
+    return config.simplificationFactor;
+  }
+
+  const countrySlug = config.countrySlug?.toLowerCase().trim();
+  const adminLevel = config.adminLevel?.toUpperCase().trim();
+
+  if (countrySlug && adminLevel) {
+    const countryOverrides = SIMPLIFICATION_THRESHOLD_OVERRIDES[countrySlug];
+    const override = countryOverrides?.[adminLevel];
+
+    if (typeof override === 'number') {
+      return override;
+    }
+  }
+
+  return DEFAULT_CONFIG.simplificationFactor;
+}
 
 // ============================================
 // NORMALIZACIÓN DE POLÍGONOS (Winding)
@@ -388,7 +418,7 @@ export function convertToTopoJSON(
   objectName: string,
   config: Partial<PipelineConfig> = {}
 ): { topology: any; featureCount: number } {
-  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const simplificationThreshold = resolveSimplificationThreshold(config);
   
   // 1. Normalizar orientación de polígonos para D3
   const normalizedGeoJSON = normalizeGeoJSON(geojson);
@@ -396,10 +426,11 @@ export function convertToTopoJSON(
   // 2. Convertir a TopoJSON
   const topology = geojson2topojson.topology({ [objectName]: normalizedGeoJSON });
   
-  // 3. Simplificar geometrías
+  // 3. Simplificar geometrías. El threshold de topojson.simplify no es un
+  // porcentaje de detalle y afecta especialmente a features pequeñas.
   const topologyAny: any = topology;
   const presimplified = topojson.presimplify(topologyAny);
-  const simplified = topojson.simplify(presimplified, fullConfig.simplificationFactor);
+  const simplified = topojson.simplify(presimplified, simplificationThreshold);
 
   // 4. Re-normalizar después de simplificar. La simplificación puede cambiar
   // anillos pequeños y dejar winding inválido para D3 en algunos países.

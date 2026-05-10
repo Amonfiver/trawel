@@ -775,14 +775,14 @@ displayAnalysis(analysis);
 - **Flujo de optimización:**
   1. Lee GeoJSON raw: `public/maps/countries/spain/spain-adm2-raw.geojson` (40.83 MB)
   2. Convierte a TopoJSON usando `topojson-server`
-  3. Simplifica geometría al 5% usando `topojson-simplify`
+  3. Simplifica geometría con `topojson-simplify`
   4. Valida: 52 provincias, Castellón presente, Teruel presente
-  5. Guarda resultado: `public/maps/countries/spain/spain-adm2.topojson` (52.59 KB)
+  5. Guarda resultado: `public/maps/countries/spain/spain-adm2.topojson`
 
 **Transformación:**
 | Entrada | Salida | Reducción |
 |---------|--------|-----------|
-| 40.83 MB GeoJSON | 52.59 KB TopoJSON | 99.9% |
+| 40.83 MB GeoJSON | ~231 KB TopoJSON | 99%+ |
 
 **Uso:**
 ```bash
@@ -856,6 +856,7 @@ Para México, el reprocesado usa ADM1 por perfil, sube `countries/mexico/mexico-
   - `normalizeGeoJSON()` - Normaliza orientación de polígonos (winding)
   - `formatBytes()` - Formatea tamaños de archivo
 - **Winding:** `convertToTopoJSON()` normaliza antes de convertir y vuelve a normalizar después de `topojson-simplify`, para evitar polígonos complementarios en D3.
+- **Calidad cartográfica:** `resolveSimplificationThreshold()` aplica default `0.0002` y overrides por `countrySlug + adminLevel`, con `mexico/ADM1 = 0.0001` como primer override.
 
 **Usado por:**
 - `process-country-map-queue.ts` (worker de producción)

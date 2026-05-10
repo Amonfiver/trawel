@@ -5,6 +5,57 @@
 
 ---
 
+## 2026-05-10 - Pipeline con simplificación configurable
+
+Actualizado el pipeline de generación de mapas internos para aplicar el estándar cartográfico validado.
+
+### Cambios
+
+- `scripts/lib/mapAssetPipeline.ts` cambia el default de simplificación de `0.02` a `0.0002`.
+- Añadida resolución de threshold por `countrySlug + adminLevel` mediante `resolveSimplificationThreshold()`.
+- Añadido override inicial: `mexico/ADM1 = 0.0001`.
+- El worker `process-country-map-queue.ts` pasa país y nivel administrativo efectivo antes de convertir a TopoJSON.
+- El script manual de España usa `0.0002` y deja de describir el valor como porcentaje de detalle.
+- Se corrigen comentarios/documentación técnica para explicar que `topojson.simplify` usa un threshold, no un porcentaje.
+
+### Alcance
+
+- No se regeneraron assets.
+- No se tocó Supabase.
+- No se tocó WorldMap, CountryInternalMap, Home ni CSS.
+
+---
+
+## 2026-05-10 - Estándar de calidad cartográfica
+
+Documentado el estándar cartográfico tras validar visualmente WorldMap, España y México.
+
+### Decisiones documentadas
+
+- WorldMap adopta `world-atlas@2/countries-50m.json` como estándar actual.
+- `countries-110m.json` queda descartado para mapa protagonista por falta de definición.
+- `countries-10m.json` queda reservado para evaluación futura.
+- El threshold `topojson.simplify(..., 0.02)` queda descartado como estándar global para mapas internos.
+- Default recomendado para mapas internos: `0.0002`.
+- Overrides por `countrySlug + adminLevel`: México ADM1 queda validado con `0.0001`.
+- España ADM2 queda validada con `0.0002`.
+- Se añade checklist de validación: tamaño, gzip, features, arcos, puntos totales, puntos en features pequeñas, revisión visual y pruebas de zoom/pan/touch.
+
+### Archivos modificados
+
+- `docs/MAP_ASSET_PLAN.md`
+- `docs/MAP_UI_GUIDELINES.md`
+- `docs/DECISIONES.md`
+- `docs/CODEMAP.md`
+
+### Alcance
+
+- Documentación únicamente.
+- No se tocó código, assets, Supabase, WorldMap, CountryInternalMap, Home ni pipeline.
+- Pendiente técnico: adaptar `scripts/lib/mapAssetPipeline.ts` para configuración por país/nivel antes de regeneraciones globales.
+
+---
+
 ## 2026-05-04 - Zoom con rueda centrado y estable en WorldMap
 
 Simplificación del wheel zoom de escritorio tras detectar fuga visual con el anclaje al puntero.

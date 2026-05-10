@@ -73,13 +73,13 @@ Los mapas internos de Trawel deben seguir estos principios (basado en DA-027):
 | Asset | Tamaño | Formato | Ubicación |
 |-------|--------|---------|-----------|
 | Original (raw) | 40.83 MB | GeoJSON | `public/maps/countries/spain/spain-adm2-raw.geojson` |
-| **Optimizado** | **52.59 KB** | **TopoJSON** | **`public/maps/countries/spain/spain-adm2.topojson`** |
+| **Optimizado actual** | **~231 KB** | **TopoJSON** | **`public/maps/countries/spain/spain-adm2.topojson`** |
 
 **Proceso de optimización implementado:**
 - Fuente: geoBoundaries ESP-ADM2 (52 provincias)
 - Conversión: GeoJSON → TopoJSON
-- Simplificación: 5% de detalle original (factor 0.05)
-- Validación: Castellón ✓, Teruel ✓, todas las provincias presentes
+- Simplificación: threshold conservador `0.0002`
+- Validación: Castellón ✓, Teruel ✓, todas las provincias presentes, islas pequeñas aceptadas visualmente
 - Arquitectura final: 509 arcos compartidos en topología
 
 **Script de procesado:**
@@ -140,10 +140,61 @@ src/assets/maps/
 | Propiedad | Valor recomendado |
 |-----------|-------------------|
 | **Formato** | TopoJSON (más compacto) o GeoJSON |
-| **Tamaño objetivo** | < 100KB por país (comprimido) |
-| **Simplificación** | 0.5% - 2% de detalle original |
+| **Tamaño objetivo** | Peso razonable por país; priorizar calidad visual si gzip sigue asumible |
+| **Simplificación** | Threshold configurable por país/nivel; default recomendado `0.0002` |
 | **Proyección** | WGS84 (EPSG:4326) para consistencia |
 | **Metadatos** | Fuente, fecha, versión en JSON |
+
+---
+
+## 4.1 Estándar de calidad cartográfica (2026-05-10)
+
+### WorldMap
+
+El mapa mundial de Trawel es una pieza protagonista y debe usar una resolución suficiente para zoom/pan:
+
+| Asset world-atlas | Estado | Motivo |
+|-------------------|--------|--------|
+| `countries-110m.json` | Descartado para mapa protagonista | Costas/fronteras demasiado simplificadas |
+| `countries-50m.json` | Estándar actual MVP | Mejor equilibrio entre detalle, peso y rendimiento |
+| `countries-10m.json` | Futuro opcional | Mucho más pesado; solo evaluar con optimización/cache |
+
+Métricas de referencia sin Antártida:
+
+| Resolución | Tamaño | Gzip aprox. | Puntos aprox. | Decisión |
+|------------|--------|-------------|---------------|----------|
+| 110m | 107,761 B | 38,423 B | 9,934 | No usar como estándar visual |
+| 50m | 756,420 B | 232,879 B | 94,625 | Estándar actual |
+| 10m | 3,661,071 B | 954,233 B | 521,877 | Reservado para futuro |
+
+### Mapas internos de país
+
+El threshold fijo `0.02` de `topojson.simplify` queda descartado como estándar global: no equivale a "2% de detalle" y puede colapsar islas o zonas pequeñas en triángulos/cajas.
+
+Regla actual:
+
+| Caso | Threshold validado | Resultado |
+|------|--------------------|-----------|
+| España ADM2 | `0.0002` | Aceptado visualmente; islas pequeñas ya no aparecen como triángulos perfectos |
+| México ADM1 | `0.0001` | Aceptado visualmente tras probar que `0.0002` seguía algo rectilíneo |
+| Default propuesto | `0.0002` | Punto de partida conservador para MVP |
+
+El pipeline resuelve la simplificación por `countrySlug + adminLevel`, con overrides explícitos para países costeros, insulares o con fronteras complejas. México ADM1 usa el override `0.0001`; España ADM2 usa el default `0.0002`.
+
+### Validación mínima antes de aprobar un asset
+
+Para cada asset interno se debe registrar:
+
+- Tamaño final y gzip aproximado.
+- Número de features.
+- Número de arcos.
+- Puntos totales.
+- Conteo de puntos en features pequeñas, costeras o insulares.
+- Revisión visual de islas, costas, fronteras finas y zonas pequeñas.
+- Prueba de zoom/pan en escritorio.
+- Prueba rápida de touch móvil cuando aplique.
+
+No aprobar assets donde zonas pequeñas queden reducidas a 4-10 puntos salvo justificación explícita. No borrar ni sobrescribir assets antiguos sin backup o rollback claro, especialmente cuando el asset vive en Supabase Storage.
 
 ---
 
@@ -205,7 +256,7 @@ src/assets/maps/
 4. ✅ Marcar `SpainMap` como wrapper legado temporal
 
 **Criterios de aceptación:**
-- [x] Asset de España < 100KB
+- [x] Asset de España con gzip asumible y calidad visual aceptada
 - [x] Provincias visibles con hover
 - [x] Sin puntos de ciudad
 - [x] Sin labels fijos
@@ -443,8 +494,8 @@ async function generateMapAsset(countrySlug: string) {
   // 3. Normalizar winding de polígonos
   const normalized = normalizePolygonWinding(geojson);
   
-  // 4. Simplificar geometría (~1-5% de detalle)
-  const simplified = simplifyGeometry(normalized, 0.02);
+  // 4. Simplificar geometría con threshold configurable por país/nivel
+  const simplified = simplifyGeometry(normalized, resolveSimplificationThreshold({ countrySlug, adminLevel }));
   
   // 5. Convertir a TopoJSON
   const topojson = convertToTopoJSON(simplified);
@@ -531,7 +582,7 @@ npm run maps:queue:process -- --country mexico --force
 | 3 | Descargar metadata | Consultar API de geoBoundaries |
 | 4 | Descargar GeoJSON | Obtener archivo fuente (10-40MB) |
 | 5 | Normalizar winding | Corregir orientación de polígonos para D3 |
-| 6 | Simplificar | Reducir a ~2% de detalle original |
+| 6 | Simplificar | Aplicar threshold configurable por país/nivel; no usar `0.02` como estándar global |
 | 7 | Re-normalizar winding | Corregir posibles cambios de orientación tras simplificar |
 | 8 | Convertir a TopoJSON final | Generar formato optimizado |
 | 9 | Subir a Storage | Guardar en bucket `map-assets` |
@@ -539,6 +590,7 @@ npm run maps:queue:process -- --country mexico --force
 
 > `--force` requiere `--country` para evitar reprocesados masivos accidentales. Está pensado para corregir assets ya generados, por ejemplo después de mejorar normalización de winding.
 > El worker aplica `countryMapProfiles.ts` antes de consultar geoBoundaries; México se reprocesa como ADM1 y actualiza el registro único de `country_map_assets`.
+> La simplificación se resuelve por `countrySlug + adminLevel` mediante `resolveSimplificationThreshold()`: default `0.0002` y override inicial `mexico/ADM1 = 0.0001`.
 
 #### Automatización con GitHub Actions
 

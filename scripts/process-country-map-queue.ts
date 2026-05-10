@@ -32,7 +32,7 @@ import {
   downloadGeoJSON,
   convertToTopoJSON,
   formatBytes,
-  DEFAULT_CONFIG,
+  resolveSimplificationThreshold,
 } from './lib/mapAssetPipeline.js';
 import { getPreferredAdminLevel } from '../src/features/map/config/countryMapProfiles.js';
 
@@ -417,11 +417,19 @@ async function processCountry(
     console.log(`  ${COLORS.dim}GeoJSON descargado: ${formatBytes(geojsonContent.length)}${COLORS.reset}`);
 
     // 7. Procesar a TopoJSON
+    const simplificationThreshold = resolveSimplificationThreshold({
+      countrySlug: country_slug,
+      adminLevel: effectiveAdminLevel,
+    });
     console.log(`  ${COLORS.dim}Convirtiendo a TopoJSON...${COLORS.reset}`);
+    console.log(`  ${COLORS.dim}Threshold de simplificación: ${simplificationThreshold}${COLORS.reset}`);
     const { topology, featureCount } = convertToTopoJSON(
       geojson,
       country_slug,
-      { simplificationFactor: DEFAULT_CONFIG.simplificationFactor }
+      {
+        countrySlug: country_slug,
+        adminLevel: effectiveAdminLevel,
+      }
     );
     console.log(`  ${COLORS.dim}Features procesados: ${featureCount}${COLORS.reset}`);
 

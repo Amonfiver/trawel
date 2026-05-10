@@ -82,6 +82,12 @@ El footer actual debe respetarse:
 
 ### Estado actual técnico
 
+- WorldMap usa `world-atlas@2/countries-50m.json` como estándar actual de calidad visual.
+- `countries-110m.json` queda descartado para el mapa protagonista por falta de definición.
+- `countries-10m.json` queda como opción futura si se valida peso/rendimiento.
+- Antártida permanece oculta en el MVP.
+- La capa transformada del SVG debe mantener `transform-origin: 0 0`.
+- El zoom con rueda en escritorio debe permanecer anclado al puntero.
 - El zoom táctil con dos dedos del WorldMap existe pero no está perfecto.
 - **No reabrir el problema del anclaje del zoom** sin experimento aislado, checkpoint y rollback fácil.
 
@@ -125,6 +131,16 @@ El footer actual debe respetarse:
 
 - Muestra nombre de zona, ciudad, provincia o región según el asset
 - **No hay etiquetas permanentes**
+
+### Calidad del asset interno
+
+- No aprobar mapas internos con islas, costas o zonas pequeñas colapsadas en triángulos/cajas.
+- El threshold global `0.02` de `topojson.simplify` no debe usarse como estándar de calidad.
+- Punto de partida recomendado para nuevos assets: `0.0002`.
+- Permitir overrides por `countrySlug + adminLevel`; México ADM1 está validado con `0.0001`.
+- España ADM2 está validada con `0.0002`.
+- Antes de aprobar un asset, revisar visualmente islas, costas, fronteras complejas y zonas pequeñas.
+- Medir tamaño, gzip, features, arcos, puntos totales y puntos en features pequeñas.
 
 ---
 

@@ -427,10 +427,47 @@ countries/
 
 ---
 
+## DA-032: Estándar de calidad cartográfica para mapas protagonistas
+
+**Fecha:** 2026-05-10  
+**Estado:** Aceptada  
+**Contexto:** El mapa mundial y varios mapas internos son piezas protagonistas de Trawel. Las pruebas visuales mostraron que `world-atlas` 110m era demasiado simplificado para WorldMap con zoom/pan, y que el threshold fijo `topojson.simplify(..., 0.02)` destruía demasiado detalle en mapas internos, especialmente islas y zonas pequeñas.
+
+**Decisión:**
+
+| Área | Estándar |
+|------|----------|
+| WorldMap | Usar `world-atlas@2/countries-50m.json` como estándar MVP |
+| WorldMap futuro | Evaluar `countries-10m.json` solo si rendimiento/peso lo permiten |
+| Mapas internos | No usar `0.02` como simplificación global |
+| Default interno | Usar `0.0002` como punto de partida conservador |
+| Overrides | Permitir configuración por `countrySlug + adminLevel` |
+| España ADM2 | Validada visualmente con `0.0002` |
+| México ADM1 | Validado visualmente con `0.0001` |
+
+**Reglas de validación:**
+
+- Medir tamaño, gzip, features, arcos, puntos totales y puntos en features pequeñas.
+- Revisar visualmente islas, costas, fronteras finas y zonas pequeñas.
+- Probar zoom/pan de escritorio y touch móvil cuando aplique.
+- No aprobar assets donde zonas pequeñas queden colapsadas en triángulos/cajas salvo justificación explícita.
+- Mantener backup/rollback claro antes de reemplazar assets, especialmente en Supabase Storage.
+
+**Consecuencias:**
+
+- `scripts/lib/mapAssetPipeline.ts` debe evolucionar para soportar configuración explícita por país/nivel.
+- Los assets antiguos generados con `0.02` deberán revisarse o regenerarse cuando entren en alcance.
+- El peso máximo deja de ser una cifra rígida: se acepta más peso si evita geometrías pobres y mantiene buen rendimiento.
+
+**Reversibilidad:** Media. Se puede ajustar cada threshold por país, pero la dirección de calidad cartográfica más alta queda establecida.
+
+---
+
 ## Índice de Decisiones
 
 | ID | Fecha | Título | Estado |
 |----|-------|--------|--------|
+| DA-032 | 2026-05-10 | Estándar de calidad cartográfica para mapas protagonistas | ✅ Aprobada |
 | DA-031 | 2026-05-02 | Nivel cartográfico interno configurable por país | ✅ Aprobada |
 | DA-030 | 2026-05-01 | Generación automática y persistente de mapas internos | ✅ Aprobada |
 | DA-029 | 2026-05-01 | Mapas exploratorios con bandera y demanda pública | ✅ Aprobada |
