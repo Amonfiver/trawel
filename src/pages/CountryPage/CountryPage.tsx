@@ -768,10 +768,21 @@ function DiscoveringCountryView({
 
             {mapState.status === 'queued' || mapState.status === 'generating' ? (
               <div className={styles.discoveringState}>
-                <p>Estamos preparando el mapa de {worldCountry.displayName}.</p>
-                <p>Esto puede tardar un poco la primera vez.</p>
-                <div className={styles.mapProgressIndicator}>
-                  <div className={styles.mapProgressBar} style={{ width: '60%' }} />
+                <h3 className={styles.discoveringStateTitle}>
+                  Gracias, hemos registrado tu interés en {worldCountry.displayName}
+                </h3>
+                <p className={styles.discoveringStateText}>
+                  Este destino todavía no está publicado, pero tu visita nos ayuda a darle prioridad. 
+                  Nuestro equipo revisará el mapa y el contenido para prepararlo correctamente.
+                </p>
+                <p className={styles.discoveringStateSecondary}>
+                  Vuelve pronto para descubrir {worldCountry.displayName} con rutas, 
+                  zonas recomendadas y aventuras seleccionadas.
+                </p>
+                <div className={styles.discoveringActions}>
+                  <Link to="/" className={styles.backLink}>
+                    ← Explorar otros destinos
+                  </Link>
                 </div>
               </div>
             ) : null}
@@ -790,32 +801,41 @@ function DiscoveringCountryView({
 
             {mapState.status === 'missing' && (
               <div className={styles.discoveringState}>
-                <p>
-                  Aún no conocemos bien {worldCountry.displayName}, 
-                  pero lo estamos preparando para ti.
+                <h3 className={styles.discoveringStateTitle}>
+                  {worldCountry.displayName} todavía está en preparación
+                </h3>
+                <p className={styles.discoveringStateText}>
+                  Tu interés nos ayuda a saber qué destinos preparar antes. 
+                  Registraremos esta visita para priorizar {worldCountry.displayName} en nuestra hoja de ruta.
                 </p>
-                <button 
-                  onClick={onRetryGeneration}
-                  className={styles.requestMapButton}
-                >
-                  Explorar {worldCountry.displayName}
-                </button>
+                <p className={styles.discoveringStateSecondary}>
+                  Mientras lo dejamos listo, puedes explorar otros destinos disponibles 
+                  o volver pronto para descubrir nuevas rutas, zonas y aventuras.
+                </p>
+                <div className={styles.discoveringActions}>
+                  <button 
+                    onClick={onRetryGeneration}
+                    className={styles.requestMapButton}
+                  >
+                    Quiero que se prepare {worldCountry.displayName}
+                  </button>
+                  <Link to="/" className={styles.backLink}>
+                    ← Explorar otros destinos
+                  </Link>
+                </div>
               </div>
             )}
 
             {mapState.status === 'failed' && (
               <div className={styles.discoveringState}>
-                <p className={styles.discoveringError}>
-                  ⚠️ Algo salió mal al preparar el mapa.
+                <h3 className={styles.discoveringStateTitle}>
+                  {worldCountry.displayName} todavía no está listo
+                </h3>
+                <p className={styles.discoveringStateText}>
+                  Hemos detectado que este destino necesita revisión antes de publicarse. 
+                  Gracias por tu interés: nos ayuda a saber qué lugares debemos preparar primero.
                 </p>
-                <p>No te preocupes, lo arreglaremos pronto.</p>
                 <div className={styles.discoveringActions}>
-                  <button 
-                    onClick={onRetryGeneration}
-                    className={styles.retryButton}
-                  >
-                    Reintentar
-                  </button>
                   <Link to="/" className={styles.backLink}>
                     ← Explorar otros destinos
                   </Link>

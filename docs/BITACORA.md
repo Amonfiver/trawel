@@ -5,9 +5,48 @@
 
 ---
 
-## 2026-05-10 - Corrección de rumbo: CountryPage ya no es catálogo de ciudades
+## 2026-05-10 - UX: mensajes honestos para países no preparados (Mongolia, etc.)
 
-Corrección de producto antes de commitear la estructura MVP. CountryPage no debe mostrar un listado genérico amplio de ciudades porque países como España tienen cientos de ciudades y eso no escala bien.
+Corrección de UX para países sin contenido editorial ni mapa listo. El problema: al pulsar "Explorar {país}" se mostraba "Estamos preparando..." con spinner, creando expectativa falsa de carga inmediata.
+
+### Diagnóstico de trazabilidad
+
+**¿Qué se registra actualmente?**
+- Tabla: `country_map_assets`
+- Campos de demanda: `requested_count`, `last_requested_at`
+- Edge Function `request-country-map` incrementa contador en cada solicitud
+
+**Suficiencia para Investighost:**
+| Métrica | Disponible vía |
+|---------|---------------|
+| Ranking de países más solicitados | `SELECT country_slug, requested_count FROM country_map_assets ORDER BY requested_count DESC` |
+| Países fallidos | `WHERE status = 'failed'` |
+| Países en cola | `WHERE status IN ('queued', 'generating')` |
+| Países con visitas pero sin contenido | `WHERE status = 'missing' AND requested_count > 0` |
+| Fecha de última demanda | `last_requested_at` |
+
+**Limitación actual:** No se registra el país + admin_level combinado si el usuario no especifica nivel. El default es ADM1/ADM2 según perfil del país.
+
+### Cambios UX implementados
+
+| Estado | Antes | Después |
+|--------|-------|---------|
+| **missing** | "Aún no conocemos bien {país}..." + "Explorar {país}" | "{País} todavía está en preparación" + explicación de registro de demanda + "Quiero que se prepare {País}" |
+| **queued/generating** | "Estamos preparando..." + spinner | "Gracias, hemos registrado tu interés" + explicación de priorización + sin spinner |
+| **failed** | "Algo salió mal..." + "Reintentar" | "{País} todavía no está listo" + explicación de revisión necesaria + sin botón reintentar |
+
+### Principio aplicado
+- No prometer carga inmediata si el mapa/contenido no está listo
+- Cada visita/pulsación es **señal de demanda** para Investighost, no acción instantánea
+- El visitante ayuda a priorizar, no espera frustrado
+
+### Archivos modificados
+- `src/pages/CountryPage/CountryPage.tsx`: Copy de `DiscoveringCountryView` para estados missing/queued/generating/failed
+- `src/pages/CountryPage/CountryPage.module.css`: Estilos para `.discoveringStateTitle`, `.discoveringStateText`, `.discoveringStateSecondary`
+
+---
+
+## 2026-05-10 - Corrección de rumbo: CountryPage ya no es catálogo de ciudades
 
 ### Nueva jerarquía de Trawel
 

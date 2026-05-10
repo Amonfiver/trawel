@@ -1413,6 +1413,29 @@
   margin: 0;
 }
 
+/* Nuevos estilos para mensajes de países no preparados */
+.discoveringStateTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #111827);
+  margin: 0 0 var(--space-sm, 0.5rem);
+  line-height: 1.3;
+}
+
+.discoveringStateText {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary, #4b5563);
+  margin: 0;
+}
+
+.discoveringStateSecondary {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0;
+}
+
 .discoveringError {
   color: #991b1b;
   font-weight: 700;
