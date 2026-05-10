@@ -35,7 +35,7 @@
  import styles from './WorldMap.module.css';
 
  // URL del dataset world-atlas
- const WORLD_ATLAS_URL = 'https://unpkg.com/world-atlas@2/countries-110m.json';
+ const WORLD_ATLAS_URL = 'https://unpkg.com/world-atlas@2/countries-50m.json';
  const WORLD_MAP_WIDTH = 960;
  const WORLD_MAP_HEIGHT = 500;
  const WORLD_MAP_MAX_ZOOM = 40;
