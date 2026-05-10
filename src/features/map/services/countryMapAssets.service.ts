@@ -340,7 +340,7 @@ export interface RequestCountryMapGenerationInput {
   isoAlpha2?: string;
   /** Código ISO Alpha-3 (recomendable para geoBoundaries) - ej: 'MEX' */
   isoAlpha3?: string;
-  /** Nivel administrativo (default: ADM2) */
+  /** Nivel administrativo (default: ADM1) */
   adminLevel?: 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5';
   /** Fuente de datos (default: 'unknown') */
   source?: string;

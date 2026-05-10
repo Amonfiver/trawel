@@ -100,7 +100,7 @@ export function CountryPage() {
     publishedDestinationsCount,
     totalCitiesCount,
   } = getCountryPageData(countrySlug || '');
-  const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM2';
+  const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM1';
 
   const handleZoneSelect = useCallback((zone: { name: string; slug: string }) => {
     if (!countrySlug) {

@@ -96,7 +96,7 @@ function validateInput(body: unknown): { valid: true; data: RequestCountryMapInp
     isoAlpha3: input.isoAlpha3 && typeof input.isoAlpha3 === 'string' 
       ? input.isoAlpha3.trim().toUpperCase() 
       : undefined,
-    adminLevel: validateAdminLevel(input.adminLevel) || 'ADM2',
+    adminLevel: validateAdminLevel(input.adminLevel) || 'ADM1',
     source: input.source && typeof input.source === 'string' 
       ? input.source.trim() 
       : 'unknown',
