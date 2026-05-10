@@ -23,7 +23,7 @@
  * 
  * DA-030: Sistema técnico de generación automática de mapas de Trawel
  */
-
+import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import {
   fetchGeoBoundariesMetadata,
