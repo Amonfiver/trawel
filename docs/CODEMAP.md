@@ -346,7 +346,7 @@ useEffect(() => {
 **Notas:**
 - La consulta (`getCountryMapAsset`) NO incluye caching (la capa superior puede implementarlo)
 - La solicitud de generación (`requestCountryMapGeneration`) usa la Edge Function `request-country-map`
-- El nivel cartográfico interno se decide por país en `src/features/map/config/countryMapProfiles.ts`: España usa ADM2 y México usa ADM1.
+- El nivel cartográfico interno se decide por país en `src/features/map/config/countryMapProfiles.ts`: el default general es ADM1, España queda como excepción ADM2, y países como México, Italia, Rumanía e India usan ADM1.
 - La URL pública de mapas añade `v` usando `generatedAt`, `updatedAt` o `sizeBytes` para evitar servir TopoJSON antiguo desde disk cache tras reprocesar.
 - Para uso público desde el mapa mundial, desplegar la función con JWT verification desactivado:
   `npx supabase functions deploy request-country-map --no-verify-jwt`
@@ -817,7 +817,7 @@ npm run maps:spain:prepare
 ### `process-country-map-queue.ts` (Worker DA-030)
 - **Propósito:** Procesar registros `queued` en `country_map_assets` y generar assets TopoJSON
 - **Flujo:** Consulta cola → Descarga geoBoundaries → Procesa → Sube a Storage → Actualiza BD
-- **Perfiles:** Aplica `src/features/map/config/countryMapProfiles.ts` para decidir el `admin_level` efectivo por país
+- **Perfiles:** Aplica `src/features/map/config/countryMapProfiles.ts` para decidir el `admin_level` efectivo por país. El default es ADM1; ADM2 es excepción explícita.
 - **CLI:** Soporta `--country`, `--limit`, `--dry-run`, `--force`
 
 **Uso:**
@@ -829,7 +829,7 @@ npm run maps:queue:process -- --dry-run          # Simulación
 npm run maps:queue:process -- --country mexico --force  # Reprocesar aunque esté ready
 ```
 
-Para México, el reprocesado usa ADM1 por perfil, sube `countries/mexico/mexico-adm1.topojson` y actualiza `country_map_assets.admin_level`.
+Para México, Italia, Rumanía, India y otros países sin excepción específica, el reprocesado usa ADM1 por perfil/default, sube `countries/{slug}/{slug}-adm1.topojson` y actualiza `country_map_assets.admin_level`.
 
 **Variables de entorno:**
 - `SUPABASE_URL` - URL de Supabase

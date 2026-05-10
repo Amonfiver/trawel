@@ -402,9 +402,11 @@ countries/
 
 **Fecha:** 2026-05-02  
 **Estado:** Aceptada  
-**Contexto:** España funciona bien en ADM2 porque las provincias son reconocibles y útiles para exploración. México en ADM2 resulta demasiado granular para Trawel: el mapa queda dividido en demasiadas áreas y pierde valor comercial/UX.
+**Contexto:** España funciona bien en ADM2 porque las provincias son reconocibles y útiles para exploración. México en ADM2 resulta demasiado granular para Trawel: el mapa queda dividido en demasiadas áreas y pierde valor comercial/UX. Pruebas posteriores con Rumanía e India confirmaron el mismo patrón: ADM2 puede producir cientos o miles de subdivisiones pequeñas, lejos de la primera capa útil para viajar.
 
-**Decisión:** El `admin_level` de mapas internos se decide por país, no como regla global. Cada país usará el nivel cartográfico más útil para la experiencia editorial y comercial.
+**Decisión:** El `admin_level` de mapas internos se decide por país según utilidad UX/turística. La base general para países nuevos es ADM1. ADM2 solo se usa por excepción justificada cuando aporta valor visual/comercial claro.
+
+**Regla editorial:** las ciudades importantes no se derivan de polígonos ADM2 masivos. Se gestionan como contenido editorial, aventuras, rutas, cards o listados de Trawel/Investighost.
 
 **Configuración inicial:**
 
@@ -412,6 +414,10 @@ countries/
 |------|-------|----------|
 | España | ADM2 | Provincias |
 | México | ADM1 | Estados |
+| Italia | ADM1 | Regiones principales |
+| Rumanía | ADM1 | Evitar miles de subdivisiones ADM2 |
+| India | ADM1 | Estados y territorios principales |
+| Estados Unidos | ADM1 | Estados |
 
 **Implementación:**
 - Configuración central en `src/features/map/config/countryMapProfiles.ts`.
@@ -420,8 +426,10 @@ countries/
 
 **Consecuencias:**
 - No todos los países tendrán el mismo nivel administrativo.
+- El default técnico de perfil pasa a ADM1 para evitar granularidad excesiva en países nuevos.
 - `country_map_assets` sigue teniendo un registro único por `country_slug`; al cambiar el nivel de un país se reprocesa el registro existente.
 - Los paths en Storage reflejan el nivel efectivo, por ejemplo `mexico-adm1.topojson`.
+- Assets ADM2 ya generados para países como Rumanía o India pueden quedar en Storage como históricos/no usados; no se borran sin backup/rollback.
 
 **Reversibilidad:** Alta. Cambiar el nivel recomendado de un país es editar el perfil y reprocesar el asset.
 

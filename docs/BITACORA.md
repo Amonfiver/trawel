@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-05-10 - ADM1 como default para mapas internos
+
+Actualizada la norma de nivel administrativo tras probar Rumanía e India con ADM2.
+
+### Cambios
+
+- `countryMapProfiles.ts` cambia el default general de `ADM2` a `ADM1`.
+- España conserva override explícito `ADM2` porque las provincias están validadas como capa útil.
+- México conserva `ADM1`.
+- Añadidos perfiles `ADM1` para Italia, Rumanía e India.
+- Documentado que CountryInternalMap muestra regiones/estados/provincias principales, no el máximo detalle administrativo.
+- Documentado que las ciudades importantes se gestionan como contenido editorial/aventuras/listados, no como polígonos ADM2 masivos.
+- Los assets ADM2 ya generados para Rumanía o India no se borran en este bloque; quedan como históricos/no usados hasta tener rollback claro.
+
+### Alcance
+
+- No se tocaron assets ni Supabase.
+- No se regeneraron mapas.
+- No se tocó WorldMap, CountryInternalMap, Home, CSS ni zoom/pan/touch.
+
+---
+
 ## 2026-05-10 - Pipeline con simplificación configurable
 
 Actualizado el pipeline de generación de mapas internos para aplicar el estándar cartográfico validado.

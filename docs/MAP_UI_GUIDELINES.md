@@ -134,6 +134,10 @@ El footer actual debe respetarse:
 
 ### Calidad del asset interno
 
+- CountryInternalMap debe mostrar divisiones principales útiles para viajar, normalmente ADM1.
+- No se usa el máximo detalle administrativo por defecto.
+- ADM2 solo se usa cuando tiene sentido visual/comercial explícito, como España con provincias.
+- Las ciudades importantes no deben aparecer como polígonos ADM2 masivos; son contenido editorial/aventuras/listados de Trawel.
 - No aprobar mapas internos con islas, costas o zonas pequeñas colapsadas en triángulos/cajas.
 - El threshold global `0.02` de `topojson.simplify` no debe usarse como estándar de calidad.
 - Punto de partida recomendado para nuevos assets: `0.0002`.

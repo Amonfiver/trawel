@@ -280,15 +280,25 @@ No aprobar assets donde zonas pequeñas queden reducidas a 4-10 puntos salvo jus
 
 ### Nivel cartográfico por país (DA-031)
 
-El nivel interno no es global. Se configura por país según el nivel más útil para exploración editorial y comercial:
+El nivel interno se decide por utilidad UX/turística, no por máximo detalle administrativo. La base general para países nuevos es `ADM1` (regiones, estados o provincias principales). `ADM2` solo se usa por excepción justificada cuando aporta valor visual/comercial claro.
+
+Las ciudades importantes no salen de ADM2: se gestionan como contenido editorial, aventuras, rutas, cards o listados de Trawel/Investighost.
 
 | País | Nivel recomendado | Motivo |
 |------|-------------------|--------|
 | España | ADM2 | Provincias |
 | México | ADM1 | Estados, evitando granularidad excesiva |
 | Estados Unidos | ADM1 | Estados, evitando granularidad excesiva y errores observados con ADM2 |
+| Italia | ADM1 | Regiones principales; ciudades como contenido editorial |
+| Rumanía | ADM1 | ADM2 genera miles de subdivisiones demasiado pequeñas |
+| India | ADM1 | Estados/territorios; ADM2 es demasiado granular para Trawel |
 
-La fuente técnica inicial vive en `src/features/map/config/countryMapProfiles.ts`. El frontend la usa al solicitar/consultar assets, y el worker la usa al procesar/reprocesar.
+La fuente técnica inicial vive en `src/features/map/config/countryMapProfiles.ts`. El frontend la usa al solicitar/consultar assets, y el worker la usa al procesar/reprocesar. El default técnico actual es `ADM1`; España queda como override explícito `ADM2`.
+
+Si ya existen assets antiguos demasiado granulares en Storage, por ejemplo `countries/rumania/rumania-adm2.topojson` o `countries/india/india-adm2.topojson`, no se borran sin backup/rollback. El sistema debe solicitar/generar los paths activos nuevos:
+
+- `countries/rumania/rumania-adm1.topojson`
+- `countries/india/india-adm1.topojson`
 
 ---
 
@@ -456,7 +466,7 @@ countries/
     espana-adm2.topojson
     metadata.json
   francia/
-    francia-adm2.topojson
+    francia-adm1.topojson
     metadata.json
   mexico/
     mexico-adm1.topojson
@@ -686,7 +696,7 @@ interface RequestCountryMapInput {
   countryName?: string;          // Opcional - ej: 'México'
   isoAlpha2?: string;            // Opcional - ej: 'MX'
   isoAlpha3?: string;            // Recomendable - ej: 'MEX'
-  adminLevel?: 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5';  // Default: ADM2
+  adminLevel?: 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5';  // Default frontend/worker: ADM1
   source?: string;               // Default: 'unknown'
 }
 ```
