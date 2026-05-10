@@ -362,11 +362,6 @@
          mousePanStartClientRef.current = { x: event.clientX, y: event.clientY };
          mousePanStartSvgRef.current = svgPoint;
          mousePanStartTransformRef.current = currentTransformRef.current;
-         try {
-           svgRef.current?.setPointerCapture?.(event.pointerId);
-         } catch {
-           // Pointer capture is best-effort; mouseleave also closes the pan gesture.
-         }
          return;
        }
 
@@ -416,9 +411,14 @@
          const startClient = mousePanStartClientRef.current;
          if (startClient) {
            const distance = Math.hypot(event.clientX - startClient.x, event.clientY - startClient.y);
-           if (distance > MOUSE_DRAG_CANCEL_PX) {
+           if (distance > MOUSE_DRAG_CANCEL_PX && !hasMouseDraggedRef.current) {
              hasMouseDraggedRef.current = true;
              suppressClickUntilRef.current = Date.now() + 500;
+             try {
+               svgRef.current?.setPointerCapture?.(event.pointerId);
+             } catch {
+               // Pointer capture is best-effort once a real drag begins.
+             }
            }
 
            if (!hasMouseDraggedRef.current) {
