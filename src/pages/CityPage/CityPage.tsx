@@ -27,13 +27,18 @@ import { getCityDisplayName } from '../../features/cities/data/cities.utils';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
 import { useExperienceMode } from '../../features/experienceMode';
+import { VisualPlaceholder, type VisualKind } from '../../components/editorial/VisualPlaceholder';
 import type { CityStatus } from '../../features/cities/types/city.types';
 import type { ExperienceMode } from '../../features/experienceMode';
 import type { Destination } from '../../features/destinations/types/destination.types';
 import styles from './CityPage.module.css';
 
-type VisualKind = 'paisaje' | 'ciudad' | 'monumento' | 'cultura' | 'naturaleza' | 'gastronomia';
-
+/**
+ * CityVisual - Componente wrapper que usa VisualPlaceholder
+ * 
+ * Mantiene la misma interfaz que el componente anterior para
+ * compatibilidad, pero usa VisualPlaceholder internamente.
+ */
 interface CityVisualProps {
   url?: string;
   alt: string;
@@ -42,22 +47,8 @@ interface CityVisualProps {
   size?: 'hero' | 'card' | 'small';
 }
 
-/**
- * Placeholder visual prominente para ciudades
- * Muestra un recuadro claro de foto futura con icono y texto
- */
 function CityVisual({ url, alt, kind, className, size = 'card' }: CityVisualProps) {
-  const kindLabels: Record<VisualKind, { label: string; icon: string }> = {
-    paisaje: { label: 'Vista panorámica', icon: '🏔️' },
-    ciudad: { label: 'Foto panorámica de la ciudad', icon: '📷' },
-    monumento: { label: 'Lugar emblemático', icon: '🏛️' },
-    cultura: { label: 'Experiencia cultural', icon: '🎭' },
-    naturaleza: { label: 'Entorno natural', icon: '🌿' },
-    gastronomia: { label: 'Gastronomía local', icon: '🍽️' },
-  };
-
-  const config = kindLabels[kind];
-
+  // Si hay URL, mostrar imagen real
   if (url) {
     return (
       <div className={`${styles.visualWrapper} ${styles[size]} ${className || ''}`}>
@@ -71,18 +62,15 @@ function CityVisual({ url, alt, kind, className, size = 'card' }: CityVisualProp
     );
   }
 
+  // Usar VisualPlaceholder para el estado de placeholder
   return (
-    <div 
-      className={`${styles.visualWrapper} ${styles[size]} ${className || ''}`}
-      role="img"
-      aria-label={alt}
-    >
-      <div className={styles.visualPlaceholder} data-kind={kind} data-size={size}>
-        <span className={styles.placeholderIcon}>{config.icon}</span>
-        <span className={styles.placeholderLabel}>{config.label}</span>
-        <span className={styles.placeholderSubLabel}>Imagen editorial pendiente</span>
-      </div>
-    </div>
+    <VisualPlaceholder
+      kind={kind}
+      size={size}
+      variant="dashed"
+      ariaLabel={alt}
+      className={className}
+    />
   );
 }
 

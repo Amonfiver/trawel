@@ -1,0 +1,371 @@
+/**
+ * VisualPlaceholder - Estilos
+ *
+ * Propósito: Estilos para el componente de placeholder visual
+ * Soporta variantes: gradient (HomePage) y dashed (CityPage/AdventurePage)
+ * Soporta tamaños: hero, card, small
+ */
+
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+
+.wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f1f5f9;
+}
+
+/* Tamaños */
+
+.wrapper.hero {
+  height: 280px;
+  min-height: 280px;
+}
+
+.wrapper.card {
+  height: 180px;
+  min-height: 180px;
+}
+
+.wrapper.small {
+  height: 100px;
+  min-height: 100px;
+}
+
+@media (min-width: 640px) {
+  .wrapper.hero {
+    height: 360px;
+    min-height: 360px;
+  }
+
+  .wrapper.card {
+    height: 200px;
+    min-height: 200px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wrapper.hero {
+    height: 420px;
+    min-height: 420px;
+  }
+}
+
+/* ============================================
+   PLACEHOLDER BASE
+   ============================================ */
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  transition: all 200ms ease;
+}
+
+/* Variante: dashed (usada en CityPage, AdventurePage) */
+.placeholder.dashed {
+  border: 3px dashed #cbd5e1;
+  background: #f8fafc;
+}
+
+/* Variante: gradient (usada en HomePage) */
+.placeholder.gradient {
+  background: linear-gradient(135deg, #e0e7ff 0%, #d1d5ff 50%, #c7b8ff 100%);
+  border: none;
+}
+
+/* ============================================
+   VARIANTE DASHED - COLORES POR TIPO
+   ============================================ */
+
+/* paisaje: azul */
+.placeholder.dashed[data-kind="paisaje"] {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #60a5fa;
+}
+
+/* ciudad: rosa */
+.placeholder.dashed[data-kind="ciudad"] {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  border-color: #f472b6;
+}
+
+/* monumento: amarillo */
+.placeholder.dashed[data-kind="monumento"] {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fbbf24;
+}
+
+/* cultura: violeta */
+.placeholder.dashed[data-kind="cultura"] {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  border-color: #a78bfa;
+}
+
+/* naturaleza: verde */
+.placeholder.dashed[data-kind="naturaleza"] {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #34d399;
+}
+
+/* gastronomia: naranja/rosa */
+.placeholder.dashed[data-kind="gastronomia"] {
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+  border-color: #fb923c;
+}
+
+/* pais: azul cielo */
+.placeholder.dashed[data-kind="pais"] {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+  border-color: #3b82f6;
+}
+
+/* aventura: naranja */
+.placeholder.dashed[data-kind="aventura"] {
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 50%, #fdba74 100%);
+  border-color: #f97316;
+}
+
+/* ruta: índigo */
+.placeholder.dashed[data-kind="ruta"] {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+  border-color: #6366f1;
+}
+
+/* costa: cyan */
+.placeholder.dashed[data-kind="costa"] {
+  background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
+  border-color: #22d3ee;
+}
+
+/* montaña: esmeralda */
+.placeholder.dashed[data-kind="montaña"] {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #10b981;
+}
+
+/* zona: slate */
+.placeholder.dashed[data-kind="zona"] {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-color: #94a3b8;
+}
+
+/* ============================================
+   VARIANTE GRADIENT - COLORES POR TIPO (HomePage style)
+   ============================================ */
+
+/* paisaje */
+.placeholder.gradient[data-kind="paisaje"] {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+}
+
+/* ciudad */
+.placeholder.gradient[data-kind="ciudad"] {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 50%, #f9a8d4 100%);
+}
+
+/* monumento */
+.placeholder.gradient[data-kind="monumento"] {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+}
+
+/* cultura */
+.placeholder.gradient[data-kind="cultura"] {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 50%, #ddd6fe 100%);
+}
+
+/* naturaleza */
+.placeholder.gradient[data-kind="naturaleza"] {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
+}
+
+/* gastronomia */
+.placeholder.gradient[data-kind="gastronomia"] {
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 50%, #fdba74 100%);
+}
+
+/* pais */
+.placeholder.gradient[data-kind="pais"] {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+}
+
+/* aventura */
+.placeholder.gradient[data-kind="aventura"] {
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 50%, #fdba74 100%);
+}
+
+/* ruta */
+.placeholder.gradient[data-kind="ruta"] {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%);
+}
+
+/* costa */
+.placeholder.gradient[data-kind="costa"] {
+  background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 50%, #67e8f9 100%);
+}
+
+/* montaña */
+.placeholder.gradient[data-kind="montaña"] {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
+}
+
+/* zona */
+.placeholder.gradient[data-kind="zona"] {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+/* ============================================
+   TAMAÑOS ESPECÍFICOS - VARIANTE DASHED
+   ============================================ */
+
+/* Hero - más prominente */
+.placeholder.dashed[data-size="hero"] {
+  border-width: 4px;
+}
+
+.placeholder.dashed[data-size="hero"] .icon {
+  font-size: 3rem;
+}
+
+.placeholder.dashed[data-size="hero"] .label {
+  font-size: 1.125rem;
+}
+
+.placeholder.dashed[data-size="hero"] .hint {
+  font-size: 0.9375rem;
+}
+
+/* Card - tamaño estándar */
+.placeholder.dashed[data-size="card"] .icon {
+  font-size: 2rem;
+}
+
+.placeholder.dashed[data-size="card"] .label {
+  font-size: 0.875rem;
+}
+
+.placeholder.dashed[data-size="card"] .hint {
+  font-size: 0.75rem;
+}
+
+/* Small - compacto */
+.placeholder.dashed[data-size="small"] {
+  gap: 0.25rem;
+  padding: 0.75rem;
+}
+
+.placeholder.dashed[data-size="small"] .icon {
+  font-size: 1.5rem;
+}
+
+.placeholder.dashed[data-size="small"] .label {
+  font-size: 0.75rem;
+}
+
+.placeholder.dashed[data-size="small"] .hint {
+  font-size: 0.6875rem;
+}
+
+/* ============================================
+   TAMAÑOS ESPECÍFICOS - VARIANTE GRADIENT
+   ============================================ */
+
+/* Hero */
+.placeholder.gradient[data-size="hero"] {
+  padding: 2rem;
+}
+
+.placeholder.gradient[data-size="hero"] .icon {
+  font-size: 3rem;
+}
+
+.placeholder.gradient[data-size="hero"] .label {
+  font-size: 1.125rem;
+}
+
+.placeholder.gradient[data-size="hero"] .hint {
+  font-size: 0.9375rem;
+}
+
+/* Card */
+.placeholder.gradient[data-size="card"] .icon {
+  font-size: 2rem;
+}
+
+.placeholder.gradient[data-size="card"] .label {
+  font-size: 0.875rem;
+}
+
+.placeholder.gradient[data-size="card"] .hint {
+  font-size: 0.75rem;
+}
+
+/* Small */
+.placeholder.gradient[data-size="small"] {
+  gap: 0.25rem;
+  padding: 0.75rem;
+}
+
+.placeholder.gradient[data-size="small"] .icon {
+  font-size: 1.5rem;
+}
+
+.placeholder.gradient[data-size="small"] .label {
+  font-size: 0.75rem;
+}
+
+.placeholder.gradient[data-size="small"] .hint {
+  font-size: 0.6875rem;
+}
+
+/* ============================================
+   ELEMENTOS INTERNOS
+   ============================================ */
+
+.icon {
+  line-height: 1;
+  display: block;
+}
+
+.label {
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.hint {
+  font-weight: 500;
+  color: #6b7280;
+  font-style: italic;
+  display: block;
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .placeholder {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .placeholder.dashed {
+    border-width: 4px;
+  }
+
+  .placeholder.gradient {
+    border: 2px solid #6b7280;
+  }
+}
