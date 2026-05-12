@@ -1,14 +1,8 @@
 /**
  * Estilos de HomePage
  * 
- * Propósito: Diseño de la página principal con mapa protagonista
- * Alcance: Hero, mapa, flujo de exploración, servicios futuros, responsive
- * 
- * Decisiones técnicas:
- * - Diseño centrado en el mapa
- * - Espaciado generoso para respirar
- * - Tipografía clara y jerárquica
- * - Responsive mobile-first
+ * Propósito: Diseño editorial de la página principal con mapa protagonista
+ * Alcance: Hero, mapa, modos de viaje, destinos, aventuras, recursos, responsive
  */
 
 /* Contenedor principal */
@@ -56,11 +50,32 @@
 .heroSubtitle {
   font-size: clamp(1rem, 2vw, 1.25rem);
   color: #475569;
-  margin: 0;
+  margin: 0 0 1.5rem;
   line-height: 1.6;
   max-width: 720px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* CTA del hero */
+.heroCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  background: #0f172a;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: all 150ms ease;
+}
+
+.heroCta:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Contenedor del mapa */
@@ -71,6 +86,15 @@
   min-width: 0;
   padding: 0 0.5rem;
   overflow: hidden;
+}
+
+/* Hint debajo del mapa */
+.mapHint {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin: 1rem 0 0;
+  font-style: italic;
 }
 
 /* Contenido principal */
@@ -108,41 +132,225 @@
   line-height: 1.6;
 }
 
-/* Flujo del mapa vivo */
-.flowGrid {
+/* Grid de modos de viaje */
+.modesGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
   margin-top: 2rem;
 }
 
-.flowCard {
+.modeCard {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 16px;
+  padding: 1.75rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 150ms ease;
+}
+
+.modeCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.modeIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+.modeTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1rem;
+}
+
+.modeFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modeFeatures li {
+  font-size: 0.9375rem;
+  color: #475569;
+  padding-left: 1.25rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.modeFeatures li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Grid de destinos destacados */
+.destinationsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.destinationCard {
   display: flex;
   flex-direction: column;
   background: white;
   border-radius: 14px;
-  padding: 1.25rem;
+  padding: 1.5rem;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  min-width: 0;
+  text-decoration: none;
+  transition: all 150ms ease;
 }
 
-.flowTitle {
-  font-size: 1rem;
+.destinationCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+}
+
+.destinationHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.destinationName {
+  font-size: 1.125rem;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 0.5rem;
+  margin: 0;
 }
 
-.flowText {
+.destinationDescription {
   font-size: 0.9375rem;
   color: #64748b;
   margin: 0;
   line-height: 1.55;
 }
 
-/* Servicios futuros */
-.services {
+/* Grid de aventuras */
+.adventuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.adventureCard {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 14px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.adventureMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.adventureType {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3b82f6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.comingSoonBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #f59e0b;
+  background: #fef3c7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.adventureTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+.adventureLocation {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0 0 0.75rem;
+}
+
+.adventureDescription {
+  font-size: 0.9375rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* Sección de compartir */
+.shareSection {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.shareTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 0.75rem;
+}
+
+.shareDescription {
+  font-size: 1rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.6;
+}
+
+.shareCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  background: white;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 9999px;
+  transition: all 150ms ease;
+}
+
+.shareCta:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Sección de recursos futuros */
+.resourcesSection {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
@@ -151,11 +359,12 @@
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
-.servicesHeader {
+.resourcesHeader {
   text-align: center;
+  margin-bottom: 1.75rem;
 }
 
-.servicesEyebrow {
+.resourcesEyebrow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -167,22 +376,22 @@
   letter-spacing: 0.05em;
 }
 
-.servicesGrid {
+.resourcesGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 1.75rem;
 }
 
-.serviceCard {
+.resourcePlaceholder {
   background: #f8fafc;
   border: 1px dashed #cbd5e1;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.25rem;
   min-width: 0;
 }
 
-.serviceTitle {
+.resourceTitle {
   font-size: 1rem;
   font-weight: 700;
   color: #0f172a;
@@ -190,7 +399,7 @@
   overflow-wrap: anywhere;
 }
 
-.serviceText {
+.resourceText {
   font-size: 0.875rem;
   color: #64748b;
   margin: 0;
@@ -263,13 +472,16 @@
   .section {
     margin-bottom: 3rem;
   }
+
+  .destinationsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   
-  .flowGrid {
+  .adventuresGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-
-  .servicesGrid {
+  .resourcesGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -295,19 +507,25 @@
   .sectionDescription {
     font-size: 0.9375rem;
   }
-  
-  .flowGrid,
-  .servicesGrid {
+
+  .modesGrid,
+  .destinationsGrid,
+  .adventuresGrid,
+  .resourcesGrid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
-  .flowCard {
+  .modeCard {
     padding: 1.25rem;
   }
 
+  .shareSection {
+    padding: 2rem 1.25rem;
+    margin-bottom: 3rem;
+  }
 
-  .services {
+  .resourcesSection {
     padding: 1.5rem 1rem;
     border-radius: 16px;
     margin-bottom: 2rem;
@@ -316,9 +534,10 @@
 
 /* High contrast */
 @media (prefers-contrast: high) {
-  .flowCard,
-  .serviceCard,
-  .services {
+  .modeCard,
+  .destinationCard,
+  .adventureCard,
+  .resourcesSection {
     border-width: 2px;
   }
 }

@@ -1,139 +1,259 @@
 /**
  * Página de inicio de Trawel
  * 
- * Propósito: Punto de entrada de la aplicación con mapa mundial protagonista
- * Alcance: Hero, mapa interactivo, flujo de exploración y espacio futuro de servicios
+ * Propósito: Punto de entrada editorial con mapa protagonista
+ * Alcance: Hero, mapa interactivo, modos de viaje, destinos y aventuras destacadas
  * 
  * Decisiones técnicas:
  * - WorldMap como elemento principal visual
- * - Usa modo de experiencia global desde Context (no selector propio)
- * - Contenido dinámico según modo seleccionado globalmente
- * - Diseño responsive que prioriza el mapa
- * 
- * Cambios recientes (2026-04-29):
- * - Eliminado selector de modo duplicado (ya existe en App.tsx global)
- * - Ahora usa useExperienceMode del contexto global
+ * - Contenido editorial hardcodeado inicialmente
+ * - Estructura preparada para datos dinámicos futuros
  */
 
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { useExperienceMode } from '../../features/experienceMode';
+import { CountryFlag } from '../../features/countries';
 import styles from './HomePage.module.css';
 
-const flowSteps = [
+const featuredDestinations = [
   {
-    title: 'Elige un país',
-    text: 'Empieza en el mapa mundial y entra en el destino que despierte tu curiosidad.',
+    slug: 'espana',
+    name: 'España',
+    flagCode: 'ES',
+    description: 'Desde pueblos medievales hasta costas atlánticas. Historia, gastronomía y rutas para todos los gustos.',
   },
   {
-    title: 'Explora sus zonas',
-    text: 'Avanza dentro de cada país para descubrir regiones y lugares con más precisión.',
+    slug: 'mexico',
+    name: 'México',
+    flagCode: 'MX',
+    description: 'Cultura milenaria, pueblos mágicos y una gastronomía reconocida en todo el mundo.',
   },
   {
-    title: 'Lee aventuras reales',
-    text: 'Encuentra experiencias compartidas por viajeros y publicadas tras revisión.',
+    slug: 'italia',
+    name: 'Italia',
+    flagCode: 'IT',
+    description: 'Arte, historia y paisajes que han inspirado a viajeros durante siglos.',
   },
   {
-    title: 'Comparte la tuya',
-    text: 'Envía tu historia desde una zona del mapa; aparecerá públicamente cuando sea aprobada.',
+    slug: 'india',
+    name: 'India',
+    flagCode: 'IN',
+    description: 'Un continente de contrastes donde cada región ofrece una experiencia única.',
   },
 ];
 
-const servicePlaceholders = [
-  'Hoteles recomendados',
-  'Vuelos y transporte',
-  'Seguros de viaje',
-  'Actividades y tours',
-  'eSIM y conexión',
-  'Alquiler de coche',
+const featuredAdventures = [
+  {
+    id: '1',
+    title: 'Ruta por los pueblos medievales de Aragón',
+    location: 'Albarracín, España',
+    type: 'Cultura y naturaleza',
+    description: 'Un recorrido por calles empedradas, casas colgadas y paisajes de montaña que parecen detenidos en el tiempo.',
+    comingSoon: false,
+  },
+  {
+    id: '2',
+    title: 'Descubriendo la Costa Amalfitana',
+    location: 'Italia',
+    type: 'Aventura costera',
+    description: 'Pueblos colgados sobre acantilados, limoneros y vistas al Mediterráneo que justifican cada curva del camino.',
+    comingSoon: true,
+  },
+  {
+    id: '3',
+    title: 'Templos y mercados de Rajasthan',
+    location: 'India',
+    type: 'Viaje cultural',
+    description: 'Fortalezas de arena rosa, palacios flotantes y el caos organizado de los bazares indios.',
+    comingSoon: true,
+  },
 ];
 
 /**
  * HomePage - Página principal de Trawel
  * 
  * Presenta el mapa mundial como elemento central de exploración,
- * con contenido dinámico según el modo global de experiencia.
+ * con contenido editorial que explica la propuesta de valor.
  */
 export function HomePage() {
   const { mode: experienceMode } = useExperienceMode();
+
   const heroSubtitle =
     experienceMode === 'student'
-      ? 'Recorre países y zonas desde el mapa para entender lugares a través de experiencias reales de viajeros, siempre revisadas antes de publicarse.'
-      : 'Entra en países y zonas para descubrir aventuras reales de viajeros. También puedes compartir tu propia experiencia: se revisa antes de aparecer públicamente.';
+      ? 'Descubre destinos a través de su historia, cultura y contexto. Una forma diferente de entender el mundo antes de visitarlo.'
+      : 'Inspírate con historias reales, rutas practicadas y planes detallados para tu próximo viaje.';
 
   return (
     <div className={styles.container}>
-      {/* Hero con el mapa como protagonista */}
+      {/* Hero editorial */}
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroContent}>
           <h1 id="hero-title" className={styles.heroTitle}>
-            Explora el mundo desde el mapa
+            Historias reales para viajes inolvidables
           </h1>
           <p className={styles.heroSubtitle}>
             {heroSubtitle}
           </p>
+          <a href="#mapa-mundial" className={styles.heroCta}>
+            Explora el mapa
+          </a>
         </div>
 
         {/* Mapa mundial - Elemento principal */}
-        <div className={styles.mapContainer}>
+        <div id="mapa-mundial" className={styles.mapContainer}>
           <WorldMap />
+          <p className={styles.mapHint}>
+            Haz click en un país para empezar a explorar
+          </p>
         </div>
       </section>
 
-      {/* Información contextual */}
+      {/* Contenido principal */}
       <main className={styles.main}>
-        <section className={styles.section} aria-labelledby="live-map-title">
-          <h2 id="live-map-title" className={styles.sectionTitle}>
-            Un mapa vivo de aventuras
+        {/* Sección de modos de viaje */}
+        <section className={styles.section} aria-labelledby="modes-title">
+          <h2 id="modes-title" className={styles.sectionTitle}>
+            Elige cómo quieres viajar
           </h2>
           <p className={styles.sectionDescription}>
-            Trawel no funciona como un catálogo cerrado: el viaje empieza en el mapa, baja a países y zonas, y crece con historias reales enviadas por viajeros.
+            Trawel se adapta a tu forma de descubrir el mundo. Cambia de modo cuando quieras desde el selector superior.
           </p>
 
-          <div className={styles.flowGrid}>
-            {flowSteps.map(step => (
-              <article key={step.title} className={styles.flowCard}>
-                <h3 className={styles.flowTitle}>{step.title}</h3>
-                <p className={styles.flowText}>{step.text}</p>
+          <div className={styles.modesGrid}>
+            <article className={styles.modeCard}>
+              <div className={styles.modeIcon}>🎒</div>
+              <h3 className={styles.modeTitle}>Modo Aventura</h3>
+              <ul className={styles.modeFeatures}>
+                <li>Rutas y planes detallados</li>
+                <li>Lugares especiales fuera de lo común</li>
+                <li>Experiencias vividas por otros viajeros</li>
+                <li>Consejos prácticos para cada etapa</li>
+              </ul>
+            </article>
+
+            <article className={styles.modeCard}>
+              <div className={styles.modeIcon}>🎓</div>
+              <h3 className={styles.modeTitle}>Modo Estudiante</h3>
+              <ul className={styles.modeFeatures}>
+                <li>Contexto histórico y cultural</li>
+                <li>Datos para entender cada destino</li>
+                <li>Enfoque de aprendizaje y descubrimiento</li>
+                <li>Contenido estructurado por temas</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        {/* Destinos destacados */}
+        <section className={styles.section} aria-labelledby="destinations-title">
+          <h2 id="destinations-title" className={styles.sectionTitle}>
+            Destinos destacados
+          </h2>
+          <p className={styles.sectionDescription}>
+            Empieza tu exploración por estos países con contenido disponible o en preparación.
+          </p>
+
+          <div className={styles.destinationsGrid}>
+            {featuredDestinations.map(dest => (
+              <a
+                key={dest.slug}
+                href={`/pais/${dest.slug}`}
+                className={styles.destinationCard}
+              >
+                <div className={styles.destinationHeader}>
+                  <CountryFlag
+                    isoAlpha2={dest.flagCode}
+                    countryName={dest.name}
+                    size="medium"
+                  />
+                  <h3 className={styles.destinationName}>{dest.name}</h3>
+                </div>
+                <p className={styles.destinationDescription}>{dest.description}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {/* Aventuras y planes destacados */}
+        <section className={styles.section} aria-labelledby="adventures-title">
+          <h2 id="adventures-title" className={styles.sectionTitle}>
+            Aventuras y planes destacados
+          </h2>
+          <p className={styles.sectionDescription}>
+            Ideas de viaje que Trawel quiere destacar. Algunas ya disponibles, otras en preparación.
+          </p>
+
+          <div className={styles.adventuresGrid}>
+            {featuredAdventures.map(adventure => (
+              <article key={adventure.id} className={styles.adventureCard}>
+                <div className={styles.adventureMeta}>
+                  <span className={styles.adventureType}>{adventure.type}</span>
+                  {adventure.comingSoon && (
+                    <span className={styles.comingSoonBadge}>Próximamente</span>
+                  )}
+                </div>
+                <h3 className={styles.adventureTitle}>{adventure.title}</h3>
+                <p className={styles.adventureLocation}>📍 {adventure.location}</p>
+                <p className={styles.adventureDescription}>{adventure.description}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section className={styles.services} aria-labelledby="services-title">
-          <div className={styles.servicesHeader}>
-            <span className={styles.servicesEyebrow}>Espacio futuro</span>
-            <h2 id="services-title" className={styles.sectionTitle}>
-              Servicios útiles para tu viaje
+        {/* CTA para compartir */}
+        <section className={styles.shareSection} aria-labelledby="share-title">
+          <h2 id="share-title" className={styles.shareTitle}>
+            ¿Tienes una experiencia que contar?
+          </h2>
+          <p className={styles.shareDescription}>
+            Comparte tu aventura con la comunidad Trawel. Todas las historias se revisan antes de publicarse para mantener la calidad del contenido.
+          </p>
+          <a href="/compartir" className={styles.shareCta}>
+            Compartir mi aventura
+          </a>
+        </section>
+
+        {/* Zona de recursos futuros (AdSense-safe placeholder) */}
+        <section className={styles.resourcesSection} aria-labelledby="resources-title">
+          <div className={styles.resourcesHeader}>
+            <span className={styles.resourcesEyebrow}>En preparación</span>
+            <h2 id="resources-title" className={styles.sectionTitle}>
+              Guías, recursos y recomendaciones
             </h2>
             <p className={styles.sectionDescription}>
-              Más adelante reuniremos aquí recursos para preparar mejor tu aventura. Esta zona es provisional y no tiene integraciones activas.
+              Pronto encontrarás aquí selecciones de recursos útiles para preparar tus viajes. Esta zona está reservada para futuro contenido editorial.
             </p>
           </div>
 
-          <div className={styles.servicesGrid} aria-label="Servicios previstos">
-            {servicePlaceholders.map(service => (
-              <article key={service} className={styles.serviceCard}>
-                <h3 className={styles.serviceTitle}>{service}</h3>
-                <p className={styles.serviceText}>Reservado para una futura selección de recursos.</p>
-              </article>
-            ))}
+          <div className={styles.resourcesGrid}>
+            <article className={styles.resourcePlaceholder}>
+              <h3 className={styles.resourceTitle}>Preparación de viajes</h3>
+              <p className={styles.resourceText}>Espacio reservado para futuras guías y checklists.</p>
+            </article>
+            <article className={styles.resourcePlaceholder}>
+              <h3 className={styles.resourceTitle}>Recursos por destino</h3>
+              <p className={styles.resourceText}>Espacio reservado para recomendaciones específicas.</p>
+            </article>
+            <article className={styles.resourcePlaceholder}>
+              <h3 className={styles.resourceTitle}>Espacio editorial</h3>
+              <p className={styles.resourceText}>Reservado para futuras colaboraciones y contenido patrocinado.</p>
+            </article>
           </div>
         </section>
-
       </main>
 
       {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <p className={styles.footerTagline}>
-            Explora el mundo a través de aventuras reales de viajeros.
+            Descubre el mundo a través de historias reales de viajeros.
           </p>
           <nav className={styles.footerNav} aria-label="Enlaces de pie de página">
-            <a href="#" className={styles.footerLink}>Mapa del sitio</a>
-            <a href="#" className={styles.footerLink}>Conócenos</a>
-            <a href="#" className={styles.footerLink}>Quiénes somos</a>
-            <a href="#" className={styles.footerLink}>Privacidad</a>
-            <a href="#" className={styles.footerLink}>Contacto</a>
+            <a href="/" className={styles.footerLink}>Inicio</a>
+            <a href="/mapa" className={styles.footerLink}>Mapa del sitio</a>
+            <a href="/sobre-trawel" className={styles.footerLink}>Sobre Trawel</a>
+            <a href="/privacidad" className={styles.footerLink}>Privacidad</a>
+            <a href="/contacto" className={styles.footerLink}>Contacto</a>
           </nav>
           <p className={styles.footerCopyright}>© 2026 Trawel</p>
         </div>
