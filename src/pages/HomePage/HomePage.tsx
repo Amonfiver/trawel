@@ -7,7 +7,7 @@
  * Decisiones técnicas:
  * - WorldMap como elemento principal visual
  * - Contenido editorial hardcodeado inicialmente
- * - Estructura preparada para datos dinámicos futuros
+ * - Estructura preparada para datos dinámicos e imágenes futuras
  */
 
 import { WorldMap } from '../../features/map/components/WorldMap';
@@ -15,34 +15,78 @@ import { useExperienceMode } from '../../features/experienceMode';
 import { CountryFlag } from '../../features/countries';
 import styles from './HomePage.module.css';
 
-const featuredDestinations = [
+type ImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
+
+interface DestinationImage {
+  url?: string;
+  alt: string;
+  kind: ImageKind;
+}
+
+interface AdventureImage {
+  url?: string;
+  alt: string;
+  kind: ImageKind;
+}
+
+const featuredDestinations: Array<{
+  slug: string;
+  name: string;
+  flagCode: string;
+  description: string;
+  image: DestinationImage;
+}> = [
   {
     slug: 'espana',
     name: 'España',
     flagCode: 'ES',
     description: 'Desde pueblos medievales hasta costas atlánticas. Historia, gastronomía y rutas para todos los gustos.',
+    image: {
+      alt: 'Vista panorámica de España con pueblos blancos y costa mediterránea',
+      kind: 'pais',
+    },
   },
   {
     slug: 'mexico',
     name: 'México',
     flagCode: 'MX',
     description: 'Cultura milenaria, pueblos mágicos y una gastronomía reconocida en todo el mundo.',
+    image: {
+      alt: 'Paisaje mexicano con ruinas mayas y vegetación tropical',
+      kind: 'pais',
+    },
   },
   {
     slug: 'italia',
     name: 'Italia',
     flagCode: 'IT',
     description: 'Arte, historia y paisajes que han inspirado a viajeros durante siglos.',
+    image: {
+      alt: 'Colinas de la Toscana con viñedos y cipreses al atardecer',
+      kind: 'pais',
+    },
   },
   {
     slug: 'india',
     name: 'India',
     flagCode: 'IN',
     description: 'Un continente de contrastes donde cada región ofrece una experiencia única.',
+    image: {
+      alt: 'Taj Mahal al amanecer con reflejo en el agua',
+      kind: 'monumento',
+    },
   },
 ];
 
-const featuredAdventures = [
+const featuredAdventures: Array<{
+  id: string;
+  title: string;
+  location: string;
+  type: string;
+  description: string;
+  comingSoon: boolean;
+  image: AdventureImage;
+}> = [
   {
     id: '1',
     title: 'Ruta por los pueblos medievales de Aragón',
@@ -50,6 +94,10 @@ const featuredAdventures = [
     type: 'Cultura y naturaleza',
     description: 'Un recorrido por calles empedradas, casas colgadas y paisajes de montaña que parecen detenidos en el tiempo.',
     comingSoon: false,
+    image: {
+      alt: 'Calles empedradas de Albarracín con casas de piedra rojiza',
+      kind: 'ciudad',
+    },
   },
   {
     id: '2',
@@ -58,6 +106,10 @@ const featuredAdventures = [
     type: 'Aventura costera',
     description: 'Pueblos colgados sobre acantilados, limoneros y vistas al Mediterráneo que justifican cada curva del camino.',
     comingSoon: true,
+    image: {
+      alt: 'Positano con sus casas coloridas sobre el mar Mediterráneo',
+      kind: 'paisaje',
+    },
   },
   {
     id: '3',
@@ -66,8 +118,70 @@ const featuredAdventures = [
     type: 'Viaje cultural',
     description: 'Fortalezas de arena rosa, palacios flotantes y el caos organizado de los bazares indios.',
     comingSoon: true,
+    image: {
+      alt: 'Fuerte de Jaipur al atardecer con su fachada rosa iluminada',
+      kind: 'monumento',
+    },
   },
 ];
+
+/**
+ * Placeholder visual para imágenes futuras
+ * Muestra un gradiente elegante con indicación del tipo de contenido
+ */
+function ImagePlaceholder({ kind, alt }: { kind: ImageKind; alt: string }) {
+  const kindLabels: Record<ImageKind, string> = {
+    pais: 'Vista del país',
+    ciudad: 'Vista urbana',
+    paisaje: 'Paisaje destacado',
+    monumento: 'Lugar emblemático',
+    aventura: 'Experiencia de viaje',
+    ruta: 'Ruta por descubrir',
+  };
+
+  return (
+    <div 
+      className={styles.imagePlaceholder}
+      role="img"
+      aria-label={alt}
+    >
+      <div className={styles.placeholderGradient} data-kind={kind}>
+        <span className={styles.placeholderLabel}>{kindLabels[kind]}</span>
+        <span className={styles.placeholderHint}>Fotografía pendiente</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Componente de imagen con fallback a placeholder
+ */
+function CardImage({ 
+  image, 
+  className 
+}: { 
+  image: { url?: string; alt: string; kind: ImageKind };
+  className?: string;
+}) {
+  if (image.url) {
+    return (
+      <div className={`${styles.cardImageWrapper} ${className || ''}`}>
+        <img 
+          src={image.url} 
+          alt={image.alt}
+          className={styles.cardImage}
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${styles.cardImageWrapper} ${className || ''}`}>
+      <ImagePlaceholder kind={image.kind} alt={image.alt} />
+    </div>
+  );
+}
 
 /**
  * HomePage - Página principal de Trawel
@@ -160,15 +274,18 @@ export function HomePage() {
                 href={`/pais/${dest.slug}`}
                 className={styles.destinationCard}
               >
-                <div className={styles.destinationHeader}>
-                  <CountryFlag
-                    isoAlpha2={dest.flagCode}
-                    countryName={dest.name}
-                    size="medium"
-                  />
-                  <h3 className={styles.destinationName}>{dest.name}</h3>
+                <CardImage image={dest.image} className={styles.destinationImage} />
+                <div className={styles.destinationContent}>
+                  <div className={styles.destinationHeader}>
+                    <CountryFlag
+                      isoAlpha2={dest.flagCode}
+                      countryName={dest.name}
+                      size="medium"
+                    />
+                    <h3 className={styles.destinationName}>{dest.name}</h3>
+                  </div>
+                  <p className={styles.destinationDescription}>{dest.description}</p>
                 </div>
-                <p className={styles.destinationDescription}>{dest.description}</p>
               </a>
             ))}
           </div>
@@ -186,15 +303,18 @@ export function HomePage() {
           <div className={styles.adventuresGrid}>
             {featuredAdventures.map(adventure => (
               <article key={adventure.id} className={styles.adventureCard}>
-                <div className={styles.adventureMeta}>
-                  <span className={styles.adventureType}>{adventure.type}</span>
-                  {adventure.comingSoon && (
-                    <span className={styles.comingSoonBadge}>Próximamente</span>
-                  )}
+                <CardImage image={adventure.image} className={styles.adventureImage} />
+                <div className={styles.adventureContent}>
+                  <div className={styles.adventureMeta}>
+                    <span className={styles.adventureType}>{adventure.type}</span>
+                    {adventure.comingSoon && (
+                      <span className={styles.comingSoonBadge}>Próximamente</span>
+                    )}
+                  </div>
+                  <h3 className={styles.adventureTitle}>{adventure.title}</h3>
+                  <p className={styles.adventureLocation}>📍 {adventure.location}</p>
+                  <p className={styles.adventureDescription}>{adventure.description}</p>
                 </div>
-                <h3 className={styles.adventureTitle}>{adventure.title}</h3>
-                <p className={styles.adventureLocation}>📍 {adventure.location}</p>
-                <p className={styles.adventureDescription}>{adventure.description}</p>
               </article>
             ))}
           </div>
