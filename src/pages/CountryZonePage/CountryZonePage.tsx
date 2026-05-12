@@ -3,7 +3,12 @@
  * Scope: Public read-only route for /pais/:countrySlug/zona/:zoneSlug and approved traveler adventures.
  * Decisions: Uses router state for the best zone name and falls back to a clean title from the slug.
  * Limitations: No upload, moderation UI, auth, or private photo rendering in this phase.
- * Recent changes: Shows withdrawal link/code after a pending adventure submission.
+ * Recent changes (2026-05-12):
+ * - Hero visual with prominent placeholder for future zone photo
+ * - Community-focused copy clarifying purpose
+ * - Improved empty state inviting participation
+ * - Future resources block added
+ * - Visual coherence with CityPage/AdventurePage
  */
 
 import { type FormEvent, useEffect, useState } from 'react';
@@ -52,6 +57,64 @@ const EMPTY_FORM_VALUES: AdventureFormValues = {
   privacyAccepted: false,
   marketingConsent: false,
 };
+
+/**
+ * Helper component: Visual placeholder for zone hero
+ * Similar pattern used in CityPage and AdventurePage
+ */
+function ZoneVisualPlaceholder() {
+  return (
+    <div className={styles.zoneVisual} role="img" aria-label="Foto panorámica de la zona">
+      <div className={styles.zoneVisualPlaceholder}>
+        <span className={styles.zoneVisualIcon}>🏞️</span>
+        <span className={styles.zoneVisualLabel}>Foto panorámica de la zona</span>
+        <span className={styles.zoneVisualSubLabel}>Imagen editorial pendiente</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Empty state component inviting community participation
+ */
+function EmptyAdventuresState({ zoneName }: { zoneName: string }) {
+  return (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyStateVisual}>
+        <span className={styles.emptyStateIcon}>✨</span>
+      </div>
+      <h3 className={styles.emptyStateTitle}>
+        Sé la primera persona en compartir una aventura en esta zona
+      </h3>
+      <p className={styles.emptyStateText}>
+        Puedes contar una ruta, un mirador, una fiesta local o un lugar especial de {zoneName}.
+        Tu experiencia ayuda a otros viajeros a descubrir lugares que no están en las guías tradicionales.
+      </p>
+      <div className={styles.emptyStateHint}>
+        <span className={styles.emptyStateHintIcon}>💡</span>
+        <span>Ideas: una ruta en coche, un restaurante familiar, una vista secreta, un evento local...</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Future resources block - placeholder for editorial content
+ */
+function FutureResourcesBlock({ zoneName }: { zoneName: string }) {
+  return (
+    <div className={styles.futureBlock}>
+      <div className={styles.futureBlockContent}>
+        <span className={styles.futureBlockIcon}>🗺️</span>
+        <h3 className={styles.futureBlockTitle}>Próximamente: guías y recursos para explorar esta zona</h3>
+        <p className={styles.futureBlockText}>
+          Estamos preparando recomendaciones de rutas, mejores épocas para visitar {zoneName} 
+          y consejos prácticos específicos para esta zona.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function CountryZonePage() {
   const { countrySlug, zoneSlug } = useParams<{
@@ -114,31 +177,57 @@ export function CountryZonePage() {
 
   return (
     <div className={styles.container}>
+      {/* Hero visual de la Zona - Con recuadro prominente para foto */}
       <header className={styles.hero}>
-        <nav className={styles.breadcrumb} aria-label="Navegación">
-          <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
-          <span className={styles.breadcrumbSeparator}>/</span>
-          {countrySlug ? (
-            <Link to={`/pais/${countrySlug}`} className={styles.breadcrumbLink}>
-              {countryName}
-            </Link>
-          ) : (
-            <span className={styles.breadcrumbCurrent}>{countryName}</span>
-          )}
-          <span className={styles.breadcrumbSeparator}>/</span>
-          <span className={styles.breadcrumbCurrent} aria-current="page">
-            {zoneName}
-          </span>
-        </nav>
+        {/* Visual panorámico de la zona */}
+        <ZoneVisualPlaceholder />
 
-        <p className={styles.kicker}>{countryName}</p>
-        <h1 className={styles.title}>{zoneName}</h1>
-        <p className={styles.subtitle}>
-          {hasApprovedAdventures
-            ? 'Aventuras reales compartidas por viajeros.'
-            : 'Próximamente aventuras en esta zona.'}
-        </p>
+        {/* Overlay con contenido */}
+        <div className={styles.heroOverlay}>
+          {/* Breadcrumb flotante */}
+          <nav className={styles.breadcrumb} aria-label="Navegación">
+            <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
+            <span className={styles.breadcrumbSeparator}>/</span>
+            {countrySlug ? (
+              <Link to={`/pais/${countrySlug}`} className={styles.breadcrumbLink}>
+                {countryName}
+              </Link>
+            ) : (
+              <span className={styles.breadcrumbCurrent}>{countryName}</span>
+            )}
+            <span className={styles.breadcrumbSeparator}>/</span>
+            <span className={styles.breadcrumbCurrent} aria-current="page">
+              {zoneName}
+            </span>
+          </nav>
+
+          <div className={styles.heroContent}>
+            <p className={styles.kicker}>{countryName}</p>
+            <h1 className={styles.title}>{zoneName}</h1>
+            <p className={styles.subtitle}>
+              {hasApprovedAdventures
+                ? 'Aventuras reales compartidas por viajeros.'
+                : 'Próximamente aventuras en esta zona.'}
+            </p>
+          </div>
+        </div>
       </header>
+
+      {/* Propósito comunitario */}
+      <section className={styles.communityPurpose} aria-labelledby="purpose-title">
+        <div className={styles.communityPurposeContent}>
+          <span className={styles.communityPurposeIcon}>🤝</span>
+          <div className={styles.communityPurposeText}>
+            <h2 id="purpose-title" className={styles.communityPurposeTitle}>
+              Comunidad de viajeros
+            </h2>
+            <p className={styles.communityPurposeDescription}>
+              Esta zona reúne aventuras, recuerdos y consejos compartidos por viajeros. 
+              Tu experiencia ayuda a otros a descubrir lugares especiales que no están en las guías tradicionales.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <main className={styles.main}>
         {adventuresState.status === 'loading' && (
@@ -215,23 +304,18 @@ export function CountryZonePage() {
 
         {adventuresState.status === 'ready' && !hasApprovedAdventures && (
           <section className={styles.panel} aria-labelledby="zone-coming-soon-title">
-            <div className={styles.panelContent}>
-              <h2 id="zone-coming-soon-title" className={styles.panelTitle}>
-                ¿Quieres estrenar este destino publicando tu aventura?
-              </h2>
-              <p className={styles.panelText}>
-                Pronto podrás compartir fotos, rutas, consejos y experiencias para ayudar a
-                otros viajeros a descubrir {zoneName} con una mirada cercana y útil.
-              </p>
-              <AdventureSubmissionForm
-                countrySlug={countrySlug}
-                zoneSlug={zoneSlug}
-                zoneName={zoneName}
-                title="Sé el primero en compartir tu aventura"
-              />
-            </div>
+            <EmptyAdventuresState zoneName={zoneName} />
+            <AdventureSubmissionForm
+              countrySlug={countrySlug}
+              zoneSlug={zoneSlug}
+              zoneName={zoneName}
+              title="Sé el primero en compartir tu aventura"
+            />
           </section>
         )}
+
+        {/* Bloque de recursos futuros */}
+        <FutureResourcesBlock zoneName={zoneName} />
 
         <Link to={countrySlug ? `/pais/${countrySlug}` : '/'} className={styles.backLink}>
           Volver al mapa de {countryName}
