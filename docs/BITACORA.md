@@ -1423,5 +1423,24 @@ Ajuste acotado del posicionamiento móvil del tooltip del mapa interno.
 
 ---
 
+## 2026-05-13 - CI general mínimo
+
+Creado workflow general de salud del proyecto para validar cada `push` y `pull_request`.
+
+### Cambios
+
+- Añadido `.github/workflows/ci.yml` con `actions/checkout@v4` y `actions/setup-node@v4`.
+- El CI usa Node 22 con cache de npm.
+- El flujo ejecuta `npm ci`, `npm run lint` y `npm run build`.
+- No ejecuta scripts operativos de mapas.
+- El workflow operativo `.github/workflows/process-country-map-queue.yml` queda separado y sin cambios.
+
+### Verificación local previa
+
+- ✅ `npm run lint` pasa con 0 errores y 5 warnings conocidos.
+- ✅ `npm run build` pasa; solo queda el warning habitual de chunk grande de Vite.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-05-04*
+*Última actualización: 2026-05-13*
