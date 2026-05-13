@@ -15,21 +15,13 @@
  * - Provider envuelve toda la aplicación en App.tsx
  */
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import type { ExperienceMode } from '../types/experienceMode.types';
-
-const STORAGE_KEY = 'trawel-experience-mode';
-
-interface ExperienceModeContextValue {
-  /** Modo actual de experiencia */
-  mode: ExperienceMode;
-  /** Cambiar el modo de experiencia */
-  setMode: (mode: ExperienceMode) => void;
-  /** Toggle entre modos */
-  toggleMode: () => void;
-}
-
-const ExperienceModeContext = createContext<ExperienceModeContextValue | undefined>(undefined);
+import {
+  ExperienceModeContext,
+  STORAGE_KEY,
+  type ExperienceModeContextValue,
+} from './experienceMode.context';
 
 /**
  * Provider del modo de experiencia
@@ -73,20 +65,4 @@ export function ExperienceModeProvider({ children }: { children: ReactNode }) {
       {children}
     </ExperienceModeContext.Provider>
   );
-}
-
-/**
- * Hook para consumir el modo de experiencia
- * 
- * Uso:
- *   const { mode, setMode, toggleMode } = useExperienceMode();
- * 
- * @throws Error si se usa fuera del Provider
- */
-export function useExperienceMode(): ExperienceModeContextValue {
-  const context = useContext(ExperienceModeContext);
-  if (context === undefined) {
-    throw new Error('useExperienceMode debe usarse dentro de ExperienceModeProvider');
-  }
-  return context;
 }

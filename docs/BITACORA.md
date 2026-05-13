@@ -1589,5 +1589,24 @@ Cerrado el P1 pendiente de la auditoría responsive previa a v0 para que la pant
 
 ---
 
+## 2026-05-14 - Resolución de warnings conocidos de ESLint
+
+Revisados y resueltos los 5 warnings conocidos sin cambiar comportamiento funcional.
+
+### Cambios
+
+- Separado `useExperienceMode` del provider para cumplir `react-refresh/only-export-components`.
+- Movidas primitivas compartidas del contexto a un módulo no-componente.
+- Capturadas refs estables en el cleanup de `WorldMap` para evitar warnings de cleanup sin tocar hover, touch, zoom, pan ni navegación.
+- Extraída la dependencia `countryIsoAlpha3` en `CountryPage` para eliminar la expresión compleja del array de dependencias.
+- Marcado el bloque como cerrado en `docs/V0_HANDOFF.md`.
+
+### Alcance
+
+- No se tocaron estilos, Supabase, CI, schemas ni scripts de mapas.
+- No se añadieron tests nuevos ni se silenciaron reglas de ESLint.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-05-13*
+*Última actualización: 2026-05-14*

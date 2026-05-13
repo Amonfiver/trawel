@@ -105,7 +105,10 @@
    useEffect(() => {
      if (!svgRef.current) return;
 
-     const svg = d3.select(svgRef.current);
+     const svgNode = svgRef.current;
+     const activeTouchPointers = activeTouchPointersRef.current;
+     const touchPointerPositions = touchPointerPositionsRef.current;
+     const svg = d3.select(svgNode);
      const width = WORLD_MAP_WIDTH;
      const height = WORLD_MAP_HEIGHT;
 
@@ -564,12 +567,12 @@
         applyMapTransform(nextTransform);
       };
 
-      svgRef.current.addEventListener('pointerdown', handlePointerDown);
-      svgRef.current.addEventListener('pointermove', handlePointerMove);
-      svgRef.current.addEventListener('pointerup', handlePointerEnd);
-      svgRef.current.addEventListener('pointercancel', handlePointerEnd);
-      svgRef.current.addEventListener('pointerleave', handlePointerLeave);
-      svgRef.current.addEventListener('wheel', handleWheel, { passive: false });
+      svgNode.addEventListener('pointerdown', handlePointerDown);
+      svgNode.addEventListener('pointermove', handlePointerMove);
+      svgNode.addEventListener('pointerup', handlePointerEnd);
+      svgNode.addEventListener('pointercancel', handlePointerEnd);
+      svgNode.addEventListener('pointerleave', handlePointerLeave);
+      svgNode.addEventListener('wheel', handleWheel, { passive: false });
 
       // Cargar datos world-atlas
      fetch(WORLD_ATLAS_URL)
@@ -695,15 +698,15 @@
 
      return () => {
        clearLongPressTimer();
-       activeTouchPointersRef.current.clear();
-       touchPointerPositionsRef.current.clear();
+       activeTouchPointers.clear();
+       touchPointerPositions.clear();
        pinchGestureRef.current = null;
-       svgRef.current?.removeEventListener('pointerdown', handlePointerDown);
-       svgRef.current?.removeEventListener('pointermove', handlePointerMove);
-       svgRef.current?.removeEventListener('pointerup', handlePointerEnd);
-       svgRef.current?.removeEventListener('pointercancel', handlePointerEnd);
-       svgRef.current?.removeEventListener('pointerleave', handlePointerLeave);
-       svgRef.current?.removeEventListener('wheel', handleWheel);
+       svgNode.removeEventListener('pointerdown', handlePointerDown);
+       svgNode.removeEventListener('pointermove', handlePointerMove);
+       svgNode.removeEventListener('pointerup', handlePointerEnd);
+       svgNode.removeEventListener('pointercancel', handlePointerEnd);
+       svgNode.removeEventListener('pointerleave', handlePointerLeave);
+       svgNode.removeEventListener('wheel', handleWheel);
      };
    }, [navigate]);
 

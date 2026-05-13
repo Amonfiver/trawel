@@ -101,6 +101,7 @@ export function CountryPage() {
     totalCitiesCount,
   } = getCountryPageData(countrySlug || '');
   const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM1';
+  const countryIsoAlpha3 = country && 'isoAlpha3' in country ? country.isoAlpha3 : undefined;
 
   const handleZoneSelect = useCallback((zone: { name: string; slug: string }) => {
     if (!countrySlug) {
@@ -188,7 +189,7 @@ export function CountryPage() {
     countrySlug,
     country?.displayName,
     country?.isoAlpha2,
-    'isoAlpha3' in (country || {}) ? country?.isoAlpha3 : undefined,
+    countryIsoAlpha3,
     worldCountry?.displayName,
     worldCountry?.isoAlpha2,
     worldCountry?.isoAlpha3,

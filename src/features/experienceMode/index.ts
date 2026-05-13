@@ -6,6 +6,7 @@
  */
 
 export { ExperienceModeSwitch } from './components/ExperienceModeSwitch';
-export { ExperienceModeProvider, useExperienceMode } from './context/ExperienceModeContext';
+export { ExperienceModeProvider } from './context/ExperienceModeContext';
+export { useExperienceMode } from './context/useExperienceMode';
 export type { ExperienceMode, ExperienceModeSwitchProps } from './types/experienceMode.types';
 export { EXPERIENCE_MODES, AVAILABLE_EXPERIENCE_MODES } from './data/experienceMode.config';

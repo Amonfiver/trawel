@@ -47,10 +47,10 @@ Trawel es una **app pública de exploración de destinos de viaje**:
 - [x] Playwright añadido con smoke test mínimo en Chromium e integrado en CI.
 - [x] Header móvil compactado y targets táctiles principales ajustados antes de v0.
 - [x] CountryZonePage/formulario revisado en móvil y ajustado para targets táctiles cómodos.
+- [x] Warnings conocidos de ESLint revisados y resueltos sin cambios funcionales.
 
 ### Pendiente
 
-- [ ] Revisar/gestionar los 5 warnings conocidos de ESLint en bloque separado.
 - [ ] Añadir validaciones responsive mobile/tablet/desktop.
 - [ ] Añadir validación específica de mapas, tooltips y gestos táctiles.
 - [ ] Hacer responsive audit antes de pasar a v0/fase visual.
