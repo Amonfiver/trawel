@@ -1626,5 +1626,24 @@ Auditados `WorldMap`, `CountryInternalMap` y sus integraciones en Home/CountryPa
 
 ---
 
+## 2026-05-14 - Integración visual v0 Fase 1 Home/header/footer
+
+Aplicada la propuesta visual de v0 para HomePage, header global y footer con alcance estrictamente visual.
+
+### Cambios
+
+- Header global actualizado con efecto glassmorphism y paleta visual de la propuesta.
+- HomePage adopta la nueva capa visual para hero, CTA, cards, recursos y footer.
+- Añadido divisor visual del footer usando `footerDivider`.
+- Corregido texto visible `Haz clic en un país`.
+- Marcada la Fase 1 visual como aplicada en `docs/V0_HANDOFF.md`.
+
+### Alcance
+
+- No se tocaron `WorldMap`, `CountryInternalMap`, D3, TopoJSON, zoom, pan, touch, tooltips, rutas, Supabase, CI ni tests.
+- No se añadieron dependencias ni se cambió lógica funcional.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-14*

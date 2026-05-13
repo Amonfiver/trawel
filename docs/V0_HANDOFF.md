@@ -49,6 +49,7 @@ Trawel es una **app pública de exploración de destinos de viaje**:
 - [x] CountryZonePage/formulario revisado en móvil y ajustado para targets táctiles cómodos.
 - [x] Warnings conocidos de ESLint revisados y resueltos sin cambios funcionales.
 - [x] Validación específica de mapas, tooltips y gestos realizada antes de v0.
+- [x] Fase 1 visual v0 aplicada a HomePage, header y footer sin tocar lógica de mapas.
 
 ### Pendiente
 

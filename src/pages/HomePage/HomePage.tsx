@@ -217,7 +217,7 @@ export function HomePage() {
         <div id="mapa-mundial" className={styles.mapContainer}>
           <WorldMap />
           <p className={styles.mapHint}>
-            Haz click en un país para empezar a explorar
+            Haz clic en un país para empezar a explorar
           </p>
         </div>
       </section>
@@ -375,6 +375,7 @@ export function HomePage() {
             <a href="/privacidad" className={styles.footerLink}>Privacidad</a>
             <a href="/contacto" className={styles.footerLink}>Contacto</a>
           </nav>
+          <hr className={styles.footerDivider} />
           <p className={styles.footerCopyright}>© 2026 Trawel</p>
         </div>
       </footer>
