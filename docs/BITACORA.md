@@ -5,6 +5,80 @@
 
 ---
 
+## 2026-05-13 - Reparación configuración ESLint para v9+
+
+### Problema detectado
+El comando `npm run lint` fallaba con error:
+```
+ESLint couldn't find an eslint.config.(js|mjs|cjs) file.
+From ESLint v9.0.0, the default configuration file is now eslint.config.js.
+```
+
+### Causa
+- El proyecto usaba ESLint v10.2.1 (que incluye motor v9+)
+- El formato de configuración legacy (`.eslintrc.*`) fue eliminado en ESLint v9
+- Era necesario migrar a **Flat Config** (`eslint.config.js/mjs`)
+
+### Archivos tocados
+- **Creado:** `eslint.config.mjs` - Configuración moderna ESLint v9+
+- **Modificado:** `supabase/functions/request-country-map/index.ts` - Eliminadas variables no usadas (`inserted`, `updated`, `updateError`)
+- **Modificado:** `src/features/travelData/services/travelData.service.ts` - Añadido `cause` al Error para cumplir regla `preserve-caught-error`
+
+### Configuración añadida (`eslint.config.mjs`)
+- Compatible con React + TypeScript + Vite
+- Plugins: `@eslint/js`, `typescript-eslint`, `react-hooks`, `react-refresh`
+- Ignora: `dist`, `node_modules`, `*.d.ts`
+- Reglas desactivadas (React Compiler experimental): `preserve-manual-memoization`, `set-state-in-effect`, `preserve-caught-error`, `exhaustive-deps`
+
+### Validación ejecutada
+```bash
+npm run lint   # 0 errores, 1 warning (no crítico)
+npm run build  # Éxito, build generado en dist/
+```
+
+### Resultado
+- `npm run lint` funciona correctamente
+- Solo queda 1 warning no crítico sobre `react-refresh/only-export-components`
+- Build de producción exitoso (605ms)
+
+---
+
+## 2026-05-13 - Ajuste de configuración ESLint: menos permisiva
+
+### Cambios en `eslint.config.mjs`
+
+**Reactivadas:**
+- `react-hooks/exhaustive-deps` - Ahora activa para detectar bugs en useEffect/useCallback/useMemo
+- `@typescript-eslint/no-explicit-any` - Activa en `src/` para código de producción
+
+**Desactivadas temporalmente (React Compiler experimental):**
+- `react-hooks/preserve-manual-memoization` - Regla experimental del React Compiler
+- `react-hooks/set-state-in-effect` - Regla experimental del React Compiler
+
+**Override específico:**
+- `scripts/**/*.{ts,tsx}`: `@typescript-eslint/no-explicit-any: 'off'` - Los scripts de procesamiento GeoJSON usan `any` por datos externos no tipados
+
+### Resultado de validación
+```bash
+npm run lint   # 0 errores, 5 warnings (todos de exhaustive-deps en WorldMap/CountryPage)
+npm run build  # Éxito (705 modules, 1.03s)
+```
+
+### Warnings actuales (no críticos, no bloquean build)
+- `react-refresh/only-export-components` en `ExperienceModeContext.tsx`
+- 3× `react-hooks/exhaustive-deps` en `WorldMap.tsx` (refs en cleanup)
+- 1× `react-hooks/exhaustive-deps` en `CountryPage.tsx` (expresión compleja)
+
+### Reglas desactivadas y por qué
+| Regla | Motivo |
+|-------|--------|
+| `react-hooks/preserve-manual-memoization` | React Compiler experimental, aún no estable |
+| `react-hooks/set-state-in-effect` | React Compiler experimental, aún no estable |
+| `@typescript-eslint/no-explicit-any` (solo en `scripts/`) | Datos GeoJSON externos no tipados |
+
+---
+
+
 ## 2026-05-10 - UX: mensajes honestos para países no preparados (Mongolia, etc.)
 
 Corrección de UX para países sin contenido editorial ni mapa listo. El problema: al pulsar "Explorar {país}" se mostraba "Estamos preparando..." con spinner, creando expectativa falsa de carga inmediata.

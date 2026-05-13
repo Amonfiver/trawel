@@ -144,7 +144,7 @@ async function handleRequest(
 
   // 2. Si no existe, crear nuevo registro con status 'queued'
   if (!existing) {
-    const { data: inserted, error: insertError } = await supabase
+    const { error: insertError } = await supabase
       .from('country_map_assets')
       .insert({
         country_slug: input.countrySlug,
@@ -243,7 +243,7 @@ async function handleRequest(
       // Reintentar: cambiar a queued, limpiar error, incrementar contador
       const newCount = (existing.requested_count || 0) + 1;
       
-      const { data: updated, error: updateError } = await supabase
+      const { error: retryError } = await supabase
         .from('country_map_assets')
         .update({
           status: 'queued',
@@ -256,9 +256,9 @@ async function handleRequest(
         .select()
         .single();
 
-      if (updateError) {
-        console.error('Error reintentando solicitud:', updateError);
-        throw new Error(`Error reintentando solicitud: ${updateError.message}`);
+      if (retryError) {
+        console.error('Error reintentando solicitud:', retryError);
+        throw new Error(`Error reintentando solicitud: ${retryError.message}`);
       }
 
       return {
@@ -275,7 +275,7 @@ async function handleRequest(
       // Estado desconocido, tratar como missing
       console.warn(`Estado desconocido: ${currentStatus}`);
       
-      const { error: updateError } = await supabase
+      await supabase
         .from('country_map_assets')
         .update({
           status: 'queued',

@@ -126,7 +126,7 @@ export async function initializeTravelDataSource(): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
     initState.error = errorMessage;
     console.error('[TravelData] Error inicializando Supabase:', errorMessage);
-    throw new Error(`No se pudieron cargar los datos de Trawel: ${errorMessage}`);
+    throw new Error(`No se pudieron cargar los datos de Trawel: ${errorMessage}`, { cause: error });
   } finally {
     initState.initializing = false;
   }
