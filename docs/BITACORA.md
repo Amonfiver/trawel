@@ -1509,5 +1509,22 @@ Creado workflow general de salud del proyecto para validar cada `push` y `pull_r
 
 ---
 
+## 2026-05-13 - Checklist viva previa a v0
+
+Actualizado `docs/V0_HANDOFF.md` como hoja de ruta/checklist viva para la fase visual, evitando crear documentación duplicada.
+
+### Cambios
+
+- Marcados como cerrados: ESLint v9 operativo, CI básico con lint/build y estructura AI-specs ligera.
+- Añadidos próximos pasos: warnings ESLint, Playwright smoke tests, validaciones responsive y validación específica de mapas/tooltips/gestos.
+- Reforzada la separación entre CI general y workflow operativo de mapas.
+
+### Alcance
+
+- No se tocó código funcional.
+- No se tocaron mapas ni workflows.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-13*

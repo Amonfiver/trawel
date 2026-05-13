@@ -1,9 +1,9 @@
 # Handoff para v0 - Rediseño Visual Trawel
 
-> **Versión:** 1.0  
-> **Fecha:** 2026-05-01  
+> **Versión:** 1.1  
+> **Fecha:** 2026-05-13  
 > **Destinatario:** v0 / equipo de diseño visual  
-> **Estado:** Listo para diseño
+> **Estado:** Preparación técnica previa a diseño
 
 ---
 
@@ -33,6 +33,26 @@ Trawel es una **app pública de exploración de destinos de viaje**:
 - ❌ NO cambiar arquitectura de datos
 - ❌ NO cambiar lógica de rutas
 - ❌ NO convertir Trawel en Investighost (herramienta editorial)
+
+---
+
+## 2.1 Checklist viva previa a v0
+
+### Cerrado
+
+- [x] ESLint v9 operativo con `npm run lint`.
+- [x] CI básico creado en `.github/workflows/ci.yml` con `npm ci`, `npm run lint` y `npm run build`.
+- [x] Estructura AI-specs ligera creada y enlazada desde `docs/AGENT_BRIEF.md`.
+- [x] CI general separado del workflow operativo de mapas.
+
+### Pendiente
+
+- [ ] Revisar/gestionar los 5 warnings conocidos de ESLint en bloque separado.
+- [ ] Añadir Playwright con smoke tests mínimos.
+- [ ] Añadir validaciones responsive mobile/tablet/desktop.
+- [ ] Añadir validación específica de mapas, tooltips y gestos táctiles.
+- [ ] Hacer responsive audit antes de pasar a v0/fase visual.
+- [ ] Mantener separados el CI general y `.github/workflows/process-country-map-queue.yml`.
 
 ---
 
@@ -243,4 +263,4 @@ Tras el diseño v0, el desarrollador debe:
 
 ---
 
-*V0 Handoff v1.0 - Trawel*
+*V0 Handoff v1.1 - Trawel*
