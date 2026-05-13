@@ -48,11 +48,11 @@ Trawel es una **app pública de exploración de destinos de viaje**:
 - [x] Header móvil compactado y targets táctiles principales ajustados antes de v0.
 - [x] CountryZonePage/formulario revisado en móvil y ajustado para targets táctiles cómodos.
 - [x] Warnings conocidos de ESLint revisados y resueltos sin cambios funcionales.
+- [x] Validación específica de mapas, tooltips y gestos realizada antes de v0.
 
 ### Pendiente
 
 - [ ] Añadir validaciones responsive mobile/tablet/desktop.
-- [ ] Añadir validación específica de mapas, tooltips y gestos táctiles.
 - [ ] Hacer responsive audit antes de pasar a v0/fase visual.
 - [ ] Mantener separados el CI general y `.github/workflows/process-country-map-queue.yml`.
 
@@ -148,6 +148,14 @@ const { mode, setMode, toggleMode } = useExperienceMode();
 
 ### Nota importante: Cartografía vs. Diseño Visual
 > **v0 puede mejorar la presentación visual del mapa** (colores, interacciones, layout), **pero no sustituye el asset cartográfico local**. La cartografía definitiva (siluetas de países, límites administrativos) proviene de fuentes geoespaciales procesadas una vez (Natural Earth, geoBoundaries), no de v0.
+
+### Guardrails de mapas para v0
+
+**v0 puede tocar:** colores, espaciado exterior, tipografía alrededor del mapa, estados visuales de carga/error, contenedores y presentación del CTA bajo el mapa.
+
+**v0 no debe tocar:** D3, TopoJSON, `WorldMap.tsx`, `CountryInternalMap.tsx`, límites de zoom/pan, cálculo de tooltips, navegación por país/zona, ausencia de labels permanentes ni atribución cartográfica visible.
+
+**Validación previa:** WorldMap carga países, hover desktop muestra tooltip, touch móvil muestra tooltip y botón "Ir a país"; CountryInternalMap carga zonas, muestra tooltip, navega a zona y mantiene atribución. Los tests automatizados sobre paths SVG son frágiles: validar comportamiento visible, no índices rígidos de paths.
 
 ### Atribución cartográfica (obligatoria)
 > **La atribución de fuentes cartográficas debe permanecer visible.**

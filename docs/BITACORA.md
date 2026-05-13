@@ -1608,5 +1608,23 @@ Revisados y resueltos los 5 warnings conocidos sin cambiar comportamiento funcio
 
 ---
 
+## 2026-05-14 - Validación específica de mapas previa a v0
+
+Auditados `WorldMap`, `CountryInternalMap` y sus integraciones en Home/CountryPage antes de pasar a diseño visual.
+
+### Resultado
+
+- `WorldMap` carga países, no genera overflow, muestra tooltip en hover desktop y en touch móvil muestra tooltip + botón `Ir a país`.
+- `CountryInternalMap` carga zonas internas, mantiene tooltip de zona, navegación a zona y atribución cartográfica visible.
+- Estados de mapas automáticos revisados: mapa disponible, destino en preparación y país no encontrado son comprensibles.
+- Añadidos guardrails breves para v0 en `docs/V0_HANDOFF.md`.
+
+### Alcance
+
+- No se tocaron `WorldMap`, `CountryInternalMap`, D3, zoom, pan, tooltips, rutas, CI ni scripts de mapas.
+- No se crearon tests nuevos ni screenshots persistentes.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-14*
