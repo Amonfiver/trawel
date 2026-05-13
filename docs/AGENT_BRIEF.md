@@ -162,10 +162,43 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 
 ---
 
-## TL;DR para prompts futuros
+## 10. Sistema AI-specs
 
-> "Trawel es app pública de viajes centrada en mapas. Flujo principal: Home/WorldMap → País → Zona → futuras aventuras de viajeros. CountryPage prioriza mapa interno. Las aventuras de viajeros entran pending, requieren aprobación webmaster y aceptación de privacidad; marketing es separado/opcional. El usuario puede retirar envíos pending con token privado validado por Edge Function. No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica."
+Trawel usa una metodología AI-powered ligera para trabajo con agentes:
+
+| Recurso | Propósito |
+|---------|-----------|
+| `docs/base-standards.md` | Reglas base: checkpoints, commits, validación |
+| `docs/WORKFLOW_AI.md` | Flujo operativo: 8 pasos desde diagnóstico a commit |
+| `docs/AGENTS.md` | Perfiles de agentes disponibles |
+| `docs/codex.md` | Cómo usar Codex eficazmente |
+| `ai-specs/skills/` | Skills específicos por situación |
+
+### Skills disponibles
+
+| Skill | Cuándo usar |
+|-------|-------------|
+| `checkpoint-before-change.md` | Antes de cambios grandes |
+| `small-steps-planning.md` | Dividir en bloques "10 ladrillos" |
+| `update-docs.md` | Mantener docs sin sobrecarga |
+| `adversarial-review.md` | Revisar antes de "listo" |
+| `responsive-audit.md` | Validar móvil/tablet/desktop |
+| `map-ui-validation.md` | Cambios en WorldMap/CountryInternalMap |
+
+### Agentes disponibles
+
+| Agente | Especialidad |
+|--------|--------------|
+| `frontend-map.md` | Mapas, zoom, tooltips, responsive |
+| `qa-validator.md` | Revisión de diffs, lint/build |
+| `content-editorial.md` | Contenido con fuentes (futuro) |
 
 ---
 
-*Agent Brief v1.0 - Trawel*
+## TL;DR para prompts futuros
+
+> "Trawel es app pública de viajes centrada en mapas. Flujo principal: Home/WorldMap → País → Zona → futuras aventuras de viajeros. CountryPage prioriza mapa interno. Las aventuras de viajeros entran pending, requieren aprobación webmaster y aceptación de privacidad; marketing es separado/opcional. El usuario puede retirar envíos pending con token privado validado por Edge Function. No tocar Supabase/mock/schema sin permiso. Actualizar BITACORA si aplica. Ver docs/base-standards.md y ai-specs/skills/ para metodología."
+
+---
+
+*Agent Brief v1.1 - Trawel*

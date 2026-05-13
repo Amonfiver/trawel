@@ -5,6 +5,73 @@
 
 ---
 
+## 2026-05-13 - Estructura AI-specs: metodología AI-powered ligera
+
+### Objetivo del bloque
+Completar una estructura metodológica AI-powered para Trawel tras detectar una ejecución parcial/inconsistente de agente. La estructura queda inspirada en Specboot/OpenSpec, pero adaptada al flujo real del proyecto: breve, práctica y sin burocracia.
+
+### Archivos creados/completados
+
+**Skills** (`ai-specs/skills/`):
+- `checkpoint-before-change.md` — Cuándo y cómo hacer checkpoints git
+- `small-steps-planning.md` — Dividir en bloques "10 ladrillos"
+- `update-docs.md` — Mantener docs vivos sin sobrecarga
+- `adversarial-review.md` — Revisar antes de declarar "listo"
+- `responsive-audit.md` — Validar móvil/tablet/desktop
+- `map-ui-validation.md` — Validar cambios en mapas
+
+**Agentes** (`ai-specs/agents/`):
+- `frontend-map.md` — Perfil para cambios de mapas/UI responsive
+- `qa-validator.md` — Perfil para validar cambios
+- `content-editorial.md` — Perfil futuro para contenido con fuentes
+
+**Documentación** (`docs/`):
+- `base-standards.md` — Reglas base: checkpoints, commits en español, validación
+- `WORKFLOW_AI.md` — Flujo operativo de 8 pasos
+- `AGENTS.md` — Catálogo de perfiles de agentes
+- `codex.md` — Guía de uso de Codex en el proyecto
+
+**Modificado**:
+- `AGENT_BRIEF.md` — Sección 10 "Sistema AI-specs" con enlaces reales y TL;DR único
+- `small-steps-planning.md`, `adversarial-review.md`, `frontend-map.md` — limpiados tras detectar contenido incrustado de una ejecución parcial
+- `WORKFLOW_AI.md` — restaurado como flujo operativo; la guía específica de Codex queda separada en `docs/codex.md`
+
+### Decisiones
+
+| Decisión | Razón |
+|----------|-------|
+| Mantenerlo lean | No queremos burocracia. Solo lo esencial. |
+| Skills separados por situación | Reutilizable, enfocado, sin duplicar |
+| Commits en español | Consistencia con el equipo |
+| No se tocó código funcional | Este bloque es solo metodología/docs |
+| Referencias cruzadas, no duplicación | Cada doc tiene su propósito único |
+
+### Qué NO se importó de Specboot/OpenSpec
+
+| Elemento | Por qué no se importó |
+|----------|----------------------|
+| Schemas formales de tareas | Demasiado pesado para nuestro flujo |
+| Checklist exhaustivos | Prefiero "10 ladrillos" pragmático |
+| Roles rígidos | Agentes son perfiles, no entidades separadas |
+| Automatización de commits | Mantenemos control humano |
+| Playwright obligatorio | No en este bloque, evaluar después |
+
+### Validación ejecutada
+
+```bash
+npm run lint   # 0 errores, 5 warnings conocidos (documentados en BITACORA)
+npm run build  # Éxito (705 modules)
+```
+
+### Alcance
+
+- No se instaló ninguna dependencia
+- No se tocó código de producción
+- No se modificó lógica de mapas, componentes o workflows
+- No se hizo commit (pendiente de revisión humana)
+
+---
+
 ## 2026-05-13 - Reparación configuración ESLint para v9+
 
 ### Problema detectado
