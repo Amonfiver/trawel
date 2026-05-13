@@ -1570,5 +1570,24 @@ Ajuste pequeño previo a v0 para reducir altura útil del header móvil y mejora
 
 ---
 
+## 2026-05-13 - Ajuste responsive de CountryZonePage/formulario
+
+Cerrado el P1 pendiente de la auditoría responsive previa a v0 para que la pantalla de zona y su formulario sean más cómodos en móvil.
+
+### Cambios
+
+- Breadcrumb del hero de CountryZonePage elevado a targets táctiles de 40px.
+- Checkboxes y filas de consentimiento del formulario ampliados para uso con dedo.
+- Botón de política de privacidad y enlace de retirada ajustados como targets táctiles.
+- Formulario móvil contenido dentro del panel con bordes consistentes y sin márgenes tensos.
+- Marcado el bloque como cerrado en `docs/V0_HANDOFF.md`.
+
+### Alcance
+
+- No se tocaron mapas, `WorldMap`, `CountryInternalMap`, D3, Supabase, CI ni lógica de envío.
+- No se rediseñó la pantalla ni se añadieron tests nuevos.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-13*
