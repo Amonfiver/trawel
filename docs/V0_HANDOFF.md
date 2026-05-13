@@ -45,6 +45,7 @@ Trawel es una **app pública de exploración de destinos de viaje**:
 - [x] Estructura AI-specs ligera creada y enlazada desde `docs/AGENT_BRIEF.md`.
 - [x] CI general separado del workflow operativo de mapas.
 - [x] Playwright añadido con smoke test mínimo en Chromium e integrado en CI.
+- [x] Header móvil compactado y targets táctiles principales ajustados antes de v0.
 
 ### Pendiente
 

@@ -147,9 +147,12 @@
 }
 
 .breadcrumbLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
-  padding: 0.25rem 0.5rem;
+  padding: 0.375rem 0.625rem;
   border-radius: 4px;
   transition: all 150ms ease;
 }
@@ -160,8 +163,11 @@
 }
 
 .breadcrumbDisabled {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   color: rgba(255, 255, 255, 0.5);
-  padding: 0.25rem 0.5rem;
+  padding: 0.375rem 0.625rem;
 }
 
 .breadcrumbSeparator {
@@ -170,9 +176,12 @@
 }
 
 .breadcrumbCurrent {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   color: white;
   font-weight: 500;
-  padding: 0.25rem 0.5rem;
+  padding: 0.375rem 0.625rem;
 }
 
 /* Contenido del hero */

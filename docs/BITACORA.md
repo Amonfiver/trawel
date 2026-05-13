@@ -1550,5 +1550,25 @@ Añadido Playwright como validación e2e mínima para comprobar que la app públ
 
 ---
 
+## 2026-05-13 - Ajuste responsive de header y targets táctiles
+
+Ajuste pequeño previo a v0 para reducir altura útil del header móvil y mejorar hit areas sin rediseñar la app.
+
+### Cambios
+
+- Header móvil conserva logo y selector de modo en una fila compacta cuando hay espacio.
+- El label del selector queda accesible para lector de pantalla y se oculta visualmente en móvil estrecho.
+- Botones del selector suben a `min-height: 40px`.
+- Breadcrumbs de país/ciudad/aventura y enlaces secundarios obvios reciben áreas táctiles más cómodas.
+- Footer de Home aumenta área táctil de enlaces sin cambiar su contenido.
+- Marcado el bloque como cerrado en `docs/V0_HANDOFF.md`.
+
+### Alcance
+
+- No se tocaron mapas, `WorldMap`, `CountryInternalMap`, D3, Supabase ni CI.
+- No se rediseñó la app ni se añadieron tests nuevos.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-13*

@@ -41,6 +41,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 40px;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -63,18 +64,36 @@
 /* Responsive */
 @media (max-width: 640px) {
   .header {
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.75rem;
   }
 
   .headerContent {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
   }
 
   .logo {
     font-size: 1.1rem;
+    flex: 0 0 auto;
   }
 
   .modeSelector {
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 360px) {
+  .header {
+    padding-inline: 0.5rem;
+  }
+
+  .headerContent {
+    gap: 0.375rem;
+  }
+
+  .logo {
+    font-size: 1rem;
   }
 }
