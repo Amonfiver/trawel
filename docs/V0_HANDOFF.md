@@ -44,11 +44,11 @@ Trawel es una **app pública de exploración de destinos de viaje**:
 - [x] CI básico creado en `.github/workflows/ci.yml` con `npm ci`, `npm run lint` y `npm run build`.
 - [x] Estructura AI-specs ligera creada y enlazada desde `docs/AGENT_BRIEF.md`.
 - [x] CI general separado del workflow operativo de mapas.
+- [x] Playwright añadido con smoke test mínimo en Chromium e integrado en CI.
 
 ### Pendiente
 
 - [ ] Revisar/gestionar los 5 warnings conocidos de ESLint en bloque separado.
-- [ ] Añadir Playwright con smoke tests mínimos.
 - [ ] Añadir validaciones responsive mobile/tablet/desktop.
 - [ ] Añadir validación específica de mapas, tooltips y gestos táctiles.
 - [ ] Hacer responsive audit antes de pasar a v0/fase visual.

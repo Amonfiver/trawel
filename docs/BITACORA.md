@@ -1526,5 +1526,29 @@ Actualizado `docs/V0_HANDOFF.md` como hoja de ruta/checklist viva para la fase v
 
 ---
 
+## 2026-05-13 - Playwright smoke test mínimo
+
+Añadido Playwright como validación e2e mínima para comprobar que la app pública carga sin convertirlo todavía en suite visual o táctil.
+
+### Cambios
+
+- Instalado `@playwright/test` como devDependency.
+- Añadidos scripts `npm run test:e2e` y `npm run test:e2e:ui`.
+- Creado `playwright.config.ts` con servidor Vite local automático en `127.0.0.1:5173`.
+- Creado `tests/e2e/smoke.spec.ts` para validar carga de `/`, marca Trawel, H1 principal, CTA del mapa y navegación básica.
+- Integrado en `.github/workflows/ci.yml` con instalación de Chromium y ejecución de `npm run test:e2e`.
+- Actualizado `docs/V0_HANDOFF.md` marcando Playwright smoke como completado.
+
+### Alcance
+
+- No se tocaron mapas, `WorldMap` ni `CountryInternalMap`.
+- No se añadieron screenshots visuales, tests táctiles ni responsive audit automático.
+
+### Verificación
+
+- ✅ `npm run test:e2e` pasa localmente.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-13*
