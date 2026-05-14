@@ -5,25 +5,48 @@
  * de exploración, retirando tarjetas heredadas del flujo principal.
  * 
  * Alcance: 
- * - Hero visual claro del país
+ * - Hero visual cinematográfico del país
  * - Mapa interno interactivo homogéneo
  * - Fallback a directorio clásico para países sin mapa
  * - Mensaje futuro orientado a aventuras publicadas por viajeros
- * 
- * Decisiones técnicas:
- * - Usa getCountryPageData para obtener datos agregados
- * - CountryInternalMap como render genérico para assets TopoJSON
- * - Jerarquía visual: País → Mapa (principal) → Zona → Aventuras futuras
- * - Las rutas/datos heredados se conservan, pero sus tarjetas no dominan CountryPage
- * 
- * Cambios recientes (2026-05-02):
+ *
+ * Decisiones técnicas importantes:
+ * - Usa getCountryPageData para obtener datos agregados de país, ciudades y destinos
+ * - CountryInternalMap es el render genérico para assets TopoJSON locales o de Storage
+ * - España usa asset local; otros países consultan/generan assets en country_map_assets
+ * - getPreferredAdminLevel define el nivel administrativo esperado para cada país
+ * - La atribución cartográfica se delega al mapa y no debe ocultarse
+ *
+ * Jerarquía de contenido:
+ * - País: hero, estado editorial y contexto principal
+ * - Mapa interno: experiencia central para elegir zona/provincia
+ * - Zona: destino de navegación tras seleccionar una zona del mapa
+ * - Zonas de entrada: máximo 4 ciudades como accesos, no catálogo nacional
+ * - Aventuras destacadas y CTA: contenido secundario y participación futura
+ *
+ * Limitaciones/reglas:
+ * - CountryPage NO es un catálogo genérico de ciudades
+ * - Las ciudades/lugares concretos viven en Zona -> Ciudad -> Aventura
+ * - No tocar lógica de mapas, zoom, pan, touch, tooltips ni navegación desde variantes visuales
+ * - No tocar D3, TopoJSON, Supabase, rutas ni servicios desde cambios visuales
+ *
+ * Cambios recientes de mapas internos:
  * - Integración con sistema automático de mapas internos (DA-030)
  * - Estados UI: loading, ready, missing, queued/generating, failed
  * - Polling para actualización de estado de generación
- * - Vista "Próximamente" para países sin contenido editorial
- * - España usa el mismo render genérico con asset local
+ * - Vista "Descubriendo" para países sin contenido editorial pero presentes en worldCountries
  * - Click en zona del mapa navega a /pais/{countrySlug}/zona/{zoneSlug}
- * - Se retiran tarjetas heredadas de ciudades/aventuras del flujo principal
+ * 
+ * Rediseño visual "Horizonte Dorado" (2026-05-14):
+ * - Paleta azul cielo + dorado trigo (guiño elegante a Ucrania)
+ * - Hero cinematográfico con gradiente cielo → horizonte
+ * - Mapa como protagonista absoluto con marco visual premium
+ * - Cards con bordes dorados sutiles y hover con luz
+ * - Estados de mapa emotivos y visualmente ricos
+ * - Zero overflow horizontal, mobile-first
+ * 
+ * Nota para agentes: la variante visual puede cambiar CSS, estructura visual y microcopy,
+ * pero no debe alterar hooks, estados, servicios, rutas ni lógica funcional de mapas.
  */
 
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -64,21 +87,12 @@ type MapAssetState =
 /**
  * CountryPage - Nivel País / Mapa y Zonas como punto de entrada
  * 
- * Muestra un hero claro del país con el mapa como experiencia principal.
+ * Muestra un hero cinematográfico del país con el mapa como experiencia principal.
  * NO es un catálogo genérico de ciudades (eso no escala para países grandes).
  * Las ciudades/lugares concretos viven en Zona → Ciudad → Aventura.
- * 
- * Jerarquía de contenido:
- * - Mapa interno (principal): zonas/provincias para explorar
- * - Zonas de entrada: máximo 4 ciudades como puntos de acceso al mapa
- * - Aventuras destacadas: experiencias del país
- * - CTA para contribución de viajeros
- * 
- * Cambios recientes (2026-05-10):
- * - Corrección de rumbo: eliminado catálogo genérico de ciudades
- * - "Zonas de entrada" reemplaza "Ciudades destacadas" (máx 4, no listado nacional)
- * - Copy del CTA más natural, sin lenguaje provisional
- * - Integración con useExperienceMode para contenido por modo
+ *
+ * Jerarquía operativa: País -> Mapa -> Zona -> Ciudad -> Aventura.
+ * Las variantes visuales deben conservar el flujo de datos y navegación.
  */
 export function CountryPage() {
   const { countrySlug } = useParams<{ countrySlug: string }>();
@@ -428,10 +442,10 @@ export function CountryPage() {
           <section className={styles.mapSection} aria-labelledby="map-preparing-title">
             <div className={styles.mapPreparingState}>
               <span className={styles.mapPreparingIcon}>⚙️</span>
-              <h3 id="map-preparing-title">Preparando mapa</h3>
+              <h3 id="map-preparing-title">Preparando tu mapa</h3>
               <p>
                 Estamos preparando el mapa de {country.displayName}. 
-                Esto puede tardar un poco la primera vez.
+                Esto puede tardar un momento la primera vez.
               </p>
               <div className={styles.mapProgressIndicator}>
                 <div className={styles.mapProgressBar} />
@@ -468,7 +482,7 @@ export function CountryPage() {
           <section className={styles.mapSection} aria-labelledby="map-missing-title">
             <div className={styles.mapMissingState}>
               <span className={styles.mapMissingIcon}>🗺️</span>
-              <h3 id="map-missing-title">Mapa no disponible</h3>
+              <h3 id="map-missing-title">Mapa no disponible aún</h3>
               <p>
                 Solicita el mapa de {country.displayName} para explorarlo visualmente.
               </p>
@@ -504,7 +518,7 @@ export function CountryPage() {
 
   return (
     <div className={styles.container}>
-      {/* Hero del País - Nivel principal */}
+      {/* Hero del País - Cinematográfico */}
       <header className={styles.hero}>
         {/* Breadcrumb flotante sobre el hero */}
         <nav className={styles.breadcrumb} aria-label="Navegación">
@@ -527,7 +541,7 @@ export function CountryPage() {
           <div className={styles.heroText}>
             <div className={styles.heroMeta}>
               {country.featured && (
-                <span className={styles.featuredBadge}>⭐ Destino destacado</span>
+                <span className={styles.featuredBadge}>⭐ Destacado</span>
               )}
               {showStatusWarning && (
                 <span className={`${styles.statusBadge} ${styles[country.status]}`}>
@@ -535,7 +549,7 @@ export function CountryPage() {
                 </span>
               )}
               <span className={styles.modeBadge}>
-                {mode === 'adventure' ? '🎒 Modo Aventura' : '🎓 Modo Estudiante'}
+                {mode === 'adventure' ? '🎒 Aventura' : '🎓 Estudiante'}
               </span>
               <span className={styles.continentBadge}>
                 {getContinentLabel(country.continent)}
