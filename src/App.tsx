@@ -1,6 +1,7 @@
 import { RouterProvider } from 'react-router-dom';
 import { router } from './app/routes';
 import { ExperienceModeProvider, ExperienceModeSwitch, useExperienceMode } from './features/experienceMode';
+import trawelLogo from './assets/brand/trawelogo.jpeg';
 import './styles/variables/colors.css';
 import styles from './App.module.css';
 
@@ -15,7 +16,11 @@ function AppContent() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <a href="/" className={styles.logo}>
-            🌍 Trawel
+            <img 
+              src={trawelLogo} 
+              alt="Trawel" 
+              className={styles.logoImage}
+            />
           </a>
           <ExperienceModeSwitch
             currentMode={mode}

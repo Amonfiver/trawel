@@ -4,22 +4,22 @@
  * Dirección visual: atlas interactivo premium, portal de exploración,
  * producto travel-tech moderno, cálido, elegante y cinematográfico.
  *
- * Paleta "Trawel Atlas Premium":
- * - Azul profundo: #0f2744 (noche, profundidad)
- * - Azul cielo: #4a90a4 (horizonte, frescura)
- * - Azul petróleo: #1a3a4a (elegancia, seriedad)
- * - Arena cálida: #d4a574, #c9956a (tierra, calidez)
- * - Dorado trigo: #c9a962, #b8954a (acento cálido)
- * - Ámbar suave: #e8c547 (highlights, energía)
- * - Blanco cálido: #faf8f5 (fondos, aire)
+ * Paleta "Trawel Atlas Premium" con fusión azul→amarillo:
+ * - Azul Ucrania refinado: #0057b7 (cielo profundo)
+ * - Azul cielo premium: #4a90d9 (horizonte)
+ * - Amarillo Ucrania refinado: #ffd700 (acento cálido)
+ * - Amarillo arena: #f4d03f (zona cálida)
+ * - Dorado suave: #e5c84b (suelo visual)
+ * - Crema cálida: #faf6e9 (fondos cálidos)
+ * - Blanco cálido: #faf8f5 (contenedores)
+ * - Azul profundo: #0a2540 (textos)
  * - Gris pizarra: #3d4f5f (textos secundarios)
- * - Turquesa suave: #5a9a9e (acentos sutiles)
  *
- * Principios:
+ * Composición:
+ * - Hero con fusión azul→amarillo cinemática
+ * - Atlas apoyado sobre zona amarilla (sin gaps)
+ * - Placeholders laterales en desktop
  * - Mobile-first, sin overflow horizontal
- * - Contraste fuerte, texto siempre legible
- * - Profundidad mediante capas y sombras
- * - Transiciones suaves pero no lentas
  */
 
 /* ============================================
@@ -27,16 +27,14 @@
    ============================================ */
 
 .container {
-  --color-deep-blue: #0f2744;
-  --color-sky-blue: #4a90a4;
-  --color-petroleum: #1a3a4a;
-  --color-sand: #d4a574;
-  --color-sand-dark: #c9956a;
-  --color-gold: #c9a962;
-  --color-gold-dark: #b8954a;
-  --color-amber: #e8c547;
+  --color-ukraine-blue: #0057b7;
+  --color-sky-premium: #4a90d9;
+  --color-ukraine-yellow: #ffd700;
+  --color-sand-warm: #f4d03f;
+  --color-gold-soft: #e5c84b;
+  --color-cream-warm: #faf6e9;
   --color-warm-white: #faf8f5;
-  --color-cream: #f5f0e8;
+  --color-deep-blue: #0a2540;
   --color-slate: #3d4f5f;
   --color-slate-light: #5a6b7a;
   --color-turquoise: #5a9a9e;
@@ -45,11 +43,83 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-warm-white);
+  background: var(--color-cream-warm);
+}
+
+/* ============================================
+   WRAPPER UNIFICADO: HERO + ATLAS
+   Fondo continuo sin juntas visibles
+   ============================================ */
+
+.heroAtlasWrapper {
+  position: relative;
+  /* Fondo único que cubre hero + atlas */
+  background: linear-gradient(
+    180deg,
+    var(--color-ukraine-blue) 0%,
+    #1a6fc0 25%,
+    #3a8fd9 45%,
+    #6bb6ff 60%,
+    var(--color-sand-warm) 75%,
+    var(--color-gold-soft) 85%,
+    #f0d85a 100%
+  );
+  overflow: hidden;
+}
+
+/* Atmósfera continua sobre todo el wrapper */
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Capa de cielo - parte superior */
+.atmosphereSky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 65%;
+  background:
+    radial-gradient(ellipse 120% 80% at 30% 15%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 70% 25%, rgba(0, 87, 183, 0.2) 0%, transparent 40%);
+}
+
+/* Horizonte luminoso - zona de transición */
+.atmosphereHorizon {
+  position: absolute;
+  top: 55%;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 215, 0, 0.08) 30%,
+    rgba(255, 215, 0, 0.15) 50%,
+    rgba(244, 208, 63, 0.2) 70%,
+    transparent 100%
+  );
+  filter: blur(20px);
+}
+
+/* Glow sutil en la transición */
+.atmosphereGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 20%;
+  background: radial-gradient(ellipse 100% 100% at center, rgba(255, 240, 200, 0.15) 0%, transparent 60%);
+  filter: blur(40px);
 }
 
 /* ============================================
    HERO CINEMATOGRÁFICO
+   Sin fondo propio - hereda del wrapper
    ============================================ */
 
 .hero {
@@ -60,103 +130,257 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6rem 1.5rem 4rem;
+  padding: 5rem 1.5rem 8rem;
   overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    var(--color-deep-blue) 0%,
-    #1a3a52 40%,
-    var(--color-petroleum) 70%,
-    #2a4a5a 100%
-  );
+  /* Sin background - hereda de heroAtlasWrapper */
 }
 
-/* Capas atmosféricas */
-.heroAtmosphere {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+/* Layout del hero con elementos laterales */
+.heroLayout {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1400px;
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  gap: 2rem;
+  align-items: center;
+  justify-items: center;
+}
+
+/* Placeholders visuales laterales */
+.heroVisualLeft,
+.heroVisualRight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 180px;
+}
+
+.visualPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  text-align: center;
+  transition: all 200ms ease;
+}
+
+.visualPlaceholder:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-4px);
+}
+
+.visualIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.visualLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-deep-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+
+/* ============================================
+   TARJETA DE IMAGEN EDITORIAL (izquierda)
+   Foto real de viajero con diseño premium
+   ============================================ */
+
+.visualImageCard {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 3 / 4;
+  border-radius: 20px;
   overflow: hidden;
+  background: var(--color-deep-blue);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 
-.atmosphereLayer1 {
+.visualImageCard:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Imagen real dentro de la tarjeta */
+.visualImage {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(74, 144, 164, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(201, 169, 98, 0.08) 0%, transparent 40%);
-  opacity: 0.8;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.atmosphereLayer2 {
+.visualImageCard:hover .visualImage {
+  transform: scale(1.08);
+}
+
+.visualImageOverlay {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 100% 60% at 20% 80%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 70% 60%, rgba(90, 154, 158, 0.05) 0%, transparent 30%);
-}
-
-.atmosphereLayer3 {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 1.5rem 1.25rem;
   background: linear-gradient(
     to top,
-    rgba(15, 39, 68, 0.4) 0%,
+    rgba(10, 37, 64, 0.75) 0%,
+    rgba(10, 37, 64, 0.35) 40%,
+    rgba(10, 37, 64, 0.1) 70%,
+    transparent 100%
+  );
+  transition: background 400ms ease;
+}
+
+.visualImageCard:hover .visualImageOverlay {
+  background: linear-gradient(
+    to top,
+    rgba(10, 37, 64, 0.85) 0%,
+    rgba(10, 37, 64, 0.45) 50%,
+    rgba(10, 37, 64, 0.15) 80%,
     transparent 100%
   );
 }
 
-/* Contenido del hero */
-.heroContent {
-  position: relative;
-  z-index: 1;
-  max-width: 880px;
+.visualImageLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-warm-white);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
   text-align: center;
+  line-height: 1.4;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  padding: 0.5rem 0.875rem;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 300ms ease;
+}
+
+.visualImageCard:hover .visualImageLabel {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   VISUAL CARD (derecha)
+   ============================================ */
+
+.visualCard {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  text-align: center;
+  transition: all 200ms ease;
+}
+
+.visualCard:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-4px);
+}
+
+.visualCardIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.visualCardLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-deep-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+
+/* Contenido central del hero */
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 1.5rem;
+  max-width: 800px;
 }
 
 .heroEyebrow {
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: var(--color-gold);
-  padding: 0.5rem 1rem;
-  background: rgba(201, 169, 98, 0.1);
-  border: 1px solid rgba(201, 169, 98, 0.25);
+  color: var(--color-warm-white);
+  padding: 0.5rem 1.25rem;
+  background: rgba(0, 87, 183, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50px;
+  backdrop-filter: blur(4px);
 }
 
 .heroTitle {
-  font-size: clamp(2rem, 6vw, 3.75rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 800;
   color: var(--color-warm-white);
   margin: 0;
   line-height: 1.1;
   letter-spacing: -0.02em;
   text-wrap: balance;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 2px 20px rgba(0, 87, 183, 0.4),
+    0 4px 40px rgba(0, 0, 0, 0.2);
 }
 
 .heroTitleAccent {
   display: block;
-  color: var(--color-amber);
-  margin-top: 0.25rem;
+  color: var(--color-ukraine-yellow);
+  margin-top: 0.5rem;
+  text-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(255, 215, 0, 0.3);
 }
 
 .heroSubtitle {
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
-  color: rgba(250, 248, 245, 0.85);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
   line-height: 1.7;
-  max-width: 640px;
+  max-width: 600px;
   text-wrap: pretty;
+  text-shadow: 0 1px 10px rgba(0, 87, 183, 0.3);
 }
 
 /* Selector de modo premium */
@@ -173,8 +397,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 1.25rem;
-  background: rgba(250, 248, 245, 0.08);
-  border: 1px solid rgba(250, 248, 245, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 14px;
   text-decoration: none;
   transition: all 200ms ease;
@@ -182,19 +407,21 @@
 }
 
 .modeButton:hover {
-  background: rgba(250, 248, 245, 0.12);
-  border-color: rgba(250, 248, 245, 0.3);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
 }
 
 .modeButtonActive {
-  background: rgba(201, 169, 98, 0.2);
-  border-color: var(--color-gold);
-  box-shadow: 0 0 20px rgba(201, 169, 98, 0.15);
+  background: rgba(255, 215, 0, 0.25);
+  border-color: var(--color-ukraine-yellow);
+  box-shadow:
+    0 0 20px rgba(255, 215, 0, 0.2),
+    inset 0 0 20px rgba(255, 215, 0, 0.1);
 }
 
 .modeButtonActive:hover {
-  background: rgba(201, 169, 98, 0.25);
+  background: rgba(255, 215, 0, 0.3);
 }
 
 .modeIcon {
@@ -214,11 +441,12 @@
   font-weight: 700;
   color: var(--color-warm-white);
   line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .modeLabelSecondary {
   font-size: 0.75rem;
-  color: rgba(250, 248, 245, 0.6);
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.2;
 }
 
@@ -235,46 +463,47 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 2.25rem;
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, var(--color-ukraine-yellow) 0%, #ffc107 100%);
   color: var(--color-deep-blue);
   font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
   border-radius: 50px;
   box-shadow:
-    0 4px 14px rgba(201, 169, 98, 0.4),
-    0 2px 4px rgba(0, 0, 0, 0.1);
+    0 4px 20px rgba(255, 215, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 200ms ease;
 }
 
 .heroCtaPrimary:hover {
-  background: linear-gradient(135deg, #d4b76a 0%, var(--color-gold) 100%);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ffdb4d 0%, var(--color-ukraine-yellow) 100%);
+  transform: translateY(-3px);
   box-shadow:
-    0 6px 20px rgba(201, 169, 98, 0.5),
-    0 2px 6px rgba(0, 0, 0, 0.15);
+    0 8px 30px rgba(255, 215, 0, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .heroCtaSecondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 2.25rem;
-  background: transparent;
+  padding: 1rem 2.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
   color: var(--color-warm-white);
   font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
   border-radius: 50px;
-  border: 1.5px solid rgba(250, 248, 245, 0.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
   transition: all 200ms ease;
 }
 
 .heroCtaSecondary:hover {
-  background: rgba(250, 248, 245, 0.1);
-  border-color: rgba(250, 248, 245, 0.6);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-3px);
 }
 
 /* Indicador scroll */
@@ -287,13 +516,13 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .scrollLine {
-  width: 1px;
+  width: 2px;
   height: 60px;
-  background: linear-gradient(to bottom, var(--color-gold), transparent);
+  background: linear-gradient(to bottom, var(--color-ukraine-yellow), transparent);
   animation: scrollPulse 2s ease-in-out infinite;
 }
 
@@ -303,18 +532,14 @@
 }
 
 /* ============================================
-   SECCIÓN ATLAS - PORTAL CARTOGRÁFICO
+   SECCIÓN ATLAS - APOYADO SOBRE ZONA AMARILLA
    ============================================ */
 
 .atlasSection {
   position: relative;
-  padding: 4rem 1rem 5rem;
-  background: linear-gradient(
-    180deg,
-    #2a4a5a 0%,
-    var(--color-warm-white) 15%,
-    var(--color-cream) 100%
-  );
+  padding: 0 1rem 5rem;
+  /* Sin background - hereda de heroAtlasWrapper */
+  z-index: 2;
 }
 
 .atlasContainer {
@@ -325,13 +550,13 @@
   gap: 3rem;
 }
 
-/* Marco del atlas */
+/* Marco del atlas - Contenedor blanco destacado */
 .atlasFrame {
   background: linear-gradient(145deg, #ffffff 0%, var(--color-warm-white) 100%);
   border-radius: 24px;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.05),
-    0 10px 40px rgba(15, 39, 68, 0.1),
+    0 20px 60px rgba(0, 87, 183, 0.15),
     0 0 0 1px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
@@ -399,14 +624,14 @@
   background: #ffffff;
   border-radius: 20px;
   border: 1px solid var(--color-border);
-  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 87, 183, 0.04);
   transition: all 200ms ease;
 }
 
 .valueCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(15, 39, 68, 0.08);
-  border-color: var(--color-sand);
+  box-shadow: 0 8px 24px rgba(0, 87, 183, 0.08);
+  border-color: var(--color-sand-warm);
 }
 
 .valueCardIcon {
@@ -417,7 +642,7 @@
   justify-content: center;
   font-size: 2rem;
   margin-bottom: 1.25rem;
-  background: linear-gradient(135deg, var(--color-cream) 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--color-cream-warm) 0%, #ffffff 100%);
   border-radius: 16px;
   border: 1px solid var(--color-border);
 }
@@ -469,10 +694,10 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-gold-dark);
+  color: var(--color-ukraine-blue);
   margin-bottom: 0.75rem;
   padding: 0.375rem 0.875rem;
-  background: rgba(201, 169, 98, 0.1);
+  background: rgba(0, 87, 183, 0.08);
   border-radius: 50px;
 }
 
@@ -503,7 +728,7 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: 12px 12px 0 0;
-  background: var(--color-cream);
+  background: var(--color-cream-warm);
 }
 
 .cardImage {
@@ -533,7 +758,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, var(--color-cream) 0%, #f0ebe3 50%, #e8e2d9 100%);
+  background: linear-gradient(135deg, var(--color-cream-warm) 0%, #f0ebe3 50%, #e8e2d9 100%);
   transition: all 200ms ease;
 }
 
@@ -542,7 +767,7 @@
 }
 
 .placeholderGradient[data-kind="ciudad"] {
-  background: linear-gradient(135deg, var(--color-cream) 0%, #ebe4d8 50%, #ddd6c8 100%);
+  background: linear-gradient(135deg, var(--color-cream-warm) 0%, #ebe4d8 50%, #ddd6c8 100%);
 }
 
 .placeholderGradient[data-kind="paisaje"] {
@@ -591,16 +816,16 @@
   background: #ffffff;
   border-radius: 16px;
   border: 1px solid var(--color-border);
-  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 87, 183, 0.04);
   text-decoration: none;
   transition: all 250ms ease;
   overflow: hidden;
 }
 
 .destinationCard:hover {
-  box-shadow: 0 12px 32px rgba(15, 39, 68, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 87, 183, 0.1);
   transform: translateY(-4px);
-  border-color: var(--color-sand);
+  border-color: var(--color-sand-warm);
 }
 
 .destinationImage {
@@ -651,13 +876,13 @@
   background: #ffffff;
   border-radius: 16px;
   border: 1px solid var(--color-border);
-  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 87, 183, 0.04);
   overflow: hidden;
   transition: all 250ms ease;
 }
 
 .adventureCard:hover {
-  box-shadow: 0 12px 32px rgba(15, 39, 68, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 87, 183, 0.1);
   transform: translateY(-4px);
   border-color: var(--color-turquoise);
 }
@@ -684,7 +909,7 @@
 .adventureType {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-sky-blue);
+  color: var(--color-ukraine-blue);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -726,7 +951,7 @@
    ============================================ */
 
 .shareSection {
-  background: linear-gradient(135deg, var(--color-deep-blue) 0%, var(--color-petroleum) 100%);
+  background: linear-gradient(135deg, var(--color-ukraine-blue) 0%, var(--color-sky-premium) 100%);
   border-radius: 24px;
   padding: 4rem 2.5rem;
   text-align: center;
@@ -740,8 +965,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 20% 80%, rgba(201, 169, 98, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(74, 144, 164, 0.06) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -758,7 +983,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-gold);
+  color: var(--color-ukraine-yellow);
   margin-bottom: 1rem;
 }
 
@@ -772,7 +997,7 @@
 
 .shareDescription {
   font-size: 1.0625rem;
-  color: rgba(250, 248, 245, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0 0 2rem;
   line-height: 1.6;
 }
@@ -781,9 +1006,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 2.25rem;
+  padding: 1rem 2.5rem;
   background: var(--color-warm-white);
-  color: var(--color-deep-blue);
+  color: var(--color-ukraine-blue);
   font-size: 1rem;
   font-weight: 700;
   text-decoration: none;
@@ -808,7 +1033,7 @@
   border-radius: 24px;
   padding: 2.5rem;
   margin-bottom: 3rem;
-  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 87, 183, 0.04);
 }
 
 .resourcesHeader {
@@ -839,7 +1064,7 @@
 }
 
 .resourcePlaceholder {
-  background: linear-gradient(135deg, var(--color-warm-white) 0%, var(--color-cream) 100%);
+  background: linear-gradient(135deg, var(--color-warm-white) 0%, var(--color-cream-warm) 100%);
   border: 1px dashed var(--color-border);
   border-radius: 16px;
   padding: 1.5rem;
@@ -848,7 +1073,7 @@
 }
 
 .resourcePlaceholder:hover {
-  border-color: var(--color-sand);
+  border-color: var(--color-sand-warm);
   background: linear-gradient(135deg, #ffffff 0%, var(--color-warm-white) 100%);
 }
 
@@ -872,7 +1097,7 @@
    ============================================ */
 
 .footer {
-  background: linear-gradient(180deg, #0a1a2e 0%, var(--color-deep-blue) 100%);
+  background: linear-gradient(180deg, var(--color-deep-blue) 0%, #051626 100%);
   color: var(--color-warm-white);
   padding: 3rem 1.5rem 2.5rem;
   margin-top: auto;
@@ -886,7 +1111,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-gold), var(--color-sky-blue), var(--color-turquoise));
+  background: linear-gradient(90deg, var(--color-ukraine-yellow), var(--color-ukraine-blue), var(--color-turquoise));
 }
 
 .footerContent {
@@ -901,7 +1126,7 @@
 
 .footerTagline {
   font-size: 1.125rem;
-  color: rgba(250, 248, 245, 0.9);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
   line-height: 1.5;
   font-weight: 500;
@@ -919,7 +1144,7 @@
   align-items: center;
   min-height: 40px;
   padding: 0.25rem 0.375rem;
-  color: var(--color-sand);
+  color: var(--color-sand-warm);
   font-size: 0.875rem;
   text-decoration: none;
   transition: all 200ms ease;
@@ -933,7 +1158,7 @@
   left: 0.375rem;
   right: 0.375rem;
   height: 1px;
-  background: var(--color-gold);
+  background: var(--color-ukraine-yellow);
   transform: scaleX(0);
   transition: transform 200ms ease;
 }
@@ -951,7 +1176,7 @@
   width: 100%;
   max-width: 200px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(244, 208, 63, 0.3), transparent);
   border: none;
   margin: 0;
 }
@@ -969,12 +1194,21 @@
 /* Tablet */
 @media (max-width: 1024px) {
   .hero {
-    padding: 5rem 1.25rem 3rem;
-    min-height: auto;
+    padding: 4rem 1.25rem 6rem;
+  }
+
+  .heroLayout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .heroVisualLeft,
+  .heroVisualRight {
+    display: none;
   }
 
   .heroTitle {
-    font-size: clamp(1.875rem, 5vw, 2.75rem);
+    font-size: clamp(1.875rem, 5vw, 2.5rem);
   }
 
   .modeButton {
@@ -983,7 +1217,8 @@
   }
 
   .atlasSection {
-    padding: 3rem 1rem 4rem;
+    margin-top: -4rem;
+    padding: 0 1rem 4rem;
   }
 
   .atlasFrame {
@@ -1042,7 +1277,7 @@
 /* Móvil */
 @media (max-width: 640px) {
   .hero {
-    padding: 4rem 1rem 3rem;
+    padding: 3.5rem 1rem 5rem;
   }
 
   .heroEyebrow {
@@ -1051,18 +1286,18 @@
   }
 
   .heroTitle {
-    font-size: 1.75rem;
+    font-size: 1.625rem;
   }
 
   .heroTitleAccent {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
   }
 
   .modeSelector {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    max-width: 320px;
+    max-width: 280px;
   }
 
   .modeButton {
@@ -1074,7 +1309,7 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    max-width: 320px;
+    max-width: 280px;
   }
 
   .heroCtaPrimary,
@@ -1087,7 +1322,8 @@
   }
 
   .atlasSection {
-    padding: 2rem 0.75rem 3rem;
+    margin-top: -3rem;
+    padding: 0 0.75rem 3rem;
   }
 
   .atlasFrame {
@@ -1259,7 +1495,8 @@
   .footerLink,
   .cardImage,
   .valueCard,
-  .resourcePlaceholder {
+  .resourcePlaceholder,
+  .visualPlaceholder {
     transition: none;
   }
 

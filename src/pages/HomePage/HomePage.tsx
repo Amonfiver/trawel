@@ -5,8 +5,9 @@
  * Dirección "Trawel Atlas Premium": atlas interactivo, portal de exploración,
  * producto travel-tech moderno, cálido, elegante y cinematográfico.
  *
- * Alcance: Hero cinematográfico, mapa protagonista en contenedor atlas,
- * selector de modo premium, tarjetas de valor, CTAs fuertes.
+ * Alcance: Hero cinematográfico con fusión azul→amarillo, mapa protagonista
+ * apoyado sobre zona cálida, composición rica con elementos laterales,
+ * selector de modo premium, CTAs fuertes.
  *
  * Decisiones técnicas:
  * - WorldMap como elemento principal visual (NO modificar)
@@ -18,6 +19,7 @@
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { useExperienceMode } from '../../features/experienceMode';
 import { CountryFlag } from '../../features/countries';
+import heroImage from '../../assets/home/heroimagen.png';
 import styles from './HomePage.module.css';
 
 type ImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
@@ -192,7 +194,7 @@ function CardImage({
  *
  * Presenta el mapa mundial como elemento central de exploración
  * en un contenedor tipo "atlas vivo", con hero cinematográfico
- * y selector de modo premium.
+ * de fusión azul→amarillo y composición rica.
  */
 export function HomePage() {
   const { mode: experienceMode } = useExperienceMode();
@@ -204,112 +206,140 @@ export function HomePage() {
 
   return (
     <div className={styles.container}>
-      {/* Hero cinematográfico - Atlas Premium */}
-      <section className={styles.hero} aria-labelledby="hero-title">
-        {/* Capas atmosféricas de fondo */}
-        <div className={styles.heroAtmosphere} aria-hidden="true">
-          <div className={styles.atmosphereLayer1} />
-          <div className={styles.atmosphereLayer2} />
-          <div className={styles.atmosphereLayer3} />
+      {/* Wrapper visual unificado: Hero + Atlas con fondo continuo */}
+      <div className={styles.heroAtlasWrapper}>
+        {/* Fondo atmosférico único y continuo */}
+        <div className={styles.atmosphere} aria-hidden="true">
+          <div className={styles.atmosphereSky} />
+          <div className={styles.atmosphereHorizon} />
+          <div className={styles.atmosphereGlow} />
         </div>
 
-        {/* Contenido del hero */}
-        <div className={styles.heroContent}>
-          <div className={styles.heroEyebrow}>Un atlas vivo para viajar, aprender y descubrir</div>
-          <h1 id="hero-title" className={styles.heroTitle}>
-            El mundo no empieza en una lista.
-            <span className={styles.heroTitleAccent}>Empieza en un mapa.</span>
-          </h1>
-          <p className={styles.heroSubtitle}>
-            {heroSubtitle}
-          </p>
-
-          {/* Selector de modo premium */}
-          <div className={styles.modeSelector} role="group" aria-label="Selecciona tu modo de exploración">
-            <a
-              href="?modo=adventure"
-              className={`${styles.modeButton} ${experienceMode === 'adventure' ? styles.modeButtonActive : ''}`}
-              aria-pressed={experienceMode === 'adventure'}
-            >
-              <span className={styles.modeIcon}>🎒</span>
-              <span className={styles.modeLabel}>
-                <span className={styles.modeLabelPrimary}>Modo Aventura</span>
-                <span className={styles.modeLabelSecondary}>Rutas y planes detallados</span>
-              </span>
-            </a>
-            <a
-              href="?modo=student"
-              className={`${styles.modeButton} ${experienceMode === 'student' ? styles.modeButtonActive : ''}`}
-              aria-pressed={experienceMode === 'student'}
-            >
-              <span className={styles.modeIcon}>🎓</span>
-              <span className={styles.modeLabel}>
-                <span className={styles.modeLabelPrimary}>Modo Estudiante</span>
-                <span className={styles.modeLabelSecondary}>Historia y cultura</span>
-              </span>
-            </a>
-          </div>
-
-          {/* CTAs principales */}
-          <div className={styles.heroActions}>
-            <a href="#atlas-mundial" className={styles.heroCtaPrimary}>
-              Abrir el atlas
-            </a>
-            <a href="#destinos" className={styles.heroCtaSecondary}>
-              Ver destinos destacados
-            </a>
-          </div>
-        </div>
-
-        {/* Indicador scroll */}
-        <div className={styles.scrollIndicator} aria-hidden="true">
-          <div className={styles.scrollLine} />
-        </div>
-      </section>
-
-      {/* Mapa mundial - Portal cartográfico */}
-      <section id="atlas-mundial" className={styles.atlasSection} aria-labelledby="atlas-title">
-        <div className={styles.atlasContainer}>
-          {/* Marco del atlas */}
-          <div className={styles.atlasFrame}>
-            {/* Header del atlas */}
-            <div className={styles.atlasHeader}>
-              <h2 id="atlas-title" className={styles.atlasTitle}>Atlas Mundial</h2>
-              <p className={styles.atlasSubtitle}>Explora países, descubre rutas y convierte cada destino en una aventura memorable</p>
+        {/* Hero cinematográfico */}
+        <section className={styles.hero} aria-labelledby="hero-title">
+          {/* Contenido del hero con layout enriquecido */}
+          <div className={styles.heroLayout}>
+            {/* Visual lateral izquierdo - Inspiración viajera con imagen real */}
+            <div className={styles.heroVisualLeft} aria-hidden="true">
+              <div className={styles.visualImageCard}>
+                <img 
+                  src={heroImage} 
+                  alt="Viajero contemplando horizonte al amanecer"
+                  className={styles.visualImage}
+                />
+                <div className={styles.visualImageOverlay}>
+                  <span className={styles.visualImageLabel}>Empieza por una vista</span>
+                </div>
+              </div>
             </div>
 
-            {/* Contenedor del mapa */}
-            <div className={styles.mapPortal}>
-              <WorldMap />
+            {/* Contenido central */}
+            <div className={styles.heroContent}>
+              <div className={styles.heroEyebrow}>Un atlas vivo para viajar, aprender y descubrir</div>
+              <h1 id="hero-title" className={styles.heroTitle}>
+                El mundo no empieza en una lista.
+                <span className={styles.heroTitleAccent}>Empieza en un mapa.</span>
+              </h1>
+              <p className={styles.heroSubtitle}>
+                {heroSubtitle}
+              </p>
+
+              {/* Selector de modo premium */}
+              <div className={styles.modeSelector} role="group" aria-label="Selecciona tu modo de exploración">
+                <a
+                  href="?modo=adventure"
+                  className={`${styles.modeButton} ${experienceMode === 'adventure' ? styles.modeButtonActive : ''}`}
+                  aria-pressed={experienceMode === 'adventure'}
+                >
+                  <span className={styles.modeIcon}>🎒</span>
+                  <span className={styles.modeLabel}>
+                    <span className={styles.modeLabelPrimary}>Modo Aventura</span>
+                    <span className={styles.modeLabelSecondary}>Rutas y planes detallados</span>
+                  </span>
+                </a>
+                <a
+                  href="?modo=student"
+                  className={`${styles.modeButton} ${experienceMode === 'student' ? styles.modeButtonActive : ''}`}
+                  aria-pressed={experienceMode === 'student'}
+                >
+                  <span className={styles.modeIcon}>🎓</span>
+                  <span className={styles.modeLabel}>
+                    <span className={styles.modeLabelPrimary}>Modo Estudiante</span>
+                    <span className={styles.modeLabelSecondary}>Historia y cultura</span>
+                  </span>
+                </a>
+              </div>
+
+              {/* CTAs principales */}
+              <div className={styles.heroActions}>
+                <a href="#atlas-mundial" className={styles.heroCtaPrimary}>
+                  Abrir el atlas
+                </a>
+                <a href="#destinos" className={styles.heroCtaSecondary}>
+                  Ver destinos destacados
+                </a>
+              </div>
             </div>
 
-            {/* Hint debajo del mapa */}
-            <p className={styles.mapHint}>
-              <span className={styles.mapHintIcon}>👆</span>
-              Haz clic en cualquier país para empezar a explorar
-            </p>
+            {/* Visual lateral derecho - Destinos/Atlas */}
+            <div className={styles.heroVisualRight} aria-hidden="true">
+              <div className={styles.visualCard}>
+                <div className={styles.visualCardIcon}>🗺️</div>
+                <span className={styles.visualCardLabel}>Destinos por descubrir</span>
+              </div>
+            </div>
           </div>
 
-          {/* Tarjetas de valor */}
-          <div className={styles.valueCards}>
-            <article className={styles.valueCard}>
-              <div className={styles.valueCardIcon} aria-hidden="true">🌍</div>
-              <h3 className={styles.valueCardTitle}>Explora países desde el mapa</h3>
-              <p className={styles.valueCardText}>Navega visualmente por el mundo y descubre destinos que no sabías que existían.</p>
-            </article>
-            <article className={styles.valueCard}>
-              <div className={styles.valueCardIcon} aria-hidden="true">🗺️</div>
-              <h3 className={styles.valueCardTitle}>Descubre zonas y aventuras</h3>
-              <p className={styles.valueCardText}>Cada país esconde regiones únicas con rutas practicadas y experiencias reales.</p>
-            </article>
-            <article className={styles.valueCard}>
-              <div className={styles.valueCardIcon} aria-hidden="true">📚</div>
-              <h3 className={styles.valueCardTitle}>Aprende viajando</h3>
-              <p className={styles.valueCardText}>Contexto histórico, datos culturales y curiosidades que enriquecen cada destino.</p>
-            </article>
+          {/* Indicador scroll */}
+          <div className={styles.scrollIndicator} aria-hidden="true">
+            <div className={styles.scrollLine} />
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Mapa mundial - Portal cartográfico apoyado sobre zona amarilla (mismo fondo continuo) */}
+        <section id="atlas-mundial" className={styles.atlasSection} aria-labelledby="atlas-title">
+          <div className={styles.atlasContainer}>
+            {/* Marco del atlas */}
+            <div className={styles.atlasFrame}>
+              {/* Header del atlas */}
+              <div className={styles.atlasHeader}>
+                <h2 id="atlas-title" className={styles.atlasTitle}>Atlas Mundial</h2>
+                <p className={styles.atlasSubtitle}>Explora países, descubre rutas y convierte cada destino en una aventura memorable</p>
+              </div>
+
+              {/* Contenedor del mapa */}
+              <div className={styles.mapPortal}>
+                <WorldMap />
+              </div>
+
+              {/* Hint debajo del mapa */}
+              <p className={styles.mapHint}>
+                <span className={styles.mapHintIcon}>👆</span>
+                Haz clic en cualquier país para empezar a explorar
+              </p>
+            </div>
+
+            {/* Tarjetas de valor */}
+            <div className={styles.valueCards}>
+              <article className={styles.valueCard}>
+                <div className={styles.valueCardIcon} aria-hidden="true">🌍</div>
+                <h3 className={styles.valueCardTitle}>Explora países desde el mapa</h3>
+                <p className={styles.valueCardText}>Navega visualmente por el mundo y descubre destinos que no sabías que existían.</p>
+              </article>
+              <article className={styles.valueCard}>
+                <div className={styles.valueCardIcon} aria-hidden="true">🗺️</div>
+                <h3 className={styles.valueCardTitle}>Descubre zonas y aventuras</h3>
+                <p className={styles.valueCardText}>Cada país esconde regiones únicas con rutas practicadas y experiencias reales.</p>
+              </article>
+              <article className={styles.valueCard}>
+                <div className={styles.valueCardIcon} aria-hidden="true">📚</div>
+                <h3 className={styles.valueCardTitle}>Aprende viajando</h3>
+                <p className={styles.valueCardText}>Contexto histórico, datos culturales y curiosidades que enriquecen cada destino.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* Contenido principal */}
       <main className={styles.main}>
