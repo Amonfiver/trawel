@@ -1,13 +1,18 @@
 /**
- * Página de inicio de Trawel
- * 
- * Propósito: Punto de entrada editorial con mapa protagonista
- * Alcance: Hero, mapa interactivo, modos de viaje, destinos y aventuras destacadas
- * 
+ * HomePage - Trawel Atlas Premium
+ *
+ * Propósito: Punto de entrada editorial con identidad visual madre.
+ * Dirección "Trawel Atlas Premium": atlas interactivo, portal de exploración,
+ * producto travel-tech moderno, cálido, elegante y cinematográfico.
+ *
+ * Alcance: Hero cinematográfico, mapa protagonista en contenedor atlas,
+ * selector de modo premium, tarjetas de valor, CTAs fuertes.
+ *
  * Decisiones técnicas:
- * - WorldMap como elemento principal visual
- * - Contenido editorial hardcodeado inicialmente
- * - Estructura preparada para datos dinámicos e imágenes futuras
+ * - WorldMap como elemento principal visual (NO modificar)
+ * - Contenedor tipo "portal cartográfico" para el mapa
+ * - Composición con profundidad y capas atmosféricas
+ * - Mobile-first, sin overflow horizontal
  */
 
 import { WorldMap } from '../../features/map/components/WorldMap';
@@ -127,7 +132,6 @@ const featuredAdventures: Array<{
 
 /**
  * Placeholder visual para imágenes futuras
- * Muestra un gradiente elegante con indicación del tipo de contenido
  */
 function ImagePlaceholder({ kind, alt }: { kind: ImageKind; alt: string }) {
   const kindLabels: Record<ImageKind, string> = {
@@ -140,7 +144,7 @@ function ImagePlaceholder({ kind, alt }: { kind: ImageKind; alt: string }) {
   };
 
   return (
-    <div 
+    <div
       className={styles.imagePlaceholder}
       role="img"
       aria-label={alt}
@@ -156,18 +160,18 @@ function ImagePlaceholder({ kind, alt }: { kind: ImageKind; alt: string }) {
 /**
  * Componente de imagen con fallback a placeholder
  */
-function CardImage({ 
-  image, 
-  className 
-}: { 
+function CardImage({
+  image,
+  className
+}: {
   image: { url?: string; alt: string; kind: ImageKind };
   className?: string;
 }) {
   if (image.url) {
     return (
       <div className={`${styles.cardImageWrapper} ${className || ''}`}>
-        <img 
-          src={image.url} 
+        <img
+          src={image.url}
           alt={image.alt}
           className={styles.cardImage}
           loading="lazy"
@@ -185,9 +189,10 @@ function CardImage({
 
 /**
  * HomePage - Página principal de Trawel
- * 
- * Presenta el mapa mundial como elemento central de exploración,
- * con contenido editorial que explica la propuesta de valor.
+ *
+ * Presenta el mapa mundial como elemento central de exploración
+ * en un contenedor tipo "atlas vivo", con hero cinematográfico
+ * y selector de modo premium.
  */
 export function HomePage() {
   const { mode: experienceMode } = useExperienceMode();
@@ -199,73 +204,126 @@ export function HomePage() {
 
   return (
     <div className={styles.container}>
-      {/* Hero editorial */}
+      {/* Hero cinematográfico - Atlas Premium */}
       <section className={styles.hero} aria-labelledby="hero-title">
+        {/* Capas atmosféricas de fondo */}
+        <div className={styles.heroAtmosphere} aria-hidden="true">
+          <div className={styles.atmosphereLayer1} />
+          <div className={styles.atmosphereLayer2} />
+          <div className={styles.atmosphereLayer3} />
+        </div>
+
+        {/* Contenido del hero */}
         <div className={styles.heroContent}>
+          <div className={styles.heroEyebrow}>Un atlas vivo para viajar, aprender y descubrir</div>
           <h1 id="hero-title" className={styles.heroTitle}>
-            Historias reales para viajes inolvidables
+            El mundo no empieza en una lista.
+            <span className={styles.heroTitleAccent}>Empieza en un mapa.</span>
           </h1>
           <p className={styles.heroSubtitle}>
             {heroSubtitle}
           </p>
-          <a href="#mapa-mundial" className={styles.heroCta}>
-            Explora el mapa
-          </a>
+
+          {/* Selector de modo premium */}
+          <div className={styles.modeSelector} role="group" aria-label="Selecciona tu modo de exploración">
+            <a
+              href="?modo=adventure"
+              className={`${styles.modeButton} ${experienceMode === 'adventure' ? styles.modeButtonActive : ''}`}
+              aria-pressed={experienceMode === 'adventure'}
+            >
+              <span className={styles.modeIcon}>🎒</span>
+              <span className={styles.modeLabel}>
+                <span className={styles.modeLabelPrimary}>Modo Aventura</span>
+                <span className={styles.modeLabelSecondary}>Rutas y planes detallados</span>
+              </span>
+            </a>
+            <a
+              href="?modo=student"
+              className={`${styles.modeButton} ${experienceMode === 'student' ? styles.modeButtonActive : ''}`}
+              aria-pressed={experienceMode === 'student'}
+            >
+              <span className={styles.modeIcon}>🎓</span>
+              <span className={styles.modeLabel}>
+                <span className={styles.modeLabelPrimary}>Modo Estudiante</span>
+                <span className={styles.modeLabelSecondary}>Historia y cultura</span>
+              </span>
+            </a>
+          </div>
+
+          {/* CTAs principales */}
+          <div className={styles.heroActions}>
+            <a href="#atlas-mundial" className={styles.heroCtaPrimary}>
+              Abrir el atlas
+            </a>
+            <a href="#destinos" className={styles.heroCtaSecondary}>
+              Ver destinos destacados
+            </a>
+          </div>
         </div>
 
-        {/* Mapa mundial - Elemento principal */}
-        <div id="mapa-mundial" className={styles.mapContainer}>
-          <WorldMap />
-          <p className={styles.mapHint}>
-            Haz clic en un país para empezar a explorar
-          </p>
+        {/* Indicador scroll */}
+        <div className={styles.scrollIndicator} aria-hidden="true">
+          <div className={styles.scrollLine} />
+        </div>
+      </section>
+
+      {/* Mapa mundial - Portal cartográfico */}
+      <section id="atlas-mundial" className={styles.atlasSection} aria-labelledby="atlas-title">
+        <div className={styles.atlasContainer}>
+          {/* Marco del atlas */}
+          <div className={styles.atlasFrame}>
+            {/* Header del atlas */}
+            <div className={styles.atlasHeader}>
+              <h2 id="atlas-title" className={styles.atlasTitle}>Atlas Mundial</h2>
+              <p className={styles.atlasSubtitle}>Explora países, descubre rutas y convierte cada destino en una aventura memorable</p>
+            </div>
+
+            {/* Contenedor del mapa */}
+            <div className={styles.mapPortal}>
+              <WorldMap />
+            </div>
+
+            {/* Hint debajo del mapa */}
+            <p className={styles.mapHint}>
+              <span className={styles.mapHintIcon}>👆</span>
+              Haz clic en cualquier país para empezar a explorar
+            </p>
+          </div>
+
+          {/* Tarjetas de valor */}
+          <div className={styles.valueCards}>
+            <article className={styles.valueCard}>
+              <div className={styles.valueCardIcon} aria-hidden="true">🌍</div>
+              <h3 className={styles.valueCardTitle}>Explora países desde el mapa</h3>
+              <p className={styles.valueCardText}>Navega visualmente por el mundo y descubre destinos que no sabías que existían.</p>
+            </article>
+            <article className={styles.valueCard}>
+              <div className={styles.valueCardIcon} aria-hidden="true">🗺️</div>
+              <h3 className={styles.valueCardTitle}>Descubre zonas y aventuras</h3>
+              <p className={styles.valueCardText}>Cada país esconde regiones únicas con rutas practicadas y experiencias reales.</p>
+            </article>
+            <article className={styles.valueCard}>
+              <div className={styles.valueCardIcon} aria-hidden="true">📚</div>
+              <h3 className={styles.valueCardTitle}>Aprende viajando</h3>
+              <p className={styles.valueCardText}>Contexto histórico, datos culturales y curiosidades que enriquecen cada destino.</p>
+            </article>
+          </div>
         </div>
       </section>
 
       {/* Contenido principal */}
       <main className={styles.main}>
-        {/* Sección de modos de viaje */}
-        <section className={styles.section} aria-labelledby="modes-title">
-          <h2 id="modes-title" className={styles.sectionTitle}>
-            Elige cómo quieres viajar
-          </h2>
-          <p className={styles.sectionDescription}>
-            Trawel se adapta a tu forma de descubrir el mundo. Cambia de modo cuando quieras desde el selector superior.
-          </p>
-
-          <div className={styles.modesGrid}>
-            <article className={styles.modeCard}>
-              <div className={styles.modeIcon}>🎒</div>
-              <h3 className={styles.modeTitle}>Modo Aventura</h3>
-              <ul className={styles.modeFeatures}>
-                <li>Rutas y planes detallados</li>
-                <li>Lugares especiales fuera de lo común</li>
-                <li>Experiencias vividas por otros viajeros</li>
-                <li>Consejos prácticos para cada etapa</li>
-              </ul>
-            </article>
-
-            <article className={styles.modeCard}>
-              <div className={styles.modeIcon}>🎓</div>
-              <h3 className={styles.modeTitle}>Modo Estudiante</h3>
-              <ul className={styles.modeFeatures}>
-                <li>Contexto histórico y cultural</li>
-                <li>Datos para entender cada destino</li>
-                <li>Enfoque de aprendizaje y descubrimiento</li>
-                <li>Contenido estructurado por temas</li>
-              </ul>
-            </article>
-          </div>
-        </section>
-
         {/* Destinos destacados */}
-        <section className={styles.section} aria-labelledby="destinations-title">
-          <h2 id="destinations-title" className={styles.sectionTitle}>
-            Destinos destacados
-          </h2>
-          <p className={styles.sectionDescription}>
-            Empieza tu exploración por estos países con contenido disponible o en preparación.
-          </p>
+        <section id="destinos" className={styles.section} aria-labelledby="destinations-title">
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionEyebrow}>Destinos</span>
+            <h2 id="destinations-title" className={styles.sectionTitle}>
+              Empieza tu exploración
+            </h2>
+            <p className={styles.sectionDescription}>
+              Países con contenido disponible o en preparación. Selecciona uno para descubrir su mapa, zonas y aventuras.
+            </p>
+          </div>
 
           <div className={styles.destinationsGrid}>
             {featuredDestinations.map(dest => (
@@ -293,12 +351,15 @@ export function HomePage() {
 
         {/* Aventuras y planes destacados */}
         <section className={styles.section} aria-labelledby="adventures-title">
-          <h2 id="adventures-title" className={styles.sectionTitle}>
-            Aventuras y planes destacados
-          </h2>
-          <p className={styles.sectionDescription}>
-            Ideas de viaje que Trawel quiere destacar. Algunas ya disponibles, otras en preparación.
-          </p>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionEyebrow}>Aventuras</span>
+            <h2 id="adventures-title" className={styles.sectionTitle}>
+              Planes destacados
+            </h2>
+            <p className={styles.sectionDescription}>
+              Ideas de viaje que Trawel quiere destacar. Algunas ya disponibles, otras en preparación.
+            </p>
+          </div>
 
           <div className={styles.adventuresGrid}>
             {featuredAdventures.map(adventure => (
@@ -322,18 +383,21 @@ export function HomePage() {
 
         {/* CTA para compartir */}
         <section className={styles.shareSection} aria-labelledby="share-title">
-          <h2 id="share-title" className={styles.shareTitle}>
-            ¿Tienes una experiencia que contar?
-          </h2>
-          <p className={styles.shareDescription}>
-            Comparte tu aventura con la comunidad Trawel. Todas las historias se revisan antes de publicarse para mantener la calidad del contenido.
-          </p>
-          <a href="/compartir" className={styles.shareCta}>
-            Compartir mi aventura
-          </a>
+          <div className={styles.shareContent}>
+            <span className={styles.shareEyebrow}>Comunidad</span>
+            <h2 id="share-title" className={styles.shareTitle}>
+              ¿Tienes una experiencia que contar?
+            </h2>
+            <p className={styles.shareDescription}>
+              Comparte tu aventura con la comunidad Trawel. Todas las historias se revisan antes de publicarse para mantener la calidad del contenido.
+            </p>
+            <a href="/compartir" className={styles.shareCta}>
+              Compartir mi aventura
+            </a>
+          </div>
         </section>
 
-        {/* Zona de recursos futuros (AdSense-safe placeholder) */}
+        {/* Zona de recursos futuros */}
         <section className={styles.resourcesSection} aria-labelledby="resources-title">
           <div className={styles.resourcesHeader}>
             <span className={styles.resourcesEyebrow}>En preparación</span>
@@ -341,7 +405,7 @@ export function HomePage() {
               Guías, recursos y recomendaciones
             </h2>
             <p className={styles.sectionDescription}>
-              Pronto encontrarás aquí selecciones de recursos útiles para preparar tus viajes. Esta zona está reservada para futuro contenido editorial.
+              Pronto encontrarás aquí selecciones de recursos útiles para preparar tus viajes.
             </p>
           </div>
 

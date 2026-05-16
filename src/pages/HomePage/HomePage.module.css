@@ -1,136 +1,440 @@
 /**
- * Estilos de HomePage - Trawel
+ * HomePage.module.css - Trawel Atlas Premium
  *
- * Paleta travel moderna:
- * - Primario: #1e3a5f (azul profundo viajero)
- * - Secundario: #2563eb (azul brillante)
- * - Arena: #f5f0e8, #ebe4d8 (tonos calidos)
- * - Acento: #0d9488 (teal natural)
- * - Neutros: #0f172a, #475569, #94a3b8
+ * Dirección visual: atlas interactivo premium, portal de exploración,
+ * producto travel-tech moderno, cálido, elegante y cinematográfico.
+ *
+ * Paleta "Trawel Atlas Premium":
+ * - Azul profundo: #0f2744 (noche, profundidad)
+ * - Azul cielo: #4a90a4 (horizonte, frescura)
+ * - Azul petróleo: #1a3a4a (elegancia, seriedad)
+ * - Arena cálida: #d4a574, #c9956a (tierra, calidez)
+ * - Dorado trigo: #c9a962, #b8954a (acento cálido)
+ * - Ámbar suave: #e8c547 (highlights, energía)
+ * - Blanco cálido: #faf8f5 (fondos, aire)
+ * - Gris pizarra: #3d4f5f (textos secundarios)
+ * - Turquesa suave: #5a9a9e (acentos sutiles)
+ *
+ * Principios:
+ * - Mobile-first, sin overflow horizontal
+ * - Contraste fuerte, texto siempre legible
+ * - Profundidad mediante capas y sombras
+ * - Transiciones suaves pero no lentas
  */
 
-/* Contenedor principal */
+/* ============================================
+   VARIABLES CSS LOCALES
+   ============================================ */
+
 .container {
+  --color-deep-blue: #0f2744;
+  --color-sky-blue: #4a90a4;
+  --color-petroleum: #1a3a4a;
+  --color-sand: #d4a574;
+  --color-sand-dark: #c9956a;
+  --color-gold: #c9a962;
+  --color-gold-dark: #b8954a;
+  --color-amber: #e8c547;
+  --color-warm-white: #faf8f5;
+  --color-cream: #f5f0e8;
+  --color-slate: #3d4f5f;
+  --color-slate-light: #5a6b7a;
+  --color-turquoise: #5a9a9e;
+  --color-border: #e8e2d9;
+
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #fafbfc;
+  background: var(--color-warm-white);
 }
 
 /* ============================================
-   HERO SECTION
+   HERO CINEMATOGRÁFICO
    ============================================ */
 
 .hero {
   position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem 4rem;
+  overflow: hidden;
   background: linear-gradient(
     180deg,
-    #f8fafc 0%,
-    #f0f7ff 25%,
-    #e8f4f8 50%,
-    #f5f0e8 75%,
-    #fafbfc 100%
+    var(--color-deep-blue) 0%,
+    #1a3a52 40%,
+    var(--color-petroleum) 70%,
+    #2a4a5a 100%
   );
-  padding: 3rem 1.5rem 2rem;
+}
+
+/* Capas atmosféricas */
+.heroAtmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   overflow: hidden;
 }
 
-/* Linea decorativa superior - sutil y elegante */
-.hero::before {
-  content: '';
+.atmosphereLayer1 {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    #1e3a5f 0%,
-    #2563eb 50%,
-    #0d9488 100%
-  );
-  opacity: 0.85;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(74, 144, 164, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(201, 169, 98, 0.08) 0%, transparent 40%);
+  opacity: 0.8;
 }
 
-/* Contenido del hero (texto) */
+.atmosphereLayer2 {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 100% 60% at 20% 80%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(90, 154, 158, 0.05) 0%, transparent 30%);
+}
+
+.atmosphereLayer3 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    to top,
+    rgba(15, 39, 68, 0.4) 0%,
+    transparent 100%
+  );
+}
+
+/* Contenido del hero */
 .heroContent {
-  max-width: 800px;
-  margin: 0 auto 2rem;
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.heroEyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-gold);
+  padding: 0.5rem 1rem;
+  background: rgba(201, 169, 98, 0.1);
+  border: 1px solid rgba(201, 169, 98, 0.25);
+  border-radius: 50px;
 }
 
 .heroTitle {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 6vw, 3.75rem);
   font-weight: 800;
-  color: #1e3a5f;
-  margin: 0 0 0.75rem;
+  color: var(--color-warm-white);
+  margin: 0;
   line-height: 1.1;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   text-wrap: balance;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.heroTitleAccent {
+  display: block;
+  color: var(--color-amber);
+  margin-top: 0.25rem;
 }
 
 .heroSubtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  color: #475569;
-  margin: 0 0 1.75rem;
-  line-height: 1.6;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: rgba(250, 248, 245, 0.85);
+  margin: 0;
+  line-height: 1.7;
+  max-width: 640px;
   text-wrap: pretty;
 }
 
-/* CTA del hero - Estilo premium */
-.heroCta {
+/* Selector de modo premium */
+.modeSelector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.modeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: rgba(250, 248, 245, 0.08);
+  border: 1px solid rgba(250, 248, 245, 0.2);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 200ms ease;
+  min-width: 180px;
+}
+
+.modeButton:hover {
+  background: rgba(250, 248, 245, 0.12);
+  border-color: rgba(250, 248, 245, 0.3);
+  transform: translateY(-2px);
+}
+
+.modeButtonActive {
+  background: rgba(201, 169, 98, 0.2);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 20px rgba(201, 169, 98, 0.15);
+}
+
+.modeButtonActive:hover {
+  background: rgba(201, 169, 98, 0.25);
+}
+
+.modeIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.modeLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+}
+
+.modeLabelPrimary {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-warm-white);
+  line-height: 1.2;
+}
+
+.modeLabelSecondary {
+  font-size: 0.75rem;
+  color: rgba(250, 248, 245, 0.6);
+  line-height: 1.2;
+}
+
+/* CTAs del hero */
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.heroCtaPrimary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
-  color: white;
+  padding: 1rem 2.25rem;
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark) 100%);
+  color: var(--color-deep-blue);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 50px;
+  box-shadow:
+    0 4px 14px rgba(201, 169, 98, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 200ms ease;
+}
+
+.heroCtaPrimary:hover {
+  background: linear-gradient(135deg, #d4b76a 0%, var(--color-gold) 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(201, 169, 98, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.heroCtaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.25rem;
+  background: transparent;
+  color: var(--color-warm-white);
   font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
   border-radius: 50px;
-  box-shadow:
-    0 2px 8px rgba(30, 58, 95, 0.25),
-    0 1px 2px rgba(30, 58, 95, 0.15);
+  border: 1.5px solid rgba(250, 248, 245, 0.4);
   transition: all 200ms ease;
 }
 
-.heroCta:hover {
-  background: linear-gradient(135deg, #2d4a6f 0%, #1e3a5f 100%);
+.heroCtaSecondary:hover {
+  background: rgba(250, 248, 245, 0.1);
+  border-color: rgba(250, 248, 245, 0.6);
   transform: translateY(-2px);
-  box-shadow:
-    0 6px 20px rgba(30, 58, 95, 0.3),
-    0 2px 6px rgba(30, 58, 95, 0.15);
 }
 
-.heroCta:active {
-  transform: translateY(0);
+/* Indicador scroll */
+.scrollIndicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.6;
 }
 
-/* Contenedor del mapa */
-.mapContainer {
+.scrollLine {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--color-gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(0.8); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+/* ============================================
+   SECCIÓN ATLAS - PORTAL CARTOGRÁFICO
+   ============================================ */
+
+.atlasSection {
+  position: relative;
+  padding: 4rem 1rem 5rem;
+  background: linear-gradient(
+    180deg,
+    #2a4a5a 0%,
+    var(--color-warm-white) 15%,
+    var(--color-cream) 100%
+  );
+}
+
+.atlasContainer {
   max-width: 1200px;
   margin: 0 auto;
-  width: 100%;
-  min-width: 0;
-  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* Marco del atlas */
+.atlasFrame {
+  background: linear-gradient(145deg, #ffffff 0%, var(--color-warm-white) 100%);
+  border-radius: 24px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 10px 40px rgba(15, 39, 68, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
-/* Hint debajo del mapa - Mas visible */
+.atlasHeader {
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(180deg, #ffffff 0%, var(--color-warm-white) 100%);
+}
+
+.atlasTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-deep-blue);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.atlasSubtitle {
+  font-size: 1rem;
+  color: var(--color-slate);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Portal del mapa */
+.mapPortal {
+  padding: 1.5rem;
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+}
+
 .mapHint {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  padding: 1rem 1.5rem 1.5rem;
+  margin: 0;
   text-align: center;
-  color: #64748b;
+  color: var(--color-slate);
   font-size: 0.9375rem;
-  margin: 1.25rem 0 0;
   font-weight: 500;
+  background: var(--color-warm-white);
+  border-top: 1px solid var(--color-border);
+}
+
+.mapHintIcon {
+  font-size: 1.125rem;
+}
+
+/* Tarjetas de valor */
+.valueCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.valueCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
+  transition: all 200ms ease;
+}
+
+.valueCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(15, 39, 68, 0.08);
+  border-color: var(--color-sand);
+}
+
+.valueCardIcon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, var(--color-cream) 0%, #ffffff 100%);
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+}
+
+.valueCardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-deep-blue);
+  margin: 0 0 0.75rem;
+  line-height: 1.3;
+}
+
+.valueCardText {
+  font-size: 0.9375rem;
+  color: var(--color-slate);
+  margin: 0;
+  line-height: 1.6;
 }
 
 /* ============================================
@@ -142,7 +446,7 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  padding: 3rem 1.5rem 4rem;
+  padding: 2rem 1.5rem 4rem;
 }
 
 /* Secciones */
@@ -154,136 +458,39 @@
   margin-bottom: 0;
 }
 
-.sectionTitle {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1e3a5f;
-  margin: 0 0 0.75rem;
+.sectionHeader {
   text-align: center;
-  letter-spacing: -0.015em;
-  position: relative;
-  padding-bottom: 1rem;
+  margin-bottom: 2.5rem;
 }
 
-/* Linea decorativa bajo titulos */
-.sectionTitle::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
-  height: 3px;
-  background: linear-gradient(90deg, #2563eb, #0d9488);
-  border-radius: 2px;
+.sectionEyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-gold-dark);
+  margin-bottom: 0.75rem;
+  padding: 0.375rem 0.875rem;
+  background: rgba(201, 169, 98, 0.1);
+  border-radius: 50px;
+}
+
+.sectionTitle {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--color-deep-blue);
+  margin: 0 0 0.875rem;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 .sectionDescription {
-  font-size: 1rem;
-  color: #64748b;
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto 2rem;
+  font-size: 1.0625rem;
+  color: var(--color-slate);
+  max-width: 640px;
+  margin: 0 auto;
   line-height: 1.6;
-}
-
-/* ============================================
-   MODOS DE VIAJE
-   ============================================ */
-
-.modesGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.modeCard {
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border-radius: 16px;
-  padding: 1.75rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 200ms ease;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Borde lateral al hover segun modo */
-.modeCard::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: #2563eb;
-  transform: scaleY(0);
-  transition: transform 200ms ease;
-}
-
-.modeCard:nth-child(2)::before {
-  background: #0d9488;
-}
-
-.modeCard:hover {
-  box-shadow: 0 8px 24px rgba(30, 58, 95, 0.1);
-  transform: translateY(-2px);
-  border-color: #cbd5e1;
-}
-
-.modeCard:hover::before {
-  transform: scaleY(1);
-}
-
-.modeIcon {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.75rem;
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, #f0f7ff 0%, #e8f4f8 100%);
-  border-radius: 14px;
-  line-height: 1;
-}
-
-.modeTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e3a5f;
-  margin: 0 0 1rem;
-}
-
-.modeFeatures {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.modeFeatures li {
-  font-size: 0.9375rem;
-  color: #475569;
-  padding-left: 1.5rem;
-  position: relative;
-  line-height: 1.5;
-}
-
-.modeFeatures li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.5rem;
-  width: 8px;
-  height: 8px;
-  background: #0d9488;
-  border-radius: 50%;
 }
 
 /* ============================================
@@ -296,7 +503,7 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: 12px 12px 0 0;
-  background: #f1f5f9;
+  background: var(--color-cream);
 }
 
 .cardImage {
@@ -326,17 +533,16 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #e8f4f8 0%, #f0f7ff 50%, #f5f0e8 100%);
+  background: linear-gradient(135deg, var(--color-cream) 0%, #f0ebe3 50%, #e8e2d9 100%);
   transition: all 200ms ease;
 }
 
-/* Variantes de gradiente segun tipo de imagen */
 .placeholderGradient[data-kind="pais"] {
   background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
 }
 
 .placeholderGradient[data-kind="ciudad"] {
-  background: linear-gradient(135deg, #f5f0e8 0%, #ebe4d8 50%, #ddd6c8 100%);
+  background: linear-gradient(135deg, var(--color-cream) 0%, #ebe4d8 50%, #ddd6c8 100%);
 }
 
 .placeholderGradient[data-kind="paisaje"] {
@@ -358,7 +564,7 @@
 .placeholderLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--color-slate);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -366,7 +572,7 @@
 .placeholderHint {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #64748b;
+  color: var(--color-slate-light);
 }
 
 /* ============================================
@@ -377,25 +583,24 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.25rem;
-  margin-top: 2rem;
 }
 
 .destinationCard {
   display: flex;
   flex-direction: column;
-  background: white;
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
   text-decoration: none;
   transition: all 250ms ease;
   overflow: hidden;
 }
 
 .destinationCard:hover {
-  box-shadow: 0 12px 32px rgba(30, 58, 95, 0.12);
+  box-shadow: 0 12px 32px rgba(15, 39, 68, 0.1);
   transform: translateY(-4px);
-  border-color: #2563eb;
+  border-color: var(--color-sand);
 }
 
 .destinationImage {
@@ -419,13 +624,13 @@
 .destinationName {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1e3a5f;
+  color: var(--color-deep-blue);
   margin: 0;
 }
 
 .destinationDescription {
   font-size: 0.9375rem;
-  color: #64748b;
+  color: var(--color-slate);
   margin: 0;
   line-height: 1.55;
 }
@@ -438,24 +643,23 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
-  margin-top: 2rem;
 }
 
 .adventureCard {
   display: flex;
   flex-direction: column;
-  background: white;
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
   overflow: hidden;
   transition: all 250ms ease;
 }
 
 .adventureCard:hover {
-  box-shadow: 0 12px 32px rgba(30, 58, 95, 0.12);
+  box-shadow: 0 12px 32px rgba(15, 39, 68, 0.1);
   transform: translateY(-4px);
-  border-color: #0d9488;
+  border-color: var(--color-turquoise);
 }
 
 .adventureImage {
@@ -479,8 +683,8 @@
 
 .adventureType {
   font-size: 0.75rem;
-  font-weight: 600;
-  color: #2563eb;
+  font-weight: 700;
+  color: var(--color-sky-blue);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -499,106 +703,117 @@
 .adventureTitle {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1e3a5f;
+  color: var(--color-deep-blue);
   margin: 0 0 0.5rem;
   line-height: 1.3;
 }
 
 .adventureLocation {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-slate-light);
   margin: 0 0 0.75rem;
 }
 
 .adventureDescription {
   font-size: 0.9375rem;
-  color: #475569;
+  color: var(--color-slate);
   margin: 0;
   line-height: 1.55;
 }
 
 /* ============================================
-   SECCION COMPARTIR
+   SECCIÓN COMPARTIR
    ============================================ */
 
 .shareSection {
-  background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
-  border-radius: 20px;
-  padding: 3rem 2rem;
+  background: linear-gradient(135deg, var(--color-deep-blue) 0%, var(--color-petroleum) 100%);
+  border-radius: 24px;
+  padding: 4rem 2.5rem;
   text-align: center;
   margin-bottom: 4rem;
   position: relative;
   overflow: hidden;
 }
 
-/* Patron decorativo sutil */
 .shareSection::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(201, 169, 98, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(74, 144, 164, 0.06) 0%, transparent 50%);
   pointer-events: none;
 }
 
-.shareTitle {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 0.75rem;
+.shareContent {
   position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.shareEyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-gold);
+  margin-bottom: 1rem;
+}
+
+.shareTitle {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--color-warm-white);
+  margin: 0 0 1rem;
+  text-wrap: balance;
 }
 
 .shareDescription {
-  font-size: 1rem;
-  color: #cbd5e1;
-  max-width: 600px;
-  margin: 0 auto 1.75rem;
+  font-size: 1.0625rem;
+  color: rgba(250, 248, 245, 0.8);
+  margin: 0 0 2rem;
   line-height: 1.6;
-  position: relative;
 }
 
 .shareCta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.875rem 2rem;
-  background: white;
-  color: #1e3a5f;
+  padding: 1rem 2.25rem;
+  background: var(--color-warm-white);
+  color: var(--color-deep-blue);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   border-radius: 50px;
   transition: all 200ms ease;
-  position: relative;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
 .shareCta:hover {
-  background: #f8fafc;
+  background: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
 /* ============================================
-   SECCION RECURSOS
+   SECCIÓN RECURSOS
    ============================================ */
 
 .resourcesSection {
-  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 2rem;
+  background: linear-gradient(180deg, #ffffff 0%, var(--color-warm-white) 100%);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  padding: 2.5rem;
   margin-bottom: 3rem;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.04);
 }
 
 .resourcesHeader {
   text-align: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .resourcesEyebrow {
@@ -606,12 +821,12 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0.75rem;
-  color: #0d9488;
+  color: var(--color-turquoise);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%);
+  background: rgba(90, 154, 158, 0.1);
   padding: 0.375rem 0.875rem;
   border-radius: 50px;
 }
@@ -619,35 +834,35 @@
 .resourcesGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
   margin-top: 1.75rem;
 }
 
 .resourcePlaceholder {
-  background: linear-gradient(135deg, #fafbfc 0%, #f5f7f9 100%);
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--color-warm-white) 0%, var(--color-cream) 100%);
+  border: 1px dashed var(--color-border);
+  border-radius: 16px;
+  padding: 1.5rem;
   min-width: 0;
   transition: all 200ms ease;
 }
 
 .resourcePlaceholder:hover {
-  border-color: #94a3b8;
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-color: var(--color-sand);
+  background: linear-gradient(135deg, #ffffff 0%, var(--color-warm-white) 100%);
 }
 
 .resourceTitle {
   font-size: 1rem;
   font-weight: 700;
-  color: #1e3a5f;
+  color: var(--color-deep-blue);
   margin: 0 0 0.5rem;
   overflow-wrap: anywhere;
 }
 
 .resourceText {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-slate);
   margin: 0;
   line-height: 1.5;
 }
@@ -657,14 +872,13 @@
    ============================================ */
 
 .footer {
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  color: #f8fafc;
-  padding: 2.5rem 1.5rem 2rem;
+  background: linear-gradient(180deg, #0a1a2e 0%, var(--color-deep-blue) 100%);
+  color: var(--color-warm-white);
+  padding: 3rem 1.5rem 2.5rem;
   margin-top: auto;
   position: relative;
 }
 
-/* Linea decorativa superior del footer */
 .footer::before {
   content: '';
   position: absolute;
@@ -672,7 +886,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #1e3a5f, #2563eb, #0d9488);
+  background: linear-gradient(90deg, var(--color-gold), var(--color-sky-blue), var(--color-turquoise));
 }
 
 .footerContent {
@@ -686,8 +900,8 @@
 }
 
 .footerTagline {
-  font-size: 1.0625rem;
-  color: #e2e8f0;
+  font-size: 1.125rem;
+  color: rgba(250, 248, 245, 0.9);
   margin: 0;
   line-height: 1.5;
   font-weight: 500;
@@ -697,7 +911,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem 1.25rem;
+  gap: 0.5rem 1.5rem;
 }
 
 .footerLink {
@@ -705,7 +919,7 @@
   align-items: center;
   min-height: 40px;
   padding: 0.25rem 0.375rem;
-  color: #94a3b8;
+  color: var(--color-sand);
   font-size: 0.875rem;
   text-decoration: none;
   transition: all 200ms ease;
@@ -719,33 +933,32 @@
   left: 0.375rem;
   right: 0.375rem;
   height: 1px;
-  background: #2563eb;
+  background: var(--color-gold);
   transform: scaleX(0);
   transition: transform 200ms ease;
 }
 
 .footerLink:hover,
 .footerLink:focus-visible {
-  color: #f1f5f9;
+  color: var(--color-warm-white);
 }
 
 .footerLink:hover::after {
   transform: scaleX(1);
 }
 
-/* Separador visual antes del copyright */
 .footerDivider {
   width: 100%;
   max-width: 200px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #334155, transparent);
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.3), transparent);
   border: none;
   margin: 0;
 }
 
 .footerCopyright {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--color-slate-light);
   margin: 0;
 }
 
@@ -756,15 +969,52 @@
 /* Tablet */
 @media (max-width: 1024px) {
   .hero {
-    padding: 2.5rem 1.5rem 1.5rem;
+    padding: 5rem 1.25rem 3rem;
+    min-height: auto;
+  }
+
+  .heroTitle {
+    font-size: clamp(1.875rem, 5vw, 2.75rem);
+  }
+
+  .modeButton {
+    min-width: 160px;
+    padding: 0.75rem 1rem;
+  }
+
+  .atlasSection {
+    padding: 3rem 1rem 4rem;
+  }
+
+  .atlasFrame {
+    border-radius: 20px;
+  }
+
+  .atlasHeader {
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+
+  .mapPortal {
+    padding: 1rem;
+  }
+
+  .valueCards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .valueCard {
+    padding: 1.5rem 1rem;
+  }
+
+  .valueCardIcon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
   }
 
   .main {
-    padding: 2.5rem 1.5rem 3rem;
-  }
-
-  .section {
-    margin-bottom: 3rem;
+    padding: 2rem 1.25rem 3rem;
   }
 
   .destinationsGrid {
@@ -779,23 +1029,129 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .shareSection {
+    padding: 3rem 1.5rem;
+    border-radius: 20px;
+  }
+
   .cardImageWrapper {
     aspect-ratio: 16 / 9;
   }
 }
 
-/* Movil */
+/* Móvil */
 @media (max-width: 640px) {
   .hero {
-    padding: 2rem 1rem 1rem;
+    padding: 4rem 1rem 3rem;
   }
 
-  .mapContainer {
-    padding: 0;
+  .heroEyebrow {
+    font-size: 0.6875rem;
+    padding: 0.375rem 0.875rem;
+  }
+
+  .heroTitle {
+    font-size: 1.75rem;
+  }
+
+  .heroTitleAccent {
+    font-size: 1.5rem;
+  }
+
+  .modeSelector {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .modeButton {
+    min-width: auto;
+    padding: 0.875rem 1rem;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .heroCtaPrimary,
+  .heroCtaSecondary {
+    width: 100%;
+  }
+
+  .scrollIndicator {
+    display: none;
+  }
+
+  .atlasSection {
+    padding: 2rem 0.75rem 3rem;
+  }
+
+  .atlasFrame {
+    border-radius: 16px;
+    margin: 0 -0.25rem;
+  }
+
+  .atlasHeader {
+    padding: 1.25rem 1rem 1rem;
+  }
+
+  .atlasTitle {
+    font-size: 1.25rem;
+  }
+
+  .atlasSubtitle {
+    font-size: 0.875rem;
+  }
+
+  .mapPortal {
+    padding: 0.75rem;
+  }
+
+  .mapHint {
+    padding: 0.875rem 1rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .valueCards {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+
+  .valueCard {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .valueCardIcon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    font-size: 1.5rem;
+    margin-bottom: 0;
+  }
+
+  .valueCardTitle {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .valueCardText {
+    font-size: 0.8125rem;
   }
 
   .main {
-    padding: 2rem 1rem 3rem;
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .section {
+    margin-bottom: 3rem;
   }
 
   .sectionTitle {
@@ -806,7 +1162,6 @@
     font-size: 0.9375rem;
   }
 
-  .modesGrid,
   .destinationsGrid,
   .adventuresGrid,
   .resourcesGrid {
@@ -814,18 +1169,6 @@
     gap: 1rem;
   }
 
-  .modeCard {
-    padding: 1.25rem;
-  }
-
-  .modeIcon {
-    width: 48px;
-    height: 48px;
-    font-size: 1.5rem;
-    border-radius: 12px;
-  }
-
-  /* Cards de destino/aventura en movil - Layout horizontal */
   .destinationCard,
   .adventureCard {
     flex-direction: row;
@@ -847,15 +1190,24 @@
   }
 
   .shareSection {
-    padding: 2rem 1.25rem;
+    padding: 2.5rem 1.25rem;
     margin-bottom: 3rem;
     border-radius: 16px;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
+
+  .shareTitle {
+    font-size: 1.5rem;
+  }
+
+  .shareDescription {
+    font-size: 0.9375rem;
   }
 
   .resourcesSection {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1.25rem;
     border-radius: 16px;
-    margin-bottom: 2rem;
   }
 
   .placeholderLabel {
@@ -867,7 +1219,7 @@
   }
 
   .footer {
-    padding: 2rem 1rem 1.5rem;
+    padding: 2.5rem 1rem 2rem;
   }
 
   .footerTagline {
@@ -877,37 +1229,41 @@
 
 /* Alto contraste */
 @media (prefers-contrast: high) {
-  .modeCard,
+  .modeButton,
   .destinationCard,
   .adventureCard,
-  .resourcesSection {
+  .resourcesSection,
+  .valueCard {
     border-width: 2px;
   }
 
   .placeholderGradient {
-    border: 2px dashed #6b7280;
+    border: 2px dashed var(--color-slate);
   }
 
-  .hero::before,
-  .footer::before {
-    height: 4px;
+  .heroCtaPrimary,
+  .heroCtaSecondary,
+  .shareCta {
+    border: 2px solid currentColor;
   }
 }
 
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  .heroCta,
-  .modeCard,
+  .heroCtaPrimary,
+  .heroCtaSecondary,
+  .modeButton,
   .destinationCard,
   .adventureCard,
   .shareCta,
   .footerLink,
-  .cardImage {
+  .cardImage,
+  .valueCard,
+  .resourcePlaceholder {
     transition: none;
   }
 
-  .modeCard::before,
-  .footerLink::after {
-    transition: none;
+  .scrollLine {
+    animation: none;
   }
 }
