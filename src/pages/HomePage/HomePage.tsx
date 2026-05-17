@@ -1,14 +1,14 @@
 /**
  * HomePage - Trawel Atlas Premium
  *
- * Dirección "Trawel Atlas Premium": Rediseño split hero premium 2025.
- * Composición editorial de dos columnas, imagen protagonista, jerarquía visual clara.
- * Portal de exploración travel-tech moderno, cálido, elegante y cinematográfico.
+ * Rediseño 2025: Split hero premium cinematográfico.
+ * Composición editorial asimétrica, imagen protagonista dominante,
+ * jerarquía visual clara, experiencia travel-tech de lujo.
  *
  * Decisiones técnicas:
  * - WorldMap como elemento principal visual (NO modificar)
- * - Split hero: imagen 45% / contenido 55%
- * - Header integrado con hero
+ * - Split hero: imagen 42% / contenido 58%
+ * - Header integrado minimalista premium
  * - Transición suave al atlas
  * - Mobile-first, sin overflow horizontal
  */
@@ -188,7 +188,7 @@ function CardImage({
 }
 
 /**
- * Header integrado con el hero - versión premium
+ * Header integrado minimalista premium
  */
 function HeroHeader() {
   const { mode: experienceMode, setMode } = useExperienceMode();
@@ -213,15 +213,17 @@ function HeroHeader() {
             className={`${styles.modePill} ${experienceMode === 'adventure' ? styles.modePillActive : ''}`}
             onClick={() => setMode('adventure')}
             aria-pressed={experienceMode === 'adventure'}
+            title="Modo Aventura"
           >
-            🎒 Aventura
+            🎒 <span>Aventura</span>
           </button>
           <button
             className={`${styles.modePill} ${experienceMode === 'student' ? styles.modePillActive : ''}`}
             onClick={() => setMode('student')}
             aria-pressed={experienceMode === 'student'}
+            title="Modo Estudiante"
           >
-            🎓 Estudiante
+            🎓 <span>Estudiante</span>
           </button>
         </div>
       </div>
@@ -245,7 +247,7 @@ export function HomePage() {
 
   return (
     <div className={styles.container}>
-      {/* HERO PREMIUM - Split layout */}
+      {/* HERO PREMIUM - Split layout cinematográfico */}
       <section className={styles.heroPremium} aria-labelledby="hero-title">
         {/* Fondo atmosférico */}
         <div className={styles.heroAtmosphere} aria-hidden="true">
@@ -253,12 +255,12 @@ export function HomePage() {
           <div className={styles.heroAtmosphereGlow} />
         </div>
 
-        {/* Header integrado */}
+        {/* Header integrado minimalista */}
         <HeroHeader />
 
         {/* Contenido del hero - Split layout */}
         <div className={styles.heroSplit}>
-          {/* Columna izquierda: Imagen protagonista */}
+          {/* Columna izquierda: Imagen protagonista dominante */}
           <div className={styles.heroVisualColumn}>
             <div className={styles.heroImageFrame}>
               <img 
@@ -269,7 +271,7 @@ export function HomePage() {
               <div className={styles.heroImageOverlay}>
                 <span className={styles.heroImageTag}>Inspiración viajera</span>
               </div>
-              {/* Decoración de marco */}
+              {/* Decoración de marco premium */}
               <div className={styles.heroImageFrameDecoration} aria-hidden="true" />
             </div>
             {/* Indicadores de valor flotantes */}
@@ -300,7 +302,7 @@ export function HomePage() {
                 {heroSubtitle}
               </p>
 
-              {/* CTAs principales */}
+              {/* CTAs principales - dominancia visual clara */}
               <div className={styles.heroCtas}>
                 <a href="#atlas-mundial" className={styles.heroCtaPrimary}>
                   <span className={styles.heroCtaPrimaryIcon}>🗺️</span>
@@ -311,9 +313,9 @@ export function HomePage() {
                 </a>
               </div>
 
-              {/* Selector de modo integrado */}
+              {/* Selector de modo integrado con elegancia */}
               <div className={styles.heroModeChoice}>
-                <span className={styles.heroModeLabel}>Elige tu experiencia:</span>
+                <span className={styles.heroModeLabel}>Elige tu experiencia</span>
                 <div className={styles.heroModeButtons}>
                   <a
                     href="?modo=adventure"
