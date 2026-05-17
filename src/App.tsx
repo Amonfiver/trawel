@@ -1,51 +1,23 @@
 import { RouterProvider } from 'react-router-dom';
 import { router } from './app/routes';
-import { ExperienceModeProvider, ExperienceModeSwitch, useExperienceMode } from './features/experienceMode';
-import trawelLogo from './assets/brand/trawelogo.jpeg';
+import { ExperienceModeProvider } from './features/experienceMode';
 import './styles/variables/colors.css';
 import styles from './App.module.css';
 
 /**
- * Componente interno que usa el contexto del modo de experiencia
- */
-function AppContent() {
-  const { mode, setMode } = useExperienceMode();
-
-  return (
-    <div className={styles.app}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <a href="/" className={styles.logo}>
-            <img 
-              src={trawelLogo} 
-              alt="Trawel" 
-              className={styles.logoImage}
-            />
-          </a>
-          <ExperienceModeSwitch
-            currentMode={mode}
-            onModeChange={setMode}
-            className={styles.modeSelector}
-          />
-        </div>
-      </header>
-      <main className={styles.main}>
-        <RouterProvider router={router} />
-      </main>
-    </div>
-  );
-}
-
-/**
  * App con Provider del modo de experiencia
  * 
- * El selector Aventura/Estudiante está visible en todo momento
- * y persiste el modo en localStorage.
+ * El header ahora está integrado en HomePage para una experiencia
+ * de hero premium más inmersiva.
  */
 function App() {
   return (
     <ExperienceModeProvider>
-      <AppContent />
+      <div className={styles.app}>
+        <main className={styles.main}>
+          <RouterProvider router={router} />
+        </main>
+      </div>
     </ExperienceModeProvider>
   );
 }
