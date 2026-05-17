@@ -207,12 +207,13 @@ export function HomePage() {
           className={styles.wallpaperImage}
         />
       </div>
+      
+      {/* OVERLAY FIJO - Mismo comportamiento que wallpaper */}
+      <div className={styles.wallpaperOverlay} aria-hidden="true" />
 
       {/* HERO - Con overlay azul oscuro */}
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroContent}>
-          <span className={styles.heroEyebrow}>Atlas interactivo de viajes</span>
-          
           {/* Logo protagonista en el hero */}
           <div className={styles.heroLogo}>
             <img 
@@ -291,13 +292,15 @@ export function HomePage() {
         {/* Destinos destacados */}
         <section id="destinos" className={styles.section} aria-labelledby="destinations-title">
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionEyebrow}>Destinos</span>
-            <h2 id="destinations-title" className={styles.sectionTitle}>
-              Empieza tu exploración
-            </h2>
-            <p className={styles.sectionDescription}>
-              Países con contenido disponible o en preparación. Selecciona uno para descubrir su mapa, zonas y aventuras.
-            </p>
+            <div className={styles.sectionHeaderPanel}>
+              <span className={styles.sectionEyebrow}>Destinos</span>
+              <h2 id="destinations-title" className={styles.sectionTitle}>
+                Empieza tu exploración
+              </h2>
+              <p className={styles.sectionDescription}>
+                Países con contenido disponible o en preparación. Selecciona uno para descubrir su mapa, zonas y aventuras.
+              </p>
+            </div>
           </div>
 
           <div className={styles.destinationsGrid}>
@@ -327,13 +330,15 @@ export function HomePage() {
         {/* Aventuras */}
         <section id="aventuras" className={styles.section} aria-labelledby="adventures-title">
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionEyebrow}>Aventuras</span>
-            <h2 id="adventures-title" className={styles.sectionTitle}>
-              Planes destacados
-            </h2>
-            <p className={styles.sectionDescription}>
-              Ideas de viaje que Trawel quiere destacar. Algunas ya disponibles, otras en preparación.
-            </p>
+            <div className={styles.sectionHeaderPanel}>
+              <span className={styles.sectionEyebrow}>Aventuras</span>
+              <h2 id="adventures-title" className={styles.sectionTitle}>
+                Planes destacados
+              </h2>
+              <p className={styles.sectionDescription}>
+                Ideas de viaje que Trawel quiere destacar. Algunas ya disponibles, otras en preparación.
+              </p>
+            </div>
           </div>
 
           <div className={styles.adventuresGrid}>

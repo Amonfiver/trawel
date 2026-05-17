@@ -48,6 +48,21 @@
   object-position: center;
 }
 
+/* Overlay fijo sutil para legibilidad - mismo comportamiento que wallpaper */
+.wallpaperOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* Overlay radial sutil para legibilidad sin oscurecer demasiado */
+  background: radial-gradient(
+    ellipse at center,
+    rgba(10, 37, 64, 0.35) 0%,
+    rgba(7, 26, 46, 0.5) 60%,
+    rgba(5, 20, 35, 0.65) 100%
+  );
+}
+
 /* En móvil/tablet: comportamiento normal */
 @media (max-width: 1024px) {
   .wallpaper {
@@ -69,14 +84,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* Overlay azul oscuro para legibilidad del texto */
-  background: linear-gradient(
-    180deg,
-    rgba(7, 26, 46, 0.88) 0%,
-    rgba(10, 37, 64, 0.75) 40%,
-    rgba(10, 37, 64, 0.6) 70%,
-    rgba(21, 74, 110, 0.4) 100%
-  );
+  /* Overlay movido a .wallpaperOverlay fijo */
+  background: transparent;
 }
 
 .heroContent {
@@ -103,23 +112,23 @@
 
 /* Logo protagonista en el hero */
 .heroLogo {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: center;
 }
 
 .heroLogoImage {
-  width: 180px;
+  width: 320px;
   height: auto;
-  max-width: 220px;
+  max-width: 360px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.35));
   transition: transform 300ms ease, filter 300ms ease;
 }
 
 .heroLogo:hover .heroLogoImage {
   transform: scale(1.02);
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.45));
 }
 
 /* Titular */
@@ -237,19 +246,11 @@
    SECCIÓN ATLAS - CON OVERLAY DORADO/AMARILLO TRANSLÚCIDO
    ============================================ */
 
-/* Overlay dorado translúcido que deja ver el wallpaper */
+/* Sección atlas - fondo transparente */
 .atlasSection {
   position: relative;
   z-index: 10;
-  /* Fondo translúcido dorado que permite ver el wallpaper */
-  background: linear-gradient(
-    180deg,
-    rgba(245, 215, 110, 0.85) 0%,
-    rgba(240, 208, 80, 0.8) 15%,
-    rgba(232, 200, 74, 0.75) 35%,
-    rgba(212, 168, 83, 0.7) 60%,
-    rgba(250, 246, 233, 0.85) 100%
-  );
+  background: transparent;
   padding: 3rem 1.5rem 5rem;
 }
 
@@ -323,13 +324,10 @@
   align-items: center;
   text-align: center;
   padding: 2rem 1.5rem;
-  background: rgba(255, 255, 255, 0.92);
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid rgba(232, 226, 217, 0.8);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 1px 0 rgba(255, 255, 255, 0.5) inset;
-  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 300ms ease;
 }
 
@@ -379,14 +377,7 @@
   margin: 0 auto;
   width: 100%;
   padding: 4rem 1.5rem;
-  /* Fondo crema translúcido que integra con el wallpaper */
-  background: linear-gradient(
-    180deg,
-    rgba(250, 246, 233, 0.92) 0%,
-    rgba(250, 248, 245, 0.9) 50%,
-    rgba(250, 246, 233, 0.92) 100%
-  );
-  backdrop-filter: blur(4px);
+  background: transparent;
 }
 
 /* Secciones */
@@ -401,6 +392,21 @@
 .sectionHeader {
   text-align: center;
   margin-bottom: 2.5rem;
+}
+
+/* Panel pequeño para encabezados de sección sobre wallpaper */
+.sectionHeaderPanel {
+  display: inline-block;
+  max-width: 600px;
+  padding: 2rem 2.5rem;
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 16px;
+  border: 1px solid rgba(232, 226, 217, 0.6);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  backdrop-filter: blur(8px);
+  text-align: center;
 }
 
 .sectionEyebrow {
@@ -428,9 +434,20 @@
 .sectionDescription {
   font-size: 1.0625rem;
   color: var(--color-slate);
-  max-width: 560px;
-  margin: 0 auto;
+  margin: 0;
   line-height: 1.6;
+}
+
+/* Ajustes para títulos dentro del panel */
+.sectionHeaderPanel .sectionTitle {
+  font-size: 2rem;
+  margin-bottom: 0.625rem;
+}
+
+.sectionHeaderPanel .sectionDescription {
+  color: var(--color-slate);
+  font-size: 1rem;
+  max-width: 480px;
 }
 
 /* ============================================
@@ -527,16 +544,13 @@
 .destinationCard {
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid rgba(232, 226, 217, 0.8);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.05),
-    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   text-decoration: none;
   transition: all 300ms ease;
   overflow: hidden;
-  backdrop-filter: blur(4px);
 }
 
 .destinationCard:hover {
@@ -590,15 +604,12 @@
 .adventureCard {
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid rgba(232, 226, 217, 0.8);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.05),
-    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   transition: all 300ms ease;
-  backdrop-filter: blur(4px);
 }
 
 .adventureCard:hover {
@@ -825,8 +836,8 @@
   }
 
   .heroLogoImage {
-    width: 130px;
-    max-width: 160px;
+    width: 240px;
+    max-width: 260px;
   }
 
   .valueCards {
@@ -850,12 +861,17 @@
 @media (max-width: 640px) {
   .hero {
     min-height: 90vh;
-    /* En móvil: overlay más fuerte para compensar imagen más pequeña */
-    background: linear-gradient(
-      180deg,
-      rgba(7, 26, 46, 0.92) 0%,
-      rgba(10, 37, 64, 0.85) 50%,
-      rgba(21, 74, 110, 0.7) 100%
+    /* Overlay movido a .wallpaperOverlay fijo */
+    background: transparent;
+  }
+  
+  .wallpaperOverlay {
+    /* En móvil: overlay ligeramente más intenso */
+    background: radial-gradient(
+      ellipse at center,
+      rgba(10, 37, 64, 0.45) 0%,
+      rgba(7, 26, 46, 0.6) 60%,
+      rgba(5, 20, 35, 0.75) 100%
     );
   }
 
@@ -873,8 +889,8 @@
   }
 
   .heroLogoImage {
-    width: 110px;
-    max-width: 140px;
+    width: 170px;
+    max-width: 190px;
   }
 
   .heroTitle {
