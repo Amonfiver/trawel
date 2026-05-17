@@ -1,11 +1,9 @@
 /**
- * Estilos de la aplicación con header global
+ * App.module.css - Header fijo premium
  *
- * Incluye:
- * - Header fijo con efecto glassmorphism
- * - Layout responsive mobile-first
- *
- * Paleta: Azul suave, arena cálida, acentos naturales
+ * Barra superior sticky con fondo amarillo/dorado suave
+ * inspirado en la bandera de Ucrania.
+ * Logo transparente integrado, selector de modo accesible.
  */
 
 .app {
@@ -14,146 +12,195 @@
   flex-direction: column;
 }
 
-/* Header global - Efecto premium glassmorphism */
+/* ============================================
+   HEADER FIJO PREMIUM
+   ============================================ */
+
 .header {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.85) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 0.75rem 1.25rem;
   position: sticky;
   top: 0;
-  z-index: 100;
-  box-shadow:
-    0 1px 0 rgba(148, 163, 184, 0.08),
-    0 8px 32px rgba(0, 87, 183, 0.08);
-  transition: all 200ms ease;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-/* Header con fondo sutil cuando está sobre contenido oscuro */
-.headerOverDark {
-  background: linear-gradient(180deg, rgba(0, 87, 183, 0.15) 0%, rgba(0, 87, 183, 0.05) 100%);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.1),
-    0 8px 32px rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(
+    180deg,
+    #f5d76e 0%,
+    #f0d050 50%,
+    #e8c84a 100%
+  );
+  padding: 0.75rem 1.5rem;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.3) inset;
+  border-bottom: 1px solid rgba(0, 87, 183, 0.1);
 }
 
 .headerContent {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
   min-width: 0;
 }
+
+/* ============================================
+   LOGO TRANSPARENTE
+   ============================================ */
 
 .logo {
   text-decoration: none;
   display: flex;
   align-items: center;
-  /* Altura aumentada para acomodar logo más grande */
-  min-height: 64px;
-  min-width: 0;
+  flex-shrink: 0;
   transition: transform 200ms ease;
-  /* Espacio para logo más grande sin deformar */
-  padding: 0.25rem 0;
-  /* Contenedor limpio para mejor integración */
-  border-radius: 10px;
 }
 
 .logo:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.05);
+  transform: scale(1.03);
 }
 
-.logo:active {
-  transform: translateY(0);
-}
-
-/* Logo principal - usa trawelogo.jpeg por defecto */
-/* Si existe trawelogo-transparent.png, cambiar la importación en App.tsx */
 .logoImage {
-  /* Desktop: altura aumentada para mayor presencia (60-68px según espec) */
-  height: 64px;
+  height: 52px;
   width: auto;
-  max-width: 240px;
+  max-width: 200px;
   object-fit: contain;
-  /* Borde sutil para integrar logo con fondo blanco */
-  border-radius: 8px;
-  /* Sombra más pronunciada para destacar como elemento principal */
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
-  transition: all 200ms ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  transition: filter 200ms ease;
 }
 
 .logo:hover .logoImage {
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
-  transform: scale(1.02);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
-/* Selector de modo en header */
+/* ============================================
+   NAVEGACIÓN
+   ============================================ */
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  color: #0a2540;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: all 200ms ease;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  background: rgba(0, 87, 183, 0.08);
+  color: #0057b7;
+}
+
+/* ============================================
+   SELECTOR DE MODO
+   ============================================ */
+
 .modeSelector {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 0.25rem;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 87, 183, 0.15);
   flex-shrink: 0;
 }
 
-/* Contenido principal */
-.main {
-  flex: 1;
-  background: linear-gradient(180deg, #fafbfc 0%, #f5f7f9 100%);
+.modeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 50px;
+  color: #3d4f5f;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+  white-space: nowrap;
 }
 
-/* Responsive - Mobile first */
-@media (max-width: 640px) {
+.modeButton:hover {
+  background: rgba(255, 255, 255, 0.6);
+  color: #0a2540;
+}
+
+.modeButtonActive {
+  background: #ffffff;
+  color: #0057b7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.modeLabel {
+  display: inline;
+}
+
+/* ============================================
+   CONTENIDO PRINCIPAL
+   ============================================ */
+
+.main {
+  flex: 1;
+  /* Espacio para el header sticky */
+  margin-top: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
   .header {
     padding: 0.625rem 1rem;
   }
 
   .headerContent {
-    flex-wrap: nowrap;
     gap: 0.75rem;
   }
 
-  .logo {
-    min-height: 48px;
-  }
-
   .logoImage {
-    /* Móvil: ~44-48px según espec */
-    height: 48px;
-    max-width: 180px;
+    height: 44px;
+    max-width: 160px;
   }
 
-  .modeSelector {
-    flex: 1 1 auto;
-    min-width: 0;
-    justify-content: flex-end;
+  .nav {
+    display: none;
+  }
+
+  .modeButton {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .modeLabel {
+    display: none;
   }
 }
 
 @media (max-width: 360px) {
   .header {
-    padding-inline: 0.75rem;
-  }
-
-  .headerContent {
-    gap: 0.5rem;
-  }
-
-  .logo {
-    min-height: 44px;
+    padding: 0.5rem 0.75rem;
   }
 
   .logoImage {
-    /* Móvil pequeño: 44px mínimo */
-    height: 44px;
-    max-width: 160px;
+    height: 40px;
+    max-width: 140px;
   }
-}
 
-/* Soporte para navegadores sin backdrop-filter */
-@supports not (backdrop-filter: blur(12px)) {
-  .header {
-    background: rgba(255, 255, 255, 0.98);
+  .modeButton {
+    padding: 0.375rem 0.625rem;
   }
 }
