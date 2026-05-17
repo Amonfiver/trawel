@@ -94,11 +94,32 @@
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--color-yellow);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   padding: 0.5rem 1rem;
   background: rgba(245, 215, 110, 0.15);
   border: 1px solid rgba(245, 215, 110, 0.3);
   border-radius: 4px;
+}
+
+/* Logo protagonista en el hero */
+.heroLogo {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.heroLogoImage {
+  width: 180px;
+  height: auto;
+  max-width: 220px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  transition: transform 300ms ease, filter 300ms ease;
+}
+
+.heroLogo:hover .heroLogoImage {
+  transform: scale(1.02);
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
 }
 
 /* Titular */
@@ -213,21 +234,21 @@
 }
 
 /* ============================================
-   SECCIÓN ATLAS - CON OVERLAY DORADO/AMARILLO
+   SECCIÓN ATLAS - CON OVERLAY DORADO/AMARILLO TRANSLÚCIDO
    ============================================ */
 
-/* Overlay dorado que transiciona desde el hero */
+/* Overlay dorado translúcido que deja ver el wallpaper */
 .atlasSection {
   position: relative;
   z-index: 10;
-  /* Fondo sólido amarillo/dorado para el atlas */
+  /* Fondo translúcido dorado que permite ver el wallpaper */
   background: linear-gradient(
     180deg,
-    #f5d76e 0%,
-    #f0d050 15%,
-    #e8c84a 35%,
-    #d4a853 60%,
-    var(--color-cream) 100%
+    rgba(245, 215, 110, 0.85) 0%,
+    rgba(240, 208, 80, 0.8) 15%,
+    rgba(232, 200, 74, 0.75) 35%,
+    rgba(212, 168, 83, 0.7) 60%,
+    rgba(250, 246, 233, 0.85) 100%
   );
   padding: 3rem 1.5rem 5rem;
 }
@@ -302,10 +323,13 @@
   align-items: center;
   text-align: center;
   padding: 2rem 1.5rem;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 16px;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(232, 226, 217, 0.8);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  backdrop-filter: blur(8px);
   transition: all 300ms ease;
 }
 
@@ -355,8 +379,14 @@
   margin: 0 auto;
   width: 100%;
   padding: 4rem 1.5rem;
-  /* Fondo crema sólido para el contenido */
-  background: var(--color-cream);
+  /* Fondo crema translúcido que integra con el wallpaper */
+  background: linear-gradient(
+    180deg,
+    rgba(250, 246, 233, 0.92) 0%,
+    rgba(250, 248, 245, 0.9) 50%,
+    rgba(250, 246, 233, 0.92) 100%
+  );
+  backdrop-filter: blur(4px);
 }
 
 /* Secciones */
@@ -497,13 +527,16 @@
 .destinationCard {
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(232, 226, 217, 0.8);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
   text-decoration: none;
   transition: all 300ms ease;
   overflow: hidden;
+  backdrop-filter: blur(4px);
 }
 
 .destinationCard:hover {
@@ -557,12 +590,15 @@
 .adventureCard {
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(232, 226, 217, 0.8);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
   overflow: hidden;
   transition: all 300ms ease;
+  backdrop-filter: blur(4px);
 }
 
 .adventureCard:hover {
@@ -784,6 +820,15 @@
     font-size: clamp(2rem, 5vw, 3.5rem);
   }
 
+  .heroLogo {
+    margin-bottom: 1.25rem;
+  }
+
+  .heroLogoImage {
+    width: 130px;
+    max-width: 160px;
+  }
+
   .valueCards {
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
@@ -820,7 +865,16 @@
 
   .heroEyebrow {
     font-size: 0.6875rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .heroLogo {
     margin-bottom: 1rem;
+  }
+
+  .heroLogoImage {
+    width: 110px;
+    max-width: 140px;
   }
 
   .heroTitle {

@@ -16,6 +16,7 @@ import { WorldMap } from '../../features/map/components/WorldMap';
 import { useExperienceMode } from '../../features/experienceMode';
 import { CountryFlag } from '../../features/countries';
 import heroImage from '../../assets/home/heroimagen.png';
+import heroLogo from '../../assets/brand/trawelogo-transparent.png';
 import styles from './HomePage.module.css';
 
 type ImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
@@ -211,6 +212,15 @@ export function HomePage() {
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroContent}>
           <span className={styles.heroEyebrow}>Atlas interactivo de viajes</span>
+          
+          {/* Logo protagonista en el hero */}
+          <div className={styles.heroLogo}>
+            <img 
+              src={heroLogo} 
+              alt="Trawel" 
+              className={styles.heroLogoImage}
+            />
+          </div>
           
           <h1 id="hero-title" className={styles.heroTitle}>
             El mundo no empieza
