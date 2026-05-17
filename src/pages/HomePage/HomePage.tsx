@@ -1,14 +1,15 @@
 /**
  * HomePage - Trawel Atlas Premium
  *
- * Hero con imagen como wallpaper editorial.
- * Transición intencionada: azul profundo → luz cálida → base amarilla del atlas.
+ * Fondo cinematográfico persistente con heroimagen.png como wallpaper.
+ * Overlays controlados para legibilidad.
+ * Transición suave hacia el atlas.
  *
  * Decisiones técnicas:
  * - WorldMap intacto (NO modificar)
- * - Imagen hero como wallpaper grande, sin marcos
- * - Capas claras: decoración abajo, contenido arriba
- * - Amarillo alineado con zona del atlas
+ * - Imagen wallpaper fija en desktop, normal en móvil
+ * - Overlays azul (hero) y dorado (atlas)
+ * - Texto siempre legible por encima de overlays
  */
 
 import { WorldMap } from '../../features/map/components/WorldMap';
@@ -197,20 +198,17 @@ export function HomePage() {
 
   return (
     <div className={styles.container}>
-      {/* HERO - Imagen como wallpaper editorial */}
-      <section className={styles.hero} aria-labelledby="hero-title">
-        {/* Imagen de fondo como wallpaper */}
-        <div className={styles.heroWallpaper} aria-hidden="true">
-          <img 
-            src={heroImage} 
-            alt="" 
-            className={styles.heroWallpaperImage}
-          />
-          {/* Overlay gradiente para legibilidad */}
-          <div className={styles.heroWallpaperOverlay} />
-        </div>
+      {/* WALLPAPER FIJO - Fondo cinematográfico */}
+      <div className={styles.wallpaper} aria-hidden="true">
+        <img 
+          src={heroImage} 
+          alt="" 
+          className={styles.wallpaperImage}
+        />
+      </div>
 
-        {/* Contenido del hero */}
+      {/* HERO - Con overlay azul oscuro */}
+      <section className={styles.hero} aria-labelledby="hero-title">
         <div className={styles.heroContent}>
           <span className={styles.heroEyebrow}>Atlas interactivo de viajes</span>
           
@@ -242,7 +240,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* SECCIÓN ATLAS - Base amarilla integrada */}
+      {/* SECCIÓN ATLAS - Con base dorada/amarilla */}
       <section id="atlas-mundial" className={styles.atlasSection} aria-labelledby="atlas-title">
         <div className={styles.atlasContainer}>
           <div className={styles.atlasFrame}>
