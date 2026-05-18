@@ -17,6 +17,10 @@ import { useExperienceMode } from '../../features/experienceMode';
 import { CountryFlag } from '../../features/countries';
 import heroImage from '../../assets/home/heroimagen.png';
 import heroLogo from '../../assets/brand/trawelogo-transparent.png';
+import spainImage from '../../assets/home/destinations/spain.png';
+import mexicoImage from '../../assets/home/destinations/mexico.png';
+import italyImage from '../../assets/home/destinations/italy.png';
+import indiaImage from '../../assets/home/destinations/india.png';
 import styles from './HomePage.module.css';
 
 type ImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
@@ -46,7 +50,8 @@ const featuredDestinations: Array<{
     flagCode: 'ES',
     description: 'Desde pueblos medievales hasta costas atlánticas. Historia, gastronomía y rutas para todos los gustos.',
     image: {
-      alt: 'Vista panorámica de España con pueblos blancos y costa mediterránea',
+      url: spainImage,
+      alt: 'Ronda, Andalucía',
       kind: 'pais',
     },
   },
@@ -56,7 +61,8 @@ const featuredDestinations: Array<{
     flagCode: 'MX',
     description: 'Cultura milenaria, pueblos mágicos y una gastronomía reconocida en todo el mundo.',
     image: {
-      alt: 'Paisaje mexicano con ruinas mayas y vegetación tropical',
+      url: mexicoImage,
+      alt: 'Guanajuato',
       kind: 'pais',
     },
   },
@@ -66,7 +72,8 @@ const featuredDestinations: Array<{
     flagCode: 'IT',
     description: 'Arte, historia y paisajes que han inspirado a viajeros durante siglos.',
     image: {
-      alt: 'Colinas de la Toscana con viñedos y cipreses al atardecer',
+      url: italyImage,
+      alt: 'Val d\'Orcia, Toscana',
       kind: 'pais',
     },
   },
@@ -76,7 +83,8 @@ const featuredDestinations: Array<{
     flagCode: 'IN',
     description: 'Un continente de contrastes donde cada región ofrece una experiencia única.',
     image: {
-      alt: 'Taj Mahal al amanecer con reflejo en el agua',
+      url: indiaImage,
+      alt: 'Taj Mahal, Agra',
       kind: 'monumento',
     },
   },

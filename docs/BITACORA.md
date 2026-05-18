@@ -1645,5 +1645,41 @@ Aplicada la propuesta visual de v0 para HomePage, header global y footer con alc
 
 ---
 
+## 2026-05-18 - Integración de fotos reales en cards de destinos destacados de Home
+
+Sustituidos los placeholders visuales de las cards de destinos destacados por fotografías reales de los lugares representativos de cada país.
+
+### Cambios
+
+- `src/pages/HomePage/HomePage.tsx`:
+  - Importadas 4 imágenes desde `src/assets/home/destinations/`:
+    - `spain.png` → Ronda, Andalucía
+    - `mexico.png` → Guanajuato
+    - `italy.png` → Val d'Orcia, Toscana
+    - `india.png` → Taj Mahal, Agra
+  - Actualizados los datos de `featuredDestinations` para incluir `url` en cada imagen.
+  - Actualizados los textos `alt` para reflejar el lugar específico mostrado en cada foto.
+
+### Objetivo visual cumplido
+
+- Imágenes integradas dentro de cada card con `object-fit: cover`.
+- Proporción visual consistente (aspect-ratio 16/10).
+- Altura controlada sin deformaciones.
+- Comportamiento responsive preservado.
+- Legibilidad del texto mantenida.
+- Estética premium y limpia.
+
+### Archivos modificados
+
+- `src/pages/HomePage/HomePage.tsx`
+
+### Alcance
+
+- No se tocaron `WorldMap`, `CountryInternalMap`, D3, TopoJSON, zoom, pan, touch, tooltips, navegación del mapa, Supabase, rutas, `package.json` ni dependencias.
+- No se modificaron las clases `.heroLogo`, `.heroLogoImage` ni `.atlasContainer`.
+- No se añadieron dependencias nuevas.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-05-14*
+*Última actualización: 2026-05-18*
