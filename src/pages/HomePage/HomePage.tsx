@@ -266,22 +266,28 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Tarjetas de valor */}
-          <div className={styles.valueCards}>
-            <article className={styles.valueCard}>
-              <div className={styles.valueCardIcon} aria-hidden="true">🌍</div>
-              <h3 className={styles.valueCardTitle}>Explora países desde el mapa</h3>
-              <p className={styles.valueCardText}>Navega visualmente por el mundo y descubre destinos que no sabías que existían.</p>
+          {/* Franja de beneficios */}
+          <div className={styles.benefitsStrip}>
+            <article className={styles.benefitItem}>
+              <span className={styles.benefitIcon} aria-hidden="true">🌍</span>
+              <div className={styles.benefitContent}>
+                <h3 className={styles.benefitTitle}>Explora desde el mapa</h3>
+                <p className={styles.benefitText}>Recorre el mundo visualmente y descubre destinos de forma intuitiva.</p>
+              </div>
             </article>
-            <article className={styles.valueCard}>
-              <div className={styles.valueCardIcon} aria-hidden="true">🗺️</div>
-              <h3 className={styles.valueCardTitle}>Descubre zonas y aventuras</h3>
-              <p className={styles.valueCardText}>Cada país esconde regiones únicas con rutas practicadas y experiencias reales.</p>
+            <article className={styles.benefitItem}>
+              <span className={styles.benefitIcon} aria-hidden="true">🗺️</span>
+              <div className={styles.benefitContent}>
+                <h3 className={styles.benefitTitle}>Encuentra zonas y planes</h3>
+                <p className={styles.benefitText}>Cada país te lleva a regiones, rutas y aventuras reales.</p>
+              </div>
             </article>
-            <article className={styles.valueCard}>
-              <div className={styles.valueCardIcon} aria-hidden="true">📚</div>
-              <h3 className={styles.valueCardTitle}>Aprende viajando</h3>
-              <p className={styles.valueCardText}>Contexto histórico, datos culturales y curiosidades que enriquecen cada destino.</p>
+            <article className={styles.benefitItem}>
+              <span className={styles.benefitIcon} aria-hidden="true">📚</span>
+              <div className={styles.benefitContent}>
+                <h3 className={styles.benefitTitle}>Aprende mientras viajas</h3>
+                <p className={styles.benefitText}>Historia, cultura y curiosidades para entender mejor cada destino.</p>
+              </div>
             </article>
           </div>
         </div>
