@@ -21,6 +21,9 @@ import spainImage from '../../assets/home/destinations/spain.png';
 import mexicoImage from '../../assets/home/destinations/mexico.png';
 import italyImage from '../../assets/home/destinations/italy.png';
 import indiaImage from '../../assets/home/destinations/india.png';
+import albarracinImage from '../../assets/home/plans/albarracin.png';
+import amalfitanaImage from '../../assets/home/plans/amalfitana.png';
+import rajasthanImage from '../../assets/home/plans/rajasthan.png';
 import styles from './HomePage.module.css';
 
 type ImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
@@ -101,37 +104,40 @@ const featuredAdventures: Array<{
 }> = [
   {
     id: '1',
-    title: 'Ruta por los pueblos medievales de Aragón',
-    location: 'Albarracín, España',
+    title: 'Ruta por el encanto medieval de Albarracín',
+    location: 'Albarracín, Teruel, España',
     type: 'Cultura y naturaleza',
-    description: 'Un recorrido por calles empedradas, casas colgadas y paisajes de montaña que parecen detenidos en el tiempo.',
+    description: 'Camina entre murallas rojizas, callejuelas empedradas y miradores que convierten este rincón de Teruel en una escapada inolvidable.',
     comingSoon: false,
     image: {
-      alt: 'Calles empedradas de Albarracín con casas de piedra rojiza',
+      url: albarracinImage,
+      alt: 'Albarracín, Teruel, España',
       kind: 'ciudad',
     },
   },
   {
     id: '2',
-    title: 'Descubriendo la Costa Amalfitana',
-    location: 'Italia',
+    title: 'Escapada por la Costa Amalfitana',
+    location: 'Costa Amalfitana, Italia',
     type: 'Aventura costera',
-    description: 'Pueblos colgados sobre acantilados, limoneros y vistas al Mediterráneo que justifican cada curva del camino.',
+    description: 'Pueblos suspendidos sobre el Mediterráneo, carreteras panorámicas, limoneros y atardeceres que hacen que cada parada parezca una postal.',
     comingSoon: true,
     image: {
-      alt: 'Positano con sus casas coloridas sobre el mar Mediterráneo',
+      url: amalfitanaImage,
+      alt: 'Costa Amalfitana, Italia',
       kind: 'paisaje',
     },
   },
   {
     id: '3',
-    title: 'Templos y mercados de Rajasthan',
-    location: 'India',
+    title: 'Palacios, templos y bazares de Rajasthan',
+    location: 'Rajasthan, India',
     type: 'Viaje cultural',
-    description: 'Fortalezas de arena rosa, palacios flotantes y el caos organizado de los bazares indios.',
+    description: 'Una ruta llena de color entre fortalezas, mercados vibrantes, arquitectura majestuosa y tradiciones que muestran la India más fascinante.',
     comingSoon: true,
     image: {
-      alt: 'Fuerte de Jaipur al atardecer con su fachada rosa iluminada',
+      url: rajasthanImage,
+      alt: 'Rajasthan, India',
       kind: 'monumento',
     },
   },
@@ -347,10 +353,10 @@ export function HomePage() {
             <div className={styles.sectionHeaderPanel}>
               <span className={styles.sectionEyebrow}>Aventuras</span>
               <h2 id="adventures-title" className={styles.sectionTitle}>
-                Planes destacados
+                Viajes que empiezan con una idea
               </h2>
               <p className={styles.sectionDescription}>
-                Ideas de viaje que Trawel quiere destacar. Algunas ya disponibles, otras en preparación.
+                Explora rutas seleccionadas para inspirarte, comparar destinos y descubrir experiencias que podrían convertirse en tu próxima aventura.
               </p>
             </div>
           </div>

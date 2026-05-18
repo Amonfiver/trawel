@@ -1681,5 +1681,46 @@ Sustituidos los placeholders visuales de las cards de destinos destacados por fo
 
 ---
 
+## 2026-05-18 - Integración de fotos reales y mejora de copy en sección "Planes destacados" de Home
+
+Sustituidos los placeholders visuales de las cards de planes destacados por fotografías reales y actualizado el copy hacia un tono más comercial y evocador.
+
+### Cambios
+
+- `src/pages/HomePage/HomePage.tsx`:
+  - Importadas 3 imágenes desde `src/assets/home/plans/`:
+    - `albarracin.png` → Ruta por el encanto medieval de Albarracín
+    - `amalfitana.png` → Escapada por la Costa Amalfitana
+    - `rajasthan.png` → Palacios, templos y bazares de Rajasthan
+  - Actualizados los datos de `featuredAdventures` con URLs de imágenes, ubicaciones más específicas y descripciones más evocadoras.
+  - Renovada la cabecera de la sección: "Viajes que empiezan con una idea" con subtítulo comercial/premium.
+
+### Textos mejorados
+
+| Plan | Antes | Después |
+|------|-------|---------|
+| **Albarracín** | "Ruta por los pueblos medievales de Aragón" → descripción genérica | "Ruta por el encanto medieval de Albarracín" → ubicación específica "Albarracín, Teruel, España" → descripción evocadora sobre murallas y callejuelas |
+| **Costa Amalfitana** | "Descubriendo la Costa Amalfitana" → descripción estándar | "Escapada por la Costa Amalfitana" → ubicación específica "Costa Amalfitana, Italia" → descripción postal con limoneros y atardeceres |
+| **Rajasthan** | "Templos y mercados de Rajasthan" → descripción funcional | "Palacios, templos y bazares de Rajasthan" → ubicación específica "Rajasthan, India" → descripción de color y tradiciones |
+
+### Objetivo visual cumplido
+
+- Imágenes integradas con `object-fit: cover` (clases CSS existentes).
+- Proporción visual consistente con las cards de destinos.
+- Comportamiento responsive preservado.
+- Estética premium mantenida.
+
+### Archivos modificados
+
+- `src/pages/HomePage/HomePage.tsx`
+
+### Alcance
+
+- No se tocaron `WorldMap`, `CountryInternalMap`, D3, TopoJSON, zoom, pan, touch, tooltips, navegación del mapa, Supabase, rutas, `package.json` ni dependencias.
+- No se modificaron las clases `.heroLogo`, `.heroLogoImage` ni `.atlasContainer`.
+- No se añadieron dependencias nuevas.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-05-18*
