@@ -78,8 +78,49 @@
   overflow: hidden;
 }
 
-/* Efecto de luz superior - rayo de sol */
-.hero::before {
+/* Hero con imagen fotográfica - modo editorial premium */
+.heroWithImage {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 420px;
+  padding: 2rem 1rem 4rem;
+}
+
+/* Overlay oscuro para legibilidad sobre imagen */
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 73, 113, 0.45) 0%,
+    rgba(26, 73, 113, 0.35) 40%,
+    rgba(26, 73, 113, 0.55) 70%,
+    rgba(26, 73, 113, 0.75) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Transición suave hacia el contenido inferior */
+.heroWithImage::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(
+    0deg,
+    var(--trawel-sand) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Efecto de luz superior - rayo de sol (solo hero sin imagen) */
+.hero:not(.heroWithImage)::before {
   content: '';
   position: absolute;
   top: 0;
@@ -95,8 +136,8 @@
   );
 }
 
-/* Brillo sutil de horizonte */
-.hero::after {
+/* Brillo sutil de horizonte (solo hero sin imagen) */
+.hero:not(.heroWithImage)::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -114,6 +155,17 @@
 @media (min-width: 768px) {
   .hero {
     padding: 2.5rem 2rem 3.5rem;
+  }
+  
+  .heroWithImage {
+    min-height: 520px;
+    padding: 2.5rem 2rem 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heroWithImage {
+    min-height: 580px;
   }
 }
 
@@ -283,6 +335,78 @@
   font-weight: 500;
   border-radius: 50px;
   border: 1px solid rgba(212, 165, 74, 0.2);
+}
+
+/* ============================================
+   VARIANTES PARA HERO CON IMAGEN
+   ============================================ */
+
+/* Breadcrumb sobre imagen - más translúcido */
+.breadcrumbOnImage {
+  z-index: 2;
+}
+
+.breadcrumbOnImage .breadcrumbLink {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--trawel-blue-deep);
+}
+
+.breadcrumbOnImage .breadcrumbLink:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.breadcrumbOnImage .breadcrumbCurrent {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--trawel-blue-deep);
+}
+
+/* Contenido del hero sobre imagen */
+.heroContentOnImage {
+  z-index: 2;
+}
+
+/* Bandera sobre imagen - fondo más sólido para destacar */
+.heroFlagOnImage {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Badges adaptados para imagen */
+.featuredBadgeOnImage {
+  background: linear-gradient(135deg, var(--trawel-gold) 0%, var(--trawel-gold-light) 100%);
+  color: #5c4813;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modeBadgeOnImage {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--trawel-blue-deep);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.continentBadgeOnImage {
+  background: linear-gradient(135deg, var(--trawel-gold-pale) 0%, #f0ddb0 100%);
+  color: #6b5a2c;
+}
+
+/* Título sobre imagen - texto claro con sombra para legibilidad */
+.heroTitleOnImage {
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Subtítulo/ubicación sobre imagen */
+.heroLocationOnImage {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .heroLocationOnImage {
+    font-size: 1.375rem;
+  }
 }
 
 /* Título del país */

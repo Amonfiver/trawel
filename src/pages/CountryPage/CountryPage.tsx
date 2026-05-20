@@ -70,6 +70,67 @@ import { getDestinationTitle, getDestinationSummary } from '../../features/desti
 import { getLocalizedText } from '../../app/i18n';
 import styles from './CountryPage.module.css';
 
+// =============================================================================
+// SISTEMA DE HERO FOTOGRÁFICO POR PAÍS
+// =============================================================================
+
+/**
+ * Diccionario de imágenes hero disponibles.
+ * Carga automática desde src/assets/countries/hero/*.webp
+ * 
+ * Para añadir un nuevo país:
+ * 1. Colocar imagen en: src/assets/countries/hero/[slug].webp
+ * 2. El sistema la detectará automáticamente por el slug del país
+ */
+const heroImages = import.meta.glob<{ default: string }>(
+  '../../assets/countries/hero/*.webp',
+  { eager: true }
+);
+
+/**
+ * Construye mapa de slug -> URL de imagen hero
+ */
+const heroImageMap: Record<string, string> = Object.entries(heroImages).reduce(
+  (acc, [path, module]) => {
+    // Extrae slug del path: ../../assets/countries/hero/mexico.webp -> mexico
+    const match = path.match(/\/([^/]+)\.webp$/);
+    if (match) {
+      acc[match[1]] = module.default;
+    }
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
+/**
+ * Diccionario de copy editorial específico para hero por país.
+ * Fallback: "Estamos preparando este destino"
+ */
+const heroCopyBySlug: Record<string, string> = {
+  mexico: 'Pirámides, cultura viva y paisajes que invitan a descubrir cada región.',
+};
+
+/**
+ * Obtiene la imagen hero para un país
+ */
+function getHeroImage(slug: string): string | undefined {
+  return heroImageMap[slug];
+}
+
+/**
+ * Obtiene el copy editorial para el hero de un país
+ */
+function getHeroCopy(slug: string): string | undefined {
+  return heroCopyBySlug[slug];
+}
+
+/**
+ * Verifica si un país tiene imagen hero disponible
+ */
+function hasHeroImage(slug: string): boolean {
+  return slug in heroImageMap;
+}
+
 // Países con mapa interno local implementado
 const COUNTRIES_WITH_LOCAL_MAP = ['espana'];
 const SPAIN_LOCAL_MAP_URL = '/maps/countries/spain/spain-adm2.topojson';
@@ -516,12 +577,25 @@ export function CountryPage() {
   // Máximo 4: son puntos de entrada al mapa, no catálogo nacional
   const citiesToShow = [...activeCities, ...comingSoonCities].slice(0, 4);
 
+  // Determinar si hay imagen hero para este país
+  const countryHasHeroImage = countrySlug ? hasHeroImage(countrySlug) : false;
+  const heroImageUrl = countrySlug ? getHeroImage(countrySlug) : undefined;
+  const heroCopy = countrySlug ? getHeroCopy(countrySlug) : undefined;
+
   return (
     <div className={styles.container}>
-      {/* Hero del País - Cinematográfico */}
-      <header className={styles.hero}>
+      {/* Hero del País - Cinematográfico con imagen fotográfica si existe */}
+      <header 
+        className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : ''}`}
+        style={countryHasHeroImage && heroImageUrl ? {
+          backgroundImage: `url(${heroImageUrl})`,
+        } : undefined}
+      >
+        {/* Overlay oscuro cuando hay imagen para legibilidad */}
+        {countryHasHeroImage && <div className={styles.heroOverlay} aria-hidden="true" />}
+        
         {/* Breadcrumb flotante sobre el hero */}
-        <nav className={styles.breadcrumb} aria-label="Navegación">
+        <nav className={`${styles.breadcrumb} ${countryHasHeroImage ? styles.breadcrumbOnImage : ''}`} aria-label="Navegación">
           <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
           <span className={styles.breadcrumbSeparator}>/</span>
           <span className={styles.breadcrumbCurrent} aria-current="page">
@@ -529,8 +603,8 @@ export function CountryPage() {
           </span>
         </nav>
 
-        <div className={styles.heroContent}>
-          <div className={styles.heroFlag}>
+        <div className={`${styles.heroContent} ${countryHasHeroImage ? styles.heroContentOnImage : ''}`}>
+          <div className={`${styles.heroFlag} ${countryHasHeroImage ? styles.heroFlagOnImage : ''}`}>
             <CountryFlag
               isoAlpha2={country.isoAlpha2}
               countryName={country.displayName}
@@ -541,28 +615,30 @@ export function CountryPage() {
           <div className={styles.heroText}>
             <div className={styles.heroMeta}>
               {country.featured && (
-                <span className={styles.featuredBadge}>⭐ Destacado</span>
+                <span className={`${styles.featuredBadge} ${countryHasHeroImage ? styles.featuredBadgeOnImage : ''}`}>⭐ Destacado</span>
               )}
               {showStatusWarning && (
                 <span className={`${styles.statusBadge} ${styles[country.status]}`}>
                   {statusLabel}
                 </span>
               )}
-              <span className={styles.modeBadge}>
+              <span className={`${styles.modeBadge} ${countryHasHeroImage ? styles.modeBadgeOnImage : ''}`}>
                 {mode === 'adventure' ? '🎒 Aventura' : '🎓 Estudiante'}
               </span>
-              <span className={styles.continentBadge}>
+              <span className={`${styles.continentBadge} ${countryHasHeroImage ? styles.continentBadgeOnImage : ''}`}>
                 {getContinentLabel(country.continent)}
               </span>
             </div>
             
-            <h1 className={styles.heroTitle}>{country.displayName}</h1>
+            <h1 className={`${styles.heroTitle} ${countryHasHeroImage ? styles.heroTitleOnImage : ''}`}>
+              {country.displayName}
+            </h1>
             
-            <p className={styles.heroLocation}>
-              📍 Capital: {country.capital || 'Por descubrir'}
+            <p className={`${styles.heroLocation} ${countryHasHeroImage ? styles.heroLocationOnImage : ''}`}>
+              📍 {heroCopy || (country.capital ? `Capital: ${country.capital}` : 'Por descubrir')}
             </p>
 
-            {description && (
+            {description && !heroCopy && (
               <p className={styles.heroDescription}>{description}</p>
             )}
           </div>

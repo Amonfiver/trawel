@@ -5,6 +5,60 @@
 
 ---
 
+## 2026-05-20 - Sistema de hero fotográfico por país en CountryPage
+
+Implementado sistema inicial de hero fotográfico en la cabecera de CountryPage para mostrar imágenes representativas del país cuando existan.
+
+### Cambios implementados
+
+**Archivos modificados:**
+- `src/pages/CountryPage/CountryPage.tsx` — Carga dinámica de imágenes hero + copy editorial
+- `src/pages/CountryPage/CountryPage.module.css` — Estilos para hero con imagen
+
+**Sistema técnico:**
+- Carga automática de imágenes desde `src/assets/countries/hero/*.webp` usando `import.meta.glob`
+- Mapa `heroImageMap` construido en tiempo de build con URLs resueltas
+- Diccionario `heroCopyBySlug` para subtítulos editoriales específicos por país
+- Clases condicionales `.heroWithImage`, `.heroOverlay` y variantes para modo imagen
+
+**Primera imagen activa:**
+- México: `src/assets/countries/hero/mexico.webp`
+- Copy: "Pirámides, cultura viva y paisajes que invitan a descubrir cada región."
+
+**Diseño visual:**
+- Hero con imagen: altura generosa (420px móvil / 520px tablet / 580px desktop)
+- Overlay degradado azulado para legibilidad del texto
+- Texto en color claro con sombras sobre imagen
+- Breadcrumbs y badges con fondo translúcido
+- Transición suave hacia el contenido inferior
+- Bandera en tarjeta blanca sobre la imagen
+
+**Fallback para países sin imagen:**
+- Mantiene el gradiente "Horizonte Dorado" original
+- No hay cambios visuales ni de comportamiento
+- El sistema es 100% opt-in por existencia de archivo
+
+**Para añadir nuevos países en el futuro:**
+1. Colocar imagen en: `src/assets/countries/hero/[slug].webp`
+2. Añadir copy opcional en `heroCopyBySlug` en CountryPage.tsx
+3. El sistema detecta automáticamente por el slug del país
+
+### Restricciones respetadas
+- No se tocó WorldMap.tsx, WorldMap.module.css, CountryInternalMap
+- No se tocó D3, TopoJSON, zoom, pan, touch, tooltips, navegación del mapa
+- No se tocó Supabase, rutas, package.json, dependencias
+- No se añadieron dependencias
+- Mantenido CSS Modules
+- No se tocó lógica sensible del mapa
+
+### Validación
+```bash
+npm run lint   # Pendiente
+npm run build  # Pendiente
+```
+
+---
+
 ## 2026-05-13 - Estructura AI-specs: metodología AI-powered ligera
 
 ### Objetivo del bloque
