@@ -89,11 +89,16 @@ const heroImages = import.meta.glob<{ default: string }>(
 
 /**
  * Construye mapa de slug -> URL de imagen hero
+ * 
+ * El regex maneja:
+ * - Barras normales (Unix/Mac): /mexico.webp
+ * - Barras invertidas (Windows): \mexico.webp
+ * - Cualquier estructura de path que termine en [nombre].webp
  */
 const heroImageMap: Record<string, string> = Object.entries(heroImages).reduce(
   (acc, [path, module]) => {
-    // Extrae slug del path: ../../assets/countries/hero/mexico.webp -> mexico
-    const match = path.match(/\/([^/]+)\.webp$/);
+    // Extrae slug del path: extrae "mexico" de ".../mexico.webp" o "...\mexico.webp"
+    const match = path.match(/[\\/]([^\\/]+)\.webp$/i);
     if (match) {
       acc[match[1]] = module.default;
     }
@@ -812,10 +817,23 @@ function DiscoveringCountryView({
   onRetryGeneration,
   onZoneSelect,
 }: DiscoveringCountryViewProps) {
+  // Aplicar hero fotográfico también en vista de descubrimiento
+  const countryHasHeroImage = hasHeroImage(worldCountry.slug);
+  const heroImageUrl = getHeroImage(worldCountry.slug);
+  const heroCopy = getHeroCopy(worldCountry.slug);
+
   return (
     <div className={styles.container}>
-      <header className={styles.hero}>
-        <nav className={styles.breadcrumb} aria-label="Navegación">
+      <header 
+        className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : ''}`}
+        style={countryHasHeroImage && heroImageUrl ? {
+          backgroundImage: `url(${heroImageUrl})`,
+        } : undefined}
+      >
+        {/* Overlay oscuro cuando hay imagen para legibilidad */}
+        {countryHasHeroImage && <div className={styles.heroOverlay} aria-hidden="true" />}
+        
+        <nav className={`${styles.breadcrumb} ${countryHasHeroImage ? styles.breadcrumbOnImage : ''}`} aria-label="Navegación">
           <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
           <span className={styles.breadcrumbSeparator}>/</span>
           <span className={styles.breadcrumbCurrent} aria-current="page">
@@ -823,8 +841,8 @@ function DiscoveringCountryView({
           </span>
         </nav>
 
-        <div className={styles.heroContent}>
-          <div className={styles.heroFlag}>
+        <div className={`${styles.heroContent} ${countryHasHeroImage ? styles.heroContentOnImage : ''}`}>
+          <div className={`${styles.heroFlag} ${countryHasHeroImage ? styles.heroFlagOnImage : ''}`}>
             <CountryFlag
               isoAlpha2={worldCountry.isoAlpha2}
               countryName={worldCountry.displayName}
@@ -833,9 +851,11 @@ function DiscoveringCountryView({
           </div>
           
           <div className={styles.heroText}>
-            <h1 className={styles.heroTitle}>{worldCountry.displayName}</h1>
-            <p className={styles.heroLocation}>
-              📍 Estamos preparando este destino
+            <h1 className={`${styles.heroTitle} ${countryHasHeroImage ? styles.heroTitleOnImage : ''}`}>
+              {worldCountry.displayName}
+            </h1>
+            <p className={`${styles.heroLocation} ${countryHasHeroImage ? styles.heroLocationOnImage : ''}`}>
+              📍 {heroCopy || 'Estamos preparando este destino'}
             </p>
           </div>
         </div>
