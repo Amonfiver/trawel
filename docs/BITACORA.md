@@ -5,6 +5,160 @@
 
 ---
 
+## 2026-06-09 (tarde) - Corrección de integración visual del contenido editorial
+
+Corregida la visibilidad del contenido editorial base por país. El bloque editorial ahora aparece **antes del mapa** y también se muestra en la vista `DiscoveringCountryView` para países como México/Italia/Rusia.
+
+### Problema identificado
+
+- El `CountryEditorialSection` se renderizaba **después** del mapa interno
+- Los países sin contenido en `countries.ts` pero sí en `worldCountries` (ej: México, Italia, Rusia) entraban en `DiscoveringCountryView` y **nunca llegaban** al bloque editorial
+- El usuario no notaba el nuevo contenido editorial al entrar a `/pais/mexico`
+
+### Cambios implementados
+
+**Reordenamiento en `CountryPage.tsx`:**
+- `CountryEditorialSection` ahora se renderiza **PRIMERO** en el `<main>`, antes de cualquier sección de mapa
+- Esto garantiza que el contenido editorial sea lo primero que ve el usuario tras el hero
+
+**Soporte en `DiscoveringCountryView`:**
+- Añadidas props `countrySlug` y `mode` (opcionales, con defaults)
+- Si existe contenido editorial para el slug, se muestra una sección editorial completa antes del estado del mapa
+- Los países como México/Italia/Rusia ahora muestran su contenido enriquecido incluso sin estar en `countries.ts`
+
+**Sin duplicación de código:**
+- `DiscoveringCountryView` usa los mismos estilos CSS (`editorialSection`, `editorialBlock`, etc.)
+- Se reutiliza `getCountryEditorial()` para obtener el contenido
+- Fallback correcto: si no hay editorial, se muestra solo la sección de descubrimiento como antes
+
+### Estructura visual resultante
+
+```
+/pais/mexico (sin countries.ts pero con worldCountries + editorial):
+
+┌─ Hero ──────────────────────────────┐
+│  México                             │
+│  Pirámides, cultura viva...         │
+└─────────────────────────────────────┘
+┌─ Editorial Section ─────────────────┐  ◄── NUEVO: visible primero
+│  México no se recorre de una sola   │
+│  vez: se descubre región a región   │
+│                                     │
+│  Qué hace especial este destino     │
+│  [contenido enriquecido]            │
+│                                     │
+│  Ideas para explorar                │
+│  → Recorrer las pirámides...        │
+│  → Perderse en los mercados...      │
+│                                     │
+│  Ruta sugerida                      │
+│  Ciudad de México → Teotihuacán...  │
+│                                     │
+│  💡 Consejo rápido                  │
+└─────────────────────────────────────┘
+┌─ Discovering Section ───────────────┐
+│  🌍 Descubriendo destino            │
+│  [estado del mapa]                  │
+└─────────────────────────────────────┘
+```
+
+### Reglas respetadas
+
+- ✅ No se tocó `WorldMap.tsx`, `WorldMap.module.css`, `CountryInternalMap.tsx`
+- ✅ No se tocó D3, TopoJSON, zoom, pan, touch, tooltips
+- ✅ No se tocó Supabase, rutas, `package.json`, dependencias
+- ✅ No se añadieron dependencias nuevas
+- ✅ CSS Modules mantenido
+- ✅ Sin refactor grande
+
+---
+
+## 2026-06-09 - Primera capa editorial base para países (México, España, Italia, Rusia)
+
+Implementada estructura de contenido editorial diferenciado por modo (Aventura/Estudiante) para los cuatro países prioritarios de Trawel.
+
+### Cambios implementados
+
+**Nueva estructura editorial:**
+
+- `src/features/countries/data/countryEditorial.ts` — Diccionario de contenido editorial por país y modo:
+  - **México** (`mexico`): Aventura (pirámides, pueblos mágicos, mercados, costas) / Estudiante (cruce de civilizaciones, geografía, transculturación)
+  - **España** (`espana`): Aventura (pluralidad regional, pueblos medievales, costas) / Estudiante (mosaico cultural, lenguas, patrimonio)
+  - **Italia** (`italia`): Aventura (viaje lento, Toscana, ciudades de arte) / Estudiante (laboratorio de historia, Renacimiento, ciudades-estado)
+  - **Rusia** (`rusia`): Aventura (inmensidad, trenes, arquitectura, literatura) / Estudiante (geografía e historia, identidad imperial, cultura)
+
+**Estructura del contenido por país:**
+- `headline`: Frase principal evocadora
+- `intro`: Párrafo introductorio con alma
+- `whatMakesSpecial`: Qué hace único este destino
+- `explorationIdeas`: 3-4 bullets de ideas/claves
+- `suggestedRoute`: Ruta sugerida conceptual
+- `quickTip`: Consejo rápido final
+
+**Integración en CountryPage:**
+
+- `src/pages/CountryPage/CountryPage.tsx` — Nuevo componente `CountryEditorialSection`:
+  - Detecta automáticamente si hay contenido editorial para el país actual
+  - Renderiza versión enriquecida si existe contenido específico
+  - Fallback a descripción simple si no hay contenido editorial
+  - Adapta títulos según modo: "Ideas para explorar" vs "Claves de contexto"
+
+- `src/pages/CountryPage/CountryPage.module.css` — Nuevos estilos:
+  - `.editorialBlock`, `.editorialBlockTitle`, `.editorialBlockText`
+  - `.editorialList`, `.editorialListItem` (con bullets dorados)
+  - `.editorialTip` (caja destacada con icono 💡)
+
+**Exports en `src/features/countries/index.ts`:**
+- `countryEditorial`, `getCountryEditorial`, `hasCountryEditorial`, `getCountriesWithEditorial`
+- Tipos: `CountryEditorialContent`, `CountryEditorialData`, `ExperienceMode`
+
+### Slugs de países soportados
+
+| País | Slug | Estado en countries.ts |
+|------|------|------------------------|
+| México | `mexico` | Solo en worldCountries |
+| España | `espana` | Activo (ES) |
+| Italia | `italia` | Próximamente (IT) |
+| Rusia | `rusia` | Solo en worldCountries |
+
+### Diferenciación Aventura vs Estudiante
+
+| Aspecto | Modo Aventura | Modo Estudiante |
+|---------|---------------|-----------------|
+| **Tono** | Emocional, sensorial, inspirador | Cultural, histórico, educativo pero ameno |
+| **Enfoque** | "Vivir" el destino, experiencias | "Entender" el destino, contextos |
+| **Rutas** | Sugerencias de viaje prácticas | Rutas de aprendizaje temáticas |
+| **Bullets** | Ideas de exploración concretas | Claves de contexto histórico-cultural |
+| **Consejos** | Tips prácticos de viajero | Orientaciones para aprender viajando |
+
+### Preparación para Investighost
+
+La estructura `countryEditorial` está diseñada para ser extendida por Investighost:
+- Tipado TypeScript completo
+- Funciones helper (`getCountryEditorial`, `hasCountryEditorial`)
+- Patrón de fallback automático en UI
+- Documentación inline en el archivo de datos
+
+### Restricciones respetadas
+
+- ✅ No se tocó WorldMap.tsx, WorldMap.module.css, CountryInternalMap
+- ✅ No se tocó D3, TopoJSON, zoom, pan, touch, tooltips
+- ✅ No se tocó navegación del mapa, Supabase, rutas
+- ✅ No se añadieron dependencias
+- ✅ No se modificó package.json
+- ✅ No se tocó lógica de mapas ni generación/carga de mapas
+- ✅ Mantenido CSS Modules
+- ✅ Cambio mínimo y coherente con arquitectura existente
+
+### Archivos modificados
+
+- `src/features/countries/data/countryEditorial.ts` (nuevo)
+- `src/features/countries/index.ts`
+- `src/pages/CountryPage/CountryPage.tsx`
+- `src/pages/CountryPage/CountryPage.module.css`
+
+---
+
 ## 2026-06-09 - Normalización de scroll en páginas de país y zona
 
 Correcciones menores para que todas las páginas abiertas desde el mapa empiecen mostrando su hero/cabecera panorámica.

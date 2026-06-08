@@ -68,6 +68,8 @@ import type { City } from '../../features/cities/types/city.types';
 import type { Destination } from '../../features/destinations/types/destination.types';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
+import { getCountryEditorial } from '../../features/countries';
+import type { ExperienceMode } from '../../features/countries';
 import styles from './CountryPage.module.css';
 
 // =============================================================================
@@ -406,6 +408,8 @@ export function CountryPage() {
         mapState={mapState}
         onRetryGeneration={handleRetryGeneration}
         onZoneSelect={handleZoneSelect}
+        countrySlug={countrySlug}
+        mode={mode}
       />
     );
   }
@@ -667,33 +671,21 @@ export function CountryPage() {
       </header>
 
       <main className={styles.main}>
+        {/* Bloque editorial: Por qué explorar - PRIMERO para máxima visibilidad */}
+        <CountryEditorialSection 
+          countrySlug={countrySlug || ''}
+          countryDisplayName={country.displayName}
+          mode={mode}
+          fallbackDescription={getCountryDescriptionByMode()}
+          publishedDestinationsCount={publishedDestinationsCount}
+          totalCitiesCount={totalCitiesCount}
+        />
+
         {/* Sección de mapa automático (para países que no son España) */}
         {!hasLocalMap && renderAutoMapStatus()}
 
         {/* Sección Principal: Mapa Interno Local (solo España) */}
         {renderMapSection()}
-
-        {/* Bloque editorial: Por qué explorar */}
-        <section className={styles.editorialSection} aria-labelledby="editorial-title">
-          <div className={styles.sectionHeader}>
-            <h2 id="editorial-title" className={styles.sectionTitle}>
-              Por qué explorar {country.displayName}
-            </h2>
-            <p className={styles.sectionSubtitle}>
-              {mode === 'adventure' 
-                ? 'Vive la aventura de descubrir algo nuevo cada día' 
-                : 'Aprende y conecta con la cultura y el patrimonio'}
-            </p>
-          </div>
-          <div className={styles.editorialContent}>
-            <p className={styles.editorialText}>{getCountryDescriptionByMode()}</p>
-            {publishedDestinationsCount > 0 && (
-              <p className={styles.editorialStats}>
-                📍 {publishedDestinationsCount} {publishedDestinationsCount === 1 ? 'aventura' : 'aventuras'} disponibles en {totalCitiesCount} {totalCitiesCount === 1 ? 'ciudad' : 'ciudades'}
-              </p>
-            )}
-          </div>
-        </section>
 
         {/* Sección: Zonas de entrada (antes "Ciudades destacadas") */}
         {citiesToShow.length > 0 && (
@@ -807,13 +799,16 @@ function getContinentLabel(continent: string): string {
 
 /**
  * Vista para países sin contenido editorial pero que existen en worldCountries
- * Muestra una página amable de "descubrimiento" con estado del mapa
+ * Muestra una página amable de "descubrimiento" con estado del mapa.
+ * Si existe contenido editorial en countryEditorial.ts, se muestra también.
  */
 interface DiscoveringCountryViewProps {
   worldCountry: WorldCountry;
   mapState: MapAssetState;
   onRetryGeneration: () => void;
   onZoneSelect: (zone: { name: string; slug: string }) => void;
+  countrySlug?: string;
+  mode?: ExperienceMode;
 }
 
 function DiscoveringCountryView({
@@ -821,7 +816,12 @@ function DiscoveringCountryView({
   mapState,
   onRetryGeneration,
   onZoneSelect,
+  countrySlug,
+  mode = 'adventure',
 }: DiscoveringCountryViewProps) {
+  // Verificar si existe contenido editorial para este país (ej: México, Italia, Rusia)
+  const editorial = countrySlug ? getCountryEditorial(countrySlug, mode) : undefined;
+  const hasEditorial = !!editorial;
   // Aplicar hero fotográfico también en vista de descubrimiento
   const countryHasHeroImage = hasHeroImage(worldCountry.slug);
   const heroImageUrl = getHeroImage(worldCountry.slug);
@@ -867,6 +867,56 @@ function DiscoveringCountryView({
       </header>
 
       <main className={styles.main}>
+        {/* Bloque editorial para países en modo "Descubriendo" (ej: México, Italia, Rusia) */}
+        {hasEditorial && editorial && (
+          <section className={styles.editorialSection} aria-labelledby="discovering-editorial-title">
+            <div className={styles.sectionHeader}>
+              <h2 id="discovering-editorial-title" className={styles.sectionTitle}>
+                {editorial.headline}
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                {mode === 'adventure' 
+                  ? 'Vive la aventura de descubrir algo nuevo cada día' 
+                  : 'Aprende y conecta con la cultura y el patrimonio'}
+              </p>
+            </div>
+            
+            <div className={styles.editorialContent}>
+              <p className={styles.editorialText}>{editorial.intro}</p>
+              
+              <div className={styles.editorialBlock}>
+                <h3 className={styles.editorialBlockTitle}>
+                  {mode === 'adventure' ? 'Qué hace especial este destino' : 'Qué observar para entender este país'}
+                </h3>
+                <p className={styles.editorialBlockText}>{editorial.whatMakesSpecial}</p>
+              </div>
+              
+              <div className={styles.editorialBlock}>
+                <h3 className={styles.editorialBlockTitle}>
+                  {mode === 'adventure' ? 'Ideas para explorar' : 'Claves de contexto'}
+                </h3>
+                <ul className={styles.editorialList}>
+                  {editorial.explorationIdeas.map((idea, index) => (
+                    <li key={index} className={styles.editorialListItem}>{idea}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className={styles.editorialBlock}>
+                <h3 className={styles.editorialBlockTitle}>
+                  {mode === 'adventure' ? 'Ruta sugerida' : 'Ruta de aprendizaje'}
+                </h3>
+                <p className={styles.editorialBlockText}>{editorial.suggestedRoute}</p>
+              </div>
+              
+              <div className={styles.editorialTip}>
+                <span className={styles.editorialTipIcon}>💡</span>
+                <p className={styles.editorialTipText}>{editorial.quickTip}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className={styles.discoveringSection}>
           <div className={styles.discoveringContent}>
             <h2 className={styles.discoveringTitle}>
@@ -1070,6 +1120,117 @@ function getDestinationTypeLabel(type: string): string {
     cultural: 'Cultural',
   };
   return labels[type] || type;
+}
+
+/**
+ * Componente para renderizar el contenido editorial específico por país y modo
+ */
+interface CountryEditorialSectionProps {
+  countrySlug: string;
+  countryDisplayName: string;
+  mode: ExperienceMode;
+  fallbackDescription: string;
+  publishedDestinationsCount: number;
+  totalCitiesCount: number;
+}
+
+function CountryEditorialSection({
+  countrySlug,
+  countryDisplayName,
+  mode,
+  fallbackDescription,
+  publishedDestinationsCount,
+  totalCitiesCount,
+}: CountryEditorialSectionProps) {
+  const editorial = countrySlug ? getCountryEditorial(countrySlug, mode) : undefined;
+  
+  // Si no hay contenido editorial específico, usar el fallback
+  if (!editorial) {
+    return (
+      <section className={styles.editorialSection} aria-labelledby="editorial-title">
+        <div className={styles.sectionHeader}>
+          <h2 id="editorial-title" className={styles.sectionTitle}>
+            Por qué explorar {countryDisplayName}
+          </h2>
+          <p className={styles.sectionSubtitle}>
+            {mode === 'adventure' 
+              ? 'Vive la aventura de descubrir algo nuevo cada día' 
+              : 'Aprende y conecta con la cultura y el patrimonio'}
+          </p>
+        </div>
+        <div className={styles.editorialContent}>
+          <p className={styles.editorialText}>{fallbackDescription}</p>
+          {publishedDestinationsCount > 0 && (
+            <p className={styles.editorialStats}>
+              📍 {publishedDestinationsCount} {publishedDestinationsCount === 1 ? 'aventura' : 'aventuras'} disponibles en {totalCitiesCount} {totalCitiesCount === 1 ? 'ciudad' : 'ciudades'}
+            </p>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // Renderizar contenido editorial enriquecido
+  return (
+    <section className={styles.editorialSection} aria-labelledby="editorial-title">
+      <div className={styles.sectionHeader}>
+        <h2 id="editorial-title" className={styles.sectionTitle}>
+          {editorial.headline}
+        </h2>
+        <p className={styles.sectionSubtitle}>
+          {mode === 'adventure' 
+            ? 'Vive la aventura de descubrir algo nuevo cada día' 
+            : 'Aprende y conecta con la cultura y el patrimonio'}
+        </p>
+      </div>
+      
+      <div className={styles.editorialContent}>
+        {/* Intro */}
+        <p className={styles.editorialText}>{editorial.intro}</p>
+        
+        {/* Qué hace especial */}
+        <div className={styles.editorialBlock}>
+          <h3 className={styles.editorialBlockTitle}>
+            {mode === 'adventure' ? 'Qué hace especial este destino' : 'Qué observar para entender este país'}
+          </h3>
+          <p className={styles.editorialBlockText}>{editorial.whatMakesSpecial}</p>
+        </div>
+        
+        {/* Ideas de exploración */}
+        <div className={styles.editorialBlock}>
+          <h3 className={styles.editorialBlockTitle}>
+            {mode === 'adventure' ? 'Ideas para explorar' : 'Claves de contexto'}
+          </h3>
+          <ul className={styles.editorialList}>
+            {editorial.explorationIdeas.map((idea, index) => (
+              <li key={index} className={styles.editorialListItem}>{idea}</li>
+            ))}
+          </ul>
+        </div>
+        
+        {/* Ruta sugerida */}
+        <div className={styles.editorialBlock}>
+          <h3 className={styles.editorialBlockTitle}>
+            {mode === 'adventure' ? 'Ruta sugerida' : 'Ruta de aprendizaje'}
+          </h3>
+          <p className={styles.editorialBlockText}>{editorial.suggestedRoute}</p>
+        </div>
+        
+        {/* Consejo rápido */}
+        <div className={styles.editorialTip}>
+          <span className={styles.editorialTipIcon}>💡</span>
+          <p className={styles.editorialTipText}>{editorial.quickTip}</p>
+        </div>
+        
+        {/* Stats si hay contenido */}
+        {publishedDestinationsCount > 0 && (
+          <p className={styles.editorialStats}>
+            📍 {publishedDestinationsCount} {publishedDestinationsCount === 1 ? 'aventura' : 'aventuras'} disponibles en {totalCitiesCount} {totalCitiesCount === 1 ? 'ciudad' : 'ciudades'}
+          </p>
+        )}
+      </div>
+    </section>
+  );
 }
 
 function MapFutureBlock({ countryName }: { countryName: string }) {

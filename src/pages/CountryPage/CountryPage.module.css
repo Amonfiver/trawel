@@ -1703,3 +1703,103 @@
     background: rgba(255, 255, 255, 0.97);
   }
 }
+
+/* ============================================
+   CONTENIDO EDITORIAL ENRIQUECIDO
+   Nuevos estilos para sección editorial detallada
+   ============================================ */
+
+.editorialBlock {
+  margin: 1.75rem 0;
+  text-align: left;
+}
+
+.editorialBlockTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--trawel-blue-deep);
+  margin: 0 0 0.75rem;
+  line-height: 1.3;
+}
+
+.editorialBlockText {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--trawel-text-medium);
+  margin: 0;
+}
+
+.editorialList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.editorialListItem {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--trawel-text-medium);
+}
+
+.editorialListItem::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--trawel-gold);
+  font-weight: 700;
+}
+
+.editorialTip {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+  margin: 1.75rem 0;
+  padding: 1.25rem;
+  background: linear-gradient(
+    135deg,
+    var(--trawel-gold-pale) 0%,
+    rgba(245, 230, 196, 0.5) 100%
+  );
+  border: 1px solid var(--trawel-gold);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.editorialTipIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.editorialTipText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--trawel-text-medium);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Responsive ajustes para contenido editorial */
+@media (max-width: 640px) {
+  .editorialBlock {
+    margin: 1.5rem 0;
+  }
+  
+  .editorialBlockTitle {
+    font-size: 1.0625rem;
+  }
+  
+  .editorialTip {
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .editorialListItem {
+    font-size: 0.9375rem;
+  }
+}
