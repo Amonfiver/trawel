@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-06-09 - Normalización de scroll en páginas de país y zona
+
+Correcciones menores para que todas las páginas abiertas desde el mapa empiecen mostrando su hero/cabecera panorámica.
+
+### Cambios implementados
+
+**CountryPage:**
+- Añadido `useEffect` con `window.scrollTo({ top: 0, left: 0, behavior: 'auto' })` al cambiar `countrySlug`
+- Al entrar en `/pais/mexico` se ve el hero desde arriba, no cerca del mapa
+
+**CountryZonePage:**
+- Añadido `useEffect` con `window.scrollTo({ top: 0, left: 0, behavior: 'auto' })` al cambiar `countrySlug` o `zoneSlug`
+- Al entrar en `/pais/mexico/zona/guerrero` se ve el hero de la zona desde arriba
+
+**Contraste de texto en hero:**
+- Rediseñada clase `.heroLocationOnImage` con fondo glassmorphism (`rgba(255,255,255,0.78)` + `blur(8px)`)
+- Color de texto navy oscuro `#0f3558` para máximo contraste
+- Estética premium con border-radius tipo pill y sombra suave
+
+### Restricciones respetadas
+- No se tocó WorldMap.tsx, WorldMap.module.css, CountryInternalMap
+- No se tocó D3, TopoJSON, zoom, pan, touch, tooltips, navegación del mapa
+- No se tocó Supabase, rutas, package.json, dependencias
+- Cambio pequeño y localizado en CountryPage y CountryZonePage únicamente
+
+---
+
 ## 2026-06-09 - Ajustes de scroll y contraste en CountryPage
 
 Correcciones menores en CountryPage para mejorar la experiencia de entrada y legibilidad del hero fotográfico.

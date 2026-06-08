@@ -124,6 +124,11 @@ export function CountryZonePage() {
   const location = useLocation();
   const state = (location.state || {}) as ZoneLocationState;
 
+  // Scroll al inicio al entrar o cambiar de país/zona
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [countrySlug, zoneSlug]);
+
   const { country } = getCountryPageData(countrySlug || '');
   const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
   const countryName =
