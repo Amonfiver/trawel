@@ -170,6 +170,11 @@ export function CountryPage() {
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
   
   const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // TAREA 1: Scroll al inicio al entrar o cambiar de país
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [countrySlug]);
   
   // Usar travelData.service para obtener datos agregados completos
   const { 

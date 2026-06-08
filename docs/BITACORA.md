@@ -5,6 +5,39 @@
 
 ---
 
+## 2026-06-09 - Ajustes de scroll y contraste en CountryPage
+
+Correcciones menores en CountryPage para mejorar la experiencia de entrada y legibilidad del hero fotográfico.
+
+### Cambios implementados
+
+**TAREA 1: Scroll inicial al entrar en CountryPage**
+- `src/pages/CountryPage/CountryPage.tsx` — Añadido `useEffect` que ejecuta `window.scrollTo({ top: 0, left: 0, behavior: 'auto' })` al cambiar `countrySlug`
+- **Problema resuelto:** Al entrar en `/pais/mexico`, la página quedaba posicionada cerca del mapa en lugar de mostrar el hero desde arriba
+- **Solución:** Scroll automático al montar/cambiar de país sin animación (behavior: 'auto') para evitar sensación de salto raro
+- **No afecta:** Navegación interna del mapa ni interacciones con CountryInternalMap
+
+**TAREA 2: Mejor contraste del texto sobre hero fotográfico**
+- `src/pages/CountryPage/CountryPage.module.css` — Rediseñada clase `.heroLocationOnImage`
+- **Problema resuelto:** El copy "📍 Pirámides, cultura viva..." no se leía bien por ser gris sobre zona oscura de la foto
+- **Solución visual:**
+  - Fondo blanco semitranslúcido: `background: rgba(255, 255, 255, 0.78)`
+  - Efecto glass: `backdrop-filter: blur(8px)`
+  - Borde redondeado tipo pill: `border-radius: 999px`
+  - Color de texto navy oscuro: `color: #0f3558` (sin text-shadow)
+  - Sombra suave: `box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18)`
+  - Ancho adaptativo: `max-width: min(680px, 100%)` con `width: fit-content`
+- **Responsive:** En móvil (<480px) el border-radius se ajusta a 16px para mejor wrap del texto
+
+### Restricciones respetadas
+- No se tocó WorldMap.tsx, WorldMap.module.css, CountryInternalMap
+- No se tocó D3, TopoJSON, zoom, pan, touch, tooltips, navegación del mapa
+- No se tocó Supabase, rutas, package.json, dependencias
+- No se añadieron dependencias
+- Cambio pequeño y localizado en CountryPage únicamente
+
+---
+
 ## 2026-05-20 - Sistema de hero fotográfico por país en CountryPage
 
 Implementado sistema inicial de hero fotográfico en la cabecera de CountryPage para mostrar imágenes representativas del país cuando existan.
