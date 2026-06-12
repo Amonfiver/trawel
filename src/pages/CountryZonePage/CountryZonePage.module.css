@@ -199,21 +199,6 @@
   overflow-wrap: anywhere;
 }
 
-.heroContributionNote {
-  max-width: 650px;
-  margin: 1rem 0 0;
-  padding: 0.85rem 1rem;
-  color: rgba(255, 255, 255, 0.94);
-  background: rgba(15, 23, 42, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 14px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
 /* ============================================
    PROPOSITO COMUNITARIO
    ============================================ */
@@ -381,6 +366,54 @@
   color: #7c3aed;
   margin: 0;
   line-height: 1.6;
+}
+
+/* ============================================
+   COLABORACIÓN FOTOGRÁFICA - Nota secundaria
+   ============================================ */
+
+.heroContributionCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1rem 1.125rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  color: #475569;
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.heroContributionIcon {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #fef3c7;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.heroContributionTitle {
+  margin: 0 0 0.25rem;
+  color: #0f172a;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.heroContributionText {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.55;
 }
 
 /* ============================================

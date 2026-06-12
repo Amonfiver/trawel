@@ -79,8 +79,21 @@ function getZoneHeroImage(slug?: string): string | undefined {
   return slug ? zoneHeroImageMap[slug] : undefined;
 }
 
+const zoneFallbackCopyBySlug: Record<string, string> = {
+  madrid: 'Calles históricas, plazas vivas y una energía que mezcla arte, gastronomía y memoria urbana. Madrid invita a caminarla sin prisa y descubrirla por capas.',
+  jalisco: 'Tierra de agaves, música y pueblos con carácter. Jalisco combina tradición, paisaje y cultura mexicana en rutas que se recuerdan.',
+};
+
+function getZoneFallbackCopy(slug?: string): string {
+  if (slug && zoneFallbackCopyBySlug[slug]) {
+    return zoneFallbackCopyBySlug[slug];
+  }
+
+  return 'Un lugar en preparación para viajeros curiosos. Muy pronto reuniremos rutas, planes y consejos para descubrirlo con calma.';
+}
+
 function getHeroContributionNote(name: string): string {
-  return `¿Tienes una foto que represente ${name}? Mándala a nuestro buzón y te haremos un reconocimiento en los créditos de agradecimiento.`;
+  return `¿Tienes una foto de ${name}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
 }
 
 function ZoneHeroVisual({
@@ -164,6 +177,18 @@ function FutureResourcesBlock({ zoneName }: { zoneName: string }) {
   );
 }
 
+function HeroContributionBlock({ zoneName }: { zoneName: string }) {
+  return (
+    <aside className={styles.heroContributionCard} aria-label={`Colabora con una foto de ${zoneName}`}>
+      <span className={styles.heroContributionIcon} aria-hidden="true">📷</span>
+      <div>
+        <h2 className={styles.heroContributionTitle}>Colabora con Trawel</h2>
+        <p className={styles.heroContributionText}>{getHeroContributionNote(zoneName)}</p>
+      </div>
+    </aside>
+  );
+}
+
 export function CountryZonePage() {
   const { countrySlug, zoneSlug } = useParams<{
     countrySlug: string;
@@ -188,6 +213,7 @@ export function CountryZonePage() {
     cleanDisplayName(state.zoneName) || createNameFromSlug(zoneSlug) || 'Zona por descubrir';
   const zoneHeroImageUrl = getZoneHeroImage(zoneSlug);
   const hasZoneHeroImage = Boolean(zoneHeroImageUrl);
+  const zoneFallbackCopy = getZoneFallbackCopy(zoneSlug);
   const countryIsoAlpha2 = country?.isoAlpha2 || worldCountry?.isoAlpha2;
   const [adventuresState, setAdventuresState] = useState<AdventuresState>({ status: 'loading' });
 
@@ -273,15 +299,12 @@ export function CountryZonePage() {
             <p className={styles.kicker}>{countryName}</p>
             <h1 className={styles.title}>{zoneName}</h1>
             <p className={styles.subtitle}>
-              {hasApprovedAdventures
+              {!hasZoneHeroImage
+                ? zoneFallbackCopy
+                : hasApprovedAdventures
                 ? 'Aventuras reales compartidas por viajeros.'
                 : 'Próximamente aventuras en esta zona.'}
             </p>
-            {!hasZoneHeroImage && (
-              <p className={styles.heroContributionNote}>
-                {getHeroContributionNote(zoneName)}
-              </p>
-            )}
           </div>
         </div>
       </header>
@@ -389,6 +412,10 @@ export function CountryZonePage() {
 
         {/* Bloque de recursos futuros */}
         <FutureResourcesBlock zoneName={zoneName} />
+
+        {!hasZoneHeroImage && (
+          <HeroContributionBlock zoneName={zoneName} />
+        )}
 
         <Link to={countrySlug ? `/pais/${countrySlug}` : '/'} className={styles.backLink}>
           Volver al mapa de {countryName}

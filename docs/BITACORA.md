@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-12 - Fallback inspirador para heroes de zona
+
+Actualizado `CountryZonePage` para que el fallback de zonas sin imagen real funcione como portada inspiradora del lugar, no como petición de foto.
+
+### Cambios implementados
+
+- Añadido copy estable por `zoneSlug` para `madrid` y `jalisco`.
+- El hero fallback de zona muestra un texto viajero/cultural breve y mantiene la bandera o referencia del país padre cuando está disponible.
+- La colaboración fotográfica deja de ocupar el hero y pasa a una tarjeta secundaria cerca del final del contenido principal.
+- Si existe imagen real en `src/assets/zones/hero/[zoneSlug].webp`, la imagen sigue teniendo prioridad.
+
+### Reglas respetadas
+
+- No se tocaron `CountryPage`, mapas, D3, TopoJSON, navegación, Supabase, rutas, `package.json` ni dependencias.
+- Este enfoque prepara a futuro la generación de textos por zona mediante Investighost.
+
+---
+
 ## 2026-06-12 - Fallback premium de hero país con identidad por bandera
 
 Mejorado el fallback visual de `CountryPage` cuando no existe imagen real en `src/assets/countries/hero/[countrySlug].webp`.

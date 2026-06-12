@@ -124,6 +124,7 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 - El nombre del archivo debe coincidir exactamente con el slug real de URL.
 - Si un país no tiene imagen real, `CountryPage` usa fallback premium con bandera, nombre y paleta por `countrySlug`.
 - El hero fallback de país debe inspirar primero; la colaboración con fotos va como llamada secundaria.
+- El hero fallback de zona debe inspirar primero; la colaboración con fotos va como llamada secundaria.
 - Las paletas de fallback país no deben aplicarse a zonas/ciudades ni a mapas.
 
 ### ¿Qué leer según la tarea?
