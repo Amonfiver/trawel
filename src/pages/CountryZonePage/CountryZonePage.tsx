@@ -14,6 +14,7 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { getCountryPageData } from '../../features/travelData';
+import { CountryFlag } from '../../features/countries';
 import { getWorldCountryBySlug } from '../../features/countries/data/worldCountries';
 import {
   createTravelerAdventure,
@@ -58,17 +59,64 @@ const EMPTY_FORM_VALUES: AdventureFormValues = {
   marketingConsent: false,
 };
 
-/**
- * Helper component: Visual placeholder for zone hero
- * Similar pattern used in CityPage and AdventurePage
- */
-function ZoneVisualPlaceholder() {
+const zoneHeroImages = import.meta.glob<{ default: string }>(
+  '../../assets/zones/hero/*.webp',
+  { eager: true }
+);
+
+const zoneHeroImageMap: Record<string, string> = Object.entries(zoneHeroImages).reduce(
+  (acc, [path, module]) => {
+    const match = path.match(/[\\/]([^\\/]+)\.webp$/i);
+    if (match) {
+      acc[match[1]] = module.default;
+    }
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
+function getZoneHeroImage(slug?: string): string | undefined {
+  return slug ? zoneHeroImageMap[slug] : undefined;
+}
+
+function getHeroContributionNote(name: string): string {
+  return `¿Tienes una foto que represente ${name}? Mándala a nuestro buzón y te haremos un reconocimiento en los créditos de agradecimiento.`;
+}
+
+function ZoneHeroVisual({
+  zoneName,
+  countryName,
+  isoAlpha2,
+  imageUrl,
+}: {
+  zoneName: string;
+  countryName: string;
+  isoAlpha2?: string;
+  imageUrl?: string;
+}) {
+  if (imageUrl) {
+    return (
+      <div
+        className={`${styles.zoneVisual} ${styles.zoneVisualWithImage}`}
+        style={{ backgroundImage: `url(${imageUrl})` }}
+        role="img"
+        aria-label={`Imagen panorámica de ${zoneName}`}
+      />
+    );
+  }
+
   return (
-    <div className={styles.zoneVisual} role="img" aria-label="Foto panorámica de la zona">
-      <div className={styles.zoneVisualPlaceholder}>
-        <span className={styles.zoneVisualIcon}>🏞️</span>
-        <span className={styles.zoneVisualLabel}>Foto panorámica de la zona</span>
-        <span className={styles.zoneVisualSubLabel}>Imagen editorial pendiente</span>
+    <div
+      className={`${styles.zoneVisual} ${styles.zoneVisualFallback}`}
+      role="img"
+      aria-label={`Portada temporal de la zona ${zoneName}`}
+    >
+      <div className={styles.zoneVisualFallbackInner} aria-hidden="true">
+        {isoAlpha2 && (
+          <div className={styles.zoneVisualFlag}>
+            <CountryFlag isoAlpha2={isoAlpha2} countryName={countryName} size="large" />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -138,6 +186,9 @@ export function CountryZonePage() {
     'este país';
   const zoneName =
     cleanDisplayName(state.zoneName) || createNameFromSlug(zoneSlug) || 'Zona por descubrir';
+  const zoneHeroImageUrl = getZoneHeroImage(zoneSlug);
+  const hasZoneHeroImage = Boolean(zoneHeroImageUrl);
+  const countryIsoAlpha2 = country?.isoAlpha2 || worldCountry?.isoAlpha2;
   const [adventuresState, setAdventuresState] = useState<AdventuresState>({ status: 'loading' });
 
   useEffect(() => {
@@ -183,9 +234,21 @@ export function CountryZonePage() {
   return (
     <div className={styles.container}>
       {/* Hero visual de la Zona - Con recuadro prominente para foto */}
-      <header className={styles.hero}>
+      <header
+        className={styles.hero}
+        aria-label={
+          hasZoneHeroImage
+            ? `Imagen panorámica de ${zoneName}`
+            : `Portada temporal de la zona ${zoneName}`
+        }
+      >
         {/* Visual panorámico de la zona */}
-        <ZoneVisualPlaceholder />
+        <ZoneHeroVisual
+          zoneName={zoneName}
+          countryName={countryName}
+          isoAlpha2={countryIsoAlpha2}
+          imageUrl={zoneHeroImageUrl}
+        />
 
         {/* Overlay con contenido */}
         <div className={styles.heroOverlay}>
@@ -214,6 +277,11 @@ export function CountryZonePage() {
                 ? 'Aventuras reales compartidas por viajeros.'
                 : 'Próximamente aventuras en esta zona.'}
             </p>
+            {!hasZoneHeroImage && (
+              <p className={styles.heroContributionNote}>
+                {getHeroContributionNote(zoneName)}
+              </p>
+            )}
           </div>
         </div>
       </header>

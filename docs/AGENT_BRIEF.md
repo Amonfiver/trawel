@@ -81,6 +81,7 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 | **—** | Aventuras de viajeros moderadas | Todo envío entra como `pending`; solo webmaster/backend aprueba |
 | **—** | Privacidad obligatoria y marketing separado | Enviar aventura exige privacidad; comunicaciones/promociones son opcionales |
 | **—** | Retirada privada antes de revisión | El usuario recibe token; Edge Function solo retira si sigue `pending` |
+| **—** | Heroes editoriales por slug | Países usan `src/assets/countries/hero/[countrySlug].webp`; zonas usan `src/assets/zones/hero/[zoneSlug].webp` |
 
 ---
 
@@ -115,6 +116,12 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 - ❌ No modificar mock si la tarea es sobre feature real
 - ❌ No cambiar rutas públicas existentes
 - ❌ No implementar features grandes mezcladas
+
+### Assets hero editoriales
+- Países: `src/assets/countries/hero/[countrySlug].webp`
+- Zonas/ciudades: `src/assets/zones/hero/[zoneSlug].webp`
+- Recomendado: `2400x900 px`, `.webp`, `250-700 KB`
+- El nombre del archivo debe coincidir exactamente con el slug real de URL.
 
 ### ¿Qué leer según la tarea?
 | Tarea sobre... | Leer... |

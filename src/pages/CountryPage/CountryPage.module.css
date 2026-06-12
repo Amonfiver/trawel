@@ -87,6 +87,39 @@
   padding: 2rem 1rem 4rem;
 }
 
+.heroFallback {
+  min-height: 420px;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(232, 200, 117, 0.36) 0, transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(91, 155, 213, 0.28) 0, transparent 30%),
+    linear-gradient(135deg, #123454 0%, #1f6a78 46%, #d6a85b 100%);
+  color: #ffffff;
+}
+
+.heroFallback::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.22) 0%, rgba(15, 23, 42, 0.08) 48%, rgba(15, 23, 42, 0.34) 100%);
+  pointer-events: none;
+}
+
+.heroFallback::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(
+    0deg,
+    var(--trawel-sand) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
 /* Overlay oscuro para legibilidad sobre imagen */
 .heroOverlay {
   position: absolute;
@@ -120,7 +153,7 @@
 }
 
 /* Efecto de luz superior - rayo de sol (solo hero sin imagen) */
-.hero:not(.heroWithImage)::before {
+.hero:not(.heroWithImage):not(.heroFallback)::before {
   content: '';
   position: absolute;
   top: 0;
@@ -137,7 +170,7 @@
 }
 
 /* Brillo sutil de horizonte (solo hero sin imagen) */
-.hero:not(.heroWithImage)::after {
+.hero:not(.heroWithImage):not(.heroFallback)::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -365,10 +398,22 @@
   z-index: 2;
 }
 
+.heroContentFallback {
+  z-index: 1;
+  min-height: 270px;
+  align-items: flex-end;
+}
+
 /* Bandera sobre imagen - fondo más sólido para destacar */
 .heroFlagOnImage {
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.heroFlagFallback {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
 }
 
 /* Badges adaptados para imagen */
@@ -393,6 +438,12 @@
 .heroTitleOnImage {
   color: #ffffff;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.heroTitleFallback {
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 12px 34px rgba(15, 23, 42, 0.28);
 }
 
 /* Subtítulo/ubicación sobre imagen - TAREA 2: Mejor contraste con fondo glass */
@@ -454,6 +505,37 @@
   max-width: 600px;
   margin: 0;
   text-wrap: pretty;
+}
+
+.heroFallback .heroLocation {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 14px rgba(15, 23, 42, 0.24);
+}
+
+.heroFallback .heroDescription {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 14px rgba(15, 23, 42, 0.2);
+}
+
+.heroFallback .modeBadge,
+.heroFallback .continentBadge,
+.heroFallback .statusBadge {
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.14);
+}
+
+.heroContributionNote {
+  max-width: 620px;
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(15, 23, 42, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 @media (min-width: 640px) {

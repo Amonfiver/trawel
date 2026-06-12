@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-06-11 - Sistema genérico de heroes editoriales para países y zonas
+
+Implementado un sistema productivo de imágenes hero por slug para países y zonas/ciudades.
+
+### Convención de assets
+
+- Países: `src/assets/countries/hero/[countrySlug].webp`
+- Zonas/ciudades: `src/assets/zones/hero/[zoneSlug].webp`
+- Medida recomendada: `2400x900 px`
+- Formato: `.webp`
+- Peso recomendado: `250-700 KB`
+- El nombre del archivo debe coincidir con el slug real de la URL.
+
+### Cambios implementados
+
+- `CountryPage` mantiene la carga automática existente de imágenes reales por país y añade fallback premium si falta la imagen.
+- `CountryZonePage` carga automáticamente imágenes desde `src/assets/zones/hero/[zoneSlug].webp`.
+- Si una zona no tiene imagen real, se muestra una portada temporal con degradado elegante, nombre protagonista desde el hero, bandera del país si está disponible y llamada colaborativa.
+- Añadidos `aria-label` diferenciados para imagen panorámica real y portada temporal.
+- Creada la carpeta versionada `src/assets/zones/hero/`.
+
+### Reglas respetadas
+
+- No se tocaron mapas, D3, TopoJSON, zoom, pan, touch, tooltips ni navegación de mapas.
+- No se tocaron Supabase, rutas, `package.json` ni dependencias.
+
+---
+
 ## 2026-06-09 (tarde) - Corrección de integración visual del contenido editorial
 
 Corregida la visibilidad del contenido editorial base por país. El bloque editorial ahora aparece **antes del mapa** y también se muestra en la vista `DiscoveringCountryView` para países como México/Italia/Rusia.

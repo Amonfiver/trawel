@@ -58,6 +58,9 @@ trawel/
 │       └── world-atlas.json # Si queremos hostear localmente
 ├── src/
 │   ├── app/                 # Configuración raíz de la app
+│   ├── assets/              # Assets importados por Vite
+│   │   ├── countries/hero/  # Heroes país: [countrySlug].webp
+│   │   └── zones/hero/      # Heroes zona/ciudad: [zoneSlug].webp
 │   ├── pages/               # Páginas de la aplicación (rutas)
 │   ├── features/            # Módulos por dominio de negocio
 │   ├── data/                # Datos de contenido (países, ciudades, etc.)
@@ -182,6 +185,12 @@ src/pages/
 - `/pais/:countrySlug/zona/:zoneSlug` - Placeholder amable para zona/región seleccionada en `CountryInternalMap`.
 - `/retirar-aventura?token=...` - Retira una aventura de viajero todavía `pending` con token privado.
 - `/pais/:countrySlug/:citySlug` - Ficha de ciudad editorial.
+
+**Heroes editoriales por slug:**
+- Países: `src/assets/countries/hero/[countrySlug].webp`
+- Zonas/ciudades: `src/assets/zones/hero/[zoneSlug].webp`
+- Recomendado para ambos: `2400x900 px`, `.webp`, `250-700 KB`
+- Los nombres deben coincidir con los slugs reales de URL.
 
 **Convención:** Lazy loading en routes.tsx para code splitting.
 

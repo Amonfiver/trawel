@@ -138,6 +138,10 @@ function hasHeroImage(slug: string): boolean {
   return slug in heroImageMap;
 }
 
+function getHeroContributionNote(name: string): string {
+  return `¿Tienes una foto que represente ${name}? Mándala a nuestro buzón y te haremos un reconocimiento en los créditos de agradecimiento.`;
+}
+
 // Países con mapa interno local implementado
 const COUNTRIES_WITH_LOCAL_MAP = ['espana'];
 const SPAIN_LOCAL_MAP_URL = '/maps/countries/spain/spain-adm2.topojson';
@@ -600,10 +604,15 @@ export function CountryPage() {
     <div className={styles.container}>
       {/* Hero del País - Cinematográfico con imagen fotográfica si existe */}
       <header 
-        className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : ''}`}
+        className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : styles.heroFallback}`}
         style={countryHasHeroImage && heroImageUrl ? {
           backgroundImage: `url(${heroImageUrl})`,
         } : undefined}
+        aria-label={
+          countryHasHeroImage
+            ? `Imagen panorámica de ${country.displayName}`
+            : `Portada temporal del país ${country.displayName}`
+        }
       >
         {/* Overlay oscuro cuando hay imagen para legibilidad */}
         {countryHasHeroImage && <div className={styles.heroOverlay} aria-hidden="true" />}
@@ -617,8 +626,8 @@ export function CountryPage() {
           </span>
         </nav>
 
-        <div className={`${styles.heroContent} ${countryHasHeroImage ? styles.heroContentOnImage : ''}`}>
-          <div className={`${styles.heroFlag} ${countryHasHeroImage ? styles.heroFlagOnImage : ''}`}>
+        <div className={`${styles.heroContent} ${countryHasHeroImage ? styles.heroContentOnImage : styles.heroContentFallback}`}>
+          <div className={`${styles.heroFlag} ${countryHasHeroImage ? styles.heroFlagOnImage : styles.heroFlagFallback}`}>
             <CountryFlag
               isoAlpha2={country.isoAlpha2}
               countryName={country.displayName}
@@ -644,13 +653,19 @@ export function CountryPage() {
               </span>
             </div>
             
-            <h1 className={`${styles.heroTitle} ${countryHasHeroImage ? styles.heroTitleOnImage : ''}`}>
+            <h1 className={`${styles.heroTitle} ${countryHasHeroImage ? styles.heroTitleOnImage : styles.heroTitleFallback}`}>
               {country.displayName}
             </h1>
             
             <p className={`${styles.heroLocation} ${countryHasHeroImage ? styles.heroLocationOnImage : ''}`}>
               📍 {heroCopy || (country.capital ? `Capital: ${country.capital}` : 'Por descubrir')}
             </p>
+
+            {!countryHasHeroImage && (
+              <p className={styles.heroContributionNote}>
+                {getHeroContributionNote(country.displayName)}
+              </p>
+            )}
 
             {description && !heroCopy && (
               <p className={styles.heroDescription}>{description}</p>
@@ -830,10 +845,15 @@ function DiscoveringCountryView({
   return (
     <div className={styles.container}>
       <header 
-        className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : ''}`}
+        className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : styles.heroFallback}`}
         style={countryHasHeroImage && heroImageUrl ? {
           backgroundImage: `url(${heroImageUrl})`,
         } : undefined}
+        aria-label={
+          countryHasHeroImage
+            ? `Imagen panorámica de ${worldCountry.displayName}`
+            : `Portada temporal del país ${worldCountry.displayName}`
+        }
       >
         {/* Overlay oscuro cuando hay imagen para legibilidad */}
         {countryHasHeroImage && <div className={styles.heroOverlay} aria-hidden="true" />}
@@ -846,8 +866,8 @@ function DiscoveringCountryView({
           </span>
         </nav>
 
-        <div className={`${styles.heroContent} ${countryHasHeroImage ? styles.heroContentOnImage : ''}`}>
-          <div className={`${styles.heroFlag} ${countryHasHeroImage ? styles.heroFlagOnImage : ''}`}>
+        <div className={`${styles.heroContent} ${countryHasHeroImage ? styles.heroContentOnImage : styles.heroContentFallback}`}>
+          <div className={`${styles.heroFlag} ${countryHasHeroImage ? styles.heroFlagOnImage : styles.heroFlagFallback}`}>
             <CountryFlag
               isoAlpha2={worldCountry.isoAlpha2}
               countryName={worldCountry.displayName}
@@ -856,12 +876,17 @@ function DiscoveringCountryView({
           </div>
           
           <div className={styles.heroText}>
-            <h1 className={`${styles.heroTitle} ${countryHasHeroImage ? styles.heroTitleOnImage : ''}`}>
+            <h1 className={`${styles.heroTitle} ${countryHasHeroImage ? styles.heroTitleOnImage : styles.heroTitleFallback}`}>
               {worldCountry.displayName}
             </h1>
             <p className={`${styles.heroLocation} ${countryHasHeroImage ? styles.heroLocationOnImage : ''}`}>
               📍 {heroCopy || 'Estamos preparando este destino'}
             </p>
+            {!countryHasHeroImage && (
+              <p className={styles.heroContributionNote}>
+                {getHeroContributionNote(worldCountry.displayName)}
+              </p>
+            )}
           </div>
         </div>
       </header>
