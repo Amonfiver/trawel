@@ -9,12 +9,15 @@
 
 Mejorado el fallback visual de `CountryPage` cuando no existe imagen real en `src/assets/countries/hero/[countrySlug].webp`.
 
+Actualización posterior: el fallback pasa de CTA fotográfico protagonista a copy inspirador estable por país. La colaboración fotográfica queda como llamada secundaria y discreta cerca del final del contenido principal, preparando el enfoque para futura generación/reutilización de textos por país mediante Investighost.
+
 ### Cambios implementados
 
 - Añadidas paletas discretas por `countrySlug` para portadas temporales de país: `mexico`, `italia`, `espana`, `ucrania`, `rusia`.
 - El fallback usa bandera visible, nombre protagonista y degradado inspirado en colores de bandera.
+- Añadido copy inspirador estable para `canada`, `mexico`, `italia`, `espana`, `ucrania` y `rusia`.
 - Si existe imagen hero real, la imagen sigue teniendo prioridad y no se aplica la paleta temporal.
-- Actualizado el CTA comunitario para invitar a aportar fotos reales con crédito de agradecimiento.
+- La colaboración fotográfica deja de ocupar el hero y pasa a una tarjeta secundaria.
 
 ### Reglas respetadas
 

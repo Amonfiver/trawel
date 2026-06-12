@@ -117,6 +117,19 @@ const heroCopyBySlug: Record<string, string> = {
   mexico: 'Pirámides, cultura viva y paisajes que invitan a descubrir cada región.',
 };
 
+/**
+ * Copy estable para portadas temporales sin imagen real.
+ * Preparado para futura generación editorial por país desde Investighost.
+ */
+const heroFallbackCopyBySlug: Record<string, string> = {
+  canada: 'Bosques infinitos, ciudades abiertas y paisajes que cambian con cada estación. Explora un país hecho para viajar despacio, mirar lejos y descubrir rutas memorables.',
+  mexico: 'Pirámides, mercados vivos, costas luminosas y ciudades llenas de historia. Descubre México como un mosaico de regiones, sabores y caminos que invitan a volver.',
+  italia: 'Ciudades de arte, pueblos lentos y paisajes que mezclan historia, cocina y luz mediterránea. Explora Italia con calma, de plaza en plaza y de región en región.',
+  espana: 'Costas, montañas, ciudades históricas y pueblos con carácter propio. Descubre España como un viaje de contrastes, lenguas, caminos y tradiciones compartidas.',
+  ucrania: 'Ciudades con memoria, paisajes abiertos y una identidad cultural profunda. Descubre Ucrania desde su historia, su gente y sus lugares esenciales.',
+  rusia: 'Distancias inmensas, ciudades monumentales y paisajes que cambian de Europa a Asia. Explora Rusia desde su cultura, su historia y sus rutas más evocadoras.',
+};
+
 type CountryHeroFallbackPalette = {
   primary: string;
   secondary: string;
@@ -133,6 +146,16 @@ type CountryHeroFallbackPalette = {
  * Solo se aplican cuando NO existe imagen hero real en assets/countries/hero.
  */
 const heroFallbackPalettesBySlug: Record<string, CountryHeroFallbackPalette> = {
+  canada: {
+    primary: '#123a32',
+    secondary: '#f8fafc',
+    accent: '#9f1d2f',
+    stripeStart: '#b91c1c',
+    stripeMiddle: '#f8fafc',
+    stripeEnd: '#b91c1c',
+    glowStart: 'rgba(185, 28, 28, 0.26)',
+    glowEnd: 'rgba(248, 250, 252, 0.22)',
+  },
   mexico: {
     primary: '#0f3d2e',
     secondary: '#f7f3eb',
@@ -199,6 +222,14 @@ function getHeroCopy(slug: string): string | undefined {
   return heroCopyBySlug[slug];
 }
 
+function getHeroFallbackCopy(slug?: string): string {
+  if (slug && heroFallbackCopyBySlug[slug]) {
+    return heroFallbackCopyBySlug[slug];
+  }
+
+  return 'Un destino en preparación para viajeros curiosos. Muy pronto reuniremos rutas, lugares y consejos para descubrirlo con calma.';
+}
+
 /**
  * Verifica si un país tiene imagen hero disponible
  */
@@ -229,7 +260,7 @@ function getHeroFallbackStyle(slug?: string): CSSProperties | undefined {
 }
 
 function getHeroContributionNote(name: string): string {
-  return `¿Tienes una foto que represente ${name}? Ayúdanos a mostrar este destino con una mirada real. Si tu foto es seleccionada, aparecerás en nuestros créditos de agradecimiento.`;
+  return `¿Tienes una foto de ${name}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
 }
 
 // Países con mapa interno local implementado
@@ -689,6 +720,7 @@ export function CountryPage() {
   const countryHasHeroImage = countrySlug ? hasHeroImage(countrySlug) : false;
   const heroImageUrl = countrySlug ? getHeroImage(countrySlug) : undefined;
   const heroCopy = countrySlug ? getHeroCopy(countrySlug) : undefined;
+  const heroFallbackCopy = getHeroFallbackCopy(countrySlug);
   const heroStyle = countryHasHeroImage && heroImageUrl
     ? { backgroundImage: `url(${heroImageUrl})` }
     : getHeroFallbackStyle(countrySlug);
@@ -749,14 +781,10 @@ export function CountryPage() {
             </h1>
             
             <p className={`${styles.heroLocation} ${countryHasHeroImage ? styles.heroLocationOnImage : ''}`}>
-              📍 {heroCopy || (country.capital ? `Capital: ${country.capital}` : 'Por descubrir')}
+              📍 {countryHasHeroImage
+                ? heroCopy || (country.capital ? `Capital: ${country.capital}` : 'Por descubrir')
+                : heroFallbackCopy}
             </p>
-
-            {!countryHasHeroImage && (
-              <p className={styles.heroContributionNote}>
-                {getHeroContributionNote(country.displayName)}
-              </p>
-            )}
 
             {description && !heroCopy && (
               <p className={styles.heroDescription}>{description}</p>
@@ -876,6 +904,10 @@ export function CountryPage() {
             </div>
           </div>
         </section>
+
+        {!countryHasHeroImage && (
+          <HeroContributionBlock countryName={country.displayName} />
+        )}
       </main>
     </div>
   );
@@ -932,6 +964,7 @@ function DiscoveringCountryView({
   const countryHasHeroImage = hasHeroImage(worldCountry.slug);
   const heroImageUrl = getHeroImage(worldCountry.slug);
   const heroCopy = getHeroCopy(worldCountry.slug);
+  const heroFallbackCopy = getHeroFallbackCopy(worldCountry.slug);
   const heroStyle = countryHasHeroImage && heroImageUrl
     ? { backgroundImage: `url(${heroImageUrl})` }
     : getHeroFallbackStyle(worldCountry.slug);
@@ -972,13 +1005,8 @@ function DiscoveringCountryView({
               {worldCountry.displayName}
             </h1>
             <p className={`${styles.heroLocation} ${countryHasHeroImage ? styles.heroLocationOnImage : ''}`}>
-              📍 {heroCopy || 'Estamos preparando este destino'}
+              📍 {countryHasHeroImage ? heroCopy || 'Estamos preparando este destino' : heroFallbackCopy}
             </p>
-            {!countryHasHeroImage && (
-              <p className={styles.heroContributionNote}>
-                {getHeroContributionNote(worldCountry.displayName)}
-              </p>
-            )}
           </div>
         </div>
       </header>
@@ -1127,8 +1155,24 @@ function DiscoveringCountryView({
             )}
           </div>
         </section>
+
+        {!countryHasHeroImage && (
+          <HeroContributionBlock countryName={worldCountry.displayName} />
+        )}
       </main>
     </div>
+  );
+}
+
+function HeroContributionBlock({ countryName }: { countryName: string }) {
+  return (
+    <aside className={styles.heroContributionCard} aria-label={`Colabora con una foto de ${countryName}`}>
+      <span className={styles.heroContributionIcon} aria-hidden="true">📷</span>
+      <div>
+        <h2 className={styles.heroContributionTitle}>Colabora con Trawel</h2>
+        <p className={styles.heroContributionText}>{getHeroContributionNote(countryName)}</p>
+      </div>
+    </aside>
   );
 }
 
