@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-12 - Fallback premium de hero país con identidad por bandera
+
+Mejorado el fallback visual de `CountryPage` cuando no existe imagen real en `src/assets/countries/hero/[countrySlug].webp`.
+
+### Cambios implementados
+
+- Añadidas paletas discretas por `countrySlug` para portadas temporales de país: `mexico`, `italia`, `espana`, `ucrania`, `rusia`.
+- El fallback usa bandera visible, nombre protagonista y degradado inspirado en colores de bandera.
+- Si existe imagen hero real, la imagen sigue teniendo prioridad y no se aplica la paleta temporal.
+- Actualizado el CTA comunitario para invitar a aportar fotos reales con crédito de agradecimiento.
+
+### Reglas respetadas
+
+- No se tocaron `CountryZonePage`, mapas, D3, TopoJSON, navegación, Supabase, rutas, `package.json` ni dependencias.
+- Zonas/ciudades conservan su fallback existente.
+
+---
+
 ## 2026-06-11 - Sistema genérico de heroes editoriales para países y zonas
 
 Implementado un sistema productivo de imágenes hero por slug para países y zonas/ciudades.

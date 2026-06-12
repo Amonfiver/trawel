@@ -90,9 +90,14 @@
 .heroFallback {
   min-height: 420px;
   background:
-    radial-gradient(circle at 18% 22%, rgba(232, 200, 117, 0.36) 0, transparent 28%),
-    radial-gradient(circle at 82% 18%, rgba(91, 155, 213, 0.28) 0, transparent 30%),
-    linear-gradient(135deg, #123454 0%, #1f6a78 46%, #d6a85b 100%);
+    radial-gradient(circle at 18% 22%, var(--country-hero-glow-start, rgba(232, 200, 117, 0.36)) 0, transparent 28%),
+    radial-gradient(circle at 82% 18%, var(--country-hero-glow-end, rgba(91, 155, 213, 0.28)) 0, transparent 30%),
+    linear-gradient(
+      135deg,
+      var(--country-hero-primary, #123454) 0%,
+      var(--country-hero-secondary, #1f6a78) 48%,
+      var(--country-hero-accent, #d6a85b) 100%
+    );
   color: #ffffff;
 }
 
@@ -101,6 +106,15 @@
   position: absolute;
   inset: 0;
   background:
+    linear-gradient(
+      90deg,
+      var(--country-hero-stripe-start, rgba(255, 255, 255, 0.18)) 0%,
+      var(--country-hero-stripe-start, rgba(255, 255, 255, 0.18)) 33.333%,
+      var(--country-hero-stripe-middle, rgba(255, 255, 255, 0.14)) 33.333%,
+      var(--country-hero-stripe-middle, rgba(255, 255, 255, 0.14)) 66.666%,
+      var(--country-hero-stripe-end, rgba(232, 200, 117, 0.24)) 66.666%,
+      var(--country-hero-stripe-end, rgba(232, 200, 117, 0.24)) 100%
+    ) top / 100% 9px no-repeat,
     linear-gradient(180deg, rgba(15, 23, 42, 0.22) 0%, rgba(15, 23, 42, 0.08) 48%, rgba(15, 23, 42, 0.34) 100%);
   pointer-events: none;
 }
@@ -441,9 +455,18 @@
 }
 
 .heroTitleFallback {
-  color: #ffffff;
+  color: #fff7d6;
   text-transform: uppercase;
-  text-shadow: 0 12px 34px rgba(15, 23, 42, 0.28);
+  text-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.45),
+    0 12px 34px rgba(15, 23, 42, 0.32);
+}
+
+.heroFallback .heroTitleFallback {
+  color: #ffffff;
+  text-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.48),
+    0 16px 38px rgba(15, 23, 42, 0.36);
 }
 
 /* Subtítulo/ubicación sobre imagen - TAREA 2: Mejor contraste con fondo glass */
@@ -527,13 +550,14 @@
   max-width: 620px;
   margin: 1rem 0 0;
   padding: 0.85rem 1rem;
-  color: rgba(255, 255, 255, 0.92);
-  background: rgba(15, 23, 42, 0.24);
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(15, 23, 42, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 14px;
   font-size: 0.95rem;
   line-height: 1.6;
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.22);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }

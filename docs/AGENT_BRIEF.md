@@ -122,6 +122,8 @@ VITE_TRAVEL_DATA_SOURCE=supabase  # o mock
 - Zonas/ciudades: `src/assets/zones/hero/[zoneSlug].webp`
 - Recomendado: `2400x900 px`, `.webp`, `250-700 KB`
 - El nombre del archivo debe coincidir exactamente con el slug real de URL.
+- Si un país no tiene imagen real, `CountryPage` usa fallback premium con bandera, nombre y paleta por `countrySlug`.
+- Las paletas de fallback país no deben aplicarse a zonas/ciudades ni a mapas.
 
 ### ¿Qué leer según la tarea?
 | Tarea sobre... | Leer... |

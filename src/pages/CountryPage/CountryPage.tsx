@@ -50,7 +50,7 @@
  */
 
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, type CSSProperties } from 'react';
 import { getCountryPageData } from '../../features/travelData';
 import { CountryInternalMap } from '../../features/map/components/CountryInternalMap';
 import { CountryFlag } from '../../features/countries';
@@ -117,6 +117,74 @@ const heroCopyBySlug: Record<string, string> = {
   mexico: 'Pirámides, cultura viva y paisajes que invitan a descubrir cada región.',
 };
 
+type CountryHeroFallbackPalette = {
+  primary: string;
+  secondary: string;
+  accent: string;
+  stripeStart: string;
+  stripeMiddle: string;
+  stripeEnd: string;
+  glowStart: string;
+  glowEnd: string;
+};
+
+/**
+ * Paletas discretas para portadas temporales de país.
+ * Solo se aplican cuando NO existe imagen hero real en assets/countries/hero.
+ */
+const heroFallbackPalettesBySlug: Record<string, CountryHeroFallbackPalette> = {
+  mexico: {
+    primary: '#0f3d2e',
+    secondary: '#f7f3eb',
+    accent: '#8f1d2c',
+    stripeStart: '#1f6f43',
+    stripeMiddle: '#f8fafc',
+    stripeEnd: '#b91c1c',
+    glowStart: 'rgba(31, 111, 67, 0.36)',
+    glowEnd: 'rgba(185, 28, 28, 0.28)',
+  },
+  italia: {
+    primary: '#11412f',
+    secondary: '#f6f1e8',
+    accent: '#a7282f',
+    stripeStart: '#1f7a4d',
+    stripeMiddle: '#fffaf0',
+    stripeEnd: '#c7353d',
+    glowStart: 'rgba(31, 122, 77, 0.34)',
+    glowEnd: 'rgba(199, 53, 61, 0.24)',
+  },
+  espana: {
+    primary: '#7f1d1d',
+    secondary: '#d4a54a',
+    accent: '#991b1b',
+    stripeStart: '#9f1d22',
+    stripeMiddle: '#f2c14f',
+    stripeEnd: '#9f1d22',
+    glowStart: 'rgba(242, 193, 79, 0.34)',
+    glowEnd: 'rgba(153, 27, 27, 0.28)',
+  },
+  ucrania: {
+    primary: '#123f73',
+    secondary: '#2d6a9f',
+    accent: '#d9a928',
+    stripeStart: '#1f5f9f',
+    stripeMiddle: '#1f5f9f',
+    stripeEnd: '#e0b33f',
+    glowStart: 'rgba(45, 106, 159, 0.36)',
+    glowEnd: 'rgba(224, 179, 63, 0.3)',
+  },
+  rusia: {
+    primary: '#16345c',
+    secondary: '#f8fafc',
+    accent: '#9f1d2f',
+    stripeStart: '#f8fafc',
+    stripeMiddle: '#244f9e',
+    stripeEnd: '#b91c1c',
+    glowStart: 'rgba(36, 79, 158, 0.3)',
+    glowEnd: 'rgba(185, 28, 28, 0.24)',
+  },
+};
+
 /**
  * Obtiene la imagen hero para un país
  */
@@ -138,8 +206,30 @@ function hasHeroImage(slug: string): boolean {
   return slug in heroImageMap;
 }
 
+function getHeroFallbackStyle(slug?: string): CSSProperties | undefined {
+  if (!slug) {
+    return undefined;
+  }
+
+  const palette = heroFallbackPalettesBySlug[slug];
+  if (!palette) {
+    return undefined;
+  }
+
+  return {
+    '--country-hero-primary': palette.primary,
+    '--country-hero-secondary': palette.secondary,
+    '--country-hero-accent': palette.accent,
+    '--country-hero-stripe-start': palette.stripeStart,
+    '--country-hero-stripe-middle': palette.stripeMiddle,
+    '--country-hero-stripe-end': palette.stripeEnd,
+    '--country-hero-glow-start': palette.glowStart,
+    '--country-hero-glow-end': palette.glowEnd,
+  } as CSSProperties;
+}
+
 function getHeroContributionNote(name: string): string {
-  return `¿Tienes una foto que represente ${name}? Mándala a nuestro buzón y te haremos un reconocimiento en los créditos de agradecimiento.`;
+  return `¿Tienes una foto que represente ${name}? Ayúdanos a mostrar este destino con una mirada real. Si tu foto es seleccionada, aparecerás en nuestros créditos de agradecimiento.`;
 }
 
 // Países con mapa interno local implementado
@@ -599,15 +689,16 @@ export function CountryPage() {
   const countryHasHeroImage = countrySlug ? hasHeroImage(countrySlug) : false;
   const heroImageUrl = countrySlug ? getHeroImage(countrySlug) : undefined;
   const heroCopy = countrySlug ? getHeroCopy(countrySlug) : undefined;
+  const heroStyle = countryHasHeroImage && heroImageUrl
+    ? { backgroundImage: `url(${heroImageUrl})` }
+    : getHeroFallbackStyle(countrySlug);
 
   return (
     <div className={styles.container}>
       {/* Hero del País - Cinematográfico con imagen fotográfica si existe */}
       <header 
         className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : styles.heroFallback}`}
-        style={countryHasHeroImage && heroImageUrl ? {
-          backgroundImage: `url(${heroImageUrl})`,
-        } : undefined}
+        style={heroStyle}
         aria-label={
           countryHasHeroImage
             ? `Imagen panorámica de ${country.displayName}`
@@ -841,14 +932,15 @@ function DiscoveringCountryView({
   const countryHasHeroImage = hasHeroImage(worldCountry.slug);
   const heroImageUrl = getHeroImage(worldCountry.slug);
   const heroCopy = getHeroCopy(worldCountry.slug);
+  const heroStyle = countryHasHeroImage && heroImageUrl
+    ? { backgroundImage: `url(${heroImageUrl})` }
+    : getHeroFallbackStyle(worldCountry.slug);
 
   return (
     <div className={styles.container}>
       <header 
         className={`${styles.hero} ${countryHasHeroImage ? styles.heroWithImage : styles.heroFallback}`}
-        style={countryHasHeroImage && heroImageUrl ? {
-          backgroundImage: `url(${heroImageUrl})`,
-        } : undefined}
+        style={heroStyle}
         aria-label={
           countryHasHeroImage
             ? `Imagen panorámica de ${worldCountry.displayName}`
