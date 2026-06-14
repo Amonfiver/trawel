@@ -35,6 +35,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Fase data-driven:** Trawel entra en una fase de transicion hacia contratos de datos para Supabase e Investighost. Antes de proponer cambios estructurales sobre paises, zonas, lugares, rutas, planes, imagenes, demanda o paginas estaticas, consultar `docs/TRAWEL_DATA_CONTRACTS.md`.
 
+**Modelo Supabase futuro:** antes de proponer tablas, migraciones, cambios de datos o RLS, consultar `docs/TRAWEL_SUPABASE_MODEL.md`.
+
 **Arquitectura de fuentes:**
 
 ```

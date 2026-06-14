@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-14 - Modelo Supabase futuro para Trawel data-driven
+
+Documentado el modelo Supabase inicial en `docs/TRAWEL_SUPABASE_MODEL.md` para preparar Trawel como frontend data-driven alimentado por Investighost.
+
+### Cambios implementados
+
+- Definido el principio "Supabase almacena, Investighost alimenta, Trawel renderiza".
+- Documentadas tablas recomendadas: `countries`, `zones`, `places`, `routes`, `plans`, `adventures`, `editorial_contents`, `image_assets`, `community_photos`, `demand_signals` y `static_pages`.
+- Documentadas relaciones principales, estados editoriales, reglas de visibilidad publica, consideraciones de RLS/Storage y fases de implementacion.
+- Anadida nota en `docs/AGENT_BRIEF.md` para consultar el modelo antes de proponer tablas, migraciones o cambios de datos.
+
+### Reglas respetadas
+
+- No se tocaron codigo fuente, componentes, CSS, rutas, servicios, mapas, Supabase real, `package.json` ni dependencias.
+- No se crearon migraciones, SQL ejecutable ni refactors.
+
+---
+
 ## 2026-06-14 - Contratos data-driven para Supabase e Investighost
 
 Creada la documentacion base `docs/TRAWEL_DATA_CONTRACTS.md` para orientar la transicion de Trawel hacia una plataforma data-driven.
