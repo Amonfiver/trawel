@@ -11,10 +11,11 @@
  * - Mensaje futuro orientado a aventuras publicadas por viajeros
  *
  * Decisiones técnicas importantes:
- * - Usa getCountryPageData para obtener datos agregados de país, ciudades y destinos
+ * - Usa la fachada data-driven para datos normalizados de pantalla de país
+ * - Mantiene getCountryPageData para datos agregados heredados de ciudades y destinos
  * - CountryInternalMap es el render genérico para assets TopoJSON locales o de Storage
  * - España usa asset local; otros países consultan/generan assets en country_map_assets
- * - getPreferredAdminLevel define el nivel administrativo esperado para cada país
+ * - screenData.mapStatus define el nivel administrativo esperado para cada país
  * - La atribución cartográfica se delega al mapa y no debe ocultarse
  *
  * Jerarquía de contenido:
@@ -51,12 +52,15 @@
 
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback, type CSSProperties } from 'react';
-import { getCountryPageData } from '../../features/travelData';
+import {
+  getCountryPageData,
+  getCountryScreenData,
+  type ScreenEditorialData,
+} from '../../features/travelData';
 import { CountryInternalMap } from '../../features/map/components/CountryInternalMap';
 import { CountryFlag } from '../../features/countries';
 import { getWorldCountryBySlug, type WorldCountry } from '../../features/countries/data/worldCountries';
 import type { CountryStatus } from '../../features/countries/data/countries.types';
-import { getPreferredAdminLevel } from '../../features/map/config/countryMapProfiles';
 import type { CountryMapAsset } from '../../features/map/services/countryMapAssets.service';
 import { 
   getCountryMapAsset, 
@@ -68,7 +72,6 @@ import type { City } from '../../features/cities/types/city.types';
 import type { Destination } from '../../features/destinations/types/destination.types';
 import { getDestinationTitle, getDestinationSummary } from '../../features/destinations/data/destinations.utils';
 import { getLocalizedText } from '../../app/i18n';
-import { getCountryEditorial } from '../../features/countries';
 import type { ExperienceMode } from '../../features/countries';
 import styles from './CountryPage.module.css';
 
@@ -292,6 +295,7 @@ export function CountryPage() {
   const navigate = useNavigate();
   const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
   const { mode } = useExperienceMode();
+  const screenData = countrySlug ? getCountryScreenData(countrySlug, mode) : undefined;
   
   // Estado para el asset del mapa (DA-030)
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
@@ -312,7 +316,7 @@ export function CountryPage() {
     publishedDestinationsCount,
     totalCitiesCount,
   } = getCountryPageData(countrySlug || '');
-  const preferredAdminLevel = countrySlug ? getPreferredAdminLevel(countrySlug) : 'ADM1';
+  const preferredAdminLevel = screenData?.mapStatus.preferredAdminLevel || 'ADM1';
   const countryIsoAlpha3 = country && 'isoAlpha3' in country ? country.isoAlpha3 : undefined;
 
   const handleZoneSelect = useCallback((zone: { name: string; slug: string }) => {
@@ -533,8 +537,8 @@ export function CountryPage() {
         mapState={mapState}
         onRetryGeneration={handleRetryGeneration}
         onZoneSelect={handleZoneSelect}
-        countrySlug={countrySlug}
         mode={mode}
+        editorial={screenData?.editorial}
       />
     );
   }
@@ -807,9 +811,9 @@ export function CountryPage() {
       <main className={styles.main}>
         {/* Bloque editorial: Por qué explorar - PRIMERO para máxima visibilidad */}
         <CountryEditorialSection 
-          countrySlug={countrySlug || ''}
           countryDisplayName={country.displayName}
           mode={mode}
+          editorial={screenData?.editorial}
           fallbackDescription={getCountryDescriptionByMode()}
           publishedDestinationsCount={publishedDestinationsCount}
           totalCitiesCount={totalCitiesCount}
@@ -945,8 +949,8 @@ interface DiscoveringCountryViewProps {
   mapState: MapAssetState;
   onRetryGeneration: () => void;
   onZoneSelect: (zone: { name: string; slug: string }) => void;
-  countrySlug?: string;
   mode?: ExperienceMode;
+  editorial?: ScreenEditorialData;
 }
 
 function DiscoveringCountryView({
@@ -954,12 +958,11 @@ function DiscoveringCountryView({
   mapState,
   onRetryGeneration,
   onZoneSelect,
-  countrySlug,
   mode = 'adventure',
+  editorial,
 }: DiscoveringCountryViewProps) {
-  // Verificar si existe contenido editorial para este país (ej: México, Italia, Rusia)
-  const editorial = countrySlug ? getCountryEditorial(countrySlug, mode) : undefined;
-  const hasEditorial = !!editorial;
+  // Verificar si existe contenido editorial publicado para este país (ej: México, Italia, Rusia)
+  const hasEditorial = editorial?.status === 'published';
   // Aplicar hero fotográfico también en vista de descubrimiento
   const countryHasHeroImage = hasHeroImage(worldCountry.slug);
   const heroImageUrl = getHeroImage(worldCountry.slug);
@@ -1041,7 +1044,7 @@ function DiscoveringCountryView({
                   {mode === 'adventure' ? 'Ideas para explorar' : 'Claves de contexto'}
                 </h3>
                 <ul className={styles.editorialList}>
-                  {editorial.explorationIdeas.map((idea, index) => (
+                  {editorial.highlights.map((idea, index) => (
                     <li key={index} className={styles.editorialListItem}>{idea}</li>
                   ))}
                 </ul>
@@ -1056,7 +1059,7 @@ function DiscoveringCountryView({
               
               <div className={styles.editorialTip}>
                 <span className={styles.editorialTipIcon}>💡</span>
-                <p className={styles.editorialTipText}>{editorial.quickTip}</p>
+                <p className={styles.editorialTipText}>{editorial.practicalTips}</p>
               </div>
             </div>
           </section>
@@ -1287,26 +1290,24 @@ function getDestinationTypeLabel(type: string): string {
  * Componente para renderizar el contenido editorial específico por país y modo
  */
 interface CountryEditorialSectionProps {
-  countrySlug: string;
   countryDisplayName: string;
   mode: ExperienceMode;
+  editorial?: ScreenEditorialData;
   fallbackDescription: string;
   publishedDestinationsCount: number;
   totalCitiesCount: number;
 }
 
 function CountryEditorialSection({
-  countrySlug,
   countryDisplayName,
   mode,
+  editorial,
   fallbackDescription,
   publishedDestinationsCount,
   totalCitiesCount,
 }: CountryEditorialSectionProps) {
-  const editorial = countrySlug ? getCountryEditorial(countrySlug, mode) : undefined;
-  
   // Si no hay contenido editorial específico, usar el fallback
-  if (!editorial) {
+  if (editorial?.status !== 'published') {
     return (
       <section className={styles.editorialSection} aria-labelledby="editorial-title">
         <div className={styles.sectionHeader}>
@@ -1363,7 +1364,7 @@ function CountryEditorialSection({
             {mode === 'adventure' ? 'Ideas para explorar' : 'Claves de contexto'}
           </h3>
           <ul className={styles.editorialList}>
-            {editorial.explorationIdeas.map((idea, index) => (
+            {editorial.highlights.map((idea, index) => (
               <li key={index} className={styles.editorialListItem}>{idea}</li>
             ))}
           </ul>
@@ -1380,7 +1381,7 @@ function CountryEditorialSection({
         {/* Consejo rápido */}
         <div className={styles.editorialTip}>
           <span className={styles.editorialTipIcon}>💡</span>
-          <p className={styles.editorialTipText}>{editorial.quickTip}</p>
+          <p className={styles.editorialTipText}>{editorial.practicalTips}</p>
         </div>
         
         {/* Stats si hay contenido */}

@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-14 - CountryPage conectado a fachada data-driven
+
+`CountryPage` empieza a consumir la fachada `getCountryScreenData(countrySlug, mode)` sin cambiar comportamiento visual.
+
+### Cambios implementados
+
+- Conectado el editorial normalizado de `CountryScreenData` al bloque editorial de pais.
+- Usado `screenData.mapStatus.preferredAdminLevel` como fuente del nivel administrativo del mapa.
+- Mantenidos los fallbacks visuales, hero actual, navegacion, CTA comunitario y estados de mapa existentes.
+- Anadida nota en `docs/AGENT_BRIEF.md` para respetar esta fachada en futuros cambios.
+
+### Reglas respetadas
+
+- No se tocaron Home, `CountryZonePage`, `CityPage`, `AdventurePage`, rutas, mapas, Supabase, migraciones, `package.json` ni dependencias.
+- No se conecto Supabase ni se hizo refactor visual.
+
+---
+
 ## 2026-06-14 - Paginas minimas de confianza y comunidad
 
 Creadas paginas informativas basicas para resolver enlaces publicos de confianza, legal y comunidad.

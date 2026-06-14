@@ -1,4 +1,5 @@
 import type { Coordinates } from '../../cities/types/city.types';
+import type { CountryMapAdminLevel } from '../../map/config/countryMapProfiles';
 
 export type ScreenExperienceMode = 'adventure' | 'student';
 
@@ -71,7 +72,7 @@ export interface CountryScreenData {
   zones: ScreenZoneSummary[];
   mapStatus: {
     status: ScreenMapStatus;
-    preferredAdminLevel?: string;
+    preferredAdminLevel?: CountryMapAdminLevel;
     source: 'localAsset' | 'futureSupabase' | 'none';
   };
   fallback: {
