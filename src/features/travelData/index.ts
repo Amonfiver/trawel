@@ -20,6 +20,20 @@ export type {
   TravelDataResult,
 } from './types/travelData.types';
 
+export type {
+  CountryScreenData,
+  ZoneScreenData,
+  ScreenCommunityCtaData,
+  ScreenCountrySummary,
+  ScreenEditorialData,
+  ScreenEditorialStatus,
+  ScreenExperienceMode,
+  ScreenHeroData,
+  ScreenHeroSource,
+  ScreenMapStatus,
+  ScreenZoneSummary,
+} from './screenData';
+
 // Servicios
 export {
   getHomePageData,
@@ -30,3 +44,8 @@ export {
   isTravelDataSourceInitialized,
   getTravelDataSourceState,
 } from './services/travelData.service';
+
+export {
+  getCountryScreenData,
+  getZoneScreenData,
+} from './screenData';

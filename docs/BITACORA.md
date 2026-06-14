@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-14 - Fachada data-driven inicial para Country y Zone
+
+Creada una primera base tecnica de fachada data-driven para datos de pantalla de pais y zona, sin conectar Supabase ni cambiar comportamiento visual.
+
+### Cambios implementados
+
+- Anadidos tipos `CountryScreenData` y `ZoneScreenData` en `src/features/travelData/screenData/`.
+- Anadidas funciones `getCountryScreenData(countrySlug, mode)` y `getZoneScreenData(countrySlug, zoneSlug, mode)` con implementacion local/mock.
+- La fachada normaliza datos actuales desde `countries.ts`, `worldCountries.ts`, `countryEditorial.ts`, `cities.ts` y assets hero locales por slug.
+- Expuesta la nueva fachada desde `src/features/travelData/index.ts` para uso futuro.
+- Anadida nota en `docs/AGENT_BRIEF.md` para que futuros cambios de pais/zona respeten esta capa.
+
+### Reglas respetadas
+
+- No se modificaron Home, `CountryPage`, `CountryZonePage`, rutas, mapas, Supabase, `package.json` ni dependencias.
+- No se conecto Supabase, no se crearon migraciones, SQL ni refactors visuales.
+
+---
+
 ## 2026-06-14 - Modelo Supabase futuro para Trawel data-driven
 
 Documentado el modelo Supabase inicial en `docs/TRAWEL_SUPABASE_MODEL.md` para preparar Trawel como frontend data-driven alimentado por Investighost.
