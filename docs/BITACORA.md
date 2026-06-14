@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-14 - Contratos data-driven para Supabase e Investighost
+
+Creada la documentacion base `docs/TRAWEL_DATA_CONTRACTS.md` para orientar la transicion de Trawel hacia una plataforma data-driven.
+
+### Cambios implementados
+
+- Definido el principio "Trawel renderiza, Investighost investiga y Supabase almacena".
+- Documentadas entidades futuras: Country, Zone, Place, Route, Plan, Adventure, EditorialContent, ImageAsset, CommunityPhoto, DemandSignal y StaticPage/LegalPage.
+- Anadido contrato editorial comun para modos Aventura y Estudiante.
+- Documentadas fases de transicion y checklist previa a carga masiva con Investighost.
+- Anadida nota en `docs/AGENT_BRIEF.md` para que futuros agentes consulten los contratos antes de proponer cambios estructurales.
+
+### Reglas respetadas
+
+- No se tocaron codigo fuente, componentes, CSS, rutas, servicios, mapas, Supabase, `package.json` ni dependencias.
+- No se implementaron tablas, SQL, migraciones ni refactors.
+
+---
+
 ## 2026-06-12 - Fallback inspirador para heroes de zona
 
 Actualizado `CountryZonePage` para que el fallback de zonas sin imagen real funcione como portada inspiradora del lugar, no como petición de foto.
