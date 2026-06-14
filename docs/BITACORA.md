@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-14 - Mapeo Supabase legacy a modelo futuro
+
+Documentado el mapeo entre `trawel-prod` legacy y el modelo data-driven futuro para reutilizar lo existente sin reconstruir Supabase desde cero.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_SUPABASE_LEGACY_MAPPING.md`.
+- Inventariadas tablas actuales: `countries`, `cities`, `destinations`, `destination_sources`, `country_map_assets` y `traveler_adventures`.
+- Inventariados Storage y Edge Functions actuales: `map-assets`, `traveler-adventure-photos`, `request-country-map` y `withdraw-traveler-adventure`.
+- Definida correspondencia legacy -> futuro y decisiones de conservar, adaptar o migrar por capas.
+- Anadida nota en `docs/AGENT_BRIEF.md` para consultar el mapping antes de tocar Supabase.
+
+### Reglas respetadas
+
+- No se tocaron codigo fuente, componentes, mapas, Supabase real, migraciones, SQL, `package.json` ni dependencias.
+- No se ejecuto build.
+
+---
+
 ## 2026-06-14 - Fachada data-driven inicial para Country y Zone
 
 Creada una primera base tecnica de fachada data-driven para datos de pantalla de pais y zona, sin conectar Supabase ni cambiar comportamiento visual.
