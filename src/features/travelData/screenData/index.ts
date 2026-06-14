@@ -1,5 +1,6 @@
 export type {
   CountryScreenData,
+  CountryZoneScreenDataRepository,
   ScreenCommunityCtaData,
   ScreenCountrySummary,
   ScreenEditorialData,

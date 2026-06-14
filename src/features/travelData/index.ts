@@ -22,6 +22,7 @@ export type {
 
 export type {
   CountryScreenData,
+  CountryZoneScreenDataRepository,
   ZoneScreenData,
   ScreenCommunityCtaData,
   ScreenCountrySummary,

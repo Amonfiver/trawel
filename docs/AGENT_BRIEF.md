@@ -41,6 +41,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Fachada Country/Zone:** empieza a existir una fachada data-driven en `src/features/travelData/screenData/` con `getCountryScreenData()` y `getZoneScreenData()`. Los proximos cambios de pais/zona deben respetarla y evitar nuevo contenido hardcoded en paginas.
 
+**Repositorio puente Country/Zone:** la fachada Country/Zone delega actualmente en un repositorio local (`localCountryZoneScreenData.repository.ts`) que implementa `CountryZoneScreenDataRepository`. Futuros repositorios Supabase legacy o data-driven deben respetar esa interfaz antes de cambiar paginas.
+
 **Arquitectura de fuentes:**
 
 ```

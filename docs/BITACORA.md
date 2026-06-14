@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-14 - Repositorio puente local para Country y Zone
+
+Ordenada la fachada data-driven inicial de Country/Zone separando la API publica del origen local actual.
+
+### Cambios implementados
+
+- Anadido contrato `CountryZoneScreenDataRepository`.
+- Creado `localCountryZoneScreenData.repository.ts` como repositorio local/mock para `CountryScreenData` y `ZoneScreenData`.
+- Simplificado `countryZoneScreenData.service.ts` para delegar en el repositorio activo.
+- Expuesto el contrato desde los barrels de `screenData` y `travelData`.
+- Anadida nota en `docs/AGENT_BRIEF.md` para que futuros repositorios Supabase respeten la fachada.
+
+### Reglas respetadas
+
+- No se tocaron Home, `CountryPage`, `CountryZonePage`, `CityPage`, `AdventurePage`, rutas, mapas, Supabase real, migraciones, `package.json` ni dependencias.
+- No se conecto Supabase, no se creo SQL ni se migraron datos.
+
+---
+
 ## 2026-06-14 - Mapeo Supabase legacy a modelo futuro
 
 Documentado el mapeo entre `trawel-prod` legacy y el modelo data-driven futuro para reutilizar lo existente sin reconstruir Supabase desde cero.

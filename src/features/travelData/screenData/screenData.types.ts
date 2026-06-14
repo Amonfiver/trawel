@@ -97,3 +97,8 @@ export interface ZoneScreenData {
   };
   communityCta: ScreenCommunityCtaData;
 }
+
+export interface CountryZoneScreenDataRepository {
+  getCountryScreenData(countrySlug: string, mode: ScreenExperienceMode): CountryScreenData;
+  getZoneScreenData(countrySlug: string, zoneSlug: string, mode: ScreenExperienceMode): ZoneScreenData;
+}
