@@ -43,6 +43,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Repositorio puente Country/Zone:** la fachada Country/Zone delega actualmente en un repositorio local (`localCountryZoneScreenData.repository.ts`) que implementa `CountryZoneScreenDataRepository`. Futuros repositorios Supabase legacy o data-driven deben respetar esa interfaz antes de cambiar paginas.
 
+**Paginas de confianza:** existen paginas minimas en `src/pages/TrustPage/` para `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`. Son informativas iniciales; no sustituyen textos legales definitivos ni conectan formularios/backend.
+
 **Arquitectura de fuentes:**
 
 ```

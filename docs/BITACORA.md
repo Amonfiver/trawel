@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-14 - Paginas minimas de confianza y comunidad
+
+Creadas paginas informativas basicas para resolver enlaces publicos de confianza, legal y comunidad.
+
+### Cambios implementados
+
+- Creada plantilla `src/pages/TrustPage/` para paginas estaticas sencillas.
+- Anadidas rutas `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`.
+- Corregido el enlace roto del footer `/mapa` para apuntar al atlas existente `/#atlas-mundial`.
+- Anadida nota en `docs/AGENT_BRIEF.md` sobre estas paginas minimas.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, `CountryInternalMap`, D3, TopoJSON, Supabase, migraciones, servicios data-driven, fachada Country/Zone, `package.json` ni dependencias.
+- No se conectaron formularios, backend, subida de fotos ni Supabase real.
+
+---
+
 ## 2026-06-14 - Repositorio puente local para Country y Zone
 
 Ordenada la fachada data-driven inicial de Country/Zone separando la API publica del origen local actual.

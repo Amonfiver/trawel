@@ -24,6 +24,7 @@ import { CountryZonePage } from '../pages/CountryZonePage';
 import { WithdrawAdventurePage } from '../pages/WithdrawAdventurePage';
 import { CityPage } from '../pages/CityPage';
 import { AdventurePage } from '../pages/AdventurePage';
+import { TrustPage } from '../pages/TrustPage';
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +42,34 @@ export const router = createBrowserRouter([
   {
     path: '/retirar-aventura',
     element: <WithdrawAdventurePage />,
+  },
+  {
+    path: '/sobre-trawel',
+    element: <TrustPage page="sobre-trawel" />,
+  },
+  {
+    path: '/contacto',
+    element: <TrustPage page="contacto" />,
+  },
+  {
+    path: '/privacidad',
+    element: <TrustPage page="privacidad" />,
+  },
+  {
+    path: '/cookies',
+    element: <TrustPage page="cookies" />,
+  },
+  {
+    path: '/terminos',
+    element: <TrustPage page="terminos" />,
+  },
+  {
+    path: '/creditos-imagenes',
+    element: <TrustPage page="creditos-imagenes" />,
+  },
+  {
+    path: '/compartir',
+    element: <TrustPage page="compartir" />,
   },
   {
     path: '/pais/:countrySlug/:citySlug',

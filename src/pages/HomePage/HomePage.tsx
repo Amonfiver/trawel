@@ -406,7 +406,7 @@ export function HomePage() {
           </p>
           <nav className={styles.footerNav} aria-label="Enlaces de pie de página">
             <a href="/" className={styles.footerLink}>Inicio</a>
-            <a href="/mapa" className={styles.footerLink}>Mapa del sitio</a>
+            <a href="/#atlas-mundial" className={styles.footerLink}>Atlas</a>
             <a href="/sobre-trawel" className={styles.footerLink}>Sobre Trawel</a>
             <a href="/privacidad" className={styles.footerLink}>Privacidad</a>
             <a href="/contacto" className={styles.footerLink}>Contacto</a>
