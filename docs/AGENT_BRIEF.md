@@ -53,7 +53,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **CountryZonePage data-driven:** `CountryZonePage` empieza a consumir `getZoneScreenData(countrySlug, zoneSlug, mode)` para datos normalizados de pantalla, manteniendo hero local/fallback, copy de zona y CTA comunitario actuales. Futuros cambios de zona deben pasar por la fachada antes de tocar la pagina.
 
-**Paginas de confianza:** existen paginas minimas en `src/pages/TrustPage/` para `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`. Son informativas iniciales; no sustituyen textos legales definitivos ni conectan formularios/backend.
+**Paginas de confianza:** existen paginas minimas en `src/pages/TrustPage/` para `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`. `TrustPage` intenta leer `static_pages` publicadas desde Supabase con `getPublishedStaticPageBySlug(slug)` y conserva fallback local si no hay contenido o falla la configuracion. Son informativas iniciales; no sustituyen textos legales definitivos ni conectan formularios/backend.
 
 **Arquitectura de fuentes:**
 

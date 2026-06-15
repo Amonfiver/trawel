@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-15 - TrustPage conectado a static_pages con fallback local
+
+`TrustPage` empieza a validar lectura real de contenido producto desde Supabase en paginas de bajo riesgo, conservando el contenido local como respaldo.
+
+### Cambios implementados
+
+- `TrustPage` carga `static_pages` publicadas mediante `getPublishedStaticPageBySlug(slug)`.
+- Si Supabase devuelve una pagina valida, usa su titulo, resumen y secciones del `body`.
+- Si Supabase no esta configurado, falla o no devuelve contenido, mantiene el fallback local existente sin mostrar errores crudos.
+- Anadida nota en `docs/AGENT_BRIEF.md`.
+
+### Reglas respetadas
+
+- No se tocaron Home, `CountryPage`, `CountryZonePage`, rutas, mapas, migraciones, seed, `package.json` ni dependencias.
+- No se escribio en Supabase.
+
+---
+
 ## 2026-06-15 - Seed local de contenido producto Supabase
 
 Preparado un SQL seed local para validar contenido producto publicado sin ejecutar cambios contra Supabase remoto.

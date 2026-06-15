@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getPublishedStaticPageBySlug } from '../../features/travelData/productContent/productContent.service';
+import type { StaticPage } from '../../features/travelData/productContent/productContent.types';
 import styles from './TrustPage.module.css';
 
 type TrustPageSlug =
@@ -191,7 +194,28 @@ interface TrustPageProps {
 }
 
 export function TrustPage({ page }: TrustPageProps) {
-  const content = trustPages[page];
+  const fallbackContent = trustPages[page];
+  const [supabaseContent, setSupabaseContent] = useState<TrustPageContent | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    setSupabaseContent(null);
+
+    getPublishedStaticPageBySlug(page).then((staticPage) => {
+      if (!isCurrent) {
+        return;
+      }
+
+      setSupabaseContent(staticPage ? mapStaticPageToTrustPageContent(staticPage, fallbackContent) : null);
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [fallbackContent, page]);
+
+  const content = supabaseContent || fallbackContent;
 
   return (
     <main className={styles.page}>
@@ -224,4 +248,56 @@ export function TrustPage({ page }: TrustPageProps) {
       </section>
     </main>
   );
+}
+
+function mapStaticPageToTrustPageContent(
+  staticPage: StaticPage,
+  fallbackContent: TrustPageContent
+): TrustPageContent {
+  const sections = getStaticPageSections(staticPage.body);
+
+  return {
+    ...fallbackContent,
+    title: staticPage.title || fallbackContent.title,
+    intro: staticPage.summary || fallbackContent.intro,
+    sections: sections.length > 0 ? sections : fallbackContent.sections,
+  };
+}
+
+function getStaticPageSections(body: Record<string, unknown>): TrustPageContent['sections'] {
+  const sections = body.sections;
+
+  if (!Array.isArray(sections)) {
+    return [];
+  }
+
+  return sections
+    .map((section) => {
+      if (!section || typeof section !== 'object' || Array.isArray(section)) {
+        return null;
+      }
+
+      const candidate = section as Record<string, unknown>;
+      const title = asNonEmptyString(candidate.heading) || asNonEmptyString(candidate.title);
+      const bodyText = asNonEmptyString(candidate.body) || asNonEmptyString(candidate.text);
+
+      if (!title || !bodyText) {
+        return null;
+      }
+
+      return {
+        title,
+        body: bodyText,
+      };
+    })
+    .filter((section): section is TrustPageContent['sections'][number] => section !== null);
+}
+
+function asNonEmptyString(value: unknown): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
