@@ -14,6 +14,8 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { getZoneScreenData } from '../../features/travelData';
+import { getPublishedPromotionsForContext } from '../../features/travelData/productContent/productContent.service';
+import type { Promotion } from '../../features/travelData/productContent/productContent.types';
 import { CountryFlag } from '../../features/countries';
 import { useExperienceMode } from '../../features/experienceMode';
 import {
@@ -160,6 +162,46 @@ function HeroContributionBlock({
   );
 }
 
+function NativePromotionsBlock({ promotions }: { promotions: Promotion[] }) {
+  if (promotions.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className={styles.promotionsSection} aria-label="Propuestas patrocinadas">
+      {promotions.map((promotion) => {
+        const isDemoPromotion = promotion.metadata.demo === true || promotion.metadata.real_ad === false;
+
+        return (
+          <article key={promotion.id} className={styles.promotionCard}>
+            <div className={styles.promotionMeta}>
+              <span className={styles.promotionDisclosure}>{promotion.disclosureLabel}</span>
+              {isDemoPromotion && <span className={styles.promotionDemoBadge}>Demo</span>}
+            </div>
+            <div className={styles.promotionContent}>
+              <p className={styles.promotionSponsor}>{promotion.sponsorName}</p>
+              <h2 className={styles.promotionTitle}>{promotion.title}</h2>
+              {promotion.description && (
+                <p className={styles.promotionDescription}>{promotion.description}</p>
+              )}
+              {promotion.sponsorUrl && (
+                <a
+                  className={styles.promotionLink}
+                  href={promotion.sponsorUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Conocer más
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </section>
+  );
+}
+
 export function CountryZonePage() {
   const { countrySlug, zoneSlug } = useParams<{
     countrySlug: string;
@@ -196,6 +238,7 @@ export function CountryZonePage() {
     screenData?.communityCta.text ||
     `¿Tienes una foto de ${zoneName}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
   const [adventuresState, setAdventuresState] = useState<AdventuresState>({ status: 'loading' });
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -232,6 +275,34 @@ export function CountryZonePage() {
       isMounted = false;
     };
   }, [countrySlug, zoneSlug]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPromotions = async () => {
+      if (!countrySlug || !zoneSlug) {
+        setPromotions([]);
+        return;
+      }
+
+      const publishedPromotions = await getPublishedPromotionsForContext({
+        countrySlug,
+        zoneSlug,
+        mode,
+        limit: 3,
+      });
+
+      if (isMounted) {
+        setPromotions(publishedPromotions);
+      }
+    };
+
+    loadPromotions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [countrySlug, mode, zoneSlug]);
 
   const approvedAdventures =
     adventuresState.status === 'ready' ? adventuresState.adventures : [];
@@ -304,6 +375,8 @@ export function CountryZonePage() {
           </div>
         </div>
       </section>
+
+      <NativePromotionsBlock promotions={promotions} />
 
       <main className={styles.main}>
         {adventuresState.status === 'loading' && (

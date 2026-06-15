@@ -251,6 +251,117 @@
 }
 
 /* ============================================
+   PROMOCIONES NATIVAS
+   ============================================ */
+
+.promotionsSection {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .promotionsSection {
+    padding: 1.5rem 2rem 0;
+  }
+}
+
+.promotionCard {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 920px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)),
+    #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.04),
+    0 14px 32px rgba(37, 99, 235, 0.08);
+}
+
+.promotionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.promotionDisclosure,
+.promotionDemoBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.promotionDisclosure {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.promotionDemoBadge {
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.promotionContent {
+  min-width: 0;
+}
+
+.promotionSponsor {
+  margin: 0 0 0.35rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.promotionTitle {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  line-height: 1.25;
+}
+
+.promotionDescription {
+  max-width: 760px;
+  margin: 0.6rem 0 0;
+  color: #475569;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.promotionLink {
+  width: fit-content;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.95rem;
+  color: #ffffff;
+  background: #2563eb;
+  border-radius: 10px;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.promotionLink:hover {
+  background: #1d4ed8;
+}
+
+/* ============================================
    MAIN CONTENT
    ============================================ */
 
@@ -859,7 +970,8 @@
   .panel,
   .adventuresSection,
   .communityPurpose,
-  .futureBlock {
+  .futureBlock,
+  .promotionCard {
     border-radius: 0;
   }
 
@@ -877,7 +989,8 @@
 
   .submitButton,
   .placeholderButton,
-  .backLink {
+  .backLink,
+  .promotionLink {
     width: 100%;
     justify-content: center;
     text-align: center;

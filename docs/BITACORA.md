@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-15 - Promociones nativas en CountryZonePage
+
+`CountryZonePage` empieza a mostrar promociones publicadas desde Supabase como cards nativas no invasivas dentro del scroll de zona.
+
+### Cambios implementados
+
+- Anadida lectura de promociones con `getPublishedPromotionsForContext(...)` usando `countrySlug`, `zoneSlug`, `mode` y limite bajo.
+- Anadido bloque visual discreto para promociones con `disclosureLabel`, sponsor, descripcion y CTA externo solo si existe `sponsorUrl`.
+- Las promociones demo se identifican visualmente mediante metadata sin presentarlas como oferta real.
+- Si Supabase falla, no esta configurado o no devuelve promociones, no se muestra nada y la pagina conserva su flujo previo.
+- Anadida nota en `docs/AGENT_BRIEF.md`.
+
+### Reglas respetadas
+
+- No se tocaron Home, `CountryPage`, `TrustPage`, rutas, mapas, migraciones, seed, `package.json` ni dependencias.
+- No se escribio en Supabase ni se tocaron servicios de mapas/comunidad.
+
+---
+
 ## 2026-06-15 - TrustPage conectado a static_pages con fallback local
 
 `TrustPage` empieza a validar lectura real de contenido producto desde Supabase en paginas de bajo riesgo, conservando el contenido local como respaldo.
