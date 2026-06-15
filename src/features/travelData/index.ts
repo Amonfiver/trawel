@@ -35,6 +35,20 @@ export type {
   ScreenZoneSummary,
 } from './screenData';
 
+export type {
+  EditorialContent,
+  GetPublishedEditorialContentInput,
+  GetPublishedPromotionsForContextInput,
+  ProductContentEntityType,
+  ProductContentMode,
+  ProductContentStatus,
+  Promotion,
+  PromotionDisclosureLabel,
+  PromotionPlacementType,
+  StaticPage,
+  StaticPageType,
+} from './productContent';
+
 // Servicios
 export {
   getHomePageData,
@@ -50,3 +64,9 @@ export {
   getCountryScreenData,
   getZoneScreenData,
 } from './screenData';
+
+export {
+  getPublishedEditorialContent,
+  getPublishedPromotionsForContext,
+  getPublishedStaticPageBySlug,
+} from './productContent';

@@ -41,6 +41,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Supabase fase 1 producto:** existe la migracion local `supabase/migrations/007_create_product_content_tables.sql` con tablas paralelas `editorial_contents`, `image_assets`, `static_pages`, `demand_signals` y `promotions`. No sustituye `countries`, `cities`, `destinations`, `traveler_adventures` ni `country_map_assets`; no se ha ejecutado contra remoto desde Trawel. Las promociones deben ser bloques nativos con disclosure visible, nunca popups/overlays invasivos.
 
+**Lectura producto fase 1:** existe `src/features/travelData/productContent/` con funciones async read-only para `editorial_contents`, `static_pages` y `promotions`. Devuelve vacio/null si Supabase no esta configurado, filtra `published` y no esta conectada aun a Home, CountryPage, CountryZonePage ni TrustPage.
+
 **Fachada Country/Zone:** empieza a existir una fachada data-driven en `src/features/travelData/screenData/` con `getCountryScreenData()` y `getZoneScreenData()`. Los proximos cambios de pais/zona deben respetarla y evitar nuevo contenido hardcoded en paginas.
 
 **Repositorio puente Country/Zone:** la fachada Country/Zone delega actualmente en un repositorio local (`localCountryZoneScreenData.repository.ts`) que implementa `CountryZoneScreenDataRepository`. Futuros repositorios Supabase legacy o data-driven deben respetar esa interfaz antes de cambiar paginas.

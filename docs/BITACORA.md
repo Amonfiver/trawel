@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-15 - Capa de lectura Supabase para contenido producto fase 1
+
+Creada una primera capa frontend read-only para preparar consumo futuro de contenido producto publicado desde Supabase, sin conectar todavia paginas visuales.
+
+### Cambios implementados
+
+- Creada `src/features/travelData/productContent/` con tipos y servicio async para `editorial_contents`, `static_pages` y `promotions`.
+- Anadidas funciones `getPublishedEditorialContent`, `getPublishedStaticPageBySlug` y `getPublishedPromotionsForContext`.
+- Los servicios usan `supabaseClient.ts`, devuelven vacio/null si Supabase no esta configurado, filtran `published` y no hacen escrituras.
+- Exportada la capa desde `src/features/travelData/index.ts`.
+- Anadida nota en `docs/AGENT_BRIEF.md`.
+
+### Reglas respetadas
+
+- No se tocaron Home, `CountryPage`, `CountryZonePage`, `TrustPage`, rutas, mapas, migraciones, `package.json` ni dependencias.
+- No se ejecuto migracion real ni se escribio en Supabase.
+
+---
+
 ## 2026-06-15 - Migracion Supabase fase 1 para producto data-driven
 
 Preparada una migracion local segura para acercar Trawel a producto data-driven con Supabase `trawel-prod` como fuente viva, sin ejecutar cambios remotos.
