@@ -43,6 +43,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Lectura producto fase 1:** existe `src/features/travelData/productContent/` con funciones async read-only para `editorial_contents`, `static_pages` y `promotions`. Devuelve vacio/null si Supabase no esta configurado, filtra `published` y no esta conectada aun a Home, CountryPage, CountryZonePage ni TrustPage.
 
+**Seed producto fase 1:** existe `supabase/seed/007_product_content_seed.sql` como seed local minimo para probar paginas estaticas, una promocion demo marcada como prueba y contenido editorial publicado de Espana. No se ejecuta automaticamente ni debe lanzarse contra remoto sin bloque explicito.
+
 **Fachada Country/Zone:** empieza a existir una fachada data-driven en `src/features/travelData/screenData/` con `getCountryScreenData()` y `getZoneScreenData()`. Los proximos cambios de pais/zona deben respetarla y evitar nuevo contenido hardcoded en paginas.
 
 **Repositorio puente Country/Zone:** la fachada Country/Zone delega actualmente en un repositorio local (`localCountryZoneScreenData.repository.ts`) que implementa `CountryZoneScreenDataRepository`. Futuros repositorios Supabase legacy o data-driven deben respetar esa interfaz antes de cambiar paginas.

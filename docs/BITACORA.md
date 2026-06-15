@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-15 - Seed local de contenido producto Supabase
+
+Preparado un SQL seed local para validar contenido producto publicado sin ejecutar cambios contra Supabase remoto.
+
+### Cambios implementados
+
+- Creado `supabase/seed/007_product_content_seed.sql`.
+- Anadidas semillas prudentes para paginas estaticas publicadas, una promocion demo claramente marcada como prueba y dos contenidos editoriales minimos para Espana en modos aventura y estudiante.
+- El seed usa upsert donde hay constraints unicas y limpieza acotada solo para registros editoriales demo identificados por metadata.
+- Anadida nota en `docs/AGENT_BRIEF.md`.
+
+### Reglas respetadas
+
+- No se tocaron frontend, rutas, mapas, servicios, migraciones existentes, `package.json` ni dependencias.
+- No se ejecuto el seed contra Supabase remoto.
+
+---
+
 ## 2026-06-15 - Capa de lectura Supabase para contenido producto fase 1
 
 Creada una primera capa frontend read-only para preparar consumo futuro de contenido producto publicado desde Supabase, sin conectar todavia paginas visuales.
