@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-06-15 - CountryZonePage conectado a fachada data-driven
+
+`CountryZonePage` empieza a consumir la fachada `getZoneScreenData(countrySlug, zoneSlug, mode)` sin cambiar comportamiento visual.
+
+### Cambios implementados
+
+- Conectados hero, pais, zona y CTA comunitario normalizados desde `ZoneScreenData`.
+- Conservados hero local `.webp`, fallback premium, copy inspirador de zona y fallbacks actuales para `madrid` y `jalisco`.
+- Mantenidos formulario comunitario, aventuras aprobadas, scroll inicial, navegacion y fallbacks existentes.
+
+### Reglas respetadas
+
+- No se tocaron Home, `CountryPage`, `CityPage`, `AdventurePage`, rutas, mapas, Supabase, migraciones, `package.json` ni dependencias.
+- No se cambio el CSS ni el diseno visual de `CountryZonePage`.
+
+---
+
 ## 2026-06-14 - CountryPage conectado a fachada data-driven
 
 `CountryPage` empieza a consumir la fachada `getCountryScreenData(countrySlug, mode)` sin cambiar comportamiento visual.

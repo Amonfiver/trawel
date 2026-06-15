@@ -13,9 +13,9 @@
 
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { getCountryPageData } from '../../features/travelData';
+import { getZoneScreenData } from '../../features/travelData';
 import { CountryFlag } from '../../features/countries';
-import { getWorldCountryBySlug } from '../../features/countries/data/worldCountries';
+import { useExperienceMode } from '../../features/experienceMode';
 import {
   createTravelerAdventure,
   getApprovedAdventuresByZone,
@@ -58,43 +58,6 @@ const EMPTY_FORM_VALUES: AdventureFormValues = {
   privacyAccepted: false,
   marketingConsent: false,
 };
-
-const zoneHeroImages = import.meta.glob<{ default: string }>(
-  '../../assets/zones/hero/*.webp',
-  { eager: true }
-);
-
-const zoneHeroImageMap: Record<string, string> = Object.entries(zoneHeroImages).reduce(
-  (acc, [path, module]) => {
-    const match = path.match(/[\\/]([^\\/]+)\.webp$/i);
-    if (match) {
-      acc[match[1]] = module.default;
-    }
-    return acc;
-  },
-  {} as Record<string, string>
-);
-
-function getZoneHeroImage(slug?: string): string | undefined {
-  return slug ? zoneHeroImageMap[slug] : undefined;
-}
-
-const zoneFallbackCopyBySlug: Record<string, string> = {
-  madrid: 'Calles históricas, plazas vivas y una energía que mezcla arte, gastronomía y memoria urbana. Madrid invita a caminarla sin prisa y descubrirla por capas.',
-  jalisco: 'Tierra de agaves, música y pueblos con carácter. Jalisco combina tradición, paisaje y cultura mexicana en rutas que se recuerdan.',
-};
-
-function getZoneFallbackCopy(slug?: string): string {
-  if (slug && zoneFallbackCopyBySlug[slug]) {
-    return zoneFallbackCopyBySlug[slug];
-  }
-
-  return 'Un lugar en preparación para viajeros curiosos. Muy pronto reuniremos rutas, planes y consejos para descubrirlo con calma.';
-}
-
-function getHeroContributionNote(name: string): string {
-  return `¿Tienes una foto de ${name}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
-}
 
 function ZoneHeroVisual({
   zoneName,
@@ -177,13 +140,21 @@ function FutureResourcesBlock({ zoneName }: { zoneName: string }) {
   );
 }
 
-function HeroContributionBlock({ zoneName }: { zoneName: string }) {
+function HeroContributionBlock({
+  zoneName,
+  title,
+  text,
+}: {
+  zoneName: string;
+  title: string;
+  text: string;
+}) {
   return (
     <aside className={styles.heroContributionCard} aria-label={`Colabora con una foto de ${zoneName}`}>
       <span className={styles.heroContributionIcon} aria-hidden="true">📷</span>
       <div>
-        <h2 className={styles.heroContributionTitle}>Colabora con Trawel</h2>
-        <p className={styles.heroContributionText}>{getHeroContributionNote(zoneName)}</p>
+        <h2 className={styles.heroContributionTitle}>{title}</h2>
+        <p className={styles.heroContributionText}>{text}</p>
       </div>
     </aside>
   );
@@ -196,25 +167,34 @@ export function CountryZonePage() {
   }>();
   const location = useLocation();
   const state = (location.state || {}) as ZoneLocationState;
+  const { mode } = useExperienceMode();
 
   // Scroll al inicio al entrar o cambiar de país/zona
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [countrySlug, zoneSlug]);
 
-  const { country } = getCountryPageData(countrySlug || '');
-  const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
+  const screenData =
+    countrySlug && zoneSlug ? getZoneScreenData(countrySlug, zoneSlug, mode) : undefined;
   const countryName =
     cleanDisplayName(state.countryName) ||
-    cleanDisplayName(country?.displayName) ||
-    cleanDisplayName(worldCountry?.displayName) ||
+    cleanDisplayName(screenData?.country?.displayName) ||
     'este país';
   const zoneName =
-    cleanDisplayName(state.zoneName) || createNameFromSlug(zoneSlug) || 'Zona por descubrir';
-  const zoneHeroImageUrl = getZoneHeroImage(zoneSlug);
+    cleanDisplayName(state.zoneName) ||
+    cleanDisplayName(screenData?.zone.name) ||
+    createNameFromSlug(zoneSlug) ||
+    'Zona por descubrir';
+  const zoneHeroImageUrl = screenData?.hero.imageUrl;
   const hasZoneHeroImage = Boolean(zoneHeroImageUrl);
-  const zoneFallbackCopy = getZoneFallbackCopy(zoneSlug);
-  const countryIsoAlpha2 = country?.isoAlpha2 || worldCountry?.isoAlpha2;
+  const zoneFallbackCopy =
+    cleanDisplayName(screenData?.hero.subtitle) ||
+    'Un lugar en preparación para viajeros curiosos. Muy pronto reuniremos rutas, planes y consejos para descubrirlo con calma.';
+  const countryIsoAlpha2 = screenData?.country?.isoAlpha2;
+  const communityCtaTitle = screenData?.communityCta.title || 'Colabora con Trawel';
+  const communityCtaText =
+    screenData?.communityCta.text ||
+    `¿Tienes una foto de ${zoneName}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
   const [adventuresState, setAdventuresState] = useState<AdventuresState>({ status: 'loading' });
 
   useEffect(() => {
@@ -414,7 +394,11 @@ export function CountryZonePage() {
         <FutureResourcesBlock zoneName={zoneName} />
 
         {!hasZoneHeroImage && (
-          <HeroContributionBlock zoneName={zoneName} />
+          <HeroContributionBlock
+            zoneName={zoneName}
+            title={communityCtaTitle}
+            text={communityCtaText}
+          />
         )}
 
         <Link to={countrySlug ? `/pais/${countrySlug}` : '/'} className={styles.backLink}>

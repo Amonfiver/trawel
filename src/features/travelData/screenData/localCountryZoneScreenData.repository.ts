@@ -31,6 +31,13 @@ const zoneHeroImageMap = buildImageMap(zoneHeroImages);
 
 const LOCAL_MAP_COUNTRIES = new Set(['espana']);
 
+const ZONE_FALLBACK_COPY_BY_SLUG: Record<string, string> = {
+  madrid:
+    'Calles históricas, plazas vivas y una energía que mezcla arte, gastronomía y memoria urbana. Madrid invita a caminarla sin prisa y descubrirla por capas.',
+  jalisco:
+    'Tierra de agaves, música y pueblos con carácter. Jalisco combina tradición, paisaje y cultura mexicana en rutas que se recuerdan.',
+};
+
 export const localCountryZoneScreenDataRepository: CountryZoneScreenDataRepository = {
   getCountryScreenData,
   getZoneScreenData,
@@ -114,9 +121,8 @@ function getZoneScreenData(
         : undefined,
     },
     communityCta: {
-      title: 'Comunidad de viajeros',
-      text: `Las experiencias reales de ${zone.name} podran complementar la guia editorial cuando esten revisadas.`,
-      actionLabel: 'Compartir una aventura',
+      title: 'Colabora con Trawel',
+      text: `¿Tienes una foto de ${zone.name}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`,
       isSecondary: true,
     },
   };
@@ -151,10 +157,14 @@ function buildCountryHero(slug: string, displayName: string): ScreenHeroData {
 
 function buildZoneHero(zone: ScreenZoneSummary): ScreenHeroData {
   const imageUrl = zoneHeroImageMap[zone.slug];
+  const fallbackSubtitle =
+    ZONE_FALLBACK_COPY_BY_SLUG[zone.slug] ||
+    zone.summary ||
+    'Un lugar en preparación para viajeros curiosos. Muy pronto reuniremos rutas, planes y consejos para descubrirlo con calma.';
 
   return {
     title: zone.name,
-    subtitle: zone.summary || 'Un lugar en preparacion para viajeros curiosos.',
+    subtitle: imageUrl ? zone.summary || fallbackSubtitle : fallbackSubtitle,
     imageUrl,
     imageAlt: imageUrl
       ? `Imagen panoramica de ${zone.name}`
