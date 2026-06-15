@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-15 - Migracion Supabase fase 1 para producto data-driven
+
+Preparada una migracion local segura para acercar Trawel a producto data-driven con Supabase `trawel-prod` como fuente viva, sin ejecutar cambios remotos.
+
+### Cambios implementados
+
+- Creada `supabase/migrations/007_create_product_content_tables.sql`.
+- Anadidas tablas nuevas en paralelo: `editorial_contents`, `image_assets`, `static_pages`, `demand_signals` y `promotions`.
+- Definidos indices, constraints, triggers `updated_at` y RLS para lectura publica solo de registros `published`.
+- La tabla `promotions` queda orientada a bloques nativos no invasivos y con etiqueta visible de disclosure.
+
+### Reglas respetadas
+
+- No se tocaron tablas legacy: `countries`, `cities`, `destinations`, `traveler_adventures` ni `country_map_assets`.
+- No se tocaron componentes React, paginas, rutas, mapas, servicios frontend, Supabase client, Edge Functions, Storage, `package.json` ni dependencias.
+- No se ejecuto migracion real contra Supabase remoto.
+
+---
+
 ## 2026-06-15 - CountryZonePage conectado a fachada data-driven
 
 `CountryZonePage` empieza a consumir la fachada `getZoneScreenData(countrySlug, zoneSlug, mode)` sin cambiar comportamiento visual.

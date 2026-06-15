@@ -170,6 +170,7 @@ No existen aun:
 - `community_photos`.
 - `demand_signals`.
 - `static_pages`.
+- `promotions`.
 
 ## 8. Decisiones recomendadas
 
@@ -178,6 +179,7 @@ No existen aun:
 - No tocar mapas todavia: ni tabla, ni Storage, ni worker, ni Edge Function.
 - No migrar todo de golpe.
 - Crear nuevas tablas en paralelo cuando toque, especialmente `editorial_contents`, `image_assets`, `static_pages` y quiza `zones`.
+- Crear `promotions` en paralelo para monetizacion futura no invasiva, sin mezclarla con `traveler_adventures.marketing_consent`.
 - Usar `cities` y `destinations` como legacy temporal mientras existan paginas o contenidos que dependan de ellos.
 - Crear una capa puente antes de migrar: repositorios/fachadas que devuelvan `CountryScreenData` y `ZoneScreenData` desde mock, legacy Supabase o modelo futuro.
 - Mantener fallback premium cuando falte contenido publicado, imagen o relacion nueva.
@@ -246,7 +248,11 @@ Cuando el mapping este aprobado, crear nuevas tablas en paralelo, no sustituyend
 - `editorial_contents`.
 - `image_assets`.
 - `static_pages`.
+- `demand_signals`.
+- `promotions`.
 - quiza `zones` si se decide separar ya de `cities`.
+
+La migracion local `007_create_product_content_tables.sql` prepara esta fase sin tocar tablas legacy ni sistemas vivos. `promotions` se reserva para bloques nativos claramente marcados como `Promocion`, `Patrocinado` o `Colaborador`; no debe usarse para popups, overlays o banners invasivos.
 
 ### Fase D: migrar por capas
 

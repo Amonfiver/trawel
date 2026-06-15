@@ -32,6 +32,7 @@ Implicaciones:
 - `community_photos`
 - `demand_signals`
 - `static_pages`
+- `promotions`
 
 ## 4. Tablas propuestas
 
@@ -579,6 +580,51 @@ Implicaciones:
 
 **Prioridad:** fase 1.
 
+### `promotions`
+
+**Proposito:** almacenar promociones, colaboraciones o patrocinios nativos dentro del flujo editorial de Trawel, sin popups, overlays ni banners que tapen navegacion.
+
+**Campos recomendados:**
+
+- `id`
+- `slug`
+- `title`
+- `description`
+- `sponsor_name`
+- `sponsor_url`
+- `image_asset_id`
+- `placement_type`
+- `target_entity_type`
+- `target_entity_id`
+- `target_entity_slug`
+- `country_slug`
+- `zone_slug`
+- `traveler_type`
+- `mode`
+- `starts_at`
+- `ends_at`
+- `status`
+- `priority`
+- `disclosure_label`
+
+**Relaciones:**
+
+- Puede apuntar a pais, zona, lugar, ruta, plan o pagina generica.
+- Puede referenciar una imagen aprobada en `image_assets`.
+- Puede segmentarse por tipo de viajero o modo Aventura/Estudiante.
+
+**Campos de estado editorial/comercial:**
+
+- `status`: `draft`, `review`, `published`, `archived`.
+- `starts_at` y `ends_at`: ventana temporal de publicacion.
+- `disclosure_label`: etiqueta visible obligatoria, por ejemplo `Promocion`, `Patrocinado` o `Colaborador`.
+
+**Regla de producto:**
+
+Las promociones deben mostrarse como bloques nativos marcados claramente dentro del contenido, por ejemplo hotel recomendado, coche de alquiler, seguro de viaje, experiencia local, restaurante colaborador, equipamiento de viaje u oferta de temporada. No deben convertirse en publicidad invasiva.
+
+**Prioridad:** fase 1.
+
 ## 5. Relaciones principales
 
 - `countries` -> `zones`: un pais contiene muchas zonas.
@@ -589,6 +635,7 @@ Implicaciones:
 - `plans` -> `places` / `routes` / `zones`: un plan puede agrupar lugares, apoyarse en una ruta o centrarse en una zona.
 - `demand_signals` -> slugs o entidades: puede apuntar a algo existente o a demanda aun no modelada.
 - `static_pages` -> paginas legales/confianza: contenido independiente enlazado desde el sitio.
+- `promotions` -> entidades o paginas: bloques nativos patrocinados con disclosure visible.
 
 Nota: para relaciones muchos-a-muchos como `routes` -> `places` o `plans` -> `places`, el modelo real probablemente necesitara tablas puente. Este documento no las define como SQL todavia; solo deja constancia de la relacion.
 
@@ -648,6 +695,7 @@ Estos estados deben aplicarse de forma coherente a entidades y contenidos. Si un
 - `editorial_contents`
 - `image_assets`
 - `static_pages`
+- `promotions`
 
 Objetivo: que Trawel pueda renderizar paises, zonas, contenido editorial, imagenes y paginas de confianza sin hardcodear contenido nuevo.
 
