@@ -2,8 +2,9 @@
 -- PROPUESTA REVISABLE: editorial_contents remoto para México CountryPage
 -- ============================================================================
 --
--- Estado: BORRADOR / NO EJECUTADO.
+-- Estado: EJECUTADO MANUALMENTE Y VALIDADO EN SUPABASE.
 -- Fecha de preparación: 2026-06-16.
+-- Fecha de ejecución manual validada: 2026-06-16 18:15:46.875413+00.
 --
 -- Objetivo:
 -- - Preparar la primera carga editorial remota de México para CountryPage.
@@ -11,12 +12,22 @@
 -- - Insertar dos filas publicadas, una por modo: adventure y student.
 --
 -- Importante:
--- - NO ejecutar sin revisión humana previa.
+-- - SQL histórico ejecutado manualmente; no ejecutar de nuevo sin revisión humana.
 -- - NO es una migración.
--- - NO modifica seeds existentes.
+-- - NO es un seed y NO modifica seeds existentes.
 -- - NO toca España.
 -- - CountryPage solo usará estas filas si status='published' y todos los
 --   campos obligatorios están completos.
+--
+-- Resultado validado:
+-- - entity_type: country
+-- - entity_slug: mexico
+-- - country_slug: mexico
+-- - mode: adventure / student
+-- - status: published
+-- - load_slug: mexico-country-adventure-2026-06-16
+-- - load_slug: mexico-country-student-2026-06-16
+-- - published_at: 2026-06-16 18:15:46.875413+00
 --
 -- Idempotencia:
 -- - Este borrador borra solamente filas creadas por esta propuesta mediante

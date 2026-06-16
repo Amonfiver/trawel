@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-06-16 - Mexico remoto ejecutado y validado en Supabase
+
+Registrada la ejecucion manual validada del SQL de carga editorial remota de Mexico en `editorial_contents`.
+
+### Validacion registrada
+
+- Filas publicadas para `entity_type='country'`, `entity_slug='mexico'` y `country_slug='mexico'`.
+- Modos validados: `adventure` y `student`.
+- `status='published'`.
+- `load_slug`: `mexico-country-adventure-2026-06-16` y `mexico-country-student-2026-06-16`.
+- `published_at`: `2026-06-16 18:15:46.875413+00`.
+
+### Cambios implementados
+
+- Actualizado `docs/sql/load_mexico_editorial_contents_proposal.sql` para marcarlo como ejecutado manualmente y validado en Supabase.
+- Mantenido claro que el SQL no es migracion ni seed.
+
+### Reglas respetadas
+
+- No se tocaron codigo frontend, mapas, rutas, migraciones, seeds, `package.json` ni dependencias.
+- No se ejecuto `npm run build` porque solo se tocaron docs/SQL.
+
+---
+
 ## 2026-06-16 - Propuesta de carga remota editorial para Mexico
 
 Preparada una propuesta controlada para cargar contenido editorial remoto de Mexico en `editorial_contents`, sin ejecutar escritura real en Supabase.
