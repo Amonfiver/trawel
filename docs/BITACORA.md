@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-06-16 - Guia de entrada de contenido editorial para Trawel
+
+Creada una guia interna para ordenar contenido editorial antes de convertirlo en cargas revisables de `editorial_contents`.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_CONTENT_INPUT_GUIDE.md` con proposito, datos minimos para pais, estructura esperada de `editorial_contents`, diferencia entre modos `adventure` y `student`, reglas de calidad, seguridad editorial, convencion de `load_slug`, flujo recomendado y ejemplo minimo basado en Mexico.
+- Actualizado `docs/AGENT_BRIEF.md` con referencia breve a la nueva guia.
+
+### Reglas respetadas
+
+- No se tocaron codigo frontend, mapas, rutas, migraciones, seeds, `package.json`, dependencias ni Supabase real.
+- No se ejecuto `npm run build` porque solo se tocaron documentos.
+
+---
+
 ## 2026-06-16 - Mexico remoto ejecutado y validado en Supabase
 
 Registrada la ejecucion manual validada del SQL de carga editorial remota de Mexico en `editorial_contents`.
