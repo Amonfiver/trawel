@@ -27,6 +27,99 @@ Este documento establece el contrato entre ambos sistemas: la salida de Investig
 
 ---
 
+## Contrato remoto CountryPage desde `editorial_contents`
+
+`CountryPage` puede sustituir el editorial local de `countryEditorial.ts` por contenido remoto publicado en Supabase, pero solo cuando la fila de `editorial_contents` esta completa para el pais y modo solicitados. Este contrato documenta lo minimo que debe producir Investighost para que Trawel considere valido ese contenido remoto.
+
+### Consulta que hace Trawel
+
+Para `/pais/:countrySlug`, `CountryPage` llama a `getPublishedEditorialContent(...)` con:
+
+```typescript
+{
+  entityType: 'country',
+  entitySlug: countrySlug,
+  countrySlug,
+  mode: 'adventure' | 'student'
+}
+```
+
+La capa de lectura filtra siempre `status = 'published'`, `entity_type = 'country'`, `entity_slug`, `country_slug` y `mode`. Ordena por `published_at` descendente y despues por `updated_at` descendente. `CountryPage` solo intenta normalizar la primera fila devuelta.
+
+### Campos obligatorios para que CountryPage use remoto
+
+La fila publicada debe contener:
+
+| Columna `editorial_contents` | Requisito minimo | Como lo usa CountryPage |
+|---|---|---|
+| `entity_type` | `country` | Identifica que es contenido de pais. |
+| `entity_slug` | Slug del pais en minusculas, ej. `espana` | Debe coincidir con `/pais/:countrySlug`. |
+| `country_slug` | Mismo slug del pais, ej. `espana` | Refuerza la consulta por pais. |
+| `mode` | `adventure` o `student` | Debe coincidir con el modo activo. |
+| `status` | `published` | Borradores, review o archivados no llegan a la pagina. |
+| `headline` | Texto no vacio tras `trim()` | Titular editorial. |
+| `intro` | Texto no vacio tras `trim()` | Entradilla principal. |
+| `what_makes_special` | Texto no vacio tras `trim()` | Bloque "que lo hace especial". |
+| `highlights` | Array JSON con al menos un string no vacio | Lista de destacados. |
+| `suggested_route` | Texto no vacio tras `trim()` | Ruta sugerida. |
+| `practical_tips` | Array JSON con al menos un string no vacio | Consejos; Trawel los une en un unico texto. |
+
+Campos como `sections`, `sources` y `metadata` pueden viajar en la fila y son recomendables para trazabilidad, pero CountryPage no los renderiza actualmente ni los exige para aceptar el remoto.
+
+### Comportamiento ante fallos o contenido incompleto
+
+- Si Supabase no esta configurado, `getPublishedEditorialContent(...)` devuelve `[]`.
+- Si Supabase falla o lanza una excepcion, la capa de lectura registra el error en desarrollo y devuelve `[]`.
+- Si no hay fila publicada para ese `countrySlug` y `mode`, `CountryPage` conserva el editorial local de `getCountryScreenData(...)`.
+- Si la primera fila publicada esta incompleta, tiene arrays vacios, campos solo con espacios o modo nulo, `CountryPage` la descarta y mantiene el fallback local.
+- Si un array contiene elementos que no son strings, se ignoran. Si tras limpiar queda vacio, el remoto no es valido.
+- La pagina no muestra un error publico por estos casos: el fallback local es silencioso para proteger Mexico, Italia, Rusia, Espana y cualquier pais con contenido local.
+
+### Salida minima que debe generar Investighost para un pais
+
+Investighost debe entregar una propuesta por pais y por modo. Para publicar ambos modos hacen falta dos filas, una `mode = 'adventure'` y otra `mode = 'student'`.
+
+```typescript
+{
+  entity_type: 'country',
+  entity_slug: 'espana',
+  country_slug: 'espana',
+  zone_slug: null,
+  mode: 'adventure',
+  status: 'published',
+  headline: 'Espana entre mapas vivos, ciudades historicas y rutas de contraste',
+  intro: 'Entradilla editorial suficiente, especifica y no generica.',
+  what_makes_special: 'Texto que explique el valor diferencial del pais.',
+  highlights: [
+    'Primer destacado concreto',
+    'Segundo destacado concreto',
+    'Tercer destacado concreto'
+  ],
+  suggested_route: 'Ruta sugerida en lenguaje natural.',
+  practical_tips: [
+    'Consejo practico verificable.',
+    'Segundo consejo practico verificable.'
+  ],
+  sources: [
+    {
+      title: 'Fuente oficial o editorial reconocida',
+      url: 'https://ejemplo.com',
+      type: 'official',
+      consultedAt: '2026-06-16',
+      supports: 'Dato que respalda'
+    }
+  ],
+  metadata: {
+    generatedBy: 'Investighost',
+    reviewedBy: null
+  }
+}
+```
+
+Antes de marcar `published`, revision humana debe confirmar que los textos no son placeholders, que los slugs coinciden con Trawel y que precios, horarios o afirmaciones cambiantes quedan fuera o marcados como pendientes de verificar.
+
+---
+
 ## Formato Obligatorio de Respuesta
 
 Investighost-GPT debe entregar su investigación en cinco secciones claramente separadas:
@@ -375,6 +468,8 @@ Una salida de Investighost-GPT es válida para Trawel si cumple:
 
 - `docs/CONTENT_GUIDE.md` - Guía editorial completa de Trawel
 - `docs/DATA_MODEL.md` - Modelo de datos de Trawel
+- `src/pages/CountryPage/CountryPage.tsx` - Normalizacion estricta del editorial remoto de pais
+- `src/features/travelData/productContent/productContent.service.ts` - Lectura read-only de `editorial_contents`
 - `src/features/destinations/types/destination.types.ts` - Tipos TypeScript
 
 ---

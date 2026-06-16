@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-06-16 - Contrato editorial remoto para CountryPage e Investighost
+
+Auditado el consumo de `editorial_contents` en `CountryPage` y documentado el contrato minimo que debe generar Investighost para que un pais use contenido remoto publicado.
+
+### Cambios implementados
+
+- Actualizado `docs/INVESTIGHOST_CONTRACT.md` con la consulta exacta de `CountryPage`, campos obligatorios, comportamiento ante Supabase no configurado/fallido, contenido ausente o incompleto, y ejemplo minimo de fila publicable por pais y modo.
+- Actualizado `docs/AGENT_BRIEF.md` con referencia corta al contrato minimo remoto de pais.
+- No se modifico logica de carga: la auditoria confirma que `CountryPage` mantiene fallback local si no hay remoto valido.
+
+### Reglas respetadas
+
+- No se tocaron mapas, rutas, migraciones, seeds, `countryEditorial.ts`, `package.json` ni dependencias.
+- No se tocaron Mexico, Italia, Rusia ni Espana en datos o componentes.
+
+---
+
 ## 2026-06-16 - CountryPage conectado a editorial_contents con fallback local
 
 `CountryPage` empieza a intentar cargar contenido editorial publicado desde Supabase para paises, manteniendo el contenido local como respaldo seguro.
