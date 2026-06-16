@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-16 - Propuesta de carga remota editorial para Mexico
+
+Preparada una propuesta controlada para cargar contenido editorial remoto de Mexico en `editorial_contents`, sin ejecutar escritura real en Supabase.
+
+### Cambios implementados
+
+- Creado `docs/sql/load_mexico_editorial_contents_proposal.sql` como SQL revisable e idempotente por `metadata->>'load_slug'`.
+- La propuesta contiene dos filas de pais para `CountryPage`: `mode='adventure'` y `mode='student'`, ambas con los campos obligatorios del contrato remoto.
+- El contenido se preparo tomando como referencia el editorial local actual de Mexico en `countryEditorial.ts` y el patron del seed demo de Espana.
+
+### Reglas respetadas
+
+- No se ejecuto SQL ni se escribio en Supabase.
+- No se tocaron codigo frontend, mapas, rutas, migraciones, seeds existentes, `package.json`, dependencias ni datos de Espana.
+- No se ejecuto `npm run build` porque solo se tocaron documentos/SQL revisable.
+
+---
+
 ## 2026-06-16 - Contrato editorial remoto para CountryPage e Investighost
 
 Auditado el consumo de `editorial_contents` en `CountryPage` y documentado el contrato minimo que debe generar Investighost para que un pais use contenido remoto publicado.
