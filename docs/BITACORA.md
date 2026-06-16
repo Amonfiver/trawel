@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-06-16 - CountryPage conectado a editorial_contents con fallback local
+
+`CountryPage` empieza a intentar cargar contenido editorial publicado desde Supabase para paises, manteniendo el contenido local como respaldo seguro.
+
+### Cambios implementados
+
+- Anadida lectura async de `editorial_contents` mediante `getPublishedEditorialContent(...)` con `entityType: country`, `countrySlug`, `entitySlug` y `mode`.
+- Anadida normalizacion estricta a `ScreenEditorialData`: headline, intro, whatMakesSpecial, highlights, suggestedRoute y practicalTips deben estar completos para usar remoto.
+- Si Supabase falla, no esta configurado, no devuelve contenido publicado o el contenido remoto esta incompleto, `CountryPage` mantiene el editorial local de `getCountryScreenData(...)`.
+- Espana puede mostrar el editorial demo remoto si existe; Mexico, Italia y Rusia conservan el comportamiento local previo.
+- Anadidos logs DEV para distinguir carga remota publicada frente a fallback local.
+- Anadida nota en `docs/AGENT_BRIEF.md`.
+
+### Reglas respetadas
+
+- No se tocaron mapas, rutas, migraciones, seeds, `countryEditorial.ts`, `package.json` ni dependencias.
+- No se escribio en Supabase ni se modificaron tablas legacy.
+
+---
+
 ## 2026-06-15 - Promociones nativas en CountryZonePage
 
 `CountryZonePage` empieza a mostrar promociones publicadas desde Supabase como cards nativas no invasivas dentro del scroll de zona.

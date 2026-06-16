@@ -53,8 +53,10 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback, type CSSProperties } from 'react';
 import {
+  getPublishedEditorialContent,
   getCountryPageData,
   getCountryScreenData,
+  type EditorialContent,
   type ScreenEditorialData,
 } from '../../features/travelData';
 import { CountryInternalMap } from '../../features/map/components/CountryInternalMap';
@@ -280,6 +282,65 @@ type MapAssetState =
   | { status: 'generating' }
   | { status: 'failed'; errorMessage?: string };
 
+type RemoteEditorialState =
+  | { status: 'idle' }
+  | { status: 'remote'; editorial: ScreenEditorialData }
+  | { status: 'fallback' };
+
+function normalizeRemoteEditorialContent(
+  content: EditorialContent | undefined
+): ScreenEditorialData | null {
+  if (!content || content.status !== 'published' || !content.mode) {
+    return null;
+  }
+
+  const headline = normalizeRequiredText(content.headline);
+  const intro = normalizeRequiredText(content.intro);
+  const whatMakesSpecial = normalizeRequiredText(content.whatMakesSpecial);
+  const highlights = normalizeRequiredStringList(content.highlights);
+  const suggestedRoute = normalizeRequiredText(content.suggestedRoute);
+  const practicalTips = normalizeRequiredTextList(content.practicalTips);
+
+  if (
+    !headline ||
+    !intro ||
+    !whatMakesSpecial ||
+    highlights.length === 0 ||
+    !suggestedRoute ||
+    !practicalTips
+  ) {
+    return null;
+  }
+
+  return {
+    mode: content.mode,
+    status: 'published',
+    headline,
+    intro,
+    whatMakesSpecial,
+    highlights,
+    suggestedRoute,
+    practicalTips,
+  };
+}
+
+function normalizeRequiredText(value: string | null | undefined): string | null {
+  const normalized = value?.trim();
+  return normalized || null;
+}
+
+function normalizeRequiredStringList(value: unknown[]): string[] {
+  return value
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeRequiredTextList(value: unknown[]): string | null {
+  const items = normalizeRequiredStringList(value);
+  return items.length > 0 ? items.join(' ') : null;
+}
+
 /**
  * CountryPage - Nivel País / Mapa y Zonas como punto de entrada
  * 
@@ -296,6 +357,13 @@ export function CountryPage() {
   const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
   const { mode } = useExperienceMode();
   const screenData = countrySlug ? getCountryScreenData(countrySlug, mode) : undefined;
+  const [remoteEditorialState, setRemoteEditorialState] = useState<RemoteEditorialState>({
+    status: 'idle',
+  });
+  const resolvedEditorial =
+    remoteEditorialState.status === 'remote'
+      ? remoteEditorialState.editorial
+      : screenData?.editorial;
   
   // Estado para el asset del mapa (DA-030)
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
@@ -306,6 +374,58 @@ export function CountryPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [countrySlug]);
+
+  useEffect(() => {
+    if (!countrySlug) {
+      setRemoteEditorialState({ status: 'fallback' });
+      return;
+    }
+
+    let isMounted = true;
+    const normalizedCountrySlug = countrySlug.trim().toLowerCase();
+
+    setRemoteEditorialState({ status: 'idle' });
+
+    const loadRemoteEditorial = async () => {
+      const contents = await getPublishedEditorialContent({
+        entityType: 'country',
+        entitySlug: normalizedCountrySlug,
+        countrySlug: normalizedCountrySlug,
+        mode,
+      });
+
+      if (!isMounted) {
+        return;
+      }
+
+      const normalizedEditorial = normalizeRemoteEditorialContent(contents[0]);
+
+      if (normalizedEditorial) {
+        setRemoteEditorialState({ status: 'remote', editorial: normalizedEditorial });
+        if (import.meta.env.DEV) {
+          console.info('[CountryPage] editorial remoto publicado cargado', {
+            countrySlug: normalizedCountrySlug,
+            mode,
+          });
+        }
+        return;
+      }
+
+      setRemoteEditorialState({ status: 'fallback' });
+      if (import.meta.env.DEV) {
+        console.info('[CountryPage] usando fallback editorial local', {
+          countrySlug: normalizedCountrySlug,
+          mode,
+        });
+      }
+    };
+
+    loadRemoteEditorial();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [countrySlug, mode]);
   
   // Usar travelData.service para obtener datos agregados completos
   const { 
@@ -538,7 +658,7 @@ export function CountryPage() {
         onRetryGeneration={handleRetryGeneration}
         onZoneSelect={handleZoneSelect}
         mode={mode}
-        editorial={screenData?.editorial}
+        editorial={resolvedEditorial}
       />
     );
   }
@@ -813,7 +933,7 @@ export function CountryPage() {
         <CountryEditorialSection 
           countryDisplayName={country.displayName}
           mode={mode}
-          editorial={screenData?.editorial}
+          editorial={resolvedEditorial}
           fallbackDescription={getCountryDescriptionByMode()}
           publishedDestinationsCount={publishedDestinationsCount}
           totalCitiesCount={totalCitiesCount}

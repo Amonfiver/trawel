@@ -41,7 +41,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Supabase fase 1 producto:** existe la migracion local `supabase/migrations/007_create_product_content_tables.sql` con tablas paralelas `editorial_contents`, `image_assets`, `static_pages`, `demand_signals` y `promotions`. No sustituye `countries`, `cities`, `destinations`, `traveler_adventures` ni `country_map_assets`; no se ha ejecutado contra remoto desde Trawel. Las promociones deben ser bloques nativos con disclosure visible, nunca popups/overlays invasivos.
 
-**Lectura producto fase 1:** existe `src/features/travelData/productContent/` con funciones async read-only para `editorial_contents`, `static_pages` y `promotions`. Devuelve vacio/null si Supabase no esta configurado, filtra `published` y no esta conectada aun a Home, CountryPage, CountryZonePage ni TrustPage.
+**Lectura producto fase 1:** existe `src/features/travelData/productContent/` con funciones async read-only para `editorial_contents`, `static_pages` y `promotions`. Devuelve vacio/null si Supabase no esta configurado y filtra `published`. `TrustPage`, `CountryZonePage` y `CountryPage` ya la consumen de forma progresiva con fallback local silencioso; Home no esta conectada.
 
 **Seed producto fase 1:** existe `supabase/seed/007_product_content_seed.sql` como seed local minimo para probar paginas estaticas, una promocion demo marcada como prueba y contenido editorial publicado de Espana. No se ejecuta automaticamente ni debe lanzarse contra remoto sin bloque explicito.
 
@@ -49,7 +49,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Repositorio puente Country/Zone:** la fachada Country/Zone delega actualmente en un repositorio local (`localCountryZoneScreenData.repository.ts`) que implementa `CountryZoneScreenDataRepository`. Futuros repositorios Supabase legacy o data-driven deben respetar esa interfaz antes de cambiar paginas.
 
-**CountryPage data-driven:** `CountryPage` empieza a consumir `getCountryScreenData(countrySlug, mode)` para datos normalizados de pantalla, especialmente editorial y estado de mapa. Mantener el comportamiento visual actual y respetar la fachada antes de conectar Supabase o cambiar fuentes locales.
+**CountryPage data-driven:** `CountryPage` consume `getCountryScreenData(countrySlug, mode)` para datos normalizados de pantalla, especialmente editorial y estado de mapa. Ademas intenta cargar `editorial_contents` publicados con `getPublishedEditorialContent(...)`; solo sustituye el editorial local si el remoto esta completo, y conserva fallback local si Supabase falla, no devuelve contenido o el contenido esta incompleto.
 
 **CountryZonePage data-driven:** `CountryZonePage` empieza a consumir `getZoneScreenData(countrySlug, zoneSlug, mode)` para datos normalizados de pantalla, manteniendo hero local/fallback, copy de zona y CTA comunitario actuales. Tambien puede mostrar promociones nativas publicadas desde Supabase mediante `getPublishedPromotionsForContext(...)`, con fallback silencioso si no hay datos. Futuros cambios de zona deben pasar por la fachada antes de tocar la pagina.
 
