@@ -40,7 +40,12 @@ export interface ResolvedZoneScreenData extends ZoneScreenData {
   zoneName: string;
   promotions: Promotion[];
   metadata: {
-    source: 'localFallback' | 'remotePromotions';
+    source:
+      | 'localFallback'
+      | 'remoteZone'
+      | 'remotePromotions'
+      | 'remoteZoneAndPromotions';
+    hasRemoteZone: boolean;
     hasRemotePromotions: boolean;
     isUsingPremiumFallback: boolean;
   };
@@ -64,6 +69,24 @@ interface DBCountryBase {
   capital_es: string | null;
   continent_es: string | null;
   description_es: string | null;
+  status: string | null;
+  featured: boolean | null;
+}
+
+interface RemoteZoneBaseData {
+  id: string;
+  slug: string;
+  name: string;
+  status: string;
+  featured?: boolean;
+  summary?: string;
+}
+
+interface DBCityBase {
+  id: string;
+  slug: string | null;
+  name_es: string | null;
+  short_description_es: string | null;
   status: string | null;
   featured: boolean | null;
 }
@@ -167,7 +190,10 @@ export function getZoneScreenFallbackData(
   const normalizedZoneSlug = zoneSlug.trim().toLowerCase();
   const fallbackScreenData = getZoneScreenData(normalizedCountrySlug, normalizedZoneSlug, mode);
 
-  return buildResolvedZoneScreenData(fallbackScreenData, [], 'localFallback');
+  return buildResolvedZoneScreenData(fallbackScreenData, [], {
+    source: 'localFallback',
+    hasRemoteZone: false,
+  });
 }
 
 export async function getResolvedZoneScreenData(
@@ -182,6 +208,13 @@ export async function getResolvedZoneScreenData(
     normalizedZoneSlug,
     mode
   );
+  const remoteZone = await getPublishedRemoteZoneBySlugs(
+    normalizedCountrySlug,
+    normalizedZoneSlug
+  );
+  const zoneScreenData = remoteZone
+    ? mergeRemoteZoneBaseData(fallbackScreenData, remoteZone)
+    : fallbackScreenData;
 
   const promotions = await getPublishedPromotionsForContext({
     countrySlug: normalizedCountrySlug,
@@ -191,9 +224,12 @@ export async function getResolvedZoneScreenData(
   });
 
   return buildResolvedZoneScreenData(
-    fallbackScreenData,
+    zoneScreenData,
     promotions,
-    promotions.length > 0 ? 'remotePromotions' : 'localFallback'
+    {
+      source: getResolvedZoneSource(Boolean(remoteZone), promotions.length > 0),
+      hasRemoteZone: Boolean(remoteZone),
+    }
   );
 }
 
@@ -335,6 +371,120 @@ function mergeRemoteCountryBaseData(
   );
 }
 
+async function getPublishedRemoteZoneBySlugs(
+  countrySlug: string,
+  zoneSlug: string
+): Promise<RemoteZoneBaseData | null> {
+  if (!countrySlug || !zoneSlug || !isSupabaseConfigured() || !supabase) {
+    return null;
+  }
+
+  try {
+    const { data: countryData, error: countryError } = await supabase
+      .from('countries')
+      .select('id')
+      .eq('slug', countrySlug)
+      .in('status', ['active', 'comingSoon'])
+      .maybeSingle();
+
+    if (countryError) {
+      logCountryScreenDataError('Error loading remote zone country id', countryError);
+      return null;
+    }
+
+    const countryId = normalizeRequiredText((countryData as { id?: string } | null)?.id);
+
+    if (!countryId) {
+      return null;
+    }
+
+    const { data: cityData, error: cityError } = await supabase
+      .from('cities')
+      .select('id,slug,name_es,short_description_es,status,featured')
+      .eq('country_id', countryId)
+      .eq('slug', zoneSlug)
+      .in('status', ['active', 'comingSoon'])
+      .maybeSingle();
+
+    if (cityError) {
+      logCountryScreenDataError('Error loading remote zone base data', cityError);
+      return null;
+    }
+
+    return normalizeRemoteZoneBaseData(cityData as DBCityBase | null);
+  } catch (error) {
+    logCountryScreenDataError('Unexpected error loading remote zone base data', error);
+    return null;
+  }
+}
+
+function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData | null {
+  if (!db) {
+    return null;
+  }
+
+  const slug = normalizeRequiredText(db.slug);
+  const name = normalizeRequiredText(db.name_es);
+  const status = normalizeRequiredText(db.status);
+
+  if (!slug || !name || !status) {
+    return null;
+  }
+
+  return {
+    id: db.id,
+    slug,
+    name,
+    status,
+    featured: Boolean(db.featured),
+    summary: normalizeRequiredText(db.short_description_es) || undefined,
+  };
+}
+
+function mergeRemoteZoneBaseData(
+  fallbackScreenData: ResolvedZoneScreenData,
+  remoteZone: RemoteZoneBaseData
+): ResolvedZoneScreenData {
+  return buildResolvedZoneScreenData(
+    {
+      ...fallbackScreenData,
+      zone: {
+        ...fallbackScreenData.zone,
+        id: fallbackScreenData.zone.id || remoteZone.id,
+        slug: remoteZone.slug,
+        name: remoteZone.name,
+        status: remoteZone.status,
+        featured: remoteZone.featured ?? fallbackScreenData.zone.featured,
+        summary: remoteZone.summary || fallbackScreenData.zone.summary,
+      },
+    },
+    fallbackScreenData.promotions,
+    {
+      source: 'remoteZone',
+      hasRemoteZone: true,
+    }
+  );
+}
+
+function getResolvedZoneSource(
+  hasRemoteZone: boolean,
+  hasRemotePromotions: boolean
+): ResolvedZoneScreenData['metadata']['source'] {
+  if (hasRemoteZone && hasRemotePromotions) {
+    return 'remoteZoneAndPromotions';
+  }
+
+  if (hasRemoteZone) {
+    return 'remoteZone';
+  }
+
+  if (hasRemotePromotions) {
+    return 'remotePromotions';
+  }
+
+  return 'localFallback';
+}
+
 function normalizeCountryStatus(status: string): 'active' | 'comingSoon' | 'disabled' {
   if (status === 'active' || status === 'comingSoon' || status === 'disabled') {
     return status;
@@ -376,7 +526,7 @@ function buildResolvedCountryScreenData(
 function buildResolvedZoneScreenData(
   screenData: ZoneScreenData,
   promotions: Promotion[],
-  source: ResolvedZoneScreenData['metadata']['source']
+  metadata: Pick<ResolvedZoneScreenData['metadata'], 'source' | 'hasRemoteZone'>
 ): ResolvedZoneScreenData {
   const countrySlug = screenData.country?.slug || screenData.zone.countrySlug;
   const zoneSlug = screenData.zone.slug;
@@ -391,7 +541,7 @@ function buildResolvedZoneScreenData(
     zoneName,
     promotions,
     metadata: {
-      source,
+      ...metadata,
       hasRemotePromotions: promotions.length > 0,
       isUsingPremiumFallback: screenData.fallback.isUsingPremiumFallback,
     },

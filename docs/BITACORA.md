@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-06-24 - CountryZonePage prepara lectura remota de zonas legacy
+
+Preparada la fachada de `CountryZonePage` para usar datos base de zona desde Supabase legacy cuando existan, manteniendo fallback local.
+
+### Cambios implementados
+
+- Anadida lectura read-only de la tabla legacy `cities` desde `getResolvedZoneScreenData(...)`.
+- La consulta resuelve primero `countries.id` por `countries.slug` y luego busca `cities` por `country_id + zoneSlug`.
+- Filtrado conservador por estados publicos `active` / `comingSoon`.
+- Normalizados solo campos seguros existentes: `id`, `slug`, `name_es`, `short_description_es`, `status` y `featured`.
+- Si la zona remota trae datos minimos completos, la fachada fusiona nombre, slug, status, featured, summary y metadata `hasRemoteZone`.
+- Si Supabase no esta configurado, falla, no devuelve fila o faltan `slug/name/status`, se conserva el fallback local completo.
+
+### Sigue siendo fallback local
+
+- Hero de zona, imagenes, copy editorial, CTA comunitario y estructura de pantalla siguen saliendo del fallback local.
+- Promociones remotas siguen entrando por la fachada con el comportamiento ya existente.
+- Aventuras aprobadas y formulario comunitario siguen usando sus servicios actuales.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, zoom, rutas, `package.json`, migraciones, seeds ni diseno visual.
+- No se inventaron tablas nuevas ni se elimino ningun fallback.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-24 - CountryZonePage preparado con fachada resuelta
 
 Preparada `CountryZonePage` para consumir una fachada Database First de zona sin cambio visual.
