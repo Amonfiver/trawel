@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-06-24 - Orden interno de fachada screenData Country/Zone
+
+Ordenada internamente la fachada `countryZoneScreenData.service.ts` sin cambiar comportamiento ni API publica.
+
+### Cambios implementados
+
+- Reorganizado el archivo por secciones: tipos publicos, tipos internos, lectores fallback, datos resueltos, lectura remota de pais, lectura remota de zona, builders y normalizadores/logging.
+- Renombrados helpers internos para expresar mejor su responsabilidad: lectura remota, aplicacion de datos remotos y construccion de respuesta resuelta.
+- Conservados exports publicos actuales para `CountryPage` y `CountryZonePage`.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, zoom, rutas, `package.json`, migraciones, seeds ni diseno visual.
+- Refactor interno sin cambio visual esperado.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-24 - CountryZonePage prepara lectura remota de zonas legacy
 
 Preparada la fachada de `CountryZonePage` para usar datos base de zona desde Supabase legacy cuando existan, manteniendo fallback local.

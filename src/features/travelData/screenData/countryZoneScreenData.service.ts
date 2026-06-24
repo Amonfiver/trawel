@@ -7,14 +7,22 @@ import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
 import type {
   CountryScreenData,
   CountryZoneScreenDataRepository,
+  ScreenCountrySummary,
   ScreenEditorialData,
   ScreenExperienceMode,
-  ScreenCountrySummary,
   ZoneScreenData,
 } from './screenData.types';
 
 const activeCountryZoneScreenDataRepository: CountryZoneScreenDataRepository =
   localCountryZoneScreenDataRepository;
+
+// Future repositories can implement CountryZoneScreenDataRepository:
+// - Supabase legacy trawel-prod repository.
+// - Supabase data-driven repository.
+
+// =============================================================================
+// PUBLIC TYPES
+// =============================================================================
 
 export interface ResolvedCountryScreenData extends CountryScreenData {
   countryName: string;
@@ -50,6 +58,10 @@ export interface ResolvedZoneScreenData extends ZoneScreenData {
     isUsingPremiumFallback: boolean;
   };
 }
+
+// =============================================================================
+// INTERNAL TYPES
+// =============================================================================
 
 interface RemoteCountryBaseData {
   id: string;
@@ -91,9 +103,9 @@ interface DBCityBase {
   featured: boolean | null;
 }
 
-// Future repositories can implement CountryZoneScreenDataRepository:
-// - Supabase legacy trawel-prod repository.
-// - Supabase data-driven repository.
+// =============================================================================
+// BASE FALLBACK READERS
+// =============================================================================
 
 export function getCountryScreenData(
   countrySlug: string,
@@ -106,7 +118,7 @@ export function getCountryScreenFallbackData(
   countrySlug: string,
   mode: ScreenExperienceMode
 ): ResolvedCountryScreenData {
-  const normalizedCountrySlug = countrySlug.trim().toLowerCase();
+  const normalizedCountrySlug = normalizeSlug(countrySlug);
   const fallbackScreenData = getCountryScreenData(normalizedCountrySlug, mode);
 
   return buildResolvedCountryScreenData(fallbackScreenData, {
@@ -116,31 +128,51 @@ export function getCountryScreenFallbackData(
   });
 }
 
+export function getZoneScreenData(
+  countrySlug: string,
+  zoneSlug: string,
+  mode: ScreenExperienceMode
+): ZoneScreenData {
+  return activeCountryZoneScreenDataRepository.getZoneScreenData(countrySlug, zoneSlug, mode);
+}
+
+export function getZoneScreenFallbackData(
+  countrySlug: string,
+  zoneSlug: string,
+  mode: ScreenExperienceMode
+): ResolvedZoneScreenData {
+  const normalizedCountrySlug = normalizeSlug(countrySlug);
+  const normalizedZoneSlug = normalizeSlug(zoneSlug);
+  const fallbackScreenData = getZoneScreenData(normalizedCountrySlug, normalizedZoneSlug, mode);
+
+  return buildResolvedZoneScreenData(fallbackScreenData, [], {
+    source: 'localFallback',
+    hasRemoteZone: false,
+  });
+}
+
+// =============================================================================
+// RESOLVED SCREEN DATA
+// =============================================================================
+
 export async function getResolvedCountryScreenData(
   countrySlug: string,
   mode: ScreenExperienceMode
 ): Promise<ResolvedCountryScreenData> {
-  const normalizedCountrySlug = countrySlug.trim().toLowerCase();
+  const normalizedCountrySlug = normalizeSlug(countrySlug);
   const fallbackScreenData = getCountryScreenFallbackData(normalizedCountrySlug, mode);
-  const remoteCountry = await getPublishedRemoteCountryBySlug(normalizedCountrySlug);
+  const remoteCountry = await fetchRemoteCountryBaseBySlug(normalizedCountrySlug);
   const countryScreenData = remoteCountry
-    ? mergeRemoteCountryBaseData(fallbackScreenData, remoteCountry)
+    ? applyRemoteCountryBaseData(fallbackScreenData, remoteCountry)
     : fallbackScreenData;
-
-  const contents = await getPublishedEditorialContent({
-    entityType: 'country',
-    entitySlug: normalizedCountrySlug,
-    countrySlug: normalizedCountrySlug,
-    mode,
-  });
-
-  const remoteEditorial = normalizeRemoteEditorialContent(contents[0]);
+  const remoteEditorial = await fetchRemoteCountryEditorial(normalizedCountrySlug, mode);
 
   if (!remoteEditorial) {
     logCountryScreenDataResolution('usando fallback editorial local', {
       countrySlug: normalizedCountrySlug,
       mode,
     });
+
     return remoteCountry
       ? buildResolvedCountryScreenData(countryScreenData, {
           source: 'remoteCountry',
@@ -173,104 +205,42 @@ export async function getResolvedCountryScreenData(
   );
 }
 
-export function getZoneScreenData(
-  countrySlug: string,
-  zoneSlug: string,
-  mode: ScreenExperienceMode
-): ZoneScreenData {
-  return activeCountryZoneScreenDataRepository.getZoneScreenData(countrySlug, zoneSlug, mode);
-}
-
-export function getZoneScreenFallbackData(
-  countrySlug: string,
-  zoneSlug: string,
-  mode: ScreenExperienceMode
-): ResolvedZoneScreenData {
-  const normalizedCountrySlug = countrySlug.trim().toLowerCase();
-  const normalizedZoneSlug = zoneSlug.trim().toLowerCase();
-  const fallbackScreenData = getZoneScreenData(normalizedCountrySlug, normalizedZoneSlug, mode);
-
-  return buildResolvedZoneScreenData(fallbackScreenData, [], {
-    source: 'localFallback',
-    hasRemoteZone: false,
-  });
-}
-
 export async function getResolvedZoneScreenData(
   countrySlug: string,
   zoneSlug: string,
   mode: ScreenExperienceMode
 ): Promise<ResolvedZoneScreenData> {
-  const normalizedCountrySlug = countrySlug.trim().toLowerCase();
-  const normalizedZoneSlug = zoneSlug.trim().toLowerCase();
+  const normalizedCountrySlug = normalizeSlug(countrySlug);
+  const normalizedZoneSlug = normalizeSlug(zoneSlug);
   const fallbackScreenData = getZoneScreenFallbackData(
     normalizedCountrySlug,
     normalizedZoneSlug,
     mode
   );
-  const remoteZone = await getPublishedRemoteZoneBySlugs(
+  const remoteZone = await fetchRemoteZoneBaseBySlugs(
     normalizedCountrySlug,
     normalizedZoneSlug
   );
   const zoneScreenData = remoteZone
-    ? mergeRemoteZoneBaseData(fallbackScreenData, remoteZone)
+    ? applyRemoteZoneBaseData(fallbackScreenData, remoteZone)
     : fallbackScreenData;
-
-  const promotions = await getPublishedPromotionsForContext({
-    countrySlug: normalizedCountrySlug,
-    zoneSlug: normalizedZoneSlug,
-    mode,
-    limit: 3,
-  });
-
-  return buildResolvedZoneScreenData(
-    zoneScreenData,
-    promotions,
-    {
-      source: getResolvedZoneSource(Boolean(remoteZone), promotions.length > 0),
-      hasRemoteZone: Boolean(remoteZone),
-    }
+  const promotions = await fetchRemoteZonePromotions(
+    normalizedCountrySlug,
+    normalizedZoneSlug,
+    mode
   );
+
+  return buildResolvedZoneScreenData(zoneScreenData, promotions, {
+    source: getResolvedZoneSource(Boolean(remoteZone), promotions.length > 0),
+    hasRemoteZone: Boolean(remoteZone),
+  });
 }
 
-function normalizeRemoteEditorialContent(
-  content: EditorialContent | undefined
-): ScreenEditorialData | null {
-  if (!content || content.status !== 'published' || !content.mode) {
-    return null;
-  }
+// =============================================================================
+// REMOTE COUNTRY READERS
+// =============================================================================
 
-  const headline = normalizeRequiredText(content.headline);
-  const intro = normalizeRequiredText(content.intro);
-  const whatMakesSpecial = normalizeRequiredText(content.whatMakesSpecial);
-  const highlights = normalizeRequiredStringList(content.highlights);
-  const suggestedRoute = normalizeRequiredText(content.suggestedRoute);
-  const practicalTips = normalizeRequiredTextList(content.practicalTips);
-
-  if (
-    !headline ||
-    !intro ||
-    !whatMakesSpecial ||
-    highlights.length === 0 ||
-    !suggestedRoute ||
-    !practicalTips
-  ) {
-    return null;
-  }
-
-  return {
-    mode: content.mode,
-    status: 'published',
-    headline,
-    intro,
-    whatMakesSpecial,
-    highlights,
-    suggestedRoute,
-    practicalTips,
-  };
-}
-
-async function getPublishedRemoteCountryBySlug(
+async function fetchRemoteCountryBaseBySlug(
   countrySlug: string
 ): Promise<RemoteCountryBaseData | null> {
   if (!countrySlug || !isSupabaseConfigured() || !supabase) {
@@ -286,15 +256,29 @@ async function getPublishedRemoteCountryBySlug(
       .maybeSingle();
 
     if (error) {
-      logCountryScreenDataError('Error loading remote country base data', error);
+      logScreenDataError('Error loading remote country base data', error);
       return null;
     }
 
     return normalizeRemoteCountryBaseData(data as DBCountryBase | null);
   } catch (error) {
-    logCountryScreenDataError('Unexpected error loading remote country base data', error);
+    logScreenDataError('Unexpected error loading remote country base data', error);
     return null;
   }
+}
+
+async function fetchRemoteCountryEditorial(
+  countrySlug: string,
+  mode: ScreenExperienceMode
+): Promise<ScreenEditorialData | null> {
+  const contents = await getPublishedEditorialContent({
+    entityType: 'country',
+    entitySlug: countrySlug,
+    countrySlug,
+    mode,
+  });
+
+  return normalizeRemoteEditorialContent(contents[0]);
 }
 
 function normalizeRemoteCountryBaseData(db: DBCountryBase | null): RemoteCountryBaseData | null {
@@ -322,7 +306,7 @@ function normalizeRemoteCountryBaseData(db: DBCountryBase | null): RemoteCountry
   };
 }
 
-function mergeRemoteCountryBaseData(
+function applyRemoteCountryBaseData(
   fallbackScreenData: ResolvedCountryScreenData,
   remoteCountry: RemoteCountryBaseData
 ): ResolvedCountryScreenData {
@@ -337,7 +321,6 @@ function mergeRemoteCountryBaseData(
     status: remoteCountry.status,
     isFromWorldCatalog: Boolean(fallbackCountry?.isFromWorldCatalog),
   };
-
   const pageData = fallbackScreenData.pageData.country
     ? {
         ...fallbackScreenData.pageData,
@@ -371,7 +354,11 @@ function mergeRemoteCountryBaseData(
   );
 }
 
-async function getPublishedRemoteZoneBySlugs(
+// =============================================================================
+// REMOTE ZONE READERS
+// =============================================================================
+
+async function fetchRemoteZoneBaseBySlugs(
   countrySlug: string,
   zoneSlug: string
 ): Promise<RemoteZoneBaseData | null> {
@@ -388,7 +375,7 @@ async function getPublishedRemoteZoneBySlugs(
       .maybeSingle();
 
     if (countryError) {
-      logCountryScreenDataError('Error loading remote zone country id', countryError);
+      logScreenDataError('Error loading remote zone country id', countryError);
       return null;
     }
 
@@ -407,15 +394,28 @@ async function getPublishedRemoteZoneBySlugs(
       .maybeSingle();
 
     if (cityError) {
-      logCountryScreenDataError('Error loading remote zone base data', cityError);
+      logScreenDataError('Error loading remote zone base data', cityError);
       return null;
     }
 
     return normalizeRemoteZoneBaseData(cityData as DBCityBase | null);
   } catch (error) {
-    logCountryScreenDataError('Unexpected error loading remote zone base data', error);
+    logScreenDataError('Unexpected error loading remote zone base data', error);
     return null;
   }
+}
+
+async function fetchRemoteZonePromotions(
+  countrySlug: string,
+  zoneSlug: string,
+  mode: ScreenExperienceMode
+): Promise<Promotion[]> {
+  return getPublishedPromotionsForContext({
+    countrySlug,
+    zoneSlug,
+    mode,
+    limit: 3,
+  });
 }
 
 function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData | null {
@@ -441,7 +441,7 @@ function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData 
   };
 }
 
-function mergeRemoteZoneBaseData(
+function applyRemoteZoneBaseData(
   fallbackScreenData: ResolvedZoneScreenData,
   remoteZone: RemoteZoneBaseData
 ): ResolvedZoneScreenData {
@@ -466,32 +466,9 @@ function mergeRemoteZoneBaseData(
   );
 }
 
-function getResolvedZoneSource(
-  hasRemoteZone: boolean,
-  hasRemotePromotions: boolean
-): ResolvedZoneScreenData['metadata']['source'] {
-  if (hasRemoteZone && hasRemotePromotions) {
-    return 'remoteZoneAndPromotions';
-  }
-
-  if (hasRemoteZone) {
-    return 'remoteZone';
-  }
-
-  if (hasRemotePromotions) {
-    return 'remotePromotions';
-  }
-
-  return 'localFallback';
-}
-
-function normalizeCountryStatus(status: string): 'active' | 'comingSoon' | 'disabled' {
-  if (status === 'active' || status === 'comingSoon' || status === 'disabled') {
-    return status;
-  }
-
-  return 'comingSoon';
-}
+// =============================================================================
+// BUILDERS
+// =============================================================================
 
 function buildResolvedCountryScreenData(
   screenData: CountryScreenData,
@@ -548,6 +525,78 @@ function buildResolvedZoneScreenData(
   };
 }
 
+function getResolvedZoneSource(
+  hasRemoteZone: boolean,
+  hasRemotePromotions: boolean
+): ResolvedZoneScreenData['metadata']['source'] {
+  if (hasRemoteZone && hasRemotePromotions) {
+    return 'remoteZoneAndPromotions';
+  }
+
+  if (hasRemoteZone) {
+    return 'remoteZone';
+  }
+
+  if (hasRemotePromotions) {
+    return 'remotePromotions';
+  }
+
+  return 'localFallback';
+}
+
+// =============================================================================
+// NORMALIZERS AND LOGGING
+// =============================================================================
+
+function normalizeRemoteEditorialContent(
+  content: EditorialContent | undefined
+): ScreenEditorialData | null {
+  if (!content || content.status !== 'published' || !content.mode) {
+    return null;
+  }
+
+  const headline = normalizeRequiredText(content.headline);
+  const intro = normalizeRequiredText(content.intro);
+  const whatMakesSpecial = normalizeRequiredText(content.whatMakesSpecial);
+  const highlights = normalizeRequiredStringList(content.highlights);
+  const suggestedRoute = normalizeRequiredText(content.suggestedRoute);
+  const practicalTips = normalizeRequiredTextList(content.practicalTips);
+
+  if (
+    !headline ||
+    !intro ||
+    !whatMakesSpecial ||
+    highlights.length === 0 ||
+    !suggestedRoute ||
+    !practicalTips
+  ) {
+    return null;
+  }
+
+  return {
+    mode: content.mode,
+    status: 'published',
+    headline,
+    intro,
+    whatMakesSpecial,
+    highlights,
+    suggestedRoute,
+    practicalTips,
+  };
+}
+
+function normalizeCountryStatus(status: string): 'active' | 'comingSoon' | 'disabled' {
+  if (status === 'active' || status === 'comingSoon' || status === 'disabled') {
+    return status;
+  }
+
+  return 'comingSoon';
+}
+
+function normalizeSlug(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 function normalizeRequiredText(value: string | null | undefined): string | null {
   const normalized = value?.trim();
   return normalized || null;
@@ -574,7 +623,7 @@ function logCountryScreenDataResolution(
   }
 }
 
-function logCountryScreenDataError(message: string, error: unknown): void {
+function logScreenDataError(message: string, error: unknown): void {
   if (import.meta.env.DEV) {
     console.error('[CountryScreenData]', message, error);
   }
