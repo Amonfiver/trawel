@@ -3,11 +3,13 @@ import { getPublishedEditorialContent } from '../productContent';
 import type { EditorialContent } from '../productContent';
 import { getCountryPageData } from '../services/travelData.service';
 import type { CountryPageData } from '../types/travelData.types';
+import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
 import type {
   CountryScreenData,
   CountryZoneScreenDataRepository,
   ScreenEditorialData,
   ScreenExperienceMode,
+  ScreenCountrySummary,
   ZoneScreenData,
 } from './screenData.types';
 
@@ -24,10 +26,33 @@ export interface ResolvedCountryScreenData extends CountryScreenData {
   status?: string;
   pageData: CountryPageData;
   metadata: {
-    source: 'localFallback' | 'remoteEditorial';
+    source: 'localFallback' | 'remoteCountry' | 'remoteEditorial' | 'remoteCountryAndEditorial';
+    hasRemoteCountry: boolean;
     hasRemoteEditorial: boolean;
     isFromWorldCatalog: boolean;
   };
+}
+
+interface RemoteCountryBaseData {
+  id: string;
+  slug: string;
+  displayName: string;
+  status: string;
+  featured?: boolean;
+  capital?: string;
+  continent?: string;
+  shortDescription?: string;
+}
+
+interface DBCountryBase {
+  id: string;
+  slug: string | null;
+  name_es: string | null;
+  capital_es: string | null;
+  continent_es: string | null;
+  description_es: string | null;
+  status: string | null;
+  featured: boolean | null;
 }
 
 // Future repositories can implement CountryZoneScreenDataRepository:
@@ -50,6 +75,7 @@ export function getCountryScreenFallbackData(
 
   return buildResolvedCountryScreenData(fallbackScreenData, {
     source: 'localFallback',
+    hasRemoteCountry: false,
     hasRemoteEditorial: false,
   });
 }
@@ -60,6 +86,10 @@ export async function getResolvedCountryScreenData(
 ): Promise<ResolvedCountryScreenData> {
   const normalizedCountrySlug = countrySlug.trim().toLowerCase();
   const fallbackScreenData = getCountryScreenFallbackData(normalizedCountrySlug, mode);
+  const remoteCountry = await getPublishedRemoteCountryBySlug(normalizedCountrySlug);
+  const countryScreenData = remoteCountry
+    ? mergeRemoteCountryBaseData(fallbackScreenData, remoteCountry)
+    : fallbackScreenData;
 
   const contents = await getPublishedEditorialContent({
     entityType: 'country',
@@ -75,7 +105,13 @@ export async function getResolvedCountryScreenData(
       countrySlug: normalizedCountrySlug,
       mode,
     });
-    return fallbackScreenData;
+    return remoteCountry
+      ? buildResolvedCountryScreenData(countryScreenData, {
+          source: 'remoteCountry',
+          hasRemoteCountry: true,
+          hasRemoteEditorial: false,
+        })
+      : fallbackScreenData;
   }
 
   logCountryScreenDataResolution('editorial remoto publicado cargado', {
@@ -85,16 +121,17 @@ export async function getResolvedCountryScreenData(
 
   return buildResolvedCountryScreenData(
     {
-      ...fallbackScreenData,
+      ...countryScreenData,
       editorial: remoteEditorial,
       fallback: {
-        ...fallbackScreenData.fallback,
-        isUsingPremiumFallback: fallbackScreenData.hero.isPremiumFallback,
-        reason: fallbackScreenData.fallback.reason,
+        ...countryScreenData.fallback,
+        isUsingPremiumFallback: countryScreenData.hero.isPremiumFallback,
+        reason: countryScreenData.fallback.reason,
       },
     },
     {
-      source: 'remoteEditorial',
+      source: remoteCountry ? 'remoteCountryAndEditorial' : 'remoteEditorial',
+      hasRemoteCountry: Boolean(remoteCountry),
       hasRemoteEditorial: true,
     }
   );
@@ -145,12 +182,125 @@ function normalizeRemoteEditorialContent(
   };
 }
 
+async function getPublishedRemoteCountryBySlug(
+  countrySlug: string
+): Promise<RemoteCountryBaseData | null> {
+  if (!countrySlug || !isSupabaseConfigured() || !supabase) {
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('countries')
+      .select('id,slug,name_es,capital_es,continent_es,description_es,status,featured')
+      .eq('slug', countrySlug)
+      .in('status', ['active', 'comingSoon'])
+      .maybeSingle();
+
+    if (error) {
+      logCountryScreenDataError('Error loading remote country base data', error);
+      return null;
+    }
+
+    return normalizeRemoteCountryBaseData(data as DBCountryBase | null);
+  } catch (error) {
+    logCountryScreenDataError('Unexpected error loading remote country base data', error);
+    return null;
+  }
+}
+
+function normalizeRemoteCountryBaseData(db: DBCountryBase | null): RemoteCountryBaseData | null {
+  if (!db) {
+    return null;
+  }
+
+  const slug = normalizeRequiredText(db.slug);
+  const displayName = normalizeRequiredText(db.name_es);
+  const status = normalizeRequiredText(db.status);
+
+  if (!slug || !displayName || !status) {
+    return null;
+  }
+
+  return {
+    id: db.id,
+    slug,
+    displayName,
+    status,
+    featured: Boolean(db.featured),
+    capital: normalizeRequiredText(db.capital_es) || undefined,
+    continent: normalizeRequiredText(db.continent_es) || undefined,
+    shortDescription: normalizeRequiredText(db.description_es) || undefined,
+  };
+}
+
+function mergeRemoteCountryBaseData(
+  fallbackScreenData: ResolvedCountryScreenData,
+  remoteCountry: RemoteCountryBaseData
+): ResolvedCountryScreenData {
+  const fallbackCountry = fallbackScreenData.country;
+  const country: ScreenCountrySummary = {
+    id: fallbackCountry?.id || remoteCountry.id,
+    slug: remoteCountry.slug,
+    displayName: remoteCountry.displayName,
+    isoAlpha2: fallbackCountry?.isoAlpha2,
+    isoAlpha3: fallbackCountry?.isoAlpha3,
+    unM49: fallbackCountry?.unM49,
+    status: remoteCountry.status,
+    isFromWorldCatalog: Boolean(fallbackCountry?.isFromWorldCatalog),
+  };
+
+  const pageData = fallbackScreenData.pageData.country
+    ? {
+        ...fallbackScreenData.pageData,
+        country: {
+          ...fallbackScreenData.pageData.country,
+          id: fallbackScreenData.pageData.country.id || remoteCountry.id,
+          slug: remoteCountry.slug,
+          displayName: remoteCountry.displayName,
+          name: fallbackScreenData.pageData.country.name || remoteCountry.slug,
+          status: normalizeCountryStatus(remoteCountry.status),
+          featured: remoteCountry.featured ?? fallbackScreenData.pageData.country.featured,
+          capital: remoteCountry.capital || fallbackScreenData.pageData.country.capital,
+          shortDescription:
+            remoteCountry.shortDescription ||
+            fallbackScreenData.pageData.country.shortDescription,
+        },
+      }
+    : fallbackScreenData.pageData;
+
+  return buildResolvedCountryScreenData(
+    {
+      ...fallbackScreenData,
+      country,
+    },
+    {
+      source: 'remoteCountry',
+      hasRemoteCountry: true,
+      hasRemoteEditorial: fallbackScreenData.metadata.hasRemoteEditorial,
+    },
+    pageData
+  );
+}
+
+function normalizeCountryStatus(status: string): 'active' | 'comingSoon' | 'disabled' {
+  if (status === 'active' || status === 'comingSoon' || status === 'disabled') {
+    return status;
+  }
+
+  return 'comingSoon';
+}
+
 function buildResolvedCountryScreenData(
   screenData: CountryScreenData,
-  metadata: Pick<ResolvedCountryScreenData['metadata'], 'source' | 'hasRemoteEditorial'>
+  metadata: Pick<
+    ResolvedCountryScreenData['metadata'],
+    'source' | 'hasRemoteCountry' | 'hasRemoteEditorial'
+  >,
+  resolvedPageData?: CountryPageData
 ): ResolvedCountryScreenData {
   const countrySlug = screenData.country?.slug || '';
-  const pageData = getCountryPageData(countrySlug);
+  const pageData = resolvedPageData || getCountryPageData(countrySlug);
   const countryName = screenData.country?.displayName || screenData.hero.title;
   const isoAlpha2 = screenData.country?.isoAlpha2;
 
@@ -194,5 +344,11 @@ function logCountryScreenDataResolution(
 ): void {
   if (import.meta.env.DEV) {
     console.info('[CountryScreenData]', message, details);
+  }
+}
+
+function logCountryScreenDataError(message: string, error: unknown): void {
+  if (import.meta.env.DEV) {
+    console.error('[CountryScreenData]', message, error);
   }
 }

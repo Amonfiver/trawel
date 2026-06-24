@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-06-24 - CountryPage prepara lectura remota de pais legacy
+
+Preparada la fachada de `CountryPage` para usar datos base de pais desde Supabase legacy cuando existan, manteniendo fallback local.
+
+### Cambios implementados
+
+- Anadida lectura read-only de la tabla legacy `countries` desde `getResolvedCountryScreenData(...)`, filtrando por `slug` y estados publicos `active` / `comingSoon`.
+- Normalizados solo campos seguros existentes: `id`, `slug`, `name_es`, `status`, `featured`, `capital_es` y `description_es`.
+- Si el pais remoto trae datos minimos completos, la fachada actualiza `countryName`, `countrySlug`, `status`, `pageData.country` y metadata `hasRemoteCountry`.
+- Si Supabase no esta configurado, falla, no devuelve fila o falta `slug/name/status`, se conserva el fallback local completo.
+- `CountryPage` no se modifica: sigue consumiendo la fachada resuelta sin meter logica Supabase en la pagina.
+
+### Sigue siendo fallback local
+
+- ISO/codigos (`isoAlpha2`, `isoAlpha3`, `unM49`) se conservan desde fallback local/world catalog porque `countries` legacy no los garantiza.
+- Hero, imagenes, paletas, copy premium, listas de ciudades/destinos y mapas siguen usando la base local/fachada actual salvo datos base fusionados.
+- Editorial enriquecido sigue dependiendo de `editorial_contents` publicado y completo.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, zoom, rutas, `package.json`, migraciones ni seeds.
+- No se inventaron tablas nuevas ni se elimino ningun fallback.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-24 - CountryPage mueve datos base a fachada resuelta
 
 Reducida la dependencia directa de `CountryPage` sobre datos locales agregados, manteniendo el mismo fallback visual y editorial.
