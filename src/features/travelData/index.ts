@@ -62,6 +62,7 @@ export {
 
 export {
   getCountryScreenData,
+  getResolvedCountryScreenData,
   getZoneScreenData,
 } from './screenData';
 

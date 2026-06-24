@@ -15,5 +15,6 @@ export type {
 
 export {
   getCountryScreenData,
+  getResolvedCountryScreenData,
   getZoneScreenData,
 } from './countryZoneScreenData.service';

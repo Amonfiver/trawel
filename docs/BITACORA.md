@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-06-24 - CountryPage preparado para fachada Database First
+
+Avanzada `CountryPage` hacia lectura Database First sin romper fallback local ni mapas.
+
+### Cambios implementados
+
+- Anadida `getResolvedCountryScreenData(countrySlug, mode)` en `src/features/travelData/screenData/` como fachada async que agrupa fallback local y editorial remoto publicado.
+- Movida la normalizacion estricta de `editorial_contents` fuera de `CountryPage`, dejando la pagina sin conocer el detalle de Supabase para el editorial de pais.
+- `CountryPage` sigue mostrando fallback local inmediato y solo adopta datos remotos si el contenido esta completo.
+- Actualizado `docs/AGENT_BRIEF.md` con la nueva regla de consumo para CountryPage.
+
+### Datos locales/hardcode detectados todavia
+
+- `getCountryPageData(...)` sigue aportando datos agregados heredados: pais, ciudades, destinos destacados y contadores.
+- Hero/copy/fallback de pais siguen usando diccionarios locales y assets locales.
+- Mapas internos siguen con la logica previa: Espana local y otros paises via `country_map_assets`.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, rutas, `package.json`, migraciones ni seeds.
+- No se elimino el fallback premium.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-24 - Roadmap oficial Trawel Database First
 
 Creada la hoja de ruta oficial para orientar la transicion de Trawel hacia funcionamiento 100% base de datos.
