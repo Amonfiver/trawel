@@ -1,6 +1,8 @@
 import { localCountryZoneScreenDataRepository } from './localCountryZoneScreenData.repository';
 import { getPublishedEditorialContent } from '../productContent';
 import type { EditorialContent } from '../productContent';
+import { getCountryPageData } from '../services/travelData.service';
+import type { CountryPageData } from '../types/travelData.types';
 import type {
   CountryScreenData,
   CountryZoneScreenDataRepository,
@@ -11,6 +13,22 @@ import type {
 
 const activeCountryZoneScreenDataRepository: CountryZoneScreenDataRepository =
   localCountryZoneScreenDataRepository;
+
+export interface ResolvedCountryScreenData extends CountryScreenData {
+  countryName: string;
+  countrySlug: string;
+  countryCode?: string;
+  isoAlpha2?: string;
+  isoAlpha3?: string;
+  unM49?: string;
+  status?: string;
+  pageData: CountryPageData;
+  metadata: {
+    source: 'localFallback' | 'remoteEditorial';
+    hasRemoteEditorial: boolean;
+    isFromWorldCatalog: boolean;
+  };
+}
 
 // Future repositories can implement CountryZoneScreenDataRepository:
 // - Supabase legacy trawel-prod repository.
@@ -23,12 +41,25 @@ export function getCountryScreenData(
   return activeCountryZoneScreenDataRepository.getCountryScreenData(countrySlug, mode);
 }
 
+export function getCountryScreenFallbackData(
+  countrySlug: string,
+  mode: ScreenExperienceMode
+): ResolvedCountryScreenData {
+  const normalizedCountrySlug = countrySlug.trim().toLowerCase();
+  const fallbackScreenData = getCountryScreenData(normalizedCountrySlug, mode);
+
+  return buildResolvedCountryScreenData(fallbackScreenData, {
+    source: 'localFallback',
+    hasRemoteEditorial: false,
+  });
+}
+
 export async function getResolvedCountryScreenData(
   countrySlug: string,
   mode: ScreenExperienceMode
-): Promise<CountryScreenData> {
+): Promise<ResolvedCountryScreenData> {
   const normalizedCountrySlug = countrySlug.trim().toLowerCase();
-  const fallbackScreenData = getCountryScreenData(normalizedCountrySlug, mode);
+  const fallbackScreenData = getCountryScreenFallbackData(normalizedCountrySlug, mode);
 
   const contents = await getPublishedEditorialContent({
     entityType: 'country',
@@ -52,15 +83,21 @@ export async function getResolvedCountryScreenData(
     mode,
   });
 
-  return {
-    ...fallbackScreenData,
-    editorial: remoteEditorial,
-    fallback: {
-      ...fallbackScreenData.fallback,
-      isUsingPremiumFallback: fallbackScreenData.hero.isPremiumFallback,
-      reason: fallbackScreenData.fallback.reason,
+  return buildResolvedCountryScreenData(
+    {
+      ...fallbackScreenData,
+      editorial: remoteEditorial,
+      fallback: {
+        ...fallbackScreenData.fallback,
+        isUsingPremiumFallback: fallbackScreenData.hero.isPremiumFallback,
+        reason: fallbackScreenData.fallback.reason,
+      },
     },
-  };
+    {
+      source: 'remoteEditorial',
+      hasRemoteEditorial: true,
+    }
+  );
 }
 
 export function getZoneScreenData(
@@ -105,6 +142,32 @@ function normalizeRemoteEditorialContent(
     highlights,
     suggestedRoute,
     practicalTips,
+  };
+}
+
+function buildResolvedCountryScreenData(
+  screenData: CountryScreenData,
+  metadata: Pick<ResolvedCountryScreenData['metadata'], 'source' | 'hasRemoteEditorial'>
+): ResolvedCountryScreenData {
+  const countrySlug = screenData.country?.slug || '';
+  const pageData = getCountryPageData(countrySlug);
+  const countryName = screenData.country?.displayName || screenData.hero.title;
+  const isoAlpha2 = screenData.country?.isoAlpha2;
+
+  return {
+    ...screenData,
+    countryName,
+    countrySlug,
+    countryCode: isoAlpha2,
+    isoAlpha2,
+    isoAlpha3: screenData.country?.isoAlpha3,
+    unM49: screenData.country?.unM49,
+    status: screenData.country?.status,
+    pageData,
+    metadata: {
+      ...metadata,
+      isFromWorldCatalog: Boolean(screenData.country?.isFromWorldCatalog),
+    },
   };
 }
 

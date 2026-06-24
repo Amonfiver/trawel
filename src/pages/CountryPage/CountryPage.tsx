@@ -12,7 +12,7 @@
  *
  * Decisiones técnicas importantes:
  * - Usa la fachada data-driven para datos normalizados de pantalla de país
- * - Mantiene getCountryPageData para datos agregados heredados de ciudades y destinos
+ * - Consume getResolvedCountryScreenData como fachada de datos de pantalla
  * - CountryInternalMap es el render genérico para assets TopoJSON locales o de Storage
  * - España usa asset local; otros países consultan/generan assets en country_map_assets
  * - screenData.mapStatus define el nivel administrativo esperado para cada país
@@ -53,15 +53,14 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback, type CSSProperties } from 'react';
 import {
-  getCountryPageData,
-  getCountryScreenData,
+  getCountryScreenFallbackData,
   getResolvedCountryScreenData,
-  type CountryScreenData,
+  type ResolvedCountryScreenData,
+  type ScreenCountrySummary,
   type ScreenEditorialData,
 } from '../../features/travelData';
 import { CountryInternalMap } from '../../features/map/components/CountryInternalMap';
 import { CountryFlag } from '../../features/countries';
-import { getWorldCountryBySlug, type WorldCountry } from '../../features/countries/data/worldCountries';
 import type { CountryStatus } from '../../features/countries/data/countries.types';
 import type { CountryMapAsset } from '../../features/map/services/countryMapAssets.service';
 import { 
@@ -285,7 +284,7 @@ type MapAssetState =
 type ResolvedCountryScreenState = {
   countrySlug: string;
   mode: ExperienceMode;
-  data: CountryScreenData;
+  data: ResolvedCountryScreenData;
 };
 
 /**
@@ -301,11 +300,10 @@ type ResolvedCountryScreenState = {
 export function CountryPage() {
   const { countrySlug } = useParams<{ countrySlug: string }>();
   const navigate = useNavigate();
-  const worldCountry = countrySlug ? getWorldCountryBySlug(countrySlug) : undefined;
   const { mode } = useExperienceMode();
   const normalizedCountrySlug = countrySlug?.trim().toLowerCase();
   const fallbackScreenData = normalizedCountrySlug
-    ? getCountryScreenData(normalizedCountrySlug, mode)
+    ? getCountryScreenFallbackData(normalizedCountrySlug, mode)
     : undefined;
   const [resolvedScreenState, setResolvedScreenState] =
     useState<ResolvedCountryScreenState | null>(null);
@@ -316,6 +314,7 @@ export function CountryPage() {
       ? resolvedScreenState.data
       : fallbackScreenData;
   const resolvedEditorial = screenData?.editorial;
+  const screenCountry = screenData?.country;
   
   // Estado para el asset del mapa (DA-030)
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
@@ -356,7 +355,7 @@ export function CountryPage() {
     };
   }, [normalizedCountrySlug, mode]);
   
-  // Usar travelData.service para obtener datos agregados completos
+  // Datos agregados heredados, servidos ahora por la fachada de pantalla.
   const { 
     country,
     activeCities,
@@ -364,9 +363,16 @@ export function CountryPage() {
     featuredDestinations,
     publishedDestinationsCount,
     totalCitiesCount,
-  } = getCountryPageData(countrySlug || '');
+  } = screenData?.pageData || {
+    country: null,
+    activeCities: [],
+    comingSoonCities: [],
+    featuredDestinations: [],
+    publishedDestinationsCount: 0,
+    totalCitiesCount: 0,
+  };
   const preferredAdminLevel = screenData?.mapStatus.preferredAdminLevel || 'ADM1';
-  const countryIsoAlpha3 = country && 'isoAlpha3' in country ? country.isoAlpha3 : undefined;
+  const countryIsoAlpha3 = screenData?.isoAlpha3;
 
   const handleZoneSelect = useCallback((zone: { name: string; slug: string }) => {
     if (!countrySlug) {
@@ -376,10 +382,10 @@ export function CountryPage() {
     navigate(`/pais/${countrySlug}/zona/${zone.slug}`, {
       state: {
         zoneName: zone.name,
-        countryName: country?.displayName || worldCountry?.displayName || 'este país',
+        countryName: screenData?.countryName || 'este país',
       },
     });
-  }, [countrySlug, country?.displayName, navigate, worldCountry?.displayName]);
+  }, [countrySlug, navigate, screenData?.countryName]);
 
   // Efecto para consultar estado del mapa en Supabase
   useEffect(() => {
@@ -455,9 +461,8 @@ export function CountryPage() {
     country?.displayName,
     country?.isoAlpha2,
     countryIsoAlpha3,
-    worldCountry?.displayName,
-    worldCountry?.isoAlpha2,
-    worldCountry?.isoAlpha3,
+    screenData?.countryName,
+    screenData?.isoAlpha2,
     preferredAdminLevel,
   ]);
 
@@ -529,14 +534,14 @@ export function CountryPage() {
   }, [mapState.status, countrySlug, preferredAdminLevel]);
 
   // Handler para reintentar generación
-  // Usa worldCountry como fallback para datos mínimos cuando no hay contenido editorial
+  // Usa la fachada de pantalla como fuente de datos mínimos cuando no hay contenido editorial.
   const handleRetryGeneration = async () => {
-    if (!countrySlug || COUNTRIES_WITH_LOCAL_MAP.includes(countrySlug)) return;
+    if (!normalizedCountrySlug || COUNTRIES_WITH_LOCAL_MAP.includes(normalizedCountrySlug)) return;
     
     setMapState({ status: 'loading' });
     
     // Resolver datos del país desde worldCountries como fuente canónica de ISO.
-    const countryData = worldCountry || country;
+    const countryData = screenCountry || country;
     
     if (!countryData) {
       console.error('[CountryPage] No se pudieron resolver datos del país:', countrySlug);
@@ -546,7 +551,7 @@ export function CountryPage() {
     
     // Construir payload completo según especificación DA-030
     const payload = {
-      countrySlug,
+      countrySlug: normalizedCountrySlug,
       countryName: countryData.displayName,
       isoAlpha2: countryData.isoAlpha2,
       isoAlpha3: 'isoAlpha3' in countryData ? countryData.isoAlpha3 : undefined,
@@ -579,10 +584,10 @@ export function CountryPage() {
   };
   
   // Si no hay país editorial pero existe en worldCountries, mostrar vista "Descubriendo"
-  if (!country && worldCountry) {
+  if (!country && screenCountry?.isFromWorldCatalog) {
     return (
       <DiscoveringCountryView 
-        worldCountry={worldCountry} 
+        country={screenCountry} 
         mapState={mapState}
         onRetryGeneration={handleRetryGeneration}
         onZoneSelect={handleZoneSelect}
@@ -619,7 +624,7 @@ export function CountryPage() {
   const showStatusWarning = country.status !== 'active';
 
   // Determinar si mostrar mapa interno local (España)
-  const hasLocalMap = countrySlug ? COUNTRIES_WITH_LOCAL_MAP.includes(countrySlug) : false;
+  const hasLocalMap = normalizedCountrySlug ? COUNTRIES_WITH_LOCAL_MAP.includes(normalizedCountrySlug) : false;
 
   // Renderizar componente de mapa según estado
   const renderMapSection = () => {
@@ -770,10 +775,10 @@ export function CountryPage() {
   const citiesToShow = [...activeCities, ...comingSoonCities].slice(0, 4);
 
   // Determinar si hay imagen hero para este país
-  const countryHasHeroImage = countrySlug ? hasHeroImage(countrySlug) : false;
-  const heroImageUrl = countrySlug ? getHeroImage(countrySlug) : undefined;
-  const heroCopy = countrySlug ? getHeroCopy(countrySlug) : undefined;
-  const heroFallbackCopy = getHeroFallbackCopy(countrySlug);
+  const countryHasHeroImage = Boolean(screenData?.hero.source === 'localAsset' && screenData.hero.imageUrl);
+  const heroImageUrl = screenData?.hero.imageUrl;
+  const heroCopy = normalizedCountrySlug ? getHeroCopy(normalizedCountrySlug) : undefined;
+  const heroFallbackCopy = getHeroFallbackCopy(normalizedCountrySlug);
   const heroStyle = countryHasHeroImage && heroImageUrl
     ? { backgroundImage: `url(${heroImageUrl})` }
     : getHeroFallbackStyle(countrySlug);
@@ -786,8 +791,8 @@ export function CountryPage() {
         style={heroStyle}
         aria-label={
           countryHasHeroImage
-            ? `Imagen panorámica de ${country.displayName}`
-            : `Portada temporal del país ${country.displayName}`
+            ? screenData?.hero.imageAlt || `Imagen panorámica de ${country.displayName}`
+            : screenData?.hero.imageAlt || `Portada temporal del país ${country.displayName}`
         }
       >
         {/* Overlay oscuro cuando hay imagen para legibilidad */}
@@ -994,7 +999,7 @@ function getContinentLabel(continent: string): string {
  * Si existe contenido editorial en countryEditorial.ts, se muestra también.
  */
 interface DiscoveringCountryViewProps {
-  worldCountry: WorldCountry;
+  country: ScreenCountrySummary;
   mapState: MapAssetState;
   onRetryGeneration: () => void;
   onZoneSelect: (zone: { name: string; slug: string }) => void;
@@ -1003,7 +1008,7 @@ interface DiscoveringCountryViewProps {
 }
 
 function DiscoveringCountryView({
-  worldCountry,
+  country,
   mapState,
   onRetryGeneration,
   onZoneSelect,
@@ -1013,13 +1018,13 @@ function DiscoveringCountryView({
   // Verificar si existe contenido editorial publicado para este país (ej: México, Italia, Rusia)
   const hasEditorial = editorial?.status === 'published';
   // Aplicar hero fotográfico también en vista de descubrimiento
-  const countryHasHeroImage = hasHeroImage(worldCountry.slug);
-  const heroImageUrl = getHeroImage(worldCountry.slug);
-  const heroCopy = getHeroCopy(worldCountry.slug);
-  const heroFallbackCopy = getHeroFallbackCopy(worldCountry.slug);
+  const countryHasHeroImage = hasHeroImage(country.slug);
+  const heroImageUrl = getHeroImage(country.slug);
+  const heroCopy = getHeroCopy(country.slug);
+  const heroFallbackCopy = getHeroFallbackCopy(country.slug);
   const heroStyle = countryHasHeroImage && heroImageUrl
     ? { backgroundImage: `url(${heroImageUrl})` }
-    : getHeroFallbackStyle(worldCountry.slug);
+    : getHeroFallbackStyle(country.slug);
 
   return (
     <div className={styles.container}>
@@ -1028,8 +1033,8 @@ function DiscoveringCountryView({
         style={heroStyle}
         aria-label={
           countryHasHeroImage
-            ? `Imagen panorámica de ${worldCountry.displayName}`
-            : `Portada temporal del país ${worldCountry.displayName}`
+            ? `Imagen panorámica de ${country.displayName}`
+            : `Portada temporal del país ${country.displayName}`
         }
       >
         {/* Overlay oscuro cuando hay imagen para legibilidad */}
@@ -1039,22 +1044,22 @@ function DiscoveringCountryView({
           <Link to="/" className={styles.breadcrumbLink}>Inicio</Link>
           <span className={styles.breadcrumbSeparator}>/</span>
           <span className={styles.breadcrumbCurrent} aria-current="page">
-            {worldCountry.displayName}
+            {country.displayName}
           </span>
         </nav>
 
         <div className={`${styles.heroContent} ${countryHasHeroImage ? styles.heroContentOnImage : styles.heroContentFallback}`}>
           <div className={`${styles.heroFlag} ${countryHasHeroImage ? styles.heroFlagOnImage : styles.heroFlagFallback}`}>
             <CountryFlag
-              isoAlpha2={worldCountry.isoAlpha2}
-              countryName={worldCountry.displayName}
+              isoAlpha2={country.isoAlpha2}
+              countryName={country.displayName}
               size="large"
             />
           </div>
           
           <div className={styles.heroText}>
             <h1 className={`${styles.heroTitle} ${countryHasHeroImage ? styles.heroTitleOnImage : styles.heroTitleFallback}`}>
-              {worldCountry.displayName}
+              {country.displayName}
             </h1>
             <p className={`${styles.heroLocation} ${countryHasHeroImage ? styles.heroLocationOnImage : ''}`}>
               📍 {countryHasHeroImage ? heroCopy || 'Estamos preparando este destino' : heroFallbackCopy}
@@ -1132,14 +1137,14 @@ function DiscoveringCountryView({
             {mapState.status === 'queued' || mapState.status === 'generating' ? (
               <div className={styles.discoveringState}>
                 <h3 className={styles.discoveringStateTitle}>
-                  Gracias, hemos registrado tu interés en {worldCountry.displayName}
+                  Gracias, hemos registrado tu interés en {country.displayName}
                 </h3>
                 <p className={styles.discoveringStateText}>
                   Este destino todavía no está publicado, pero tu visita nos ayuda a darle prioridad. 
                   Nuestro equipo revisará el mapa y el contenido para prepararlo correctamente.
                 </p>
                 <p className={styles.discoveringStateSecondary}>
-                  Vuelve pronto para descubrir {worldCountry.displayName} con rutas, 
+                  Vuelve pronto para descubrir {country.displayName} con rutas, 
                   zonas recomendadas y aventuras seleccionadas.
                 </p>
                 <div className={styles.discoveringActions}>
@@ -1154,22 +1159,22 @@ function DiscoveringCountryView({
               <div className={styles.discoveringState}>
                 <CountryInternalMap
                   assetUrl={mapState.publicUrl}
-                  countryName={worldCountry.displayName}
+                  countryName={country.displayName}
                   attribution={mapState.asset.attribution || DEFAULT_MAP_ATTRIBUTION}
                   onZoneSelect={onZoneSelect}
                 />
-                <MapFutureBlock countryName={worldCountry.displayName} />
+                <MapFutureBlock countryName={country.displayName} />
               </div>
             )}
 
             {mapState.status === 'missing' && (
               <div className={styles.discoveringState}>
                 <h3 className={styles.discoveringStateTitle}>
-                  {worldCountry.displayName} todavía está en preparación
+                  {country.displayName} todavía está en preparación
                 </h3>
                 <p className={styles.discoveringStateText}>
                   Tu interés nos ayuda a saber qué destinos preparar antes. 
-                  Registraremos esta visita para priorizar {worldCountry.displayName} en nuestra hoja de ruta.
+                  Registraremos esta visita para priorizar {country.displayName} en nuestra hoja de ruta.
                 </p>
                 <p className={styles.discoveringStateSecondary}>
                   Mientras lo dejamos listo, puedes explorar otros destinos disponibles 
@@ -1180,7 +1185,7 @@ function DiscoveringCountryView({
                     onClick={onRetryGeneration}
                     className={styles.requestMapButton}
                   >
-                    Quiero que se prepare {worldCountry.displayName}
+                    Quiero que se prepare {country.displayName}
                   </button>
                   <Link to="/" className={styles.backLink}>
                     ← Explorar otros destinos
@@ -1192,7 +1197,7 @@ function DiscoveringCountryView({
             {mapState.status === 'failed' && (
               <div className={styles.discoveringState}>
                 <h3 className={styles.discoveringStateTitle}>
-                  {worldCountry.displayName} todavía no está listo
+                  {country.displayName} todavía no está listo
                 </h3>
                 <p className={styles.discoveringStateText}>
                   Hemos detectado que este destino necesita revisión antes de publicarse. 
@@ -1209,7 +1214,7 @@ function DiscoveringCountryView({
         </section>
 
         {!countryHasHeroImage && (
-          <HeroContributionBlock countryName={worldCountry.displayName} />
+          <HeroContributionBlock countryName={country.displayName} />
         )}
       </main>
     </div>

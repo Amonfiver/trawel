@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-06-24 - CountryPage mueve datos base a fachada resuelta
+
+Reducida la dependencia directa de `CountryPage` sobre datos locales agregados, manteniendo el mismo fallback visual y editorial.
+
+### Cambios implementados
+
+- Ampliada la fachada `getResolvedCountryScreenData(countrySlug, mode)` para devolver datos base de pais: `countryName`, `countrySlug`, codigos ISO disponibles, `pageData` heredado, hero, editorial resuelto y metadata de origen.
+- Anadida `getCountryScreenFallbackData(...)` para que `CountryPage` pueda pintar el fallback local inmediato antes de que termine la lectura remota.
+- `CountryPage` deja de importar `getCountryPageData(...)` y `worldCountries`; consume pais, listas, contadores y datos de descubrimiento desde `screenData`.
+- La vista de paises en descubrimiento usa `ScreenCountrySummary` servido por la fachada en lugar de resolver `worldCountry` dentro de la pagina.
+- El comportamiento visible se mantiene: fallback premium, heroes, mapas, listas, contadores y editorial remoto/local siguen igual.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, zoom, rutas, `package.json`, migraciones ni seeds.
+- No se inventaron tablas nuevas ni se elimino ningun fallback.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-24 - CountryPage preparado para fachada Database First
 
 Avanzada `CountryPage` hacia lectura Database First sin romper fallback local ni mapas.
