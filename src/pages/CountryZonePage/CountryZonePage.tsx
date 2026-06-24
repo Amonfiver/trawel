@@ -13,9 +13,12 @@
 
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { getZoneScreenData } from '../../features/travelData';
-import { getPublishedPromotionsForContext } from '../../features/travelData/productContent/productContent.service';
-import type { Promotion } from '../../features/travelData/productContent/productContent.types';
+import {
+  getResolvedZoneScreenData,
+  getZoneScreenFallbackData,
+  type Promotion,
+  type ResolvedZoneScreenData,
+} from '../../features/travelData';
 import { CountryFlag } from '../../features/countries';
 import { useExperienceMode } from '../../features/experienceMode';
 import {
@@ -50,6 +53,13 @@ type SubmitState =
   | { status: 'submitting' }
   | { status: 'success'; message: string; withdrawalToken: string; withdrawalUrl: string }
   | { status: 'error'; message: string };
+
+type ResolvedZoneScreenState = {
+  countrySlug: string;
+  zoneSlug: string;
+  mode: ReturnType<typeof useExperienceMode>['mode'];
+  data: ResolvedZoneScreenData;
+};
 
 const EMPTY_FORM_VALUES: AdventureFormValues = {
   title: '',
@@ -210,21 +220,34 @@ export function CountryZonePage() {
   const location = useLocation();
   const state = (location.state || {}) as ZoneLocationState;
   const { mode } = useExperienceMode();
+  const normalizedCountrySlug = countrySlug?.trim().toLowerCase();
+  const normalizedZoneSlug = zoneSlug?.trim().toLowerCase();
 
   // Scroll al inicio al entrar o cambiar de país/zona
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [countrySlug, zoneSlug]);
 
+  const fallbackScreenData =
+    normalizedCountrySlug && normalizedZoneSlug
+      ? getZoneScreenFallbackData(normalizedCountrySlug, normalizedZoneSlug, mode)
+      : undefined;
+  const [resolvedScreenState, setResolvedScreenState] =
+    useState<ResolvedZoneScreenState | null>(null);
   const screenData =
-    countrySlug && zoneSlug ? getZoneScreenData(countrySlug, zoneSlug, mode) : undefined;
+    resolvedScreenState &&
+    resolvedScreenState.countrySlug === normalizedCountrySlug &&
+    resolvedScreenState.zoneSlug === normalizedZoneSlug &&
+    resolvedScreenState.mode === mode
+      ? resolvedScreenState.data
+      : fallbackScreenData;
   const countryName =
     cleanDisplayName(state.countryName) ||
-    cleanDisplayName(screenData?.country?.displayName) ||
+    cleanDisplayName(screenData?.countryName) ||
     'este país';
   const zoneName =
     cleanDisplayName(state.zoneName) ||
-    cleanDisplayName(screenData?.zone.name) ||
+    cleanDisplayName(screenData?.zoneName) ||
     createNameFromSlug(zoneSlug) ||
     'Zona por descubrir';
   const zoneHeroImageUrl = screenData?.hero.imageUrl;
@@ -238,7 +261,41 @@ export function CountryZonePage() {
     screenData?.communityCta.text ||
     `¿Tienes una foto de ${zoneName}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
   const [adventuresState, setAdventuresState] = useState<AdventuresState>({ status: 'loading' });
-  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const promotions = screenData?.promotions || [];
+
+  useEffect(() => {
+    if (!normalizedCountrySlug || !normalizedZoneSlug) {
+      setResolvedScreenState(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadZoneScreenData = async () => {
+      const resolvedScreenData = await getResolvedZoneScreenData(
+        normalizedCountrySlug,
+        normalizedZoneSlug,
+        mode
+      );
+
+      if (!isMounted) {
+        return;
+      }
+
+      setResolvedScreenState({
+        countrySlug: normalizedCountrySlug,
+        zoneSlug: normalizedZoneSlug,
+        mode,
+        data: resolvedScreenData,
+      });
+    };
+
+    loadZoneScreenData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [mode, normalizedCountrySlug, normalizedZoneSlug]);
 
   useEffect(() => {
     let isMounted = true;
@@ -275,34 +332,6 @@ export function CountryZonePage() {
       isMounted = false;
     };
   }, [countrySlug, zoneSlug]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadPromotions = async () => {
-      if (!countrySlug || !zoneSlug) {
-        setPromotions([]);
-        return;
-      }
-
-      const publishedPromotions = await getPublishedPromotionsForContext({
-        countrySlug,
-        zoneSlug,
-        mode,
-        limit: 3,
-      });
-
-      if (isMounted) {
-        setPromotions(publishedPromotions);
-      }
-    };
-
-    loadPromotions();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [countrySlug, mode, zoneSlug]);
 
   const approvedAdventures =
     adventuresState.status === 'ready' ? adventuresState.adventures : [];

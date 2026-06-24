@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-06-24 - CountryZonePage preparado con fachada resuelta
+
+Preparada `CountryZonePage` para consumir una fachada Database First de zona sin cambio visual.
+
+### Cambios implementados
+
+- Anadida `getZoneScreenFallbackData(countrySlug, zoneSlug, mode)` para conservar fallback local inmediato de zona.
+- Anadida `getResolvedZoneScreenData(countrySlug, zoneSlug, mode)` como fachada async que agrupa pais, zona, hero/fallback, copy/editorial local, CTA comunitario, promociones remotas y metadata.
+- `CountryZonePage` deja de llamar directamente a `getPublishedPromotionsForContext(...)`; las promociones nativas publicadas se cargan desde la fachada resuelta.
+- La pagina conserva prioridad de nombres recibidos por `router state`, fallback local de hero/copy y comportamiento visual actual.
+- Exportadas las nuevas funciones/tipos desde los barrels de `travelData`.
+
+### Sigue siendo local/fallback
+
+- Hero de zona, copy editorial de zona, CTA comunitario, pais/zona base y nombres siguen saliendo del repositorio local/fallback.
+- Aventuras aprobadas y formulario comunitario mantienen sus servicios actuales.
+- No se ha conectado lectura remota de zonas/cities ni imagenes remotas en este bloque.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, zoom, rutas, `package.json`, migraciones ni seeds.
+- No se cambio el comportamiento visual esperado.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-24 - CountryPage prepara lectura remota de pais legacy
 
 Preparada la fachada de `CountryPage` para usar datos base de pais desde Supabase legacy cuando existan, manteniendo fallback local.

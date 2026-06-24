@@ -17,9 +17,12 @@ export {
   getCountryScreenData,
   getCountryScreenFallbackData,
   getResolvedCountryScreenData,
+  getResolvedZoneScreenData,
   getZoneScreenData,
+  getZoneScreenFallbackData,
 } from './countryZoneScreenData.service';
 
 export type {
   ResolvedCountryScreenData,
+  ResolvedZoneScreenData,
 } from './countryZoneScreenData.service';

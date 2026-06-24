@@ -1,6 +1,6 @@
 import { localCountryZoneScreenDataRepository } from './localCountryZoneScreenData.repository';
-import { getPublishedEditorialContent } from '../productContent';
-import type { EditorialContent } from '../productContent';
+import { getPublishedEditorialContent, getPublishedPromotionsForContext } from '../productContent';
+import type { EditorialContent, Promotion } from '../productContent';
 import { getCountryPageData } from '../services/travelData.service';
 import type { CountryPageData } from '../types/travelData.types';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
@@ -30,6 +30,19 @@ export interface ResolvedCountryScreenData extends CountryScreenData {
     hasRemoteCountry: boolean;
     hasRemoteEditorial: boolean;
     isFromWorldCatalog: boolean;
+  };
+}
+
+export interface ResolvedZoneScreenData extends ZoneScreenData {
+  countrySlug: string;
+  zoneSlug: string;
+  countryName: string;
+  zoneName: string;
+  promotions: Promotion[];
+  metadata: {
+    source: 'localFallback' | 'remotePromotions';
+    hasRemotePromotions: boolean;
+    isUsingPremiumFallback: boolean;
   };
 }
 
@@ -143,6 +156,45 @@ export function getZoneScreenData(
   mode: ScreenExperienceMode
 ): ZoneScreenData {
   return activeCountryZoneScreenDataRepository.getZoneScreenData(countrySlug, zoneSlug, mode);
+}
+
+export function getZoneScreenFallbackData(
+  countrySlug: string,
+  zoneSlug: string,
+  mode: ScreenExperienceMode
+): ResolvedZoneScreenData {
+  const normalizedCountrySlug = countrySlug.trim().toLowerCase();
+  const normalizedZoneSlug = zoneSlug.trim().toLowerCase();
+  const fallbackScreenData = getZoneScreenData(normalizedCountrySlug, normalizedZoneSlug, mode);
+
+  return buildResolvedZoneScreenData(fallbackScreenData, [], 'localFallback');
+}
+
+export async function getResolvedZoneScreenData(
+  countrySlug: string,
+  zoneSlug: string,
+  mode: ScreenExperienceMode
+): Promise<ResolvedZoneScreenData> {
+  const normalizedCountrySlug = countrySlug.trim().toLowerCase();
+  const normalizedZoneSlug = zoneSlug.trim().toLowerCase();
+  const fallbackScreenData = getZoneScreenFallbackData(
+    normalizedCountrySlug,
+    normalizedZoneSlug,
+    mode
+  );
+
+  const promotions = await getPublishedPromotionsForContext({
+    countrySlug: normalizedCountrySlug,
+    zoneSlug: normalizedZoneSlug,
+    mode,
+    limit: 3,
+  });
+
+  return buildResolvedZoneScreenData(
+    fallbackScreenData,
+    promotions,
+    promotions.length > 0 ? 'remotePromotions' : 'localFallback'
+  );
 }
 
 function normalizeRemoteEditorialContent(
@@ -317,6 +369,31 @@ function buildResolvedCountryScreenData(
     metadata: {
       ...metadata,
       isFromWorldCatalog: Boolean(screenData.country?.isFromWorldCatalog),
+    },
+  };
+}
+
+function buildResolvedZoneScreenData(
+  screenData: ZoneScreenData,
+  promotions: Promotion[],
+  source: ResolvedZoneScreenData['metadata']['source']
+): ResolvedZoneScreenData {
+  const countrySlug = screenData.country?.slug || screenData.zone.countrySlug;
+  const zoneSlug = screenData.zone.slug;
+  const countryName = screenData.country?.displayName || 'este país';
+  const zoneName = screenData.zone.name;
+
+  return {
+    ...screenData,
+    countrySlug,
+    zoneSlug,
+    countryName,
+    zoneName,
+    promotions,
+    metadata: {
+      source,
+      hasRemotePromotions: promotions.length > 0,
+      isUsingPremiumFallback: screenData.fallback.isUsingPremiumFallback,
     },
   };
 }

@@ -24,6 +24,7 @@ export type {
   CountryScreenData,
   CountryZoneScreenDataRepository,
   ResolvedCountryScreenData,
+  ResolvedZoneScreenData,
   ZoneScreenData,
   ScreenCommunityCtaData,
   ScreenCountrySummary,
@@ -65,7 +66,9 @@ export {
   getCountryScreenData,
   getCountryScreenFallbackData,
   getResolvedCountryScreenData,
+  getResolvedZoneScreenData,
   getZoneScreenData,
+  getZoneScreenFallbackData,
 } from './screenData';
 
 export {
