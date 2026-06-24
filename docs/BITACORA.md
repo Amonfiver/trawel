@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-24 - Roadmap oficial Trawel Database First
+
+Creada la hoja de ruta oficial para orientar la transicion de Trawel hacia funcionamiento 100% base de datos.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_DATABASE_FIRST_ROADMAP.md` como checklist vivo: Trawel como escaparate publico, Supabase como fuente central de verdad e Investighost como futuro panel maestro externo.
+- Documentado el estado validado actual: `static_pages`, `promotions`, `editorial_contents` en CountryPage, Espana demo remota, Mexico remoto real y fallback local premium.
+- Anadidas fases de trabajo para CountryPage, CountryZonePage, Home, imagenes/fotos, mensajes, demand signals, promociones e Investighost futuro.
+- Actualizado `docs/AGENT_BRIEF.md` con enlace breve al nuevo roadmap.
+
+### Reglas respetadas
+
+- No se tocaron `src/`, `package.json`, migraciones, seeds, mapas, servicios, rutas ni datos de Supabase.
+- No se ejecuto `npm run build` porque solo se tocaron documentos.
+
+---
+
 ## 2026-06-16 - Guia de entrada de contenido editorial para Trawel
 
 Creada una guia interna para ordenar contenido editorial antes de convertirlo en cargas revisables de `editorial_contents`.
