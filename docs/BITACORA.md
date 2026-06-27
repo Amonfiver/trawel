@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-28 - Bloque 46: auditoria final de colas y readiness
+
+Auditado el estado de las colas de usuario para confirmar que Trawel esta preparado localmente para recibir entradas privadas, pero no debe activar formularios publicos todavia.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_USER_QUEUE_READINESS.md`.
+- Revisadas tablas locales, servicios frontend, estados iniciales, pendientes de produccion, riesgos y decision recomendada.
+- Actualizado `docs/AGENT_BRIEF.md` con enlace a la auditoria.
+- Actualizado `docs/TRAWEL_SHOWCASE_READINESS.md` para reflejar que la auditoria de colas esta cerrada y que el siguiente paso depende de aplicar migration o preparar formularios.
+
+### Reglas respetadas
+
+- No se tocaron `src/`, `package.json`, migrations, seeds, mapas ni rutas.
+- No se ejecuto `npm run build` porque solo se tocaron documentos.
+
+---
+
 ## 2026-06-28 - Bloque 45: servicio de cola de reportes de contenido
 
 Preparado el servicio real para recibir reportes de contenido en cola privada, sin mostrarlos ni conectar formularios visuales.

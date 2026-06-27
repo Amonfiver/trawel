@@ -61,6 +61,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Colas de contenido de usuario:** `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md` define el contrato minimo para `user_messages`, `user_photo_submissions` y `content_reports`. La migracion local `supabase/migrations/008_create_user_content_queue_tables.sql` crea estas colas con RLS, inserts publicos controlados y sin lectura publica. Trawel solo debe insertar en cola; Investighost revisara estados y ninguna entrada de usuario se publica directamente. No se ha ejecutado contra remoto desde Trawel.
 
+**Readiness colas usuario:** `docs/TRAWEL_USER_QUEUE_READINESS.md` audita el estado final de colas: migration local y servicios estan preparados, pero no se deben conectar formularios publicos hasta ejecutar/revisar la migration real, confirmar RLS y decidir storage seguro para fotos.
+
 **CountryZonePage data-driven:** `CountryZonePage` consume `getResolvedZoneScreenData(countrySlug, zoneSlug, mode)` como fachada resuelta de zona: parte de `getZoneScreenData(...)` como fallback local, intenta leer datos base seguros desde `cities` legacy mediante `countries.slug + cities.slug`, expone `countrySlug`, `zoneSlug`, nombres, estado, hero/fallback, editorial/copy, CTA y promociones nativas publicadas desde Supabase. Las promociones ya no deben cargarse directamente desde la pagina. Futuros cambios de zona deben pasar por la fachada antes de tocar la pagina.
 
 **Paginas de confianza:** existen paginas minimas en `src/pages/TrustPage/` para `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`. `TrustPage` intenta leer `static_pages` publicadas desde Supabase con `getPublishedStaticPageBySlug(slug)` y conserva fallback local si no hay contenido o falla la configuracion. Son informativas iniciales; no sustituyen textos legales definitivos ni conectan formularios/backend.
@@ -213,6 +215,8 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` con `status='submitted'` cuando hay derechos y consentimiento confirmados. Falta aplicar schema remoto, storage/upload seguro y formulario real.
 
 **Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y solo inserta en `content_reports` con `status='pending_review'`. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la migration local.
+
+**Auditoria colas:** ver `docs/TRAWEL_USER_QUEUE_READINESS.md` antes de conectar cualquier formulario publico de mensajes, fotos o reportes.
 
 ---
 

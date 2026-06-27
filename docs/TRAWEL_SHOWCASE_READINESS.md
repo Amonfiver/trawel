@@ -10,6 +10,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
 - [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas, migration local y servicios apuntando a `user_messages`/`user_photo_submissions`/`content_reports`; falta ejecucion remota y conexion visual real.
 - [x] Handoff Investighost -> Trawel: existe manual maestro para alimentar Supabase sin mezclar panel editorial dentro de Trawel.
+- [x] Auditoria de colas de usuario: `docs/TRAWEL_USER_QUEUE_READINESS.md` confirma preparacion local y bloqueos de produccion.
 
 ## 2. Datos Que Ya Puede Leer Desde Supabase
 
@@ -35,7 +36,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [~] Recibir fotos/aportes de usuarios: servicio de cola preparado contra `user_photo_submissions`; falta storage/upload seguro, schema remoto y formulario.
 - [~] Recibir reportes de contenido: servicio de cola preparado contra `content_reports`; falta schema remoto y formulario.
 - [~] Guardar todo en cola de revision: migration local definida con RLS; falta ejecucion remota.
-- [ ] Nunca publicar directo desde usuario.
+- [x] Nunca publicar directo desde usuario: servicios actuales solo insertan estados iniciales privados.
 - [x] Permitir promociones controladas sin invadir la experiencia.
 - [x] Mantener fallback premium si falta contenido remoto.
 
@@ -52,7 +53,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 ## 6. Proximos 3 Bloques Recomendados
 
 1. Revisar y ejecutar migration de colas contra Supabase cuando proceda.
-2. Conectar formularios publicos a inserts controlados.
+2. Conectar formularios publicos a inserts controlados solo despues de revisar RLS remoto.
 3. Cerrar checklist de escaparate funcional.
 
 ## Conclusion
