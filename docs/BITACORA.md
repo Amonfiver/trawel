@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-06-28 - Bloque 45: servicio de cola de reportes de contenido
+
+Preparado el servicio real para recibir reportes de contenido en cola privada, sin mostrarlos ni conectar formularios visuales.
+
+### Cambios implementados
+
+- Creado `src/features/travelData/productContent/contentReportQueue.service.ts`.
+- Anadido `submitContentReport(...)`, que inserta en `content_reports` con `status='pending_review'`.
+- Soportados tipos publicos `content_error`, `image_rights`, `removal_request`, `inappropriate_content`, `outdated_information` y `other`, mapeados a los tipos aceptados por la migration local.
+- Validacion local de tipo de reporte, nombre, email, tipo/slug de entidad objetivo y mensaje.
+- Exportado el servicio desde `productContent` y desde el barrel publico de `travelData`.
+
+### Reglas respetadas
+
+- No se tocaron paginas, formularios, mapas, rutas, diseno global, migrations, seeds, `package.json` ni Supabase real.
+- No se ejecuto la migracion contra remoto.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite si aparece.
+
+---
+
 ## 2026-06-28 - Bloque 44: servicio de cola de fotos de usuario
 
 Preparado el servicio real para recibir propuestas de fotos de usuarios en cola de revision, sin publicarlas ni crear sistema de subida.

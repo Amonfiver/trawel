@@ -13,6 +13,15 @@ export type {
 } from './productContent.types';
 
 export type {
+  ContentReportInputType,
+  ContentReportStatus,
+  ContentReportStoredType,
+  ContentReportTargetEntityType,
+  SubmitContentReportInput,
+  SubmitContentReportResult,
+} from './contentReportQueue.service';
+
+export type {
   SubmitUserPhotoSubmissionInput,
   SubmitUserPhotoSubmissionResult,
   UserPhotoSubmissionStatus,
@@ -30,6 +39,10 @@ export {
   getPublishedPromotionsForContext,
   getPublishedStaticPageBySlug,
 } from './productContent.service';
+
+export {
+  submitContentReport,
+} from './contentReportQueue.service';
 
 export {
   submitUserPhotoSubmission,

@@ -212,6 +212,8 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` con `status='submitted'` cuando hay derechos y consentimiento confirmados. Falta aplicar schema remoto, storage/upload seguro y formulario real.
 
+**Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y solo inserta en `content_reports` con `status='pending_review'`. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la migration local.
+
 ---
 
 ## 10. Sistema AI-specs
