@@ -9,6 +9,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [x] CountryZonePage: usa `getResolvedZoneScreenData()` con zona y promociones.
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
 - [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas y migration local; falta ejecucion remota y conexion real.
+- [x] Handoff Investighost -> Trawel: existe manual maestro para alimentar Supabase sin mezclar panel editorial dentro de Trawel.
 
 ## 2. Datos Que Ya Puede Leer Desde Supabase
 
@@ -45,6 +46,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [ ] Cargar y revisar contenido editorial.
 - [ ] Gestionar promociones, sponsors y campanas.
 - [ ] Revisar senales de demanda.
+- [x] Seguir el handoff maestro `docs/INVESTIGHOST_TO_TRAWEL_HANDOFF_MANUAL.md`.
 
 ## 6. Proximos 3 Bloques Recomendados
 

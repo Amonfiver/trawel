@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-28 - Bloque 42: manual maestro Investighost -> Trawel
+
+Creado el manual maestro para orientar el traspaso operativo entre Investighost, Supabase y Trawel.
+
+### Cambios implementados
+
+- Creado `docs/INVESTIGHOST_TO_TRAWEL_HANDOFF_MANUAL.md`.
+- Documentados roles, proyecto Supabase `trawel-prod`, tablas que alimentan Trawel, responsabilidades de Investighost, estados principales, CountryPage, CountryZonePage, Home, promociones, fotos/derechos, mensajes/reportes y checklist para agentes.
+- Actualizado `docs/AGENT_BRIEF.md` con enlace breve al manual.
+- Actualizado `docs/TRAWEL_SHOWCASE_READINESS.md` para reflejar que ya existe handoff maestro.
+
+### Reglas respetadas
+
+- No se tocaron `src/`, `package.json`, migraciones, seeds, mapas ni rutas.
+- No se ejecuto `npm run build` porque solo se tocaron documentos.
+
+---
+
 ## 2026-06-28 - Bloque 41: migracion local de colas de usuario
 
 Creada la migracion Supabase local para las colas privadas de contenido de usuario, sin ejecutarla contra Supabase real.
