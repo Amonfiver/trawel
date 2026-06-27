@@ -53,8 +53,10 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback, type CSSProperties } from 'react';
 import {
+  MonetizationSlot,
   getCountryScreenFallbackData,
   getResolvedCountryScreenData,
+  type Promotion,
   type ResolvedCountryScreenData,
   type ScreenCountrySummary,
   type ScreenEditorialData,
@@ -315,6 +317,7 @@ export function CountryPage() {
       : fallbackScreenData;
   const resolvedEditorial = screenData?.editorial;
   const screenCountry = screenData?.country;
+  const countryPromotions = screenData?.countryPromotions ?? [];
   
   // Estado para el asset del mapa (DA-030)
   const [mapState, setMapState] = useState<MapAssetState>({ status: 'loading' });
@@ -593,6 +596,7 @@ export function CountryPage() {
         onZoneSelect={handleZoneSelect}
         mode={mode}
         editorial={resolvedEditorial}
+        countryPromotions={countryPromotions}
       />
     );
   }
@@ -873,6 +877,11 @@ export function CountryPage() {
           totalCitiesCount={totalCitiesCount}
         />
 
+        <MonetizationSlot
+          placement="country-after-editorial"
+          promotions={countryPromotions}
+        />
+
         {/* Sección de mapa automático (para países que no son España) */}
         {!hasLocalMap && renderAutoMapStatus()}
 
@@ -1005,6 +1014,7 @@ interface DiscoveringCountryViewProps {
   onZoneSelect: (zone: { name: string; slug: string }) => void;
   mode?: ExperienceMode;
   editorial?: ScreenEditorialData;
+  countryPromotions?: Promotion[];
 }
 
 function DiscoveringCountryView({
@@ -1014,6 +1024,7 @@ function DiscoveringCountryView({
   onZoneSelect,
   mode = 'adventure',
   editorial,
+  countryPromotions,
 }: DiscoveringCountryViewProps) {
   // Verificar si existe contenido editorial publicado para este país (ej: México, Italia, Rusia)
   const hasEditorial = editorial?.status === 'published';
@@ -1118,6 +1129,11 @@ function DiscoveringCountryView({
             </div>
           </section>
         )}
+
+        <MonetizationSlot
+          placement="country-after-editorial"
+          promotions={countryPromotions}
+        />
 
         <section className={styles.discoveringSection}>
           <div className={styles.discoveringContent}>

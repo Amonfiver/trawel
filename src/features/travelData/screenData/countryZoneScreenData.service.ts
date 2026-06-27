@@ -33,10 +33,12 @@ export interface ResolvedCountryScreenData extends CountryScreenData {
   unM49?: string;
   status?: string;
   pageData: CountryPageData;
+  countryPromotions: Promotion[];
   metadata: {
     source: 'localFallback' | 'remoteCountry' | 'remoteEditorial' | 'remoteCountryAndEditorial';
     hasRemoteCountry: boolean;
     hasRemoteEditorial: boolean;
+    hasRemoteCountryPromotions: boolean;
     isFromWorldCatalog: boolean;
   };
 }
@@ -165,7 +167,10 @@ export async function getResolvedCountryScreenData(
   const countryScreenData = remoteCountry
     ? applyRemoteCountryBaseData(fallbackScreenData, remoteCountry)
     : fallbackScreenData;
-  const remoteEditorial = await fetchRemoteCountryEditorial(normalizedCountrySlug, mode);
+  const [remoteEditorial, countryPromotions] = await Promise.all([
+    fetchRemoteCountryEditorial(normalizedCountrySlug, mode),
+    fetchRemoteCountryPromotions(normalizedCountrySlug, mode),
+  ]);
 
   if (!remoteEditorial) {
     logCountryScreenDataResolution('usando fallback editorial local', {
@@ -173,13 +178,16 @@ export async function getResolvedCountryScreenData(
       mode,
     });
 
-    return remoteCountry
-      ? buildResolvedCountryScreenData(countryScreenData, {
-          source: 'remoteCountry',
-          hasRemoteCountry: true,
-          hasRemoteEditorial: false,
-        })
-      : fallbackScreenData;
+    return buildResolvedCountryScreenData(
+      countryScreenData,
+      {
+        source: remoteCountry ? 'remoteCountry' : 'localFallback',
+        hasRemoteCountry: Boolean(remoteCountry),
+        hasRemoteEditorial: false,
+      },
+      undefined,
+      countryPromotions
+    );
   }
 
   logCountryScreenDataResolution('editorial remoto publicado cargado', {
@@ -201,7 +209,9 @@ export async function getResolvedCountryScreenData(
       source: remoteCountry ? 'remoteCountryAndEditorial' : 'remoteEditorial',
       hasRemoteCountry: Boolean(remoteCountry),
       hasRemoteEditorial: true,
-    }
+    },
+    undefined,
+    countryPromotions
   );
 }
 
@@ -279,6 +289,17 @@ async function fetchRemoteCountryEditorial(
   });
 
   return normalizeRemoteEditorialContent(contents[0]);
+}
+
+async function fetchRemoteCountryPromotions(
+  countrySlug: string,
+  mode: ScreenExperienceMode
+): Promise<Promotion[]> {
+  return getPublishedPromotionsForContext({
+    countrySlug,
+    mode,
+    limit: 3,
+  });
 }
 
 function normalizeRemoteCountryBaseData(db: DBCountryBase | null): RemoteCountryBaseData | null {
@@ -476,7 +497,8 @@ function buildResolvedCountryScreenData(
     ResolvedCountryScreenData['metadata'],
     'source' | 'hasRemoteCountry' | 'hasRemoteEditorial'
   >,
-  resolvedPageData?: CountryPageData
+  resolvedPageData?: CountryPageData,
+  countryPromotions: Promotion[] = []
 ): ResolvedCountryScreenData {
   const countrySlug = screenData.country?.slug || '';
   const pageData = resolvedPageData || getCountryPageData(countrySlug);
@@ -493,8 +515,10 @@ function buildResolvedCountryScreenData(
     unM49: screenData.country?.unM49,
     status: screenData.country?.status,
     pageData,
+    countryPromotions,
     metadata: {
       ...metadata,
+      hasRemoteCountryPromotions: countryPromotions.length > 0,
       isFromWorldCatalog: Boolean(screenData.country?.isFromWorldCatalog),
     },
   };

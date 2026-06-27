@@ -2723,5 +2723,11 @@ Creado `MonetizationSlot` como bloque reusable y discreto para promociones propi
 
 ---
 
+## 2026-06-27 - Bloque 36: MonetizationSlot controlado en CountryPage
+
+CountryPage recibe ahora `countryPromotions` desde `getResolvedCountryScreenData()` mediante lectura conservadora de promociones publicadas por país/modo. El slot `country-after-editorial` se coloca después del bloque editorial y antes del mapa/zonas; si no hay promociones válidas, no ocupa espacio. No se integró AdSense real ni se tocaron mapas/rutas.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-06-27*

@@ -199,7 +199,7 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 
 **Retirada de aventuras:** al enviar una aventura se genera un token privado en navegador; la DB guarda solo `withdrawal_token_hash`. La ruta `/retirar-aventura` invoca la Edge Function `withdraw-traveler-adventure`, que usa `service_role` solo en backend y marca `status = withdrawn` si la aventura sigue `pending`.
 
-**Monetización controlada:** `MonetizationSlot` muestra promociones propias solo si hay contenido publicado válido. Los slots van entre secciones, nunca encima de hero/mapa/header; si no hay promoción no ocupan espacio. AdSense queda previsto solo como integración manual/controlada futura, no automática.
+**Monetización controlada:** `MonetizationSlot` muestra promociones propias solo si hay contenido publicado válido. Los slots van entre secciones, nunca encima de hero/mapa/header; si no hay promoción no ocupan espacio. Placements activos: `home-after-featured-destinations`, `country-after-editorial`. AdSense queda previsto solo como integración manual/controlada futura, no automática.
 
 ---
 
