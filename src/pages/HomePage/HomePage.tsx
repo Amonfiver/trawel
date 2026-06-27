@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { useExperienceMode } from '../../features/experienceMode';
 import { CountryFlag } from '../../features/countries';
+import { MonetizationSlot } from '../../features/travelData/components/MonetizationSlot';
 import {
   getHomeScreenFallbackData,
   getResolvedHomeScreenData,
@@ -247,6 +248,11 @@ export function HomePage() {
             ))}
           </div>
         </section>
+
+        <MonetizationSlot
+          placement="home-after-featured-destinations"
+          promotions={screenData.homePromotions}
+        />
 
         {/* Aventuras */}
         <section id="aventuras" className={styles.section} aria-labelledby="adventures-title">

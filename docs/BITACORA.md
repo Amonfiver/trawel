@@ -2706,5 +2706,16 @@ Sustituidos los placeholders visuales de las cards de planes destacados por foto
 
 ---
 
+## 2026-06-27 - Bloque 34: primer slot de monetización controlado en Home
+
+Creado `MonetizationSlot` como bloque reusable y discreto para promociones propias de Home. El primer placement queda situado después de destinos destacados y antes de aventuras, solo renderiza si hay una promoción publicada válida y deja preparada la estructura para un posible AdSense manual futuro sin integrarlo todavía.
+
+### Alcance
+
+- Home visualmente queda igual cuando `homePromotions` está vacío.
+- No se tocaron WorldMap, mapas, rutas, migrations, seeds ni `package.json`.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-05-18*
+*Última actualización: 2026-06-27*

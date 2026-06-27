@@ -1,0 +1,121 @@
+.slot {
+  margin: -1rem 0 4rem;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem 2rem;
+  align-items: center;
+  padding: 1.35rem 1.5rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(232, 226, 217, 0.78);
+  border-radius: 8px;
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.65) inset;
+  backdrop-filter: blur(10px);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.disclosure {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid rgba(212, 168, 83, 0.28);
+  border-radius: 999px;
+  background: rgba(212, 168, 83, 0.1);
+  color: var(--color-gold);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.sponsor {
+  min-width: 0;
+  color: var(--color-slate-light);
+  font-size: 0.875rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-deep-blue);
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.description {
+  max-width: 720px;
+  margin: 0.35rem 0 0;
+  color: var(--color-slate);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.cta {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(26, 74, 122, 0.2);
+  border-radius: 8px;
+  background: rgba(7, 42, 77, 0.06);
+  color: var(--color-deep-blue);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+  white-space: nowrap;
+}
+
+.cta:hover {
+  background: rgba(7, 42, 77, 0.1);
+  border-color: rgba(26, 74, 122, 0.35);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+  .slot {
+    margin: -0.75rem 0 3.25rem;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+    padding: 1.15rem;
+  }
+
+  .meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cta {
+    grid-row: auto;
+    grid-column: auto;
+    width: 100%;
+  }
+}
