@@ -71,8 +71,14 @@ export interface ResolvedHomeScreenData {
   featuredAdventures: HomeFeaturedAdventure[];
   communityCta: HomeCommunityCtaData;
   metadata: {
-    source: 'localFallback' | 'remoteFeaturedCountries';
+    source:
+      | 'localFallback'
+      | 'remoteFeaturedCountries'
+      | 'remoteFeaturedAdventures'
+      | 'remoteFeaturedCountriesAndAdventures';
     hasRemoteData: boolean;
+    hasRemoteFeaturedCountries: boolean;
+    hasRemoteFeaturedAdventures: boolean;
   };
 }
 
@@ -91,6 +97,26 @@ interface RemoteFeaturedCountry {
   name: string;
   flagCode: string;
   description: string;
+}
+
+interface DBHomeDestination {
+  id: string;
+  slug: string | null;
+  title_es: string | null;
+  summary_es: string | null;
+  type: string | null;
+  estimated_visit_time: string | null;
+  status: string | null;
+  featured: boolean | null;
+}
+
+interface RemoteFeaturedAdventure {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  type: string;
+  estimatedVisitTime?: string;
 }
 
 const featuredDestinations: HomeFeaturedDestination[] = [
@@ -220,6 +246,8 @@ export function getHomeScreenFallbackData(mode: ScreenExperienceMode): ResolvedH
     metadata: {
       source: 'localFallback',
       hasRemoteData: false,
+      hasRemoteFeaturedCountries: false,
+      hasRemoteFeaturedAdventures: false,
     },
   };
 }
@@ -229,20 +257,29 @@ export async function getResolvedHomeScreenData(
 ): Promise<ResolvedHomeScreenData> {
   const fallbackScreenData = getHomeScreenFallbackData(mode);
   const remoteFeaturedDestinations = await fetchRemoteFeaturedCountries();
+  const remoteFeaturedAdventures = await fetchRemoteFeaturedAdventures();
+  const hasEnoughRemoteCountries =
+    remoteFeaturedDestinations.length >= fallbackScreenData.featuredDestinations.length;
+  const hasEnoughRemoteAdventures =
+    remoteFeaturedAdventures.length >= fallbackScreenData.featuredAdventures.length;
 
-  if (remoteFeaturedDestinations.length < fallbackScreenData.featuredDestinations.length) {
+  if (!hasEnoughRemoteCountries && !hasEnoughRemoteAdventures) {
     return fallbackScreenData;
   }
 
   return {
     ...fallbackScreenData,
-    featuredDestinations: remoteFeaturedDestinations.slice(
-      0,
-      fallbackScreenData.featuredDestinations.length
-    ),
+    featuredDestinations: hasEnoughRemoteCountries
+      ? remoteFeaturedDestinations.slice(0, fallbackScreenData.featuredDestinations.length)
+      : fallbackScreenData.featuredDestinations,
+    featuredAdventures: hasEnoughRemoteAdventures
+      ? remoteFeaturedAdventures.slice(0, fallbackScreenData.featuredAdventures.length)
+      : fallbackScreenData.featuredAdventures,
     metadata: {
-      source: 'remoteFeaturedCountries',
+      source: getHomeScreenSource(hasEnoughRemoteCountries, hasEnoughRemoteAdventures),
       hasRemoteData: true,
+      hasRemoteFeaturedCountries: hasEnoughRemoteCountries,
+      hasRemoteFeaturedAdventures: hasEnoughRemoteAdventures,
     },
   };
 }
@@ -271,6 +308,34 @@ async function fetchRemoteFeaturedCountries(): Promise<HomeFeaturedDestination[]
       .map(mapRemoteCountryToFeaturedDestination);
   } catch (error) {
     logHomeScreenDataError('Unexpected error loading remote featured countries', error);
+    return [];
+  }
+}
+
+async function fetchRemoteFeaturedAdventures(): Promise<HomeFeaturedAdventure[]> {
+  if (!isSupabaseConfigured() || !supabase) {
+    return [];
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('destinations')
+      .select('id,slug,title_es,summary_es,type,estimated_visit_time,status,featured')
+      .eq('status', 'published')
+      .eq('featured', true)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      logHomeScreenDataError('Error loading remote featured adventures', error);
+      return [];
+    }
+
+    return ((data || []) as DBHomeDestination[])
+      .map(normalizeRemoteFeaturedAdventure)
+      .filter((adventure): adventure is RemoteFeaturedAdventure => Boolean(adventure))
+      .map(mapRemoteDestinationToFeaturedAdventure);
+  } catch (error) {
+    logHomeScreenDataError('Unexpected error loading remote featured adventures', error);
     return [];
   }
 }
@@ -315,6 +380,68 @@ function mapRemoteCountryToFeaturedDestination(
       kind: 'pais',
     },
   };
+}
+
+function normalizeRemoteFeaturedAdventure(
+  db: DBHomeDestination
+): RemoteFeaturedAdventure | null {
+  const id = normalizeRequiredText(db.id);
+  const slug = normalizeRequiredText(db.slug);
+  const title = normalizeRequiredText(db.title_es);
+  const description = normalizeRequiredText(db.summary_es);
+
+  if (!id || !slug || !title || !description) {
+    return null;
+  }
+
+  return {
+    id,
+    slug,
+    title,
+    description,
+    type: normalizeRequiredText(db.type) || 'Experiencia destacada',
+    estimatedVisitTime: normalizeRequiredText(db.estimated_visit_time) || undefined,
+  };
+}
+
+function mapRemoteDestinationToFeaturedAdventure(
+  destination: RemoteFeaturedAdventure
+): HomeFeaturedAdventure {
+  const fallbackAdventure = featuredAdventures.find(
+    (adventure) => adventure.id === destination.id || adventure.id === destination.slug
+  );
+
+  return {
+    id: destination.id,
+    title: destination.title,
+    location: destination.estimatedVisitTime || fallbackAdventure?.location || 'Destino destacado',
+    type: destination.type,
+    description: destination.description,
+    comingSoon: false,
+    image: fallbackAdventure?.image || {
+      alt: destination.title,
+      kind: 'aventura',
+    },
+  };
+}
+
+function getHomeScreenSource(
+  hasRemoteCountries: boolean,
+  hasRemoteAdventures: boolean
+): ResolvedHomeScreenData['metadata']['source'] {
+  if (hasRemoteCountries && hasRemoteAdventures) {
+    return 'remoteFeaturedCountriesAndAdventures';
+  }
+
+  if (hasRemoteCountries) {
+    return 'remoteFeaturedCountries';
+  }
+
+  if (hasRemoteAdventures) {
+    return 'remoteFeaturedAdventures';
+  }
+
+  return 'localFallback';
 }
 
 function inferCountryFlagCode(slug: string, emoji: string | null): string | null {

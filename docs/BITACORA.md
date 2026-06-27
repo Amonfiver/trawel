@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-06-27 - Home lectura remota conservadora de planes destacados
+
+Preparada la Home para usar planes/destinos destacados desde Supabase legacy cuando existan, manteniendo fallback local completo.
+
+### Cambios implementados
+
+- Anadida lectura read-only de `destinations` desde `getResolvedHomeScreenData(mode)`.
+- La consulta filtra `status='published'` y `featured=true`.
+- Normalizados campos seguros: `id`, `slug`, `title_es`, `summary_es`, `type` y `estimated_visit_time`.
+- Si no hay suficientes destinos remotos validos para cubrir las cards actuales, se mantiene `featuredAdventures` local completo.
+- La metadata de Home distingue si los datos remotos vienen de paises, aventuras o ambos.
+
+### Sigue siendo fallback local
+
+- Hero, wallpaper, logo, CTA comunidad e imagenes.
+- Si el destino remoto no coincide con una card local, usa placeholder local.
+- No se conectan promociones ni imagenes remotas.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, rutas, `package.json`, migraciones, seeds ni diseno visual.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-27 - Home lectura remota conservadora de paises destacados
 
 Preparada la Home para usar paises destacados desde Supabase legacy cuando existan, manteniendo fallback local completo.
