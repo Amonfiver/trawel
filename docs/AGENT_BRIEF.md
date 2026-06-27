@@ -45,7 +45,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Lectura producto fase 1:** existe `src/features/travelData/productContent/` con funciones async read-only para `editorial_contents`, `static_pages` y `promotions`. Devuelve vacio/null si Supabase no esta configurado y filtra `published`. `TrustPage`, `CountryZonePage` y `CountryPage` ya la consumen de forma progresiva con fallback local silencioso; Home no esta conectada.
 
-**Home data-driven inicial:** `HomePage` consume `getResolvedHomeScreenData(mode)` para hero, destinos destacados, planes destacados y CTA comunidad. Puede intentar paises destacados desde `countries` legacy (`status` publico y `featured=true`) y planes/destinos destacados desde `destinations` legacy (`status=published`, `featured=true`), manteniendo `getHomeScreenFallbackData(mode)` como fallback local inmediato. No cambia `WorldMap`.
+**Home data-driven inicial:** `HomePage` consume `getResolvedHomeScreenData(mode)` para hero, destinos destacados, planes destacados y CTA comunidad. Puede intentar paises destacados desde `countries` legacy (`status` publico y `featured=true`), planes/destinos destacados desde `destinations` legacy (`status=published`, `featured=true`) y deja preparadas `homePromotions` desde `promotions` para contexto `generic/home`, manteniendo `getHomeScreenFallbackData(mode)` como fallback local inmediato. No cambia `WorldMap` ni muestra promociones en Home todavia.
 
 **Seed producto fase 1:** existe `supabase/seed/007_product_content_seed.sql` como seed local minimo para probar paginas estaticas, una promocion demo marcada como prueba y contenido editorial publicado de Espana. No se ejecuta automaticamente ni debe lanzarse contra remoto sin bloque explicito.
 

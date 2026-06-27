@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-06-27 - Home prepara promociones remotas no invasivas
+
+Preparada la fachada de Home para recibir promociones remotas publicadas sin mostrar todavia ningun bloque visual nuevo.
+
+### Cambios implementados
+
+- Reutilizado `getPublishedPromotionsForContext(...)` para cargar promociones publicadas de Home.
+- Anadido `homePromotions: Promotion[]` a `ResolvedHomeScreenData`.
+- La lectura usa contexto conservador: `placementType='native_block'`, `targetEntityType='generic'`, `targetEntitySlug='home'`, `mode` actual y limite 3.
+- Si no hay promociones publicadas o Supabase no esta configurado, `homePromotions` queda como array vacio.
+- Anadida metadata `hasRemoteHomePromotions`.
+
+### Reglas respetadas
+
+- No se cambio `HomePage` ni se muestra nada nuevo visualmente.
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, rutas, `package.json`, migraciones, seeds, promociones visuales ni diseno.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-27 - Orden interno de fachada Home screenData
 
 Ordenada internamente la fachada `homeScreenData.service.ts` sin cambiar comportamiento ni API publica.

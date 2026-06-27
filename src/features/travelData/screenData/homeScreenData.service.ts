@@ -8,6 +8,8 @@ import albarracinImage from '../../../assets/home/plans/albarracin.png';
 import amalfitanaImage from '../../../assets/home/plans/amalfitana.png';
 import rajasthanImage from '../../../assets/home/plans/rajasthan.png';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
+import { getPublishedPromotionsForContext } from '../productContent';
+import type { Promotion } from '../productContent';
 import type { ScreenExperienceMode } from './screenData.types';
 
 // =============================================================================
@@ -73,6 +75,7 @@ export interface ResolvedHomeScreenData {
   hero: HomeScreenHeroData;
   featuredDestinations: HomeFeaturedDestination[];
   featuredAdventures: HomeFeaturedAdventure[];
+  homePromotions: Promotion[];
   communityCta: HomeCommunityCtaData;
   metadata: {
     source:
@@ -83,6 +86,7 @@ export interface ResolvedHomeScreenData {
     hasRemoteData: boolean;
     hasRemoteFeaturedCountries: boolean;
     hasRemoteFeaturedAdventures: boolean;
+    hasRemoteHomePromotions: boolean;
   };
 }
 
@@ -229,6 +233,7 @@ export function getHomeScreenFallbackData(mode: ScreenExperienceMode): ResolvedH
     hero: buildHomeHero(mode),
     featuredDestinations,
     featuredAdventures,
+    homePromotions: [],
     communityCta: {
       eyebrow: 'Comunidad',
       title: '¿Tienes una experiencia que contar?',
@@ -245,9 +250,10 @@ export async function getResolvedHomeScreenData(
   mode: ScreenExperienceMode
 ): Promise<ResolvedHomeScreenData> {
   const fallbackScreenData = getHomeScreenFallbackData(mode);
-  const [remoteFeaturedDestinations, remoteFeaturedAdventures] = await Promise.all([
+  const [remoteFeaturedDestinations, remoteFeaturedAdventures, homePromotions] = await Promise.all([
     fetchRemoteFeaturedCountries(),
     fetchRemoteFeaturedAdventures(),
+    fetchRemoteHomePromotions(mode),
   ]);
   const hasEnoughRemoteCountries =
     remoteFeaturedDestinations.length >= fallbackScreenData.featuredDestinations.length;
@@ -266,7 +272,12 @@ export async function getResolvedHomeScreenData(
     featuredAdventures: hasEnoughRemoteAdventures
       ? remoteFeaturedAdventures.slice(0, fallbackScreenData.featuredAdventures.length)
       : fallbackScreenData.featuredAdventures,
-    metadata: buildHomeMetadata(hasEnoughRemoteCountries, hasEnoughRemoteAdventures),
+    homePromotions,
+    metadata: buildHomeMetadata(
+      hasEnoughRemoteCountries,
+      hasEnoughRemoteAdventures,
+      homePromotions.length > 0
+    ),
   };
 }
 
@@ -330,6 +341,16 @@ async function fetchRemoteFeaturedAdventures(): Promise<HomeFeaturedAdventure[]>
   }
 }
 
+async function fetchRemoteHomePromotions(mode: ScreenExperienceMode): Promise<Promotion[]> {
+  return getPublishedPromotionsForContext({
+    mode,
+    placementType: 'native_block',
+    targetEntityType: 'generic',
+    targetEntitySlug: 'home',
+    limit: 3,
+  });
+}
+
 // =============================================================================
 // BUILDERS
 // =============================================================================
@@ -362,13 +383,16 @@ function buildHomeHero(mode: ScreenExperienceMode): HomeScreenHeroData {
 
 function buildHomeMetadata(
   hasRemoteFeaturedCountries: boolean,
-  hasRemoteFeaturedAdventures: boolean
+  hasRemoteFeaturedAdventures: boolean,
+  hasRemoteHomePromotions = false
 ): ResolvedHomeScreenData['metadata'] {
   return {
     source: getHomeScreenSource(hasRemoteFeaturedCountries, hasRemoteFeaturedAdventures),
-    hasRemoteData: hasRemoteFeaturedCountries || hasRemoteFeaturedAdventures,
+    hasRemoteData:
+      hasRemoteFeaturedCountries || hasRemoteFeaturedAdventures || hasRemoteHomePromotions,
     hasRemoteFeaturedCountries,
     hasRemoteFeaturedAdventures,
+    hasRemoteHomePromotions,
   };
 }
 
