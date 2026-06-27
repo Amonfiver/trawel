@@ -8,7 +8,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [x] CountryPage: usa `getResolvedCountryScreenData()` con pais, editorial y promociones.
 - [x] CountryZonePage: usa `getResolvedZoneScreenData()` con zona y promociones.
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
-- [~] Compartir/contacto/comunidad: existe flujo publico parcial y CTA, pero falta cola general de mensajes/contactos.
+- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA y contrato de colas; falta schema/migration y conexion real.
 
 ## 2. Datos Que Ya Puede Leer Desde Supabase
 
@@ -30,9 +30,9 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 4. Necesario Para Escaparate Funcional
 
-- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada, falta tabla Supabase explicita.
-- [ ] Recibir fotos/aportes de usuarios.
-- [ ] Guardar todo en cola de revision.
+- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada y contrato definido; falta tabla Supabase explicita.
+- [~] Recibir fotos/aportes de usuarios: contrato definido; falta schema, storage/RLS y formulario.
+- [~] Guardar todo en cola de revision: contrato definido; falta implementacion Supabase.
 - [ ] Nunca publicar directo desde usuario.
 - [x] Permitir promociones controladas sin invadir la experiencia.
 - [x] Mantener fallback premium si falta contenido remoto.
@@ -48,8 +48,8 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 6. Proximos 3 Bloques Recomendados
 
-1. Preparar cola de mensajes/contactos.
-2. Preparar cola de fotos/aportes.
+1. Crear migrations/RLS para colas de usuario.
+2. Conectar formularios publicos a inserts controlados.
 3. Cerrar checklist de escaparate funcional.
 
 ## Conclusion

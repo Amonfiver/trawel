@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-06-28 - Bloque 40: contrato de colas de usuario
+
+Definido el contrato minimo de Supabase para futuras colas de contenido de usuario sin crear migraciones ni conectar formularios.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md` con tablas futuras `user_messages`, `user_photo_submissions` y `content_reports`.
+- Documentados campos minimos, estados esperados, reglas de RLS y principio de no publicacion directa desde Trawel.
+- Actualizado `docs/AGENT_BRIEF.md` con referencia al contrato.
+- Actualizado `docs/TRAWEL_SHOWCASE_READINESS.md` para reflejar que ya existe contrato, pero falta schema/migration y conexion real.
+
+### Reglas respetadas
+
+- No se tocaron `src/`, seeds, migraciones, `package.json` ni Supabase real.
+- No se ejecuto `npm run build` porque solo se tocaron documentos.
+
+---
+
 ## 2026-06-27 - Home prepara promociones remotas no invasivas
 
 Preparada la fachada de Home para recibir promociones remotas publicadas sin mostrar todavia ningun bloque visual nuevo.
