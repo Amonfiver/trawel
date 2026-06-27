@@ -2729,5 +2729,11 @@ CountryPage recibe ahora `countryPromotions` desde `getResolvedCountryScreenData
 
 ---
 
+## 2026-06-27 - Bloque 37: MonetizationSlot reusable en CountryZonePage
+
+CountryZonePage sustituye su render propio de promociones por `MonetizationSlot`, usando las promociones ya resueltas por `getResolvedZoneScreenData()`. El placement activo es `zone-after-intro`, situado entre la introducción comunitaria y el contenido principal. Sin promociones válidas, no ocupa espacio. No se integró AdSense real ni se tocaron mapas/rutas.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-06-27*

@@ -14,9 +14,9 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
+  MonetizationSlot,
   getResolvedZoneScreenData,
   getZoneScreenFallbackData,
-  type Promotion,
   type ResolvedZoneScreenData,
 } from '../../features/travelData';
 import { CountryFlag } from '../../features/countries';
@@ -169,46 +169,6 @@ function HeroContributionBlock({
         <p className={styles.heroContributionText}>{text}</p>
       </div>
     </aside>
-  );
-}
-
-function NativePromotionsBlock({ promotions }: { promotions: Promotion[] }) {
-  if (promotions.length === 0) {
-    return null;
-  }
-
-  return (
-    <section className={styles.promotionsSection} aria-label="Propuestas patrocinadas">
-      {promotions.map((promotion) => {
-        const isDemoPromotion = promotion.metadata.demo === true || promotion.metadata.real_ad === false;
-
-        return (
-          <article key={promotion.id} className={styles.promotionCard}>
-            <div className={styles.promotionMeta}>
-              <span className={styles.promotionDisclosure}>{promotion.disclosureLabel}</span>
-              {isDemoPromotion && <span className={styles.promotionDemoBadge}>Demo</span>}
-            </div>
-            <div className={styles.promotionContent}>
-              <p className={styles.promotionSponsor}>{promotion.sponsorName}</p>
-              <h2 className={styles.promotionTitle}>{promotion.title}</h2>
-              {promotion.description && (
-                <p className={styles.promotionDescription}>{promotion.description}</p>
-              )}
-              {promotion.sponsorUrl && (
-                <a
-                  className={styles.promotionLink}
-                  href={promotion.sponsorUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Conocer más
-                </a>
-              )}
-            </div>
-          </article>
-        );
-      })}
-    </section>
   );
 }
 
@@ -405,7 +365,10 @@ export function CountryZonePage() {
         </div>
       </section>
 
-      <NativePromotionsBlock promotions={promotions} />
+      <MonetizationSlot
+        placement="zone-after-intro"
+        promotions={promotions}
+      />
 
       <main className={styles.main}>
         {adventuresState.status === 'loading' && (
