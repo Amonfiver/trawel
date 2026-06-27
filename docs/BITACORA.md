@@ -2735,5 +2735,11 @@ CountryZonePage sustituye su render propio de promociones por `MonetizationSlot`
 
 ---
 
+## 2026-06-27 - Bloque 38: estrategia de monetización controlada
+
+Creado `docs/TRAWEL_MONETIZATION_STRATEGY.md` con prioridades de slots, zonas permitidas/prohibidas, regla de no usar AdSense automático como estrategia principal y papel futuro de Investighost para sponsors/campañas.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-06-27*
