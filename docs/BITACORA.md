@@ -2741,5 +2741,11 @@ Creado `docs/TRAWEL_MONETIZATION_STRATEGY.md` con prioridades de slots, zonas pe
 
 ---
 
+## 2026-06-27 - Bloque 38: auditoría de cierre escaparate
+
+Creado `docs/TRAWEL_SHOWCASE_READINESS.md` como checklist práctico de pantallas preparadas, datos Supabase disponibles, fallback pendiente, requisitos para escaparate funcional y próximos tres bloques recomendados.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-06-27*

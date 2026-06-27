@@ -202,6 +202,8 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 **Monetización controlada:** `MonetizationSlot` muestra promociones propias solo si hay contenido publicado válido. Los slots van entre secciones, nunca encima de hero/mapa/header; si no hay promoción no ocupan espacio. Placements activos: `home-after-featured-destinations`, `country-after-editorial`, `zone-after-intro`. AdSense queda previsto solo como integración manual/controlada futura, no automática.
 Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
+**Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; próximos bloques recomendados: cola de mensajes/contactos, cola de fotos/aportes y cierre de checklist funcional.
+
 ---
 
 ## 10. Sistema AI-specs
