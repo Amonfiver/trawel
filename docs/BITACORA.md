@@ -2717,5 +2717,11 @@ Creado `MonetizationSlot` como bloque reusable y discreto para promociones propi
 
 ---
 
+## 2026-06-27 - Bloque 35: MonetizationSlot como sistema reusable
+
+`MonetizationSlot` queda exportado desde el barrel de componentes de `travelData` y desde el barrel público de la feature. Home consume ahora ese export estable, sin añadir nuevos slots ni tocar CountryPage/CountryZonePage. La regla documentada: monetización solo entre secciones, nunca sobre hero/mapa/header, sin ocupar espacio si no hay promoción y con AdSense futuro únicamente manual/controlado.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-06-27*

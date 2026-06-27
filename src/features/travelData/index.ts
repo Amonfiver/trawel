@@ -58,6 +58,8 @@ export type {
   StaticPageType,
 } from './productContent';
 
+export type { MonetizationSlotProps } from './components';
+
 // Servicios
 export {
   getHomePageData,
@@ -85,3 +87,5 @@ export {
   getPublishedPromotionsForContext,
   getPublishedStaticPageBySlug,
 } from './productContent';
+
+export { MonetizationSlot } from './components';
