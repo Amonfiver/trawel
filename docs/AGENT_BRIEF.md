@@ -210,6 +210,8 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. Falta ejecutar/revisar schema remoto y conectar formularios reales. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
 
+**Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` con `status='submitted'` cuando hay derechos y consentimiento confirmados. Falta aplicar schema remoto, storage/upload seguro y formulario real.
+
 ---
 
 ## 10. Sistema AI-specs

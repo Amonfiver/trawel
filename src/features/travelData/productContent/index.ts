@@ -13,6 +13,12 @@ export type {
 } from './productContent.types';
 
 export type {
+  SubmitUserPhotoSubmissionInput,
+  SubmitUserPhotoSubmissionResult,
+  UserPhotoSubmissionStatus,
+} from './userPhotoSubmissionQueue.service';
+
+export type {
   SubmitUserMessageInput,
   SubmitUserMessageResult,
   UserMessageKind,
@@ -24,6 +30,10 @@ export {
   getPublishedPromotionsForContext,
   getPublishedStaticPageBySlug,
 } from './productContent.service';
+
+export {
+  submitUserPhotoSubmission,
+} from './userPhotoSubmissionQueue.service';
 
 export {
   submitContactMessage,

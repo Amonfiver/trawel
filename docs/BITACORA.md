@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-06-28 - Bloque 44: servicio de cola de fotos de usuario
+
+Preparado el servicio real para recibir propuestas de fotos de usuarios en cola de revision, sin publicarlas ni crear sistema de subida.
+
+### Cambios implementados
+
+- Creado `src/features/travelData/productContent/userPhotoSubmissionQueue.service.ts`.
+- Anadido `submitUserPhotoSubmission(...)`, que inserta en `user_photo_submissions` con `status='submitted'`.
+- Validacion local de autor, email, pais, zona opcional, titulo opcional, descripcion opcional, `imageUrl` o `storagePath`, credito, derechos y consentimiento.
+- Exportado el servicio desde `productContent` y desde el barrel publico de `travelData`.
+- Actualizados `docs/AGENT_BRIEF.md` y `docs/TRAWEL_SHOWCASE_READINESS.md`.
+
+### Reglas respetadas
+
+- No se tocaron paginas, formularios, mapas, rutas, diseno global, migrations, seeds, `package.json` ni Supabase real.
+- No se ejecuto la migracion contra remoto.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite si aparece.
+
+---
+
 ## 2026-06-28 - Bloque 43: servicio de mensajes apunta a user_messages
 
 Conectada la fachada de cola de mensajes con la tabla real prevista por defecto, sin conectar formularios visuales ni ejecutar migraciones remotas.
