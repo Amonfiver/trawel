@@ -57,7 +57,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Entrada de contenido Trawel:** `docs/TRAWEL_CONTENT_INPUT_GUIDE.md` documenta como debe venir ordenado el contenido editorial para cargar `editorial_contents` en Supabase: campos minimos, modos `adventure`/`student`, calidad de copy, seguridad editorial, convencion de `load_slug` y flujo recomendado de borrador SQL -> revision humana -> ejecucion manual -> verificacion.
 
-**Colas de contenido de usuario:** `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md` define el contrato minimo futuro para `user_messages`, `user_photo_submissions` y `content_reports`. Trawel solo debe insertar en cola; Investighost revisara estados y ninguna entrada de usuario se publica directamente.
+**Colas de contenido de usuario:** `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md` define el contrato minimo para `user_messages`, `user_photo_submissions` y `content_reports`. La migracion local `supabase/migrations/008_create_user_content_queue_tables.sql` crea estas colas con RLS, inserts publicos controlados y sin lectura publica. Trawel solo debe insertar en cola; Investighost revisara estados y ninguna entrada de usuario se publica directamente. No se ha ejecutado contra remoto desde Trawel.
 
 **CountryZonePage data-driven:** `CountryZonePage` consume `getResolvedZoneScreenData(countrySlug, zoneSlug, mode)` como fachada resuelta de zona: parte de `getZoneScreenData(...)` como fallback local, intenta leer datos base seguros desde `cities` legacy mediante `countries.slug + cities.slug`, expone `countrySlug`, `zoneSlug`, nombres, estado, hero/fallback, editorial/copy, CTA y promociones nativas publicadas desde Supabase. Las promociones ya no deben cargarse directamente desde la pagina. Futuros cambios de zona deben pasar por la fachada antes de tocar la pagina.
 
@@ -206,7 +206,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; próximos bloques recomendados: cola de mensajes/contactos, cola de fotos/aportes y cierre de checklist funcional.
 
-**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y solo escriben si se configura una tabla explicita via `VITE_TRAWEL_USER_MESSAGES_TABLE`. Falta migration/schema dedicado antes de conectar formularios reales. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
+**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y solo escriben si se configura una tabla explicita via `VITE_TRAWEL_USER_MESSAGES_TABLE`. Ya existe migration local para `user_messages`, pero falta ejecutar/revisar schema remoto y conectar formularios reales. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
 
 ---
 

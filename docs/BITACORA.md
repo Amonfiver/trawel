@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-06-28 - Bloque 41: migracion local de colas de usuario
+
+Creada la migracion Supabase local para las colas privadas de contenido de usuario, sin ejecutarla contra Supabase real.
+
+### Cambios implementados
+
+- Creado `supabase/migrations/008_create_user_content_queue_tables.sql`.
+- Definidas las tablas `user_messages`, `user_photo_submissions` y `content_reports` segun el contrato documental.
+- Anadidos `created_at`, `updated_at`, constraints de estados/tipos, checks basicos de email, slugs y campos requeridos.
+- Activado RLS en las tres tablas.
+- Anadidos grants y politicas de `INSERT` publico controlado para entradas pendientes.
+- No se crean politicas publicas de `SELECT`, `UPDATE` ni `DELETE`.
+
+### Reglas respetadas
+
+- No se tocaron `src/`, seeds, diseno, mapas, rutas, `package.json` ni Supabase real.
+- No se ejecuto la migracion contra remoto.
+- No se ejecuto `npm run build` porque solo se tocaron SQL/docs.
+
+---
+
 ## 2026-06-28 - Bloque 40: contrato de colas de usuario
 
 Definido el contrato minimo de Supabase para futuras colas de contenido de usuario sin crear migraciones ni conectar formularios.

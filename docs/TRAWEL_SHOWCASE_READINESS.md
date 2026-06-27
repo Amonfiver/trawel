@@ -8,7 +8,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [x] CountryPage: usa `getResolvedCountryScreenData()` con pais, editorial y promociones.
 - [x] CountryZonePage: usa `getResolvedZoneScreenData()` con zona y promociones.
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
-- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA y contrato de colas; falta schema/migration y conexion real.
+- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas y migration local; falta ejecucion remota y conexion real.
 
 ## 2. Datos Que Ya Puede Leer Desde Supabase
 
@@ -30,9 +30,9 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 4. Necesario Para Escaparate Funcional
 
-- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada y contrato definido; falta tabla Supabase explicita.
-- [~] Recibir fotos/aportes de usuarios: contrato definido; falta schema, storage/RLS y formulario.
-- [~] Guardar todo en cola de revision: contrato definido; falta implementacion Supabase.
+- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada y migration local definida; falta aplicar schema remoto y conectar formulario.
+- [~] Recibir fotos/aportes de usuarios: migration local definida; falta storage/upload seguro y formulario.
+- [~] Guardar todo en cola de revision: migration local definida con RLS; falta ejecucion remota.
 - [ ] Nunca publicar directo desde usuario.
 - [x] Permitir promociones controladas sin invadir la experiencia.
 - [x] Mantener fallback premium si falta contenido remoto.
@@ -48,7 +48,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 6. Proximos 3 Bloques Recomendados
 
-1. Crear migrations/RLS para colas de usuario.
+1. Revisar y ejecutar migration de colas contra Supabase cuando proceda.
 2. Conectar formularios publicos a inserts controlados.
 3. Cerrar checklist de escaparate funcional.
 
