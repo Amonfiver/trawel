@@ -5,7 +5,8 @@ export type UserMessageReviewStatus =
   | 'read'
   | 'responded'
   | 'archived'
-  | 'rejected';
+  | 'rejected'
+  | 'priority';
 
 export type UserMessageKind =
   | 'contact'
@@ -42,6 +43,7 @@ export type SubmitUserMessageResult =
     };
 
 interface UserMessageQueueRow {
+  type: UserMessageKind;
   kind: UserMessageKind;
   name: string;
   email: string;
@@ -50,13 +52,32 @@ interface UserMessageQueueRow {
   source_page: string | null;
   country_slug: string | null;
   zone_slug: string | null;
+  related_entity_type: string | null;
+  related_entity_slug: string | null;
   entity_type: string | null;
   entity_slug: string | null;
   status: UserMessageReviewStatus;
+  priority: 'normal';
   metadata: Record<string, unknown>;
   privacy_accepted: boolean;
   created_at?: string;
 }
+
+const DEFAULT_USER_MESSAGES_TABLE = 'user_messages';
+const MAX_NAME_LENGTH = 160;
+const MAX_EMAIL_LENGTH = 320;
+const MAX_SUBJECT_LENGTH = 200;
+const MAX_MESSAGE_LENGTH = 5000;
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const ALLOWED_ENTITY_TYPES = new Set([
+  'country',
+  'zone',
+  'place',
+  'route',
+  'plan',
+  'static_page',
+  'generic',
+]);
 
 export async function submitUserMessage(
   input: SubmitUserMessageInput
@@ -72,15 +93,6 @@ export async function submitUserMessage(
   }
 
   const tableName = getConfiguredUserMessageQueueTable();
-
-  if (!tableName) {
-    return {
-      ok: false,
-      status: 'not_configured',
-      message:
-        'La cola de mensajes aun no tiene tabla Supabase configurada. El envio queda preparado para un bloque de schema explicito.',
-    };
-  }
 
   if (!isSupabaseConfigured() || !supabase) {
     return {
@@ -135,15 +147,15 @@ export function submitCommunitySuggestion(
   });
 }
 
-function getConfiguredUserMessageQueueTable(): string | null {
+function getConfiguredUserMessageQueueTable(): string {
   const tableName = import.meta.env.VITE_TRAWEL_USER_MESSAGES_TABLE;
 
   if (typeof tableName !== 'string') {
-    return null;
+    return DEFAULT_USER_MESSAGES_TABLE;
   }
 
   const trimmed = tableName.trim();
-  return trimmed.length > 0 ? trimmed : null;
+  return trimmed.length > 0 ? trimmed : DEFAULT_USER_MESSAGES_TABLE;
 }
 
 function validateUserMessageInput(input: SubmitUserMessageInput): string | null {
@@ -151,23 +163,68 @@ function validateUserMessageInput(input: SubmitUserMessageInput): string | null 
     return 'Debe aceptarse la privacidad antes de enviar un mensaje.';
   }
 
-  if (!input.name.trim()) {
+  const name = input.name.trim();
+  const email = input.email.trim();
+  const subject = normalizeOptionalText(input.subject);
+  const message = input.message.trim();
+  const countrySlug = normalizeOptionalText(input.countrySlug);
+  const zoneSlug = normalizeOptionalText(input.zoneSlug);
+  const entityType = normalizeOptionalText(input.entityType);
+  const entitySlug = normalizeOptionalText(input.entitySlug);
+
+  if (!name) {
     return 'El nombre es obligatorio.';
   }
 
-  if (!isValidEmail(input.email)) {
+  if (name.length > MAX_NAME_LENGTH) {
+    return 'El nombre es demasiado largo.';
+  }
+
+  if (!isValidEmail(email)) {
     return 'El email no tiene un formato valido.';
   }
 
-  if (!input.message.trim()) {
+  if (email.length > MAX_EMAIL_LENGTH) {
+    return 'El email es demasiado largo.';
+  }
+
+  if (subject && subject.length > MAX_SUBJECT_LENGTH) {
+    return 'El asunto es demasiado largo.';
+  }
+
+  if (!message) {
     return 'El mensaje es obligatorio.';
+  }
+
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return 'El mensaje es demasiado largo.';
+  }
+
+  if (countrySlug && !isValidSlug(countrySlug)) {
+    return 'El slug de pais no tiene un formato valido.';
+  }
+
+  if (zoneSlug && !isValidSlug(zoneSlug)) {
+    return 'El slug de zona no tiene un formato valido.';
+  }
+
+  if (entityType && !ALLOWED_ENTITY_TYPES.has(entityType)) {
+    return 'El tipo de entidad relacionada no es valido.';
+  }
+
+  if (entitySlug && !isValidSlug(entitySlug)) {
+    return 'El slug de entidad relacionada no tiene un formato valido.';
   }
 
   return null;
 }
 
 function mapUserMessageInputToQueueRow(input: SubmitUserMessageInput): UserMessageQueueRow {
+  const entityType = normalizeOptionalText(input.entityType);
+  const entitySlug = normalizeOptionalText(input.entitySlug);
+
   return {
+    type: input.kind,
     kind: input.kind,
     name: input.name.trim(),
     email: input.email.trim(),
@@ -176,9 +233,12 @@ function mapUserMessageInputToQueueRow(input: SubmitUserMessageInput): UserMessa
     source_page: normalizeOptionalText(input.sourcePage),
     country_slug: normalizeOptionalText(input.countrySlug),
     zone_slug: normalizeOptionalText(input.zoneSlug),
-    entity_type: normalizeOptionalText(input.entityType),
-    entity_slug: normalizeOptionalText(input.entitySlug),
+    related_entity_type: entityType,
+    related_entity_slug: entitySlug,
+    entity_type: entityType,
+    entity_slug: entitySlug,
     status: 'pending_review',
+    priority: 'normal',
     metadata: input.metadata || {},
     privacy_accepted: true,
     created_at: new Date().toISOString(),
@@ -196,4 +256,8 @@ function normalizeOptionalText(value: string | undefined): string | null {
 
 function isValidEmail(value: string): boolean {
   return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim());
+}
+
+function isValidSlug(value: string): boolean {
+  return SLUG_PATTERN.test(value);
 }

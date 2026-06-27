@@ -8,7 +8,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [x] CountryPage: usa `getResolvedCountryScreenData()` con pais, editorial y promociones.
 - [x] CountryZonePage: usa `getResolvedZoneScreenData()` con zona y promociones.
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
-- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas y migration local; falta ejecucion remota y conexion real.
+- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas, migration local y servicio apuntando a `user_messages`; falta ejecucion remota y conexion visual real.
 - [x] Handoff Investighost -> Trawel: existe manual maestro para alimentar Supabase sin mezclar panel editorial dentro de Trawel.
 
 ## 2. Datos Que Ya Puede Leer Desde Supabase
@@ -31,7 +31,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 4. Necesario Para Escaparate Funcional
 
-- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada y migration local definida; falta aplicar schema remoto y conectar formulario.
+- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada contra `user_messages`; falta aplicar schema remoto y conectar formulario.
 - [~] Recibir fotos/aportes de usuarios: migration local definida; falta storage/upload seguro y formulario.
 - [~] Guardar todo en cola de revision: migration local definida con RLS; falta ejecucion remota.
 - [ ] Nunca publicar directo desde usuario.

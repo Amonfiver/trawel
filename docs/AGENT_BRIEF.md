@@ -208,7 +208,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; próximos bloques recomendados: cola de mensajes/contactos, cola de fotos/aportes y cierre de checklist funcional.
 
-**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y solo escriben si se configura una tabla explicita via `VITE_TRAWEL_USER_MESSAGES_TABLE`. Ya existe migration local para `user_messages`, pero falta ejecutar/revisar schema remoto y conectar formularios reales. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
+**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. Falta ejecutar/revisar schema remoto y conectar formularios reales. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
 
 ---
 

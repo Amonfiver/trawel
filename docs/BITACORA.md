@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-28 - Bloque 43: servicio de mensajes apunta a user_messages
+
+Conectada la fachada de cola de mensajes con la tabla real prevista por defecto, sin conectar formularios visuales ni ejecutar migraciones remotas.
+
+### Cambios implementados
+
+- `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` usan ahora `user_messages` como tabla por defecto.
+- Se conserva el override opcional `VITE_TRAWEL_USER_MESSAGES_TABLE`.
+- Los inserts siguen entrando con `status='pending_review'`, `privacy_accepted=true` y sin lectura publica.
+- Reforzada la validacion local de nombre, email, asunto, mensaje, slugs y tipo de entidad antes de insertar.
+
+### Reglas respetadas
+
+- No se tocaron paginas, mapas, rutas, diseno global, seeds, `package.json` ni Supabase real.
+- No se ejecuto la migracion contra remoto.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite si aparece.
+
+---
+
 ## 2026-06-28 - Bloque 42: manual maestro Investighost -> Trawel
 
 Creado el manual maestro para orientar el traspaso operativo entre Investighost, Supabase y Trawel.
