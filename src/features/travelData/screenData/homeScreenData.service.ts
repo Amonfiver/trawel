@@ -10,6 +10,10 @@ import rajasthanImage from '../../../assets/home/plans/rajasthan.png';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
 import type { ScreenExperienceMode } from './screenData.types';
 
+// =============================================================================
+// PUBLIC TYPES
+// =============================================================================
+
 export type HomeImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
 
 export interface HomeScreenImage {
@@ -82,6 +86,10 @@ export interface ResolvedHomeScreenData {
   };
 }
 
+// =============================================================================
+// INTERNAL TYPES
+// =============================================================================
+
 interface DBHomeCountry {
   id: string;
   slug: string | null;
@@ -90,13 +98,6 @@ interface DBHomeCountry {
   description_es: string | null;
   status: string | null;
   featured: boolean | null;
-}
-
-interface RemoteFeaturedCountry {
-  slug: string;
-  name: string;
-  flagCode: string;
-  description: string;
 }
 
 interface DBHomeDestination {
@@ -110,6 +111,13 @@ interface DBHomeDestination {
   featured: boolean | null;
 }
 
+interface RemoteFeaturedCountry {
+  slug: string;
+  name: string;
+  flagCode: string;
+  description: string;
+}
+
 interface RemoteFeaturedAdventure {
   id: string;
   slug: string;
@@ -118,6 +126,10 @@ interface RemoteFeaturedAdventure {
   type: string;
   estimatedVisitTime?: string;
 }
+
+// =============================================================================
+// LOCAL FALLBACK DATA
+// =============================================================================
 
 const featuredDestinations: HomeFeaturedDestination[] = [
   {
@@ -208,31 +220,13 @@ const featuredAdventures: HomeFeaturedAdventure[] = [
   },
 ];
 
+// =============================================================================
+// FALLBACK AND RESOLVED HOME DATA
+// =============================================================================
+
 export function getHomeScreenFallbackData(mode: ScreenExperienceMode): ResolvedHomeScreenData {
   return {
-    hero: {
-      wallpaperImageUrl: heroImage,
-      logoImageUrl: heroLogo,
-      logoAlt: 'Trawel',
-      titleLines: {
-        first: 'El mundo no empieza',
-        second: 'en una lista.',
-        accent: 'Empieza en un mapa.',
-      },
-      subtitle:
-        mode === 'student'
-          ? 'Descubre el mundo a través de su historia, cultura y contexto. Una forma diferente de viajar antes de emprender el camino.'
-          : 'Explora países, descubre rutas y transforma cada destino en una aventura real. Historias vividas, planes detallados.',
-      primaryCta: {
-        href: '#atlas-mundial',
-        label: 'Abrir el atlas',
-        icon: '🗺️',
-      },
-      secondaryCta: {
-        href: '#destinos',
-        label: 'Explorar destinos',
-      },
-    },
+    hero: buildHomeHero(mode),
     featuredDestinations,
     featuredAdventures,
     communityCta: {
@@ -243,12 +237,7 @@ export function getHomeScreenFallbackData(mode: ScreenExperienceMode): ResolvedH
       href: '/compartir',
       label: 'Compartir mi aventura',
     },
-    metadata: {
-      source: 'localFallback',
-      hasRemoteData: false,
-      hasRemoteFeaturedCountries: false,
-      hasRemoteFeaturedAdventures: false,
-    },
+    metadata: buildHomeMetadata(false, false),
   };
 }
 
@@ -256,8 +245,10 @@ export async function getResolvedHomeScreenData(
   mode: ScreenExperienceMode
 ): Promise<ResolvedHomeScreenData> {
   const fallbackScreenData = getHomeScreenFallbackData(mode);
-  const remoteFeaturedDestinations = await fetchRemoteFeaturedCountries();
-  const remoteFeaturedAdventures = await fetchRemoteFeaturedAdventures();
+  const [remoteFeaturedDestinations, remoteFeaturedAdventures] = await Promise.all([
+    fetchRemoteFeaturedCountries(),
+    fetchRemoteFeaturedAdventures(),
+  ]);
   const hasEnoughRemoteCountries =
     remoteFeaturedDestinations.length >= fallbackScreenData.featuredDestinations.length;
   const hasEnoughRemoteAdventures =
@@ -275,14 +266,13 @@ export async function getResolvedHomeScreenData(
     featuredAdventures: hasEnoughRemoteAdventures
       ? remoteFeaturedAdventures.slice(0, fallbackScreenData.featuredAdventures.length)
       : fallbackScreenData.featuredAdventures,
-    metadata: {
-      source: getHomeScreenSource(hasEnoughRemoteCountries, hasEnoughRemoteAdventures),
-      hasRemoteData: true,
-      hasRemoteFeaturedCountries: hasEnoughRemoteCountries,
-      hasRemoteFeaturedAdventures: hasEnoughRemoteAdventures,
-    },
+    metadata: buildHomeMetadata(hasEnoughRemoteCountries, hasEnoughRemoteAdventures),
   };
 }
+
+// =============================================================================
+// REMOTE READERS
+// =============================================================================
 
 async function fetchRemoteFeaturedCountries(): Promise<HomeFeaturedDestination[]> {
   if (!isSupabaseConfigured() || !supabase) {
@@ -340,6 +330,92 @@ async function fetchRemoteFeaturedAdventures(): Promise<HomeFeaturedAdventure[]>
   }
 }
 
+// =============================================================================
+// BUILDERS
+// =============================================================================
+
+function buildHomeHero(mode: ScreenExperienceMode): HomeScreenHeroData {
+  return {
+    wallpaperImageUrl: heroImage,
+    logoImageUrl: heroLogo,
+    logoAlt: 'Trawel',
+    titleLines: {
+      first: 'El mundo no empieza',
+      second: 'en una lista.',
+      accent: 'Empieza en un mapa.',
+    },
+    subtitle:
+      mode === 'student'
+        ? 'Descubre el mundo a través de su historia, cultura y contexto. Una forma diferente de viajar antes de emprender el camino.'
+        : 'Explora países, descubre rutas y transforma cada destino en una aventura real. Historias vividas, planes detallados.',
+    primaryCta: {
+      href: '#atlas-mundial',
+      label: 'Abrir el atlas',
+      icon: '🗺️',
+    },
+    secondaryCta: {
+      href: '#destinos',
+      label: 'Explorar destinos',
+    },
+  };
+}
+
+function buildHomeMetadata(
+  hasRemoteFeaturedCountries: boolean,
+  hasRemoteFeaturedAdventures: boolean
+): ResolvedHomeScreenData['metadata'] {
+  return {
+    source: getHomeScreenSource(hasRemoteFeaturedCountries, hasRemoteFeaturedAdventures),
+    hasRemoteData: hasRemoteFeaturedCountries || hasRemoteFeaturedAdventures,
+    hasRemoteFeaturedCountries,
+    hasRemoteFeaturedAdventures,
+  };
+}
+
+function mapRemoteCountryToFeaturedDestination(
+  country: RemoteFeaturedCountry
+): HomeFeaturedDestination {
+  const fallbackDestination = featuredDestinations.find(
+    (destination) => destination.slug === country.slug
+  );
+
+  return {
+    slug: country.slug,
+    name: country.name,
+    flagCode: country.flagCode,
+    description: country.description,
+    image: fallbackDestination?.image || {
+      alt: country.name,
+      kind: 'pais',
+    },
+  };
+}
+
+function mapRemoteDestinationToFeaturedAdventure(
+  destination: RemoteFeaturedAdventure
+): HomeFeaturedAdventure {
+  const fallbackAdventure = featuredAdventures.find(
+    (adventure) => adventure.id === destination.id || adventure.id === destination.slug
+  );
+
+  return {
+    id: destination.id,
+    title: destination.title,
+    location: destination.estimatedVisitTime || fallbackAdventure?.location || 'Destino destacado',
+    type: destination.type,
+    description: destination.description,
+    comingSoon: false,
+    image: fallbackAdventure?.image || {
+      alt: destination.title,
+      kind: 'aventura',
+    },
+  };
+}
+
+// =============================================================================
+// NORMALIZERS AND HELPERS
+// =============================================================================
+
 function normalizeRemoteFeaturedCountry(db: DBHomeCountry): RemoteFeaturedCountry | null {
   const slug = normalizeRequiredText(db.slug);
   const name = normalizeRequiredText(db.name_es);
@@ -363,25 +439,6 @@ function normalizeRemoteFeaturedCountry(db: DBHomeCountry): RemoteFeaturedCountr
   };
 }
 
-function mapRemoteCountryToFeaturedDestination(
-  country: RemoteFeaturedCountry
-): HomeFeaturedDestination {
-  const fallbackDestination = featuredDestinations.find(
-    (destination) => destination.slug === country.slug
-  );
-
-  return {
-    slug: country.slug,
-    name: country.name,
-    flagCode: country.flagCode,
-    description: country.description,
-    image: fallbackDestination?.image || {
-      alt: country.name,
-      kind: 'pais',
-    },
-  };
-}
-
 function normalizeRemoteFeaturedAdventure(
   db: DBHomeDestination
 ): RemoteFeaturedAdventure | null {
@@ -401,27 +458,6 @@ function normalizeRemoteFeaturedAdventure(
     description,
     type: normalizeRequiredText(db.type) || 'Experiencia destacada',
     estimatedVisitTime: normalizeRequiredText(db.estimated_visit_time) || undefined,
-  };
-}
-
-function mapRemoteDestinationToFeaturedAdventure(
-  destination: RemoteFeaturedAdventure
-): HomeFeaturedAdventure {
-  const fallbackAdventure = featuredAdventures.find(
-    (adventure) => adventure.id === destination.id || adventure.id === destination.slug
-  );
-
-  return {
-    id: destination.id,
-    title: destination.title,
-    location: destination.estimatedVisitTime || fallbackAdventure?.location || 'Destino destacado',
-    type: destination.type,
-    description: destination.description,
-    comingSoon: false,
-    image: fallbackAdventure?.image || {
-      alt: destination.title,
-      kind: 'aventura',
-    },
   };
 }
 

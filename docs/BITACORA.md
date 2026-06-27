@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-06-27 - Orden interno de fachada Home screenData
+
+Ordenada internamente la fachada `homeScreenData.service.ts` sin cambiar comportamiento ni API publica.
+
+### Cambios implementados
+
+- Reorganizado el archivo por secciones: tipos publicos, tipos internos, fallback local, resolucion de Home, lectores remotos, builders y normalizadores/helpers.
+- Conservados `getHomeScreenFallbackData(mode)` y `getResolvedHomeScreenData(mode)` como API publica.
+- Centralizada la construccion de metadata con `buildHomeMetadata(...)`.
+- La resolucion remota de paises y planes destacados se ejecuta en paralelo sin cambiar los criterios de fallback.
+
+### Metadata mantenida
+
+- `source`.
+- `hasRemoteData`.
+- `hasRemoteFeaturedCountries`.
+- `hasRemoteFeaturedAdventures`.
+
+### Reglas respetadas
+
+- No se tocaron `HomePage`, mapas, `WorldMap`, D3, TopoJSON, rutas, `package.json`, migraciones, seeds, promociones ni diseno visual.
+- Refactor interno sin cambio visual esperado.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-27 - Home lectura remota conservadora de planes destacados
 
 Preparada la Home para usar planes/destinos destacados desde Supabase legacy cuando existan, manteniendo fallback local completo.
