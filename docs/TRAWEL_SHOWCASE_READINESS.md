@@ -8,7 +8,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [x] CountryPage: usa `getResolvedCountryScreenData()` con pais, editorial y promociones.
 - [x] CountryZonePage: usa `getResolvedZoneScreenData()` con zona y promociones.
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
-- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas, migration local y servicios apuntando a `user_messages`/`user_photo_submissions`/`content_reports`; falta ejecucion remota y conexion visual real.
+- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas, tablas remotas y servicios apuntando a `user_messages`/`user_photo_submissions`/`content_reports`; falta conexion visual real.
 - [x] Handoff Investighost -> Trawel: existe manual maestro para alimentar Supabase sin mezclar panel editorial dentro de Trawel.
 - [x] Auditoria de colas de usuario: `docs/TRAWEL_USER_QUEUE_READINESS.md` confirma preparacion local y bloqueos de produccion.
 
@@ -32,10 +32,10 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 4. Necesario Para Escaparate Funcional
 
-- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada contra `user_messages`; falta aplicar schema remoto y conectar formulario.
-- [~] Recibir fotos/aportes de usuarios: servicio de cola preparado contra `user_photo_submissions`; falta storage/upload seguro, schema remoto y formulario.
-- [~] Recibir reportes de contenido: servicio de cola preparado contra `content_reports`; falta schema remoto y formulario.
-- [~] Guardar todo en cola de revision: migration local definida con RLS; falta ejecucion remota.
+- [~] Recibir mensajes/contactos desde paginas publicas: tabla remota y fachada preparadas; falta conectar formulario.
+- [~] Recibir fotos/aportes de usuarios: tabla remota y servicio preparados; falta storage/upload seguro y formulario.
+- [~] Recibir reportes de contenido: tabla remota y servicio preparados; falta formulario.
+- [x] Guardar todo en cola de revision: SQL 008 aplicado manualmente en Supabase real, con RLS activo y sin SELECT publico.
 - [x] Nunca publicar directo desde usuario: servicios actuales solo insertan estados iniciales privados.
 - [x] Permitir promociones controladas sin invadir la experiencia.
 - [x] Mantener fallback premium si falta contenido remoto.
@@ -52,8 +52,8 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 6. Proximos 3 Bloques Recomendados
 
-1. Revisar y ejecutar migration de colas contra Supabase cuando proceda.
-2. Conectar formularios publicos a inserts controlados solo despues de revisar RLS remoto.
+1. Conectar formulario de contacto a `submitContactMessage(...)`.
+2. Definir storage/upload seguro antes de conectar fotos publicas.
 3. Cerrar checklist de escaparate funcional.
 
 ## Conclusion

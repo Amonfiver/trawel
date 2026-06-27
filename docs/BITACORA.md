@@ -5,6 +5,37 @@
 
 ---
 
+## 2026-06-28 - Bloque 47D: colas reales de usuario en Supabase
+
+Registrada la aplicacion real del SQL 008 en Supabase remoto `trawel-prod`, ref `pjqisqzxajdfkimtrcby`.
+
+### Resultado validado
+
+- Ejecutado manualmente solo el contenido de `supabase/migrations/008_create_user_content_queue_tables.sql` mediante `npx supabase db query --linked --file`.
+- No se uso `supabase db push`.
+- No se aplicaron migrations `001`-`007`.
+- No se hizo `migration repair`.
+- No se insertaron datos de prueba.
+
+### Tablas creadas en remoto
+
+- `content_reports`.
+- `user_messages`.
+- `user_photo_submissions`.
+
+### Seguridad verificada
+
+- RLS activo en las tres tablas.
+- Policies existentes: `INSERT` para roles `anon` y `authenticated`.
+- No hay policies publicas de `SELECT` para las colas.
+
+### Reglas respetadas
+
+- No se tocaron `src/`, `package.json`, migrations, seeds, mapas, rutas ni diseno.
+- No se conectaron formularios ni storage de fotos.
+
+---
+
 ## 2026-06-28 - Bloque 46: auditoria final de colas y readiness
 
 Auditado el estado de las colas de usuario para confirmar que Trawel esta preparado localmente para recibir entradas privadas, pero no debe activar formularios publicos todavia.

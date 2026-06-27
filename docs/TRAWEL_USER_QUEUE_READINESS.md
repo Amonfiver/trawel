@@ -4,7 +4,9 @@ Auditoria final de preparacion para recibir contenido de usuarios en cola sin pu
 
 ## Estado general
 
-Trawel esta preparado a nivel local para recibir mensajes, fotos y reportes como entradas privadas de revision. No esta listo para activar formularios publicos en produccion hasta ejecutar la migracion real en Supabase, revisar RLS en remoto y resolver el flujo de storage para fotos.
+Trawel esta preparado para recibir mensajes, fotos y reportes como entradas privadas de revision. El SQL 008 ya fue aplicado en Supabase real `trawel-prod` mediante ejecucion manual del archivo, sin usar `db push` ni tocar el historial remoto de migrations.
+
+No esta listo para activar formularios publicos hasta revisar el flujo visual, la estrategia antispam y el storage seguro para fotos.
 
 ## 1. Tablas preparadas en migration local
 
@@ -15,6 +17,13 @@ La migration local `supabase/migrations/008_create_user_content_queue_tables.sql
 - `content_reports`: reportes de errores, abuso, derechos de imagen o solicitudes de retirada.
 
 Las tres tablas tienen RLS activado, grants de `INSERT` controlado para `anon`/`authenticated` y no crean politicas publicas de `SELECT`, `UPDATE` ni `DELETE`.
+
+Estado remoto validado en `trawel-prod`:
+
+- Tablas creadas: `user_messages`, `user_photo_submissions`, `content_reports`.
+- RLS activo en las tres.
+- Policies existentes: `INSERT` para `anon`/`authenticated`.
+- Sin policies publicas de `SELECT`.
 
 ## 2. Servicios frontend preparados
 
@@ -36,10 +45,8 @@ Todos mantienen comportamiento seguro si Supabase no esta configurado y no hacen
 
 Ningun servicio usa `published`, `approved` ni estados publicables desde el lado publico.
 
-## 4. Falta para activar produccion
+## 4. Falta para activar formularios publicos
 
-- Ejecutar la migration real en Supabase `trawel-prod`.
-- Revisar en remoto que RLS, grants y politicas coinciden con el comportamiento esperado.
 - Configurar storage seguro para fotos o decidir flujo alternativo de `image_url`.
 - Preparar validacion de subida, tamano, MIME, rutas y limpieza de archivos no aprobados.
 - Conectar formularios visuales de contacto, fotos y reportes.
@@ -59,11 +66,11 @@ Ningun servicio usa `published`, `approved` ni estados publicables desde el lado
 
 No conectar formularios publicos todavia.
 
-Antes de activar recepcion real en produccion, ejecutar y revisar la migration en Supabase remoto, verificar RLS con usuarios `anon`/`authenticated` y decidir el flujo seguro de storage para fotos.
+Antes de activar recepcion publica real, decidir el flujo seguro de storage para fotos, revisar UX de formularios y anadir proteccion antispam adecuada.
 
 Siguiente bloque tecnico probable:
 
-1. Aplicar/revisar la migration de colas en Supabase remoto, si ya se quiere activar backend real.
-2. Preparar formulario de contacto contra `submitContactMessage(...)`, si primero se quiere cerrar UX sin publicar aun.
+1. Preparar formulario de contacto contra `submitContactMessage(...)`.
+2. Preparar estrategia de storage/upload seguro para fotos antes de conectar `submitUserPhotoSubmission(...)`.
 
 En ambos caminos se mantiene la regla central: usuarios nunca publican directo; todo entra en cola y lo modera Investighost/backend.
