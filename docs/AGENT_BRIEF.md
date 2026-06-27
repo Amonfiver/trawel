@@ -204,6 +204,8 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; próximos bloques recomendados: cola de mensajes/contactos, cola de fotos/aportes y cierre de checklist funcional.
 
+**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` están preparados en `travelData`; no publican nada y solo escriben si se configura una tabla explícita vía `VITE_TRAWEL_USER_MESSAGES_TABLE`. Falta migration/schema dedicado antes de conectar formularios reales.
+
 ---
 
 ## 10. Sistema AI-specs

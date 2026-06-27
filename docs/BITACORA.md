@@ -2747,5 +2747,11 @@ Creado `docs/TRAWEL_SHOWCASE_READINESS.md` como checklist práctico de pantallas
 
 ---
 
+## 2026-06-27 - Bloque 39: fachada de cola de mensajes/contactos
+
+Preparado servicio `submitUserMessage`/`submitContactMessage`/`submitCommunitySuggestion` para futura cola de revisión. No existe tabla Supabase clara para mensajes privados generales, así que el servicio valida datos y solo intenta escribir si se configura una tabla explícita; nada se publica directo. TrustPage sigue informativa y sin formulario conectado.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-06-27*

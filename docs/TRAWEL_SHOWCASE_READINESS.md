@@ -30,7 +30,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 4. Necesario Para Escaparate Funcional
 
-- [ ] Recibir mensajes/contactos desde paginas publicas.
+- [~] Recibir mensajes/contactos desde paginas publicas: fachada preparada, falta tabla Supabase explicita.
 - [ ] Recibir fotos/aportes de usuarios.
 - [ ] Guardar todo en cola de revision.
 - [ ] Nunca publicar directo desde usuario.

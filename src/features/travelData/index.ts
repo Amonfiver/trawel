@@ -56,6 +56,10 @@ export type {
   PromotionPlacementType,
   StaticPage,
   StaticPageType,
+  SubmitUserMessageInput,
+  SubmitUserMessageResult,
+  UserMessageKind,
+  UserMessageReviewStatus,
 } from './productContent';
 
 export type { MonetizationSlotProps } from './components';
@@ -86,6 +90,9 @@ export {
   getPublishedEditorialContent,
   getPublishedPromotionsForContext,
   getPublishedStaticPageBySlug,
+  submitContactMessage,
+  submitCommunitySuggestion,
+  submitUserMessage,
 } from './productContent';
 
 export { MonetizationSlot } from './components';
