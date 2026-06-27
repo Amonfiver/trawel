@@ -7,6 +7,7 @@ import indiaImage from '../../../assets/home/destinations/india.png';
 import albarracinImage from '../../../assets/home/plans/albarracin.png';
 import amalfitanaImage from '../../../assets/home/plans/amalfitana.png';
 import rajasthanImage from '../../../assets/home/plans/rajasthan.png';
+import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
 import type { ScreenExperienceMode } from './screenData.types';
 
 export type HomeImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
@@ -70,9 +71,26 @@ export interface ResolvedHomeScreenData {
   featuredAdventures: HomeFeaturedAdventure[];
   communityCta: HomeCommunityCtaData;
   metadata: {
-    source: 'localFallback';
-    hasRemoteData: false;
+    source: 'localFallback' | 'remoteFeaturedCountries';
+    hasRemoteData: boolean;
   };
+}
+
+interface DBHomeCountry {
+  id: string;
+  slug: string | null;
+  name_es: string | null;
+  emoji: string | null;
+  description_es: string | null;
+  status: string | null;
+  featured: boolean | null;
+}
+
+interface RemoteFeaturedCountry {
+  slug: string;
+  name: string;
+  flagCode: string;
+  description: string;
 }
 
 const featuredDestinations: HomeFeaturedDestination[] = [
@@ -164,7 +182,7 @@ const featuredAdventures: HomeFeaturedAdventure[] = [
   },
 ];
 
-export function getResolvedHomeScreenData(mode: ScreenExperienceMode): ResolvedHomeScreenData {
+export function getHomeScreenFallbackData(mode: ScreenExperienceMode): ResolvedHomeScreenData {
   return {
     hero: {
       wallpaperImageUrl: heroImage,
@@ -204,4 +222,146 @@ export function getResolvedHomeScreenData(mode: ScreenExperienceMode): ResolvedH
       hasRemoteData: false,
     },
   };
+}
+
+export async function getResolvedHomeScreenData(
+  mode: ScreenExperienceMode
+): Promise<ResolvedHomeScreenData> {
+  const fallbackScreenData = getHomeScreenFallbackData(mode);
+  const remoteFeaturedDestinations = await fetchRemoteFeaturedCountries();
+
+  if (remoteFeaturedDestinations.length < fallbackScreenData.featuredDestinations.length) {
+    return fallbackScreenData;
+  }
+
+  return {
+    ...fallbackScreenData,
+    featuredDestinations: remoteFeaturedDestinations.slice(
+      0,
+      fallbackScreenData.featuredDestinations.length
+    ),
+    metadata: {
+      source: 'remoteFeaturedCountries',
+      hasRemoteData: true,
+    },
+  };
+}
+
+async function fetchRemoteFeaturedCountries(): Promise<HomeFeaturedDestination[]> {
+  if (!isSupabaseConfigured() || !supabase) {
+    return [];
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('countries')
+      .select('id,slug,name_es,emoji,description_es,status,featured')
+      .in('status', ['active', 'comingSoon'])
+      .eq('featured', true)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      logHomeScreenDataError('Error loading remote featured countries', error);
+      return [];
+    }
+
+    return ((data || []) as DBHomeCountry[])
+      .map(normalizeRemoteFeaturedCountry)
+      .filter((country): country is RemoteFeaturedCountry => Boolean(country))
+      .map(mapRemoteCountryToFeaturedDestination);
+  } catch (error) {
+    logHomeScreenDataError('Unexpected error loading remote featured countries', error);
+    return [];
+  }
+}
+
+function normalizeRemoteFeaturedCountry(db: DBHomeCountry): RemoteFeaturedCountry | null {
+  const slug = normalizeRequiredText(db.slug);
+  const name = normalizeRequiredText(db.name_es);
+  const description = normalizeRequiredText(db.description_es);
+
+  if (!slug || !name || !description) {
+    return null;
+  }
+
+  const flagCode = inferCountryFlagCode(slug, db.emoji);
+
+  if (!flagCode) {
+    return null;
+  }
+
+  return {
+    slug,
+    name,
+    flagCode,
+    description,
+  };
+}
+
+function mapRemoteCountryToFeaturedDestination(
+  country: RemoteFeaturedCountry
+): HomeFeaturedDestination {
+  const fallbackDestination = featuredDestinations.find(
+    (destination) => destination.slug === country.slug
+  );
+
+  return {
+    slug: country.slug,
+    name: country.name,
+    flagCode: country.flagCode,
+    description: country.description,
+    image: fallbackDestination?.image || {
+      alt: country.name,
+      kind: 'pais',
+    },
+  };
+}
+
+function inferCountryFlagCode(slug: string, emoji: string | null): string | null {
+  const knownFlagCodesBySlug: Record<string, string> = {
+    espana: 'ES',
+    mexico: 'MX',
+    italia: 'IT',
+    india: 'IN',
+  };
+
+  if (knownFlagCodesBySlug[slug]) {
+    return knownFlagCodesBySlug[slug];
+  }
+
+  const inferredFromEmoji = flagEmojiToIsoAlpha2(emoji);
+  return inferredFromEmoji || null;
+}
+
+function flagEmojiToIsoAlpha2(emoji: string | null): string | null {
+  if (!emoji) {
+    return null;
+  }
+
+  const flag = Array.from(emoji.trim()).slice(0, 2);
+
+  if (flag.length !== 2) {
+    return null;
+  }
+
+  const code = flag
+    .map((char) => char.codePointAt(0))
+    .map((codePoint) => (codePoint ? codePoint - 0x1f1e6 + 65 : null));
+
+  if (code.some((codePoint) => !codePoint || codePoint < 65 || codePoint > 90)) {
+    return null;
+  }
+
+  return String.fromCharCode(...(code as number[]));
+}
+
+function normalizeRequiredText(value: string | null | undefined): string | null {
+  const normalized = value?.trim();
+  return normalized || null;
+}
+
+function logHomeScreenDataError(message: string, error: unknown): void {
+  if (import.meta.env.DEV) {
+    console.error('[HomeScreenData]', message, error);
+  }
 }

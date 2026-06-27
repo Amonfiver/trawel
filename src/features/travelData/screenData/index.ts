@@ -24,6 +24,7 @@ export type {
 } from './homeScreenData.service';
 
 export {
+  getHomeScreenFallbackData,
   getResolvedHomeScreenData,
 } from './homeScreenData.service';
 

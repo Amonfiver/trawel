@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-06-27 - Home lectura remota conservadora de paises destacados
+
+Preparada la Home para usar paises destacados desde Supabase legacy cuando existan, manteniendo fallback local completo.
+
+### Cambios implementados
+
+- `getResolvedHomeScreenData(mode)` pasa a resolver de forma async los paises destacados remotos desde `countries`.
+- Anadida lectura read-only de `countries` filtrando `status in ('active', 'comingSoon')` y `featured = true`.
+- Normalizados campos seguros: `slug`, `name_es`, `emoji` y `description_es`.
+- Si no hay suficientes paises remotos validos para cubrir las cards actuales, se mantiene `featuredDestinations` local completo.
+- Anadida `getHomeScreenFallbackData(mode)` para que `HomePage` pinte fallback local inmediato mientras resuelve datos.
+
+### Sigue siendo fallback local
+
+- Hero, wallpaper, logo, planes destacados, CTA comunidad e imagenes.
+- Las imagenes de pais siguen usando assets locales cuando el slug coincide; si no, placeholder local.
+- No se conectan promociones ni otras tablas.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, rutas, `package.json`, migraciones, seeds ni diseno visual.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-27 - Home data-driven inicial
 
 Preparada la Home para consumir una fachada Database First sin conectar Supabase ni cambiar el comportamiento visual esperado.

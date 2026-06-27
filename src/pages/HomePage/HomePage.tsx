@@ -12,10 +12,16 @@
  * - Texto siempre legible por encima de overlays
  */
 
+import { useEffect, useState } from 'react';
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { useExperienceMode } from '../../features/experienceMode';
 import { CountryFlag } from '../../features/countries';
-import { getResolvedHomeScreenData, type HomeScreenImage } from '../../features/travelData';
+import {
+  getHomeScreenFallbackData,
+  getResolvedHomeScreenData,
+  type HomeScreenImage,
+  type ResolvedHomeScreenData,
+} from '../../features/travelData';
 import styles from './HomePage.module.css';
 
 /**
@@ -80,7 +86,31 @@ function CardImage({
  */
 export function HomePage() {
   const { mode: experienceMode } = useExperienceMode();
-  const screenData = getResolvedHomeScreenData(experienceMode);
+  const fallbackScreenData = getHomeScreenFallbackData(experienceMode);
+  const [resolvedScreenData, setResolvedScreenData] =
+    useState<ResolvedHomeScreenData | null>(null);
+  const screenData =
+    resolvedScreenData?.hero.subtitle === fallbackScreenData.hero.subtitle
+      ? resolvedScreenData
+      : fallbackScreenData;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadHomeScreenData = async () => {
+      const nextScreenData = await getResolvedHomeScreenData(experienceMode);
+
+      if (isMounted) {
+        setResolvedScreenData(nextScreenData);
+      }
+    };
+
+    loadHomeScreenData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [experienceMode]);
 
   return (
     <div className={styles.container}>

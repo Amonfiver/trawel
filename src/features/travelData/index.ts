@@ -70,6 +70,7 @@ export {
 } from './services/travelData.service';
 
 export {
+  getHomeScreenFallbackData,
   getResolvedHomeScreenData,
   getCountryScreenData,
   getCountryScreenFallbackData,
