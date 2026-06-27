@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-06-27 - Home data-driven inicial
+
+Preparada la Home para consumir una fachada Database First sin conectar Supabase ni cambiar el comportamiento visual esperado.
+
+### Cambios implementados
+
+- Creado `src/features/travelData/screenData/homeScreenData.service.ts` con `getResolvedHomeScreenData(mode)`.
+- Movidos a la fachada los datos locales actuales de Home: hero por modo, destinos destacados, planes destacados y CTA de comunidad.
+- `HomePage` consume `screenData.hero`, `screenData.featuredDestinations`, `screenData.featuredAdventures` y `screenData.communityCta`.
+- Exportados tipos y funcion desde los barrels de `screenData` y `travelData`.
+- Actualizado `docs/AGENT_BRIEF.md` con la regla de Home data-driven inicial.
+
+### Sigue siendo fallback local
+
+- Hero, logo, wallpaper, destinos destacados, planes destacados, imagenes y CTA comunidad.
+- No se conecta Supabase en este bloque.
+- `WorldMap` queda intacto dentro de la Home.
+
+### Reglas respetadas
+
+- No se tocaron mapas, `WorldMap`, D3, TopoJSON, rutas, `package.json`, migraciones, seeds ni diseno visual.
+
+### Verificacion
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-06-24 - Orden interno de fachada screenData Country/Zone
 
 Ordenada internamente la fachada `countryZoneScreenData.service.ts` sin cambiar comportamiento ni API publica.

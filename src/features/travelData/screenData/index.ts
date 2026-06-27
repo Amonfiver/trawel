@@ -13,6 +13,20 @@ export type {
   ZoneScreenData,
 } from './screenData.types';
 
+export type {
+  HomeCommunityCtaData,
+  HomeFeaturedAdventure,
+  HomeFeaturedDestination,
+  HomeImageKind,
+  HomeScreenHeroData,
+  HomeScreenImage,
+  ResolvedHomeScreenData,
+} from './homeScreenData.service';
+
+export {
+  getResolvedHomeScreenData,
+} from './homeScreenData.service';
+
 export {
   getCountryScreenData,
   getCountryScreenFallbackData,

@@ -23,7 +23,14 @@ export type {
 export type {
   CountryScreenData,
   CountryZoneScreenDataRepository,
+  HomeCommunityCtaData,
+  HomeFeaturedAdventure,
+  HomeFeaturedDestination,
+  HomeImageKind,
+  HomeScreenHeroData,
+  HomeScreenImage,
   ResolvedCountryScreenData,
+  ResolvedHomeScreenData,
   ResolvedZoneScreenData,
   ZoneScreenData,
   ScreenCommunityCtaData,
@@ -63,6 +70,7 @@ export {
 } from './services/travelData.service';
 
 export {
+  getResolvedHomeScreenData,
   getCountryScreenData,
   getCountryScreenFallbackData,
   getResolvedCountryScreenData,

@@ -15,139 +15,14 @@
 import { WorldMap } from '../../features/map/components/WorldMap';
 import { useExperienceMode } from '../../features/experienceMode';
 import { CountryFlag } from '../../features/countries';
-import heroImage from '../../assets/home/heroimagen.png';
-import heroLogo from '../../assets/brand/trawelogo-transparent.png';
-import spainImage from '../../assets/home/destinations/spain.png';
-import mexicoImage from '../../assets/home/destinations/mexico.png';
-import italyImage from '../../assets/home/destinations/italy.png';
-import indiaImage from '../../assets/home/destinations/india.png';
-import albarracinImage from '../../assets/home/plans/albarracin.png';
-import amalfitanaImage from '../../assets/home/plans/amalfitana.png';
-import rajasthanImage from '../../assets/home/plans/rajasthan.png';
+import { getResolvedHomeScreenData, type HomeScreenImage } from '../../features/travelData';
 import styles from './HomePage.module.css';
-
-type ImageKind = 'pais' | 'ciudad' | 'paisaje' | 'monumento' | 'aventura' | 'ruta';
-
-interface DestinationImage {
-  url?: string;
-  alt: string;
-  kind: ImageKind;
-}
-
-interface AdventureImage {
-  url?: string;
-  alt: string;
-  kind: ImageKind;
-}
-
-const featuredDestinations: Array<{
-  slug: string;
-  name: string;
-  flagCode: string;
-  description: string;
-  image: DestinationImage;
-}> = [
-  {
-    slug: 'espana',
-    name: 'España',
-    flagCode: 'ES',
-    description: 'Desde pueblos medievales hasta costas atlánticas. Historia, gastronomía y rutas para todos los gustos.',
-    image: {
-      url: spainImage,
-      alt: 'Ronda, Andalucía',
-      kind: 'pais',
-    },
-  },
-  {
-    slug: 'mexico',
-    name: 'México',
-    flagCode: 'MX',
-    description: 'Cultura milenaria, pueblos mágicos y una gastronomía reconocida en todo el mundo.',
-    image: {
-      url: mexicoImage,
-      alt: 'Guanajuato',
-      kind: 'pais',
-    },
-  },
-  {
-    slug: 'italia',
-    name: 'Italia',
-    flagCode: 'IT',
-    description: 'Arte, historia y paisajes que han inspirado a viajeros durante siglos.',
-    image: {
-      url: italyImage,
-      alt: 'Val d\'Orcia, Toscana',
-      kind: 'pais',
-    },
-  },
-  {
-    slug: 'india',
-    name: 'India',
-    flagCode: 'IN',
-    description: 'Un continente de contrastes donde cada región ofrece una experiencia única.',
-    image: {
-      url: indiaImage,
-      alt: 'Taj Mahal, Agra',
-      kind: 'monumento',
-    },
-  },
-];
-
-const featuredAdventures: Array<{
-  id: string;
-  title: string;
-  location: string;
-  type: string;
-  description: string;
-  comingSoon: boolean;
-  image: AdventureImage;
-}> = [
-  {
-    id: '1',
-    title: 'Ruta por el encanto medieval de Albarracín',
-    location: 'Albarracín, Teruel, España',
-    type: 'Cultura y naturaleza',
-    description: 'Camina entre murallas rojizas, callejuelas empedradas y miradores que convierten este rincón de Teruel en una escapada inolvidable.',
-    comingSoon: false,
-    image: {
-      url: albarracinImage,
-      alt: 'Albarracín, Teruel, España',
-      kind: 'ciudad',
-    },
-  },
-  {
-    id: '2',
-    title: 'Escapada por la Costa Amalfitana',
-    location: 'Costa Amalfitana, Italia',
-    type: 'Aventura costera',
-    description: 'Pueblos suspendidos sobre el Mediterráneo, carreteras panorámicas, limoneros y atardeceres que hacen que cada parada parezca una postal.',
-    comingSoon: true,
-    image: {
-      url: amalfitanaImage,
-      alt: 'Costa Amalfitana, Italia',
-      kind: 'paisaje',
-    },
-  },
-  {
-    id: '3',
-    title: 'Palacios, templos y bazares de Rajasthan',
-    location: 'Rajasthan, India',
-    type: 'Viaje cultural',
-    description: 'Una ruta llena de color entre fortalezas, mercados vibrantes, arquitectura majestuosa y tradiciones que muestran la India más fascinante.',
-    comingSoon: true,
-    image: {
-      url: rajasthanImage,
-      alt: 'Rajasthan, India',
-      kind: 'monumento',
-    },
-  },
-];
 
 /**
  * Placeholder visual para imágenes futuras
  */
-function ImagePlaceholder({ kind, alt }: { kind: ImageKind; alt: string }) {
-  const kindLabels: Record<ImageKind, string> = {
+function ImagePlaceholder({ kind, alt }: { kind: HomeScreenImage['kind']; alt: string }) {
+  const kindLabels: Record<HomeScreenImage['kind'], string> = {
     pais: 'Vista del país',
     ciudad: 'Vista urbana',
     paisaje: 'Paisaje destacado',
@@ -177,7 +52,7 @@ function CardImage({
   image,
   className
 }: {
-  image: { url?: string; alt: string; kind: ImageKind };
+  image: HomeScreenImage;
   className?: string;
 }) {
   if (image.url) {
@@ -205,18 +80,14 @@ function CardImage({
  */
 export function HomePage() {
   const { mode: experienceMode } = useExperienceMode();
-
-  const heroSubtitle =
-    experienceMode === 'student'
-      ? 'Descubre el mundo a través de su historia, cultura y contexto. Una forma diferente de viajar antes de emprender el camino.'
-      : 'Explora países, descubre rutas y transforma cada destino en una aventura real. Historias vividas, planes detallados.';
+  const screenData = getResolvedHomeScreenData(experienceMode);
 
   return (
     <div className={styles.container}>
       {/* WALLPAPER FIJO - Fondo cinematográfico */}
       <div className={styles.wallpaper} aria-hidden="true">
         <img 
-          src={heroImage} 
+          src={screenData.hero.wallpaperImageUrl} 
           alt="" 
           className={styles.wallpaperImage}
         />
@@ -231,30 +102,30 @@ export function HomePage() {
           {/* Logo protagonista en el hero */}
           <div className={styles.heroLogo}>
             <img 
-              src={heroLogo} 
-              alt="Trawel" 
+              src={screenData.hero.logoImageUrl} 
+              alt={screenData.hero.logoAlt} 
               className={styles.heroLogoImage}
             />
           </div>
           
           <h1 id="hero-title" className={styles.heroTitle}>
-            El mundo no empieza
-            <span className={styles.heroTitleBreak}>en una lista.</span>
-            <span className={styles.heroTitleAccent}>Empieza en un mapa.</span>
+            {screenData.hero.titleLines.first}
+            <span className={styles.heroTitleBreak}>{screenData.hero.titleLines.second}</span>
+            <span className={styles.heroTitleAccent}>{screenData.hero.titleLines.accent}</span>
           </h1>
           
           <p className={styles.heroSubtitle}>
-            {heroSubtitle}
+            {screenData.hero.subtitle}
           </p>
 
           {/* CTAs */}
           <div className={styles.heroCtas}>
-            <a href="#atlas-mundial" className={styles.heroCtaPrimary}>
-              <span className={styles.heroCtaIcon}>🗺️</span>
-              Abrir el atlas
+            <a href={screenData.hero.primaryCta.href} className={styles.heroCtaPrimary}>
+              <span className={styles.heroCtaIcon}>{screenData.hero.primaryCta.icon}</span>
+              {screenData.hero.primaryCta.label}
             </a>
-            <a href="#destinos" className={styles.heroCtaSecondary}>
-              Explorar destinos
+            <a href={screenData.hero.secondaryCta.href} className={styles.heroCtaSecondary}>
+              {screenData.hero.secondaryCta.label}
             </a>
           </div>
         </div>
@@ -324,7 +195,7 @@ export function HomePage() {
           </div>
 
           <div className={styles.destinationsGrid}>
-            {featuredDestinations.map(dest => (
+            {screenData.featuredDestinations.map(dest => (
               <a
                 key={dest.slug}
                 href={`/pais/${dest.slug}`}
@@ -362,7 +233,7 @@ export function HomePage() {
           </div>
 
           <div className={styles.adventuresGrid}>
-            {featuredAdventures.map(adventure => (
+            {screenData.featuredAdventures.map(adventure => (
               <article key={adventure.id} className={styles.adventureCard}>
                 <CardImage image={adventure.image} className={styles.adventureImage} />
                 <div className={styles.adventureContent}>
@@ -384,15 +255,15 @@ export function HomePage() {
         {/* CTA compartir */}
         <section className={styles.shareSection} aria-labelledby="share-title">
           <div className={styles.shareContent}>
-            <span className={styles.shareEyebrow}>Comunidad</span>
+            <span className={styles.shareEyebrow}>{screenData.communityCta.eyebrow}</span>
             <h2 id="share-title" className={styles.shareTitle}>
-              ¿Tienes una experiencia que contar?
+              {screenData.communityCta.title}
             </h2>
             <p className={styles.shareDescription}>
-              Comparte tu aventura con la comunidad Trawel. Todas las historias se revisan antes de publicarse.
+              {screenData.communityCta.description}
             </p>
-            <a href="/compartir" className={styles.shareCta}>
-              Compartir mi aventura
+            <a href={screenData.communityCta.href} className={styles.shareCta}>
+              {screenData.communityCta.label}
             </a>
           </div>
         </section>
