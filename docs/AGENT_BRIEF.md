@@ -39,6 +39,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Checklist salida online:** consultar `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md` para validar Trawel como producto online inicial y escaparate funcional antes de publicarlo o ensenarlo como version real progresiva.
 
+**Checklist pre-hosting:** consultar `docs/TRAWEL_PRE_HOSTING_CHECKLIST.md` antes de subir Trawel a hosting real para validar variables `VITE_`, build `dist/`, fallback SPA y pruebas online post-deploy.
+
 **Manual Investighost -> Trawel:** consultar `docs/INVESTIGHOST_TO_TRAWEL_HANDOFF_MANUAL.md` como manual maestro para entender que debe alimentar Investighost, que tablas usa Trawel, estados principales, colas de usuario, promociones y reglas de no publicacion directa.
 
 **Modelo Supabase futuro:** antes de proponer tablas, migraciones, cambios de datos o RLS, consultar `docs/TRAWEL_SUPABASE_MODEL.md`.

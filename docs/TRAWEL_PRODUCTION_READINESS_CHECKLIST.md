@@ -9,6 +9,7 @@ Checklist practica para validar Trawel como producto online inicial y escaparate
 - [ ] Confirmar que el crecimiento editorial vendra cargando datos desde Investighost y Supabase.
 - [ ] Confirmar que Trawel no depende de editar codigo para publicar contenido editorial nuevo cuando el contrato de datos ya exista.
 - [ ] Confirmar que los envios de usuario entran siempre en cola privada y nunca se publican directamente.
+- [ ] Ejecutar `docs/TRAWEL_PRE_HOSTING_CHECKLIST.md` antes de subir a hosting real.
 
 ## 2. Estado Real Actual
 
@@ -67,6 +68,7 @@ Si una zona sugerida no existe o no esta activa, sustituirla por una ruta real p
 - [ ] Las colas no tienen `SELECT` publico.
 - [ ] `npm run build` pasa antes de publicar.
 - [ ] No aparecen errores visibles en consola durante las rutas criticas.
+- [ ] Fallback SPA del hosting preparado para rutas internas.
 
 ## 6. Checklist Supabase
 

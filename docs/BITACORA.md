@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-06-28 - Bloque 59: checklist pre-hosting
+
+Preparada la checklist tecnica previa a subir Trawel a un hosting real.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_PRE_HOSTING_CHECKLIST.md`.
+- Documentadas variables necesarias: `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
+- Reforzada la regla de no exponer `SUPABASE_SERVICE_ROLE_KEY` en frontend.
+- Documentado build de produccion con `npm run build` y salida `dist/`.
+- Documentada necesidad de fallback SPA a `index.html` para rutas internas.
+- Comparados Netlify, Vercel y hosting tradicional.
+- Propuesto `_redirects` para Netlify sin crearlo todavia.
+- Anotadas comprobaciones antes y despues de deploy, incluyendo tests de formularios y limpieza de filas test.
+
+### Reglas respetadas
+
+- Solo se tocaron documentos.
+- No se tocaron `src/`, UI, `package.json`, migrations, seeds, mapas, rutas ni Storage.
+- No se ejecuto `npm run build` porque no hubo cambios de codigo.
+
+---
+
 ## 2026-06-28 - Bloque 58: mapa de entradas publicas
 
 Registrado el mapa operativo de entradas publicas de Trawel para orientar a Investighost sobre que recibe cada canal y donde debe moderarse.
