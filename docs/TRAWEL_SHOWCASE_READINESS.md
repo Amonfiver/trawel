@@ -2,6 +2,8 @@
 
 Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloques infinitos.
 
+La checklist operativa de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md`.
+
 ## 1. Pantallas Ya Preparadas
 
 - [x] Home: usa fachada `getResolvedHomeScreenData()` y puede mezclar remoto/fallback.
@@ -52,10 +54,10 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 6. Proximos 3 Bloques Recomendados
 
-1. Definir storage/upload seguro antes de conectar fotos publicas.
-2. Preparar formulario de reportes de contenido si se decide abrir ese canal.
-3. Cerrar checklist de escaparate funcional.
+1. Ejecutar `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md` antes de salida publica.
+2. Definir storage/upload seguro antes de conectar fotos publicas.
+3. Preparar formulario de reportes de contenido si se decide abrir ese canal.
 
 ## Conclusion
 
-Trawel ya esta cerca de ser un escaparate publico alimentable desde Supabase. Lo pendiente no es seguir moviendo cada bloque visual a remoto, sino completar las colas publicas de entrada y mantener la publicacion siempre bajo revision.
+Trawel ya tiene base de escaparate funcional alimentable desde Supabase. La salida real debe validarse con la checklist operativa y la publicacion de aportes de usuario debe mantenerse siempre bajo revision.

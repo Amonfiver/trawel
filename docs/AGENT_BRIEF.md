@@ -37,6 +37,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Roadmap Database First:** consultar `docs/TRAWEL_DATABASE_FIRST_ROADMAP.md` como checklist oficial para llevar Trawel a funcionamiento 100% base de datos, manteniendo Supabase como fuente central e Investighost como panel futuro externo.
 
+**Checklist salida online:** consultar `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md` para validar Trawel como producto online inicial y escaparate funcional antes de publicarlo o ensenarlo como version real progresiva.
+
 **Manual Investighost -> Trawel:** consultar `docs/INVESTIGHOST_TO_TRAWEL_HANDOFF_MANUAL.md` como manual maestro para entender que debe alimentar Investighost, que tablas usa Trawel, estados principales, colas de usuario, promociones y reglas de no publicacion directa.
 
 **Modelo Supabase futuro:** antes de proponer tablas, migraciones, cambios de datos o RLS, consultar `docs/TRAWEL_SUPABASE_MODEL.md`.
@@ -208,7 +210,7 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 **Monetización controlada:** `MonetizationSlot` muestra promociones propias solo si hay contenido publicado válido. Los slots van entre secciones, nunca encima de hero/mapa/header; si no hay promoción no ocupan espacio. Placements activos: `home-after-featured-destinations`, `country-after-editorial`, `zone-after-intro`. AdSense queda previsto solo como integración manual/controlada futura, no automática.
 Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
-**Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; próximos bloques recomendados: cola de mensajes/contactos, cola de fotos/aportes y cierre de checklist funcional.
+**Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; la checklist de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md`.
 
 **Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. `/contacto` ya envia mensajes reales mediante `submitContactMessage(...)` con `sourcePage='contacto'` y privacidad aceptada. El servicio no escribe `status`; Supabase aplica el default seguro `pending_review` para respetar los grants publicos por columna. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
 

@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-28 - Bloque 50: checklist de salida real online
+
+Preparada la checklist practica para validar Trawel como producto online inicial y escaparate funcional alimentable desde Supabase/Investighost.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md`.
+- Documentados objetivo, estado real actual, rutas criticas, checklist visual, funcional y Supabase.
+- Incluidas tablas activas, seguridad de colas, elementos que pueden ensenarse como reales y siguiente fase.
+- Ajustado el lenguaje de posicionamiento hacia producto online inicial, escaparate funcional y version real progresiva.
+
+### Reglas respetadas
+
+- Solo se tocaron documentos.
+- No se tocaron `src/`, `package.json`, migrations, seeds, mapas, rutas ni diseno.
+- No se ejecuto `npm run build` porque no hubo cambios de codigo.
+
+---
+
 ## 2026-06-28 - Bloque 49: verificacion real de contacto en Supabase
 
 Verificado el envio real del formulario publico `/contacto` contra Supabase remoto y corregido el ajuste minimo necesario para respetar los grants por columna de `user_messages`.
