@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-06-28 - Bloque 49: verificacion real de contacto en Supabase
+
+Verificado el envio real del formulario publico `/contacto` contra Supabase remoto y corregido el ajuste minimo necesario para respetar los grants por columna de `user_messages`.
+
+### Resultado validado
+
+- El primer envio desde navegador fallo con `401 permission denied for table user_messages`.
+- La causa era que el servicio intentaba insertar `status`; el grant publico por columna no permite escribir ese campo.
+- `submitContactMessage(...)` deja ahora que Supabase aplique el default seguro `status='pending_review'`.
+- Envio real desde `/contacto` verificado con Playwright local.
+- Fila test creada en `user_messages` con:
+  - `type='contact'` y `kind='contact'`.
+  - `status='pending_review'`.
+  - `source_page='contacto'`.
+  - `privacy_accepted=true`.
+  - `priority='normal'`.
+- Confirmado que no hay policies publicas de `SELECT`.
+- Confirmado que un cliente anon recibe `401` al intentar leer `user_messages`.
+- La fila test fue eliminada despues de la verificacion.
+
+### Reglas respetadas
+
+- No se tocaron migrations, seeds, mapas, rutas, Home, CountryPage ni CountryZonePage.
+- No se conectaron fotos ni reportes.
+- No se publico ningun mensaje en web.
+
+---
+
 ## 2026-06-28 - Bloque 48: formulario de contacto conectado a user_messages
 
 Conectada la pagina publica `/contacto` con la cola privada `user_messages` mediante el servicio existente `submitContactMessage(...)`.

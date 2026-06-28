@@ -210,7 +210,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; próximos bloques recomendados: cola de mensajes/contactos, cola de fotos/aportes y cierre de checklist funcional.
 
-**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. `/contacto` ya envia mensajes reales mediante `submitContactMessage(...)` con `sourcePage='contacto'`, privacidad aceptada y estado `pending_review`. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
+**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. `/contacto` ya envia mensajes reales mediante `submitContactMessage(...)` con `sourcePage='contacto'` y privacidad aceptada. El servicio no escribe `status`; Supabase aplica el default seguro `pending_review` para respetar los grants publicos por columna. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
 
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` con `status='submitted'` cuando hay derechos y consentimiento confirmados. Falta aplicar schema remoto, storage/upload seguro y formulario real.
 

@@ -56,7 +56,6 @@ interface UserMessageQueueRow {
   related_entity_slug: string | null;
   entity_type: string | null;
   entity_slug: string | null;
-  status: UserMessageReviewStatus;
   priority: 'normal';
   metadata: Record<string, unknown>;
   privacy_accepted: boolean;
@@ -237,7 +236,6 @@ function mapUserMessageInputToQueueRow(input: SubmitUserMessageInput): UserMessa
     related_entity_slug: entitySlug,
     entity_type: entityType,
     entity_slug: entitySlug,
-    status: 'pending_review',
     priority: 'normal',
     metadata: input.metadata || {},
     privacy_accepted: true,
