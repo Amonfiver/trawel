@@ -218,7 +218,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` cuando hay derechos y consentimiento confirmados. El servicio no escribe `status`; Supabase aplica el default seguro `submitted` para respetar los grants publicos por columna. Antes de conectar formulario visual, seguir `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md` para Storage privado seguro.
 
-**Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y solo inserta en `content_reports` con `status='pending_review'`. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la migration local.
+**Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y solo inserta en `content_reports`. El servicio no escribe `status`; Supabase aplica el default seguro `pending_review` para respetar los grants publicos por columna. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la migration local.
 
 **Auditoria colas:** ver `docs/TRAWEL_USER_QUEUE_READINESS.md` antes de conectar cualquier formulario publico de mensajes, fotos o reportes.
 

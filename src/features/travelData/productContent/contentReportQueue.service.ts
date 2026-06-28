@@ -63,7 +63,6 @@ interface ContentReportQueueRow {
   target_entity_type: ContentReportTargetEntityType;
   target_entity_slug: string;
   message: string;
-  status: ContentReportStatus;
 }
 
 const CONTENT_REPORTS_TABLE = 'content_reports';
@@ -194,7 +193,6 @@ function mapContentReportInputToQueueRow(
     target_entity_type: input.targetEntityType,
     target_entity_slug: input.targetEntitySlug.trim(),
     message: input.message.trim(),
-    status: 'pending_review',
   };
 }
 

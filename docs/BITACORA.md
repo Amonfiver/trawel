@@ -5,6 +5,42 @@
 
 ---
 
+## 2026-06-28 - Bloque 55: reportes ajustados a grants reales
+
+Ajustado `submitContentReport(...)` para ser compatible con la tabla real `content_reports` y sus grants publicos por columna.
+
+### Cambios implementados
+
+- Eliminado `status` del payload insertado por el servicio.
+- El servicio mantiene validacion de tipo de reporte, nombre, email, entidad objetivo, slug objetivo y mensaje.
+- Supabase aplica ahora `status='pending_review'` por default.
+- No se envian columnas internas como `resolved_at`, `internal_notes` ni campos de revision.
+
+### Verificacion real
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+- Insert controlado con anon usando `report_type='error'`, `target_entity_type='country'` y `target_entity_slug='mexico'`.
+- Fila test creada con referencia segura `2786c927-2c98-4b97-aa85-380ce1e7200a`.
+- Campos verificados:
+  - `report_type='error'`.
+  - `status='pending_review'` aplicado por Supabase.
+  - `target_entity_type='country'`.
+  - `target_entity_slug='mexico'`.
+  - `resolved_at=null`.
+  - `internal_notes=null`.
+- Confirmado que no hay policies publicas de `SELECT`.
+- Confirmado que cliente anon recibe `401` al intentar leer `content_reports`.
+- La fila test fue eliminada despues de la verificacion y quedo `remaining=0`.
+
+### Reglas respetadas
+
+- No se conecto UI ni formulario visual.
+- No se toco Storage.
+- No se tocaron migrations, seeds, mapas, rutas, Home, CountryPage, CountryZonePage, TrustPage, diseno ni `package.json`.
+- Nada se publica directo.
+
+---
+
 ## 2026-06-28 - Bloque 54: cola de fotos ajustada a grants reales
 
 Ajustado `submitUserPhotoSubmission(...)` para ser compatible con la tabla real `user_photo_submissions` y sus grants publicos por columna.
