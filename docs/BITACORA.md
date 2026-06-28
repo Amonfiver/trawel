@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-06-28 - Bloque 51: compartir conectado a user_messages
+
+Conectada la pagina `/compartir` con la cola privada `user_messages` mediante `submitCommunitySuggestion(...)`.
+
+### Cambios implementados
+
+- `TrustPage` muestra un formulario real solo para la pagina `compartir`.
+- Campos del formulario: nombre, email, pais o destino sugerido, tipo de propuesta, mensaje y aceptacion de privacidad.
+- Tipos de propuesta: experiencia, destino, colaboracion, correccion y otro.
+- El envio usa `sourcePage='compartir'`, `kind/type='community_suggestion'` y metadata revisable.
+- La propuesta entra en `user_messages` con estado inicial `pending_review` aplicado por Supabase.
+- La UI muestra estados de envio, exito y error amable.
+- El mensaje de exito deja claro que se recibe para revision y no se publica automaticamente.
+
+### Reglas respetadas
+
+- No se muestran propuestas publicamente ni se anade lectura publica.
+- No se conectaron fotos, storage ni reportes.
+- No se tocaron mapas, rutas, seeds, migraciones, `package.json`, Home, CountryPage ni CountryZonePage.
+
+---
+
 ## 2026-06-28 - Bloque 50: checklist de salida real online
 
 Preparada la checklist practica para validar Trawel como producto online inicial y escaparate funcional alimentable desde Supabase/Investighost.

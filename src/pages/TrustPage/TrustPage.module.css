@@ -110,6 +110,7 @@
 }
 
 .formField input,
+.formField select,
 .formField textarea {
   width: 100%;
   min-height: 46px;
@@ -126,11 +127,16 @@
     box-shadow 160ms ease;
 }
 
+.formField select {
+  cursor: pointer;
+}
+
 .formField textarea {
   resize: vertical;
 }
 
 .formField input:focus,
+.formField select:focus,
 .formField textarea:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);

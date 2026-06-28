@@ -1,6 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { submitContactMessage } from '../../features/travelData/productContent/userMessageQueue.service';
+import {
+  submitCommunitySuggestion,
+  submitContactMessage,
+} from '../../features/travelData/productContent/userMessageQueue.service';
 import { getPublishedStaticPageBySlug } from '../../features/travelData/productContent/productContent.service';
 import type { StaticPage } from '../../features/travelData/productContent/productContent.types';
 import styles from './TrustPage.module.css';
@@ -195,6 +198,7 @@ interface TrustPageProps {
 }
 
 type ContactFormStatus = 'idle' | 'submitting' | 'success' | 'error';
+type CommunityProposalType = 'experiencia' | 'destino' | 'colaboracion' | 'correccion' | 'otro';
 
 interface ContactFormValues {
   name: string;
@@ -212,12 +216,41 @@ const initialContactFormValues: ContactFormValues = {
   privacyAccepted: false,
 };
 
+interface ShareFormValues {
+  name: string;
+  email: string;
+  suggestedPlace: string;
+  proposalType: CommunityProposalType;
+  message: string;
+  privacyAccepted: boolean;
+}
+
+const initialShareFormValues: ShareFormValues = {
+  name: '',
+  email: '',
+  suggestedPlace: '',
+  proposalType: 'experiencia',
+  message: '',
+  privacyAccepted: false,
+};
+
+const communityProposalLabels: Record<CommunityProposalType, string> = {
+  experiencia: 'Experiencia',
+  destino: 'Destino',
+  colaboracion: 'Colaboración',
+  correccion: 'Corrección',
+  otro: 'Otro',
+};
+
 export function TrustPage({ page }: TrustPageProps) {
   const fallbackContent = trustPages[page];
   const [supabaseContent, setSupabaseContent] = useState<TrustPageContent | null>(null);
   const [contactFormValues, setContactFormValues] = useState<ContactFormValues>(initialContactFormValues);
   const [contactStatus, setContactStatus] = useState<ContactFormStatus>('idle');
   const [contactStatusMessage, setContactStatusMessage] = useState('');
+  const [shareFormValues, setShareFormValues] = useState<ShareFormValues>(initialShareFormValues);
+  const [shareStatus, setShareStatus] = useState<ContactFormStatus>('idle');
+  const [shareStatusMessage, setShareStatusMessage] = useState('');
 
   useEffect(() => {
     let isCurrent = true;
@@ -239,6 +272,7 @@ export function TrustPage({ page }: TrustPageProps) {
 
   const content = supabaseContent || fallbackContent;
   const isContactPage = page === 'contacto';
+  const isSharePage = page === 'compartir';
 
   const handleContactFormChange = (
     field: keyof ContactFormValues,
@@ -291,6 +325,71 @@ export function TrustPage({ page }: TrustPageProps) {
       result.status === 'validation_error'
         ? result.message
         : 'No hemos podido enviar el mensaje ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+    );
+  };
+
+  const handleShareFormChange = (
+    field: keyof ShareFormValues,
+    value: string | boolean
+  ) => {
+    setShareFormValues((currentValues) => ({
+      ...currentValues,
+      [field]: value,
+    }));
+
+    if (shareStatus !== 'submitting') {
+      setShareStatus('idle');
+      setShareStatusMessage('');
+    }
+  };
+
+  const handleShareFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (shareStatus === 'submitting') {
+      return;
+    }
+
+    setShareStatus('submitting');
+    setShareStatusMessage('Enviando tu propuesta...');
+
+    const suggestedPlace = shareFormValues.suggestedPlace.trim();
+
+    if (!suggestedPlace) {
+      setShareStatus('error');
+      setShareStatusMessage('Indica el país o destino relacionado con la propuesta.');
+      return;
+    }
+
+    const proposalLabel = communityProposalLabels[shareFormValues.proposalType];
+    const result = await submitCommunitySuggestion({
+      name: shareFormValues.name,
+      email: shareFormValues.email,
+      subject: `${proposalLabel}: ${suggestedPlace}`,
+      message: shareFormValues.message,
+      sourcePage: 'compartir',
+      privacyAccepted: shareFormValues.privacyAccepted,
+      metadata: {
+        source: 'trust_page_share_form',
+        proposal_type: shareFormValues.proposalType,
+        suggested_place: suggestedPlace,
+      },
+    });
+
+    if (result.ok) {
+      setShareFormValues(initialShareFormValues);
+      setShareStatus('success');
+      setShareStatusMessage(
+        'Propuesta recibida para revisión. No se publicará automáticamente.'
+      );
+      return;
+    }
+
+    setShareStatus('error');
+    setShareStatusMessage(
+      result.status === 'validation_error'
+        ? result.message
+        : 'No hemos podido enviar la propuesta ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
     );
   };
 
@@ -394,6 +493,122 @@ export function TrustPage({ page }: TrustPageProps) {
                 {contactStatusMessage && (
                   <p className={`${styles.formStatus} ${styles[contactStatus]}`} role="status">
                     {contactStatusMessage}
+                  </p>
+                )}
+              </div>
+            </form>
+          </section>
+        )}
+
+        {isSharePage && (
+          <section className={styles.contactPanel} aria-labelledby="share-form-title">
+            <div className={styles.contactPanelIntro}>
+              <p className={styles.contactEyebrow}>Propuesta revisable</p>
+              <h2 id="share-form-title">Comparte una idea para Trawel</h2>
+              <p>
+                Tu propuesta entra en una cola privada de revisión. Puede ayudarnos a priorizar
+                destinos, experiencias o correcciones, pero no se publica automáticamente.
+              </p>
+            </div>
+
+            <form className={styles.contactForm} onSubmit={handleShareFormSubmit}>
+              <div className={styles.formGrid}>
+                <label className={styles.formField}>
+                  <span>Nombre</span>
+                  <input
+                    type="text"
+                    name="shareName"
+                    autoComplete="name"
+                    value={shareFormValues.name}
+                    onChange={(event) => handleShareFormChange('name', event.target.value)}
+                    required
+                    maxLength={160}
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Email</span>
+                  <input
+                    type="email"
+                    name="shareEmail"
+                    autoComplete="email"
+                    value={shareFormValues.email}
+                    onChange={(event) => handleShareFormChange('email', event.target.value)}
+                    required
+                    maxLength={320}
+                  />
+                </label>
+              </div>
+
+              <div className={styles.formGrid}>
+                <label className={styles.formField}>
+                  <span>País o destino sugerido</span>
+                  <input
+                    type="text"
+                    name="suggestedPlace"
+                    value={shareFormValues.suggestedPlace}
+                    onChange={(event) => handleShareFormChange('suggestedPlace', event.target.value)}
+                    required
+                    maxLength={180}
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Tipo de propuesta</span>
+                  <select
+                    name="proposalType"
+                    value={shareFormValues.proposalType}
+                    onChange={(event) =>
+                      handleShareFormChange('proposalType', event.target.value as CommunityProposalType)
+                    }
+                    required
+                  >
+                    <option value="experiencia">Experiencia</option>
+                    <option value="destino">Destino</option>
+                    <option value="colaboracion">Colaboración</option>
+                    <option value="correccion">Corrección</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </label>
+              </div>
+
+              <label className={styles.formField}>
+                <span>Mensaje</span>
+                <textarea
+                  name="shareMessage"
+                  value={shareFormValues.message}
+                  onChange={(event) => handleShareFormChange('message', event.target.value)}
+                  required
+                  maxLength={5000}
+                  rows={7}
+                />
+              </label>
+
+              <label className={styles.privacyConsent}>
+                <input
+                  type="checkbox"
+                  name="sharePrivacyAccepted"
+                  checked={shareFormValues.privacyAccepted}
+                  onChange={(event) => handleShareFormChange('privacyAccepted', event.target.checked)}
+                  required
+                />
+                <span>
+                  Acepto que Trawel use estos datos para revisar esta propuesta privada.
+                </span>
+              </label>
+
+              <div className={styles.formFooter}>
+                <button
+                  type="submit"
+                  className={styles.submitButton}
+                  disabled={shareStatus === 'submitting'}
+                >
+                  {shareStatus === 'submitting' ? 'Enviando...' : 'Enviar propuesta'}
+                </button>
+
+                {shareStatusMessage && (
+                  <p className={`${styles.formStatus} ${styles[shareStatus]}`} role="status">
+                    {shareStatusMessage}
                   </p>
                 )}
               </div>
