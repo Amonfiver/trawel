@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-06-28 - Bloque 56: readiness final de colas publicas
+
+Registrada la auditoria final corta de colas publicas de Trawel como base real para Investighost.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md`.
+- Documentadas tablas verificadas: `user_messages`, `user_photo_submissions` y `content_reports`.
+- Documentados estados por defecto verificados: `pending_review`, `submitted` y `pending_review`.
+- Confirmada la seguridad: RLS activo, `INSERT` publico controlado, sin `SELECT` publico y cliente anon recibiendo `401` al leer.
+- Documentados servicios frontend preparados y formularios ya conectados.
+- Dejados claros pendientes reales: reportes visuales, fotos visuales, Storage seguro, panel Investighost y moderacion/publicacion interna.
+
+### Reglas respetadas
+
+- Solo se tocaron documentos.
+- No se tocaron `src/`, UI, Storage, migrations, seeds, mapas, rutas ni `package.json`.
+- No se ejecuto `npm run build` porque no hubo cambios de codigo.
+
+---
+
 ## 2026-06-28 - Bloque 55: reportes ajustados a grants reales
 
 Ajustado `submitContentReport(...)` para ser compatible con la tabla real `content_reports` y sus grants publicos por columna.

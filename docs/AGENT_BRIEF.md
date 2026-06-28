@@ -63,6 +63,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Colas de contenido de usuario:** `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md` define el contrato minimo para `user_messages`, `user_photo_submissions` y `content_reports`. El SQL 008 ya fue aplicado manualmente en Supabase real `trawel-prod`, creando estas colas con RLS, inserts publicos controlados y sin lectura publica. Trawel solo debe insertar en cola; Investighost revisara estados y ninguna entrada de usuario se publica directamente.
 
+**Readiness final colas publicas:** `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md` confirma que `user_messages`, `user_photo_submissions` y `content_reports` ya fueron verificadas contra Supabase real con defaults seguros, sin `SELECT` publico y con filas test eliminadas. `/contacto` y `/compartir` ya estan conectadas; fotos y reportes siguen pendientes de formulario visual.
+
 **Readiness colas usuario:** `docs/TRAWEL_USER_QUEUE_READINESS.md` audita el estado final de colas: tablas remotas y servicios estan preparados, pero no se deben conectar formularios publicos hasta revisar UX, antispam y storage seguro para fotos.
 
 **Storage fotos usuario:** `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md` define la estrategia segura previa a conectar fotos: conservar `traveler-adventure-photos` como bucket privado de cuarentena, no abrir lectura publica, guardar rutas en `user_photo_submissions.storage_path` y publicar solo tras revision interna/asset aprobado.

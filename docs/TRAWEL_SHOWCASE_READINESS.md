@@ -12,7 +12,7 @@ La checklist operativa de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
 - [~] Compartir/contacto/comunidad: `/contacto` y `/compartir` ya envian a `user_messages`; fotos y reportes siguen con servicios preparados pero sin formulario publico.
 - [x] Handoff Investighost -> Trawel: existe manual maestro para alimentar Supabase sin mezclar panel editorial dentro de Trawel.
-- [x] Auditoria de colas de usuario: `docs/TRAWEL_USER_QUEUE_READINESS.md` confirma preparacion local y bloqueos de produccion.
+- [x] Auditoria de colas de usuario: `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md` confirma verificacion real de las colas publicas.
 
 ## 2. Datos Que Ya Puede Leer Desde Supabase
 

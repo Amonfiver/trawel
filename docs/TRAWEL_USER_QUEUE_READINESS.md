@@ -6,7 +6,7 @@ Auditoria final de preparacion para recibir contenido de usuarios en cola sin pu
 
 Trawel esta preparado para recibir mensajes, fotos y reportes como entradas privadas de revision. El SQL 008 ya fue aplicado en Supabase real `trawel-prod` mediante ejecucion manual del archivo, sin usar `db push` ni tocar el historial remoto de migrations.
 
-No esta listo para activar formularios publicos hasta revisar el flujo visual, la estrategia antispam y el storage seguro para fotos.
+Estado actualizado: `/contacto` y `/compartir` ya estan conectadas a `user_messages`; fotos y reportes siguen pendientes de flujo visual, estrategia antispam y Storage seguro. El cierre final de verificacion vive en `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md`.
 
 ## 1. Tablas preparadas en migration local
 
@@ -45,11 +45,11 @@ Todos mantienen comportamiento seguro si Supabase no esta configurado y no hacen
 
 Ningun servicio usa `published`, `approved` ni estados publicables desde el lado publico.
 
-## 4. Falta para activar formularios publicos
+## 4. Falta para completar formularios publicos
 
 - Configurar storage seguro para fotos o decidir flujo alternativo de `image_url`.
 - Preparar validacion de subida, tamano, MIME, rutas y limpieza de archivos no aprobados.
-- Conectar formularios visuales de contacto, fotos y reportes.
+- Conectar formularios visuales de fotos y reportes.
 - Preparar Investighost o backend interno para moderar, responder, aprobar, rechazar, archivar y resolver.
 - Definir una estrategia antispam: rate limiting, captcha, Edge Function o filtro server-side si el volumen lo exige.
 
@@ -64,13 +64,13 @@ Ningun servicio usa `published`, `approved` ni estados publicables desde el lado
 
 ## 6. Decision recomendada
 
-No conectar formularios publicos todavia.
+No conectar fotos ni reportes visuales todavia.
 
-Antes de activar recepcion publica real, decidir el flujo seguro de storage para fotos, revisar UX de formularios y anadir proteccion antispam adecuada.
+Antes de activar recepcion publica visual de fotos o reportes, decidir el flujo seguro de storage para fotos, revisar UX de formularios y anadir proteccion antispam adecuada.
 
 Siguiente bloque tecnico probable:
 
-1. Preparar formulario de contacto contra `submitContactMessage(...)`.
-2. Preparar estrategia de storage/upload seguro para fotos antes de conectar `submitUserPhotoSubmission(...)`.
+1. Implementar Edge Function/upload seguro para fotos antes de conectar `submitUserPhotoSubmission(...)` a UI.
+2. Preparar formulario visual de reportes contra `submitContentReport(...)` si se decide abrir ese canal.
 
 En ambos caminos se mantiene la regla central: usuarios nunca publican directo; todo entra en cola y lo modera Investighost/backend.
