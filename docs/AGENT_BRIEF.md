@@ -65,6 +65,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Readiness final colas publicas:** `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md` confirma que `user_messages`, `user_photo_submissions` y `content_reports` ya fueron verificadas contra Supabase real con defaults seguros, sin `SELECT` publico y con filas test eliminadas. `/contacto`, `/compartir` y los reportes discretos de `TrustPage` ya estan conectados; fotos siguen pendientes de formulario visual.
 
+**Mapa entradas publicas:** `docs/TRAWEL_PUBLIC_INPUTS_MAP.md` resume cada entrada publica, ruta/ubicacion, servicio frontend, tabla Supabase, estado por defecto, publicacion directa y responsable de revision.
+
 **Readiness colas usuario:** `docs/TRAWEL_USER_QUEUE_READINESS.md` audita el estado final de colas: tablas remotas y servicios estan preparados, pero no se deben conectar formularios publicos hasta revisar UX, antispam y storage seguro para fotos.
 
 **Storage fotos usuario:** `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md` define la estrategia segura previa a conectar fotos: conservar `traveler-adventure-photos` como bucket privado de cuarentena, no abrir lectura publica, guardar rutas en `user_photo_submissions.storage_path` y publicar solo tras revision interna/asset aprobado.

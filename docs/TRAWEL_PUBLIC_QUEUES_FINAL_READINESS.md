@@ -2,6 +2,8 @@
 
 Auditoria final corta del estado de colas publicas de Trawel contra Supabase real.
 
+El mapa operativo de entradas vive en `docs/TRAWEL_PUBLIC_INPUTS_MAP.md`.
+
 ## 1. Resumen Ejecutivo
 
 Trawel ya puede recibir:
@@ -9,7 +11,7 @@ Trawel ya puede recibir:
 - Contacto desde `/contacto`.
 - Sugerencias y propuestas desde `/compartir`.
 - Futuras propuestas de fotos mediante `user_photo_submissions`.
-- Futuros reportes de contenido mediante `content_reports`.
+- Reportes de contenido mediante `content_reports`.
 
 Todo entra en cola privada de revision. Nada enviado por usuarios se publica automaticamente ni se muestra en la web publica.
 
@@ -57,10 +59,10 @@ Todos insertan en tablas privadas de cola y mantienen el estado publicable fuera
 
 - `/contacto`: inserta mensajes privados en `user_messages`.
 - `/compartir`: inserta sugerencias/propuestas privadas en `user_messages`.
+- `TrustPage`: inserta reportes privados en `content_reports`.
 
 ## 7. Pendientes Reales
 
-- Formulario visual de reportes.
 - Flujo visual de fotos.
 - Subida segura a Storage para fotos de usuario.
 - Edge Function o backend interno para validar subidas.

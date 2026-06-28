@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-06-28 - Bloque 58: mapa de entradas publicas
+
+Registrado el mapa operativo de entradas publicas de Trawel para orientar a Investighost sobre que recibe cada canal y donde debe moderarse.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_PUBLIC_INPUTS_MAP.md`.
+- Documentadas entradas publicas actuales y previstas: contacto, compartir/sugerir, reportar contenido y fotos de viajeros.
+- Incluidos ruta/ubicacion, servicio frontend, tabla Supabase, estado por defecto, publicacion directa, revision y estado actual.
+- Reforzada la regla maestra: Trawel recibe aportes, Investighost modera y Trawel publica solo aprobado.
+- Documentada seguridad: `INSERT` publico controlado y sin `SELECT` publico en colas.
+
+### Reglas respetadas
+
+- Solo se tocaron documentos.
+- No se tocaron `src/`, UI, Storage, migrations, seeds, mapas, rutas ni `package.json`.
+- No se ejecuto `npm run build` porque no hubo cambios de codigo.
+
+---
+
 ## 2026-06-28 - Bloque 57: reportes publicos conectados a content_reports
 
 Conectada una via discreta de reporte en paginas `TrustPage`, enviando a la cola privada `content_reports`.
