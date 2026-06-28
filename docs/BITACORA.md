@@ -5,6 +5,42 @@
 
 ---
 
+## 2026-06-28 - Bloque 54: cola de fotos ajustada a grants reales
+
+Ajustado `submitUserPhotoSubmission(...)` para ser compatible con la tabla real `user_photo_submissions` y sus grants publicos por columna.
+
+### Cambios implementados
+
+- Eliminado `status` del payload insertado por el servicio.
+- El servicio mantiene validacion de autor, email, pais, zona opcional, titulo, descripcion, `image_url` o `storage_path`, credito, derechos y consentimiento.
+- Supabase aplica ahora `status='submitted'` por default.
+- No se envian columnas internas como `reviewed_at`, `reviewed_by`, `published_image_asset_id`, `rejection_reason` ni notas internas.
+
+### Verificacion real
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+- Insert controlado con anon usando `storage_path='test/manual-placeholder-2026-06-28T16-03-10-357Z.webp'`.
+- Fila test creada con referencia segura `793cef20-45d4-4cab-85d8-5ebdcdbfc167`.
+- Campos verificados:
+  - `status='submitted'` aplicado por Supabase.
+  - `country_slug='mexico'`.
+  - `storage_path` presente.
+  - `image_url=null`.
+  - `rights_confirmed=true`.
+  - `consent_confirmed=true`.
+  - `published_image_asset_id=null`.
+- Confirmado que cliente anon recibe `401` al intentar leer `user_photo_submissions`.
+- La fila test fue eliminada despues de la verificacion y quedo `remaining=0`.
+
+### Reglas respetadas
+
+- No se conecto UI ni formulario visual.
+- No se subieron archivos ni se toco Storage.
+- No se tocaron migrations, seeds, mapas, rutas, Home, CountryPage, CountryZonePage, TrustPage, diseno ni `package.json`.
+- Nada se publica directo.
+
+---
+
 ## 2026-06-28 - Bloque 53: estrategia Storage para fotos de usuario
 
 Auditado Supabase Storage remoto y preparado el plan seguro para fotos de usuario antes de conectar cualquier formulario visual.

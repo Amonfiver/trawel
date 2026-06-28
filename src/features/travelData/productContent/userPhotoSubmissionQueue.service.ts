@@ -48,7 +48,6 @@ interface UserPhotoSubmissionQueueRow {
   credit_name: string;
   rights_confirmed: true;
   consent_confirmed: true;
-  status: UserPhotoSubmissionStatus;
 }
 
 const USER_PHOTO_SUBMISSIONS_TABLE = 'user_photo_submissions';
@@ -206,7 +205,6 @@ function mapUserPhotoSubmissionInputToQueueRow(
     credit_name: input.creditName.trim(),
     rights_confirmed: true,
     consent_confirmed: true,
-    status: 'submitted',
   };
 }
 
