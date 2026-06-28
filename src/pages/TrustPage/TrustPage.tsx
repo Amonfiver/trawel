@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { submitContactMessage } from '../../features/travelData/productContent/userMessageQueue.service';
 import { getPublishedStaticPageBySlug } from '../../features/travelData/productContent/productContent.service';
 import type { StaticPage } from '../../features/travelData/productContent/productContent.types';
 import styles from './TrustPage.module.css';
@@ -193,9 +194,30 @@ interface TrustPageProps {
   page: TrustPageSlug;
 }
 
+type ContactFormStatus = 'idle' | 'submitting' | 'success' | 'error';
+
+interface ContactFormValues {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  privacyAccepted: boolean;
+}
+
+const initialContactFormValues: ContactFormValues = {
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+  privacyAccepted: false,
+};
+
 export function TrustPage({ page }: TrustPageProps) {
   const fallbackContent = trustPages[page];
   const [supabaseContent, setSupabaseContent] = useState<TrustPageContent | null>(null);
+  const [contactFormValues, setContactFormValues] = useState<ContactFormValues>(initialContactFormValues);
+  const [contactStatus, setContactStatus] = useState<ContactFormStatus>('idle');
+  const [contactStatusMessage, setContactStatusMessage] = useState('');
 
   useEffect(() => {
     let isCurrent = true;
@@ -216,6 +238,61 @@ export function TrustPage({ page }: TrustPageProps) {
   }, [fallbackContent, page]);
 
   const content = supabaseContent || fallbackContent;
+  const isContactPage = page === 'contacto';
+
+  const handleContactFormChange = (
+    field: keyof ContactFormValues,
+    value: string | boolean
+  ) => {
+    setContactFormValues((currentValues) => ({
+      ...currentValues,
+      [field]: value,
+    }));
+
+    if (contactStatus !== 'submitting') {
+      setContactStatus('idle');
+      setContactStatusMessage('');
+    }
+  };
+
+  const handleContactFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (contactStatus === 'submitting') {
+      return;
+    }
+
+    setContactStatus('submitting');
+    setContactStatusMessage('Enviando tu mensaje...');
+
+    const result = await submitContactMessage({
+      name: contactFormValues.name,
+      email: contactFormValues.email,
+      subject: contactFormValues.subject,
+      message: contactFormValues.message,
+      sourcePage: 'contacto',
+      privacyAccepted: contactFormValues.privacyAccepted,
+      metadata: {
+        source: 'trust_page_contact_form',
+      },
+    });
+
+    if (result.ok) {
+      setContactFormValues(initialContactFormValues);
+      setContactStatus('success');
+      setContactStatusMessage(
+        'Mensaje enviado. Lo revisaremos antes de responder, sin publicarlo en la web.'
+      );
+      return;
+    }
+
+    setContactStatus('error');
+    setContactStatusMessage(
+      result.status === 'validation_error'
+        ? result.message
+        : 'No hemos podido enviar el mensaje ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+    );
+  };
 
   return (
     <main className={styles.page}>
@@ -228,6 +305,102 @@ export function TrustPage({ page }: TrustPageProps) {
       </section>
 
       <section className={styles.content} aria-label="Información">
+        {isContactPage && (
+          <section className={styles.contactPanel} aria-labelledby="contact-form-title">
+            <div className={styles.contactPanelIntro}>
+              <p className={styles.contactEyebrow}>Mensaje privado</p>
+              <h2 id="contact-form-title">Cuéntanos qué necesitas revisar</h2>
+              <p>
+                Tu mensaje entra en una cola privada de revisión. No se muestra públicamente ni
+                se convierte en contenido visible de Trawel.
+              </p>
+            </div>
+
+            <form className={styles.contactForm} onSubmit={handleContactFormSubmit}>
+              <div className={styles.formGrid}>
+                <label className={styles.formField}>
+                  <span>Nombre</span>
+                  <input
+                    type="text"
+                    name="name"
+                    autoComplete="name"
+                    value={contactFormValues.name}
+                    onChange={(event) => handleContactFormChange('name', event.target.value)}
+                    required
+                    maxLength={160}
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Email</span>
+                  <input
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    value={contactFormValues.email}
+                    onChange={(event) => handleContactFormChange('email', event.target.value)}
+                    required
+                    maxLength={320}
+                  />
+                </label>
+              </div>
+
+              <label className={styles.formField}>
+                <span>Asunto</span>
+                <input
+                  type="text"
+                  name="subject"
+                  value={contactFormValues.subject}
+                  onChange={(event) => handleContactFormChange('subject', event.target.value)}
+                  required
+                  maxLength={200}
+                />
+              </label>
+
+              <label className={styles.formField}>
+                <span>Mensaje</span>
+                <textarea
+                  name="message"
+                  value={contactFormValues.message}
+                  onChange={(event) => handleContactFormChange('message', event.target.value)}
+                  required
+                  maxLength={5000}
+                  rows={7}
+                />
+              </label>
+
+              <label className={styles.privacyConsent}>
+                <input
+                  type="checkbox"
+                  name="privacyAccepted"
+                  checked={contactFormValues.privacyAccepted}
+                  onChange={(event) => handleContactFormChange('privacyAccepted', event.target.checked)}
+                  required
+                />
+                <span>
+                  Acepto que Trawel use estos datos para revisar y responder este mensaje privado.
+                </span>
+              </label>
+
+              <div className={styles.formFooter}>
+                <button
+                  type="submit"
+                  className={styles.submitButton}
+                  disabled={contactStatus === 'submitting'}
+                >
+                  {contactStatus === 'submitting' ? 'Enviando...' : 'Enviar mensaje'}
+                </button>
+
+                {contactStatusMessage && (
+                  <p className={`${styles.formStatus} ${styles[contactStatus]}`} role="status">
+                    {contactStatusMessage}
+                  </p>
+                )}
+              </div>
+            </form>
+          </section>
+        )}
+
         {content.sections.map((section) => (
           <article key={section.title} className={styles.section}>
             <h2>{section.title}</h2>

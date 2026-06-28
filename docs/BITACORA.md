@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-06-28 - Bloque 48: formulario de contacto conectado a user_messages
+
+Conectada la pagina publica `/contacto` con la cola privada `user_messages` mediante el servicio existente `submitContactMessage(...)`.
+
+### Cambios implementados
+
+- `TrustPage` muestra un formulario real solo para la pagina `contacto`.
+- Campos del formulario: nombre, email, asunto, mensaje y aceptacion de privacidad.
+- El envio usa `sourcePage='contacto'` y `kind/type='contact'` desde el servicio.
+- Los mensajes entran con `status='pending_review'` y `privacy_accepted=true`.
+- La UI muestra estados de envio, exito y error amable.
+- Se mantiene el contenido informativo existente de la pagina.
+
+### Reglas respetadas
+
+- No se muestran mensajes publicamente ni se anade lectura publica.
+- No se conectaron fotos ni reportes.
+- No se tocaron mapas, rutas, seeds, migraciones, `package.json`, Home, CountryPage ni CountryZonePage.
+
+---
+
 ## 2026-06-28 - Bloque 47D: colas reales de usuario en Supabase
 
 Registrada la aplicacion real del SQL 008 en Supabase remoto `trawel-prod`, ref `pjqisqzxajdfkimtrcby`.

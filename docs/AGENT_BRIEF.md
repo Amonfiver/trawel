@@ -65,7 +65,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **CountryZonePage data-driven:** `CountryZonePage` consume `getResolvedZoneScreenData(countrySlug, zoneSlug, mode)` como fachada resuelta de zona: parte de `getZoneScreenData(...)` como fallback local, intenta leer datos base seguros desde `cities` legacy mediante `countries.slug + cities.slug`, expone `countrySlug`, `zoneSlug`, nombres, estado, hero/fallback, editorial/copy, CTA y promociones nativas publicadas desde Supabase. Las promociones ya no deben cargarse directamente desde la pagina. Futuros cambios de zona deben pasar por la fachada antes de tocar la pagina.
 
-**Paginas de confianza:** existen paginas minimas en `src/pages/TrustPage/` para `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`. `TrustPage` intenta leer `static_pages` publicadas desde Supabase con `getPublishedStaticPageBySlug(slug)` y conserva fallback local si no hay contenido o falla la configuracion. Son informativas iniciales; no sustituyen textos legales definitivos ni conectan formularios/backend.
+**Paginas de confianza:** existen paginas minimas en `src/pages/TrustPage/` para `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`. `TrustPage` intenta leer `static_pages` publicadas desde Supabase con `getPublishedStaticPageBySlug(slug)` y conserva fallback local si no hay contenido o falla la configuracion. `/contacto` ya incluye formulario real contra `submitContactMessage(...)`, que inserta en `user_messages` como cola privada `pending_review` sin lectura publica. El resto son informativas iniciales y no sustituyen textos legales definitivos.
 
 **Arquitectura de fuentes:**
 
@@ -210,7 +210,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; próximos bloques recomendados: cola de mensajes/contactos, cola de fotos/aportes y cierre de checklist funcional.
 
-**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. Falta ejecutar/revisar schema remoto y conectar formularios reales. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
+**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. `/contacto` ya envia mensajes reales mediante `submitContactMessage(...)` con `sourcePage='contacto'`, privacidad aceptada y estado `pending_review`. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
 
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` con `status='submitted'` cuando hay derechos y consentimiento confirmados. Falta aplicar schema remoto, storage/upload seguro y formulario real.
 

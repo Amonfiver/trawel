@@ -8,7 +8,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 - [x] CountryPage: usa `getResolvedCountryScreenData()` con pais, editorial y promociones.
 - [x] CountryZonePage: usa `getResolvedZoneScreenData()` con zona y promociones.
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
-- [~] Compartir/contacto/comunidad: existe flujo publico parcial, CTA, contrato de colas, tablas remotas y servicios apuntando a `user_messages`/`user_photo_submissions`/`content_reports`; falta conexion visual real.
+- [~] Compartir/contacto/comunidad: `/contacto` ya envia a `user_messages`; fotos y reportes siguen con servicios preparados pero sin formulario publico.
 - [x] Handoff Investighost -> Trawel: existe manual maestro para alimentar Supabase sin mezclar panel editorial dentro de Trawel.
 - [x] Auditoria de colas de usuario: `docs/TRAWEL_USER_QUEUE_READINESS.md` confirma preparacion local y bloqueos de produccion.
 
@@ -32,7 +32,7 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 4. Necesario Para Escaparate Funcional
 
-- [~] Recibir mensajes/contactos desde paginas publicas: tabla remota y fachada preparadas; falta conectar formulario.
+- [x] Recibir mensajes/contactos desde paginas publicas: `/contacto` usa `submitContactMessage(...)` y entra en `user_messages` como `pending_review`.
 - [~] Recibir fotos/aportes de usuarios: tabla remota y servicio preparados; falta storage/upload seguro y formulario.
 - [~] Recibir reportes de contenido: tabla remota y servicio preparados; falta formulario.
 - [x] Guardar todo en cola de revision: SQL 008 aplicado manualmente en Supabase real, con RLS activo y sin SELECT publico.
@@ -52,8 +52,8 @@ Auditoria practica para cerrar la etapa de escaparate publico y evitar microbloq
 
 ## 6. Proximos 3 Bloques Recomendados
 
-1. Conectar formulario de contacto a `submitContactMessage(...)`.
-2. Definir storage/upload seguro antes de conectar fotos publicas.
+1. Definir storage/upload seguro antes de conectar fotos publicas.
+2. Preparar formulario de reportes de contenido si se decide abrir ese canal.
 3. Cerrar checklist de escaparate funcional.
 
 ## Conclusion
