@@ -36,7 +36,7 @@ La checklist operativa de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_
 
 - [x] Recibir mensajes/contactos desde paginas publicas: `/contacto` usa `submitContactMessage(...)` y entra en `user_messages` como `pending_review`.
 - [x] Recibir propuestas/sugerencias desde paginas publicas: `/compartir` usa `submitCommunitySuggestion(...)` y entra en `user_messages` como `pending_review`.
-- [~] Recibir fotos/aportes de usuarios: tabla remota y servicio preparados; falta storage/upload seguro y formulario.
+- [~] Recibir fotos/aportes de usuarios: tabla remota, servicio y plan de Storage preparados; falta Edge Function/upload seguro y formulario.
 - [~] Recibir reportes de contenido: tabla remota y servicio preparados; falta formulario.
 - [x] Guardar todo en cola de revision: SQL 008 aplicado manualmente en Supabase real, con RLS activo y sin SELECT publico.
 - [x] Nunca publicar directo desde usuario: servicios actuales solo insertan estados iniciales privados.
@@ -56,7 +56,7 @@ La checklist operativa de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_
 ## 6. Proximos 3 Bloques Recomendados
 
 1. Ejecutar `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md` antes de salida publica.
-2. Definir storage/upload seguro antes de conectar fotos publicas.
+2. Implementar Edge Function/upload seguro para fotos siguiendo `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md`.
 3. Preparar formulario de reportes de contenido si se decide abrir ese canal.
 
 ## Conclusion

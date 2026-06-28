@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-06-28 - Bloque 53: estrategia Storage para fotos de usuario
+
+Auditado Supabase Storage remoto y preparado el plan seguro para fotos de usuario antes de conectar cualquier formulario visual.
+
+### Resultado de auditoria
+
+- Buckets existentes en `trawel-prod`:
+  - `map-assets`: publico, usado para TopoJSON/mapas.
+  - `traveler-adventure-photos`: privado, limite 5 MB, MIME `image/jpeg`, `image/png`, `image/webp`.
+- `storage.objects` solo tiene policy publica de lectura para `map-assets`.
+- No hay policy publica para leer o escribir `traveler-adventure-photos`.
+- `user_photo_submissions` mantiene RLS, policy publica solo de `INSERT` y sin `SELECT` publico.
+- Los grants publicos de `user_photo_submissions` son por columnas esperadas y no incluyen `status`.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md`.
+- Documentada estrategia recomendada: usar `traveler-adventure-photos` como bucket privado de cuarentena.
+- Definido naming de rutas por pais/zona/anio/submission_id.
+- Documentada relacion con `user_photo_submissions.storage_path`.
+- Marcado que no se debe abrir lectura publica ni publicar fotos pendientes.
+- Anotado como tarea previa revisar `submitUserPhotoSubmission(...)` para no escribir `status` antes de conectar formulario visual.
+
+### Reglas respetadas
+
+- No se creo ni modifico ningun bucket real.
+- No se tocaron `src/`, UI, rutas, mapas, migrations, seeds ni `package.json`.
+- No se conectaron fotos, storage visual ni reportes.
+- No se ejecuto `npm run build` porque solo se tocaron documentos.
+
+---
+
 ## 2026-06-28 - Bloque 52: verificacion real de compartir en Supabase
 
 Verificado el envio real del formulario publico `/compartir` contra Supabase remoto.
