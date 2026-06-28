@@ -63,7 +63,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Colas de contenido de usuario:** `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md` define el contrato minimo para `user_messages`, `user_photo_submissions` y `content_reports`. El SQL 008 ya fue aplicado manualmente en Supabase real `trawel-prod`, creando estas colas con RLS, inserts publicos controlados y sin lectura publica. Trawel solo debe insertar en cola; Investighost revisara estados y ninguna entrada de usuario se publica directamente.
 
-**Readiness final colas publicas:** `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md` confirma que `user_messages`, `user_photo_submissions` y `content_reports` ya fueron verificadas contra Supabase real con defaults seguros, sin `SELECT` publico y con filas test eliminadas. `/contacto` y `/compartir` ya estan conectadas; fotos y reportes siguen pendientes de formulario visual.
+**Readiness final colas publicas:** `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md` confirma que `user_messages`, `user_photo_submissions` y `content_reports` ya fueron verificadas contra Supabase real con defaults seguros, sin `SELECT` publico y con filas test eliminadas. `/contacto`, `/compartir` y los reportes discretos de `TrustPage` ya estan conectados; fotos siguen pendientes de formulario visual.
 
 **Readiness colas usuario:** `docs/TRAWEL_USER_QUEUE_READINESS.md` audita el estado final de colas: tablas remotas y servicios estan preparados, pero no se deben conectar formularios publicos hasta revisar UX, antispam y storage seguro para fotos.
 
@@ -220,7 +220,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` cuando hay derechos y consentimiento confirmados. El servicio no escribe `status`; Supabase aplica el default seguro `submitted` para respetar los grants publicos por columna. Antes de conectar formulario visual, seguir `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md` para Storage privado seguro.
 
-**Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y solo inserta en `content_reports`. El servicio no escribe `status`; Supabase aplica el default seguro `pending_review` para respetar los grants publicos por columna. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la migration local.
+**Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y solo inserta en `content_reports`. `TrustPage` incluye una via discreta "Reportar contenido" apuntando a `static_page` + slug actual. El servicio no escribe `status`; Supabase aplica el default seguro `pending_review` para respetar los grants publicos por columna. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la migration local.
 
 **Auditoria colas:** ver `docs/TRAWEL_USER_QUEUE_READINESS.md` antes de conectar cualquier formulario publico de mensajes, fotos o reportes.
 

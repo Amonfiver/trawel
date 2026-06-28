@@ -5,6 +5,42 @@
 
 ---
 
+## 2026-06-28 - Bloque 57: reportes publicos conectados a content_reports
+
+Conectada una via discreta de reporte en paginas `TrustPage`, enviando a la cola privada `content_reports`.
+
+### Cambios implementados
+
+- Anadido bloque plegable "Reportar contenido" en paginas trust.
+- El formulario pide nombre, email, tipo de reporte y mensaje.
+- El target se envia como `target_entity_type='static_page'` y `target_entity_slug` igual al slug de la pagina actual.
+- Tipos publicos disponibles: error de contenido, derechos de imagen, solicitud de retirada, contenido inapropiado, informacion desactualizada y otro.
+- El envio usa `submitContentReport(...)`.
+- El exito informa que el reporte fue recibido para revision y no se publica automaticamente.
+- Los errores muestran mensaje amable sin publicar nada.
+
+### Verificacion real
+
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+- Envio real desde `/privacidad` verificado con Playwright local.
+- Fila test creada con referencia segura `c1d1e586-261c-4258-b7a1-9e04a036e682`.
+- Campos verificados:
+  - `report_type='error'`.
+  - `target_entity_type='static_page'`.
+  - `target_entity_slug='privacidad'`.
+  - `status='pending_review'`.
+  - `resolved_at=null`.
+  - `internal_notes=null`.
+- Confirmado que cliente anon recibe `401` al intentar leer `content_reports`.
+- La fila test fue eliminada despues de la verificacion y quedo `remaining=0`.
+
+### Reglas respetadas
+
+- No se tocaron mapas, rutas, Storage, fotos, migrations, seeds, Home, CountryPage, CountryZonePage ni `package.json`.
+- Nada se publica directo.
+
+---
+
 ## 2026-06-28 - Bloque 56: readiness final de colas publicas
 
 Registrada la auditoria final corta de colas publicas de Trawel como base real para Investighost.

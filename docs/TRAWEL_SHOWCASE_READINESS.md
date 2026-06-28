@@ -10,7 +10,7 @@ La checklist operativa de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_
 - [x] CountryPage: usa `getResolvedCountryScreenData()` con pais, editorial y promociones.
 - [x] CountryZonePage: usa `getResolvedZoneScreenData()` con zona y promociones.
 - [x] Trust pages: `static_pages` ya permite contenido publicado desde Supabase.
-- [~] Compartir/contacto/comunidad: `/contacto` y `/compartir` ya envian a `user_messages`; fotos y reportes siguen con servicios preparados pero sin formulario publico.
+- [~] Compartir/contacto/comunidad: `/contacto`, `/compartir` y reportes trust ya envian a colas privadas; fotos siguen con servicio preparado pero sin formulario publico.
 - [x] Handoff Investighost -> Trawel: existe manual maestro para alimentar Supabase sin mezclar panel editorial dentro de Trawel.
 - [x] Auditoria de colas de usuario: `docs/TRAWEL_PUBLIC_QUEUES_FINAL_READINESS.md` confirma verificacion real de las colas publicas.
 
@@ -37,7 +37,7 @@ La checklist operativa de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_
 - [x] Recibir mensajes/contactos desde paginas publicas: `/contacto` usa `submitContactMessage(...)` y entra en `user_messages` como `pending_review`.
 - [x] Recibir propuestas/sugerencias desde paginas publicas: `/compartir` usa `submitCommunitySuggestion(...)` y entra en `user_messages` como `pending_review`.
 - [~] Recibir fotos/aportes de usuarios: tabla remota, servicio y plan de Storage preparados; falta Edge Function/upload seguro y formulario.
-- [~] Recibir reportes de contenido: tabla remota y servicio preparados; falta formulario.
+- [x] Recibir reportes de contenido: paginas trust usan `submitContentReport(...)` y entran en `content_reports` como `pending_review`.
 - [x] Guardar todo en cola de revision: SQL 008 aplicado manualmente en Supabase real, con RLS activo y sin SELECT publico.
 - [x] Nunca publicar directo desde usuario: servicios actuales solo insertan estados iniciales privados.
 - [x] Permitir promociones controladas sin invadir la experiencia.
@@ -57,7 +57,7 @@ La checklist operativa de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_
 
 1. Ejecutar `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md` antes de salida publica.
 2. Implementar Edge Function/upload seguro para fotos siguiendo `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md`.
-3. Preparar formulario de reportes de contenido si se decide abrir ese canal.
+3. Cerrar flujo visual de fotos solo cuando exista subida segura.
 
 ## Conclusion
 

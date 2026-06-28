@@ -4,6 +4,10 @@ import {
   submitCommunitySuggestion,
   submitContactMessage,
 } from '../../features/travelData/productContent/userMessageQueue.service';
+import {
+  submitContentReport,
+  type ContentReportInputType,
+} from '../../features/travelData/productContent/contentReportQueue.service';
 import { getPublishedStaticPageBySlug } from '../../features/travelData/productContent/productContent.service';
 import type { StaticPage } from '../../features/travelData/productContent/productContent.types';
 import styles from './TrustPage.module.css';
@@ -242,6 +246,20 @@ const communityProposalLabels: Record<CommunityProposalType, string> = {
   otro: 'Otro',
 };
 
+interface ReportFormValues {
+  name: string;
+  email: string;
+  reportType: ContentReportInputType;
+  message: string;
+}
+
+const initialReportFormValues: ReportFormValues = {
+  name: '',
+  email: '',
+  reportType: 'content_error',
+  message: '',
+};
+
 export function TrustPage({ page }: TrustPageProps) {
   const fallbackContent = trustPages[page];
   const [supabaseContent, setSupabaseContent] = useState<TrustPageContent | null>(null);
@@ -251,6 +269,9 @@ export function TrustPage({ page }: TrustPageProps) {
   const [shareFormValues, setShareFormValues] = useState<ShareFormValues>(initialShareFormValues);
   const [shareStatus, setShareStatus] = useState<ContactFormStatus>('idle');
   const [shareStatusMessage, setShareStatusMessage] = useState('');
+  const [reportFormValues, setReportFormValues] = useState<ReportFormValues>(initialReportFormValues);
+  const [reportStatus, setReportStatus] = useState<ContactFormStatus>('idle');
+  const [reportStatusMessage, setReportStatusMessage] = useState('');
 
   useEffect(() => {
     let isCurrent = true;
@@ -390,6 +411,57 @@ export function TrustPage({ page }: TrustPageProps) {
       result.status === 'validation_error'
         ? result.message
         : 'No hemos podido enviar la propuesta ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+    );
+  };
+
+  const handleReportFormChange = <Field extends keyof ReportFormValues>(
+    field: Field,
+    value: ReportFormValues[Field]
+  ) => {
+    setReportFormValues((currentValues) => ({
+      ...currentValues,
+      [field]: value,
+    }));
+
+    if (reportStatus !== 'submitting') {
+      setReportStatus('idle');
+      setReportStatusMessage('');
+    }
+  };
+
+  const handleReportFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (reportStatus === 'submitting') {
+      return;
+    }
+
+    setReportStatus('submitting');
+    setReportStatusMessage('Enviando reporte...');
+
+    const result = await submitContentReport({
+      reportType: reportFormValues.reportType,
+      reporterName: reportFormValues.name,
+      reporterEmail: reportFormValues.email,
+      targetEntityType: 'static_page',
+      targetEntitySlug: page,
+      message: reportFormValues.message,
+    });
+
+    if (result.ok) {
+      setReportFormValues(initialReportFormValues);
+      setReportStatus('success');
+      setReportStatusMessage(
+        'Reporte recibido para revisión. No se publicará automáticamente.'
+      );
+      return;
+    }
+
+    setReportStatus('error');
+    setReportStatusMessage(
+      result.status === 'validation_error'
+        ? result.message
+        : 'No hemos podido enviar el reporte ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
     );
   };
 
@@ -633,6 +705,93 @@ export function TrustPage({ page }: TrustPageProps) {
             Volver a Trawel
           </Link>
         </div>
+
+        <details className={styles.reportBox}>
+          <summary>Reportar contenido</summary>
+          <div className={styles.reportBody}>
+            <p>
+              Si ves un error, una imagen problemática o información que deba revisarse, puedes
+              enviarlo a una cola privada de moderación.
+            </p>
+
+            <form className={styles.reportForm} onSubmit={handleReportFormSubmit}>
+              <div className={styles.formGrid}>
+                <label className={styles.formField}>
+                  <span>Nombre</span>
+                  <input
+                    type="text"
+                    name="reportName"
+                    autoComplete="name"
+                    value={reportFormValues.name}
+                    onChange={(event) => handleReportFormChange('name', event.target.value)}
+                    required
+                    maxLength={160}
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Email</span>
+                  <input
+                    type="email"
+                    name="reportEmail"
+                    autoComplete="email"
+                    value={reportFormValues.email}
+                    onChange={(event) => handleReportFormChange('email', event.target.value)}
+                    required
+                    maxLength={320}
+                  />
+                </label>
+              </div>
+
+              <label className={styles.formField}>
+                <span>Tipo de reporte</span>
+                <select
+                  name="reportType"
+                  value={reportFormValues.reportType}
+                  onChange={(event) =>
+                    handleReportFormChange('reportType', event.target.value as ContentReportInputType)
+                  }
+                  required
+                >
+                  <option value="content_error">Error de contenido</option>
+                  <option value="image_rights">Derechos de imagen</option>
+                  <option value="removal_request">Solicitud de retirada</option>
+                  <option value="inappropriate_content">Contenido inapropiado</option>
+                  <option value="outdated_information">Información desactualizada</option>
+                  <option value="other">Otro</option>
+                </select>
+              </label>
+
+              <label className={styles.formField}>
+                <span>Mensaje</span>
+                <textarea
+                  name="reportMessage"
+                  value={reportFormValues.message}
+                  onChange={(event) => handleReportFormChange('message', event.target.value)}
+                  required
+                  maxLength={5000}
+                  rows={5}
+                />
+              </label>
+
+              <div className={styles.formFooter}>
+                <button
+                  type="submit"
+                  className={styles.reportSubmitButton}
+                  disabled={reportStatus === 'submitting'}
+                >
+                  {reportStatus === 'submitting' ? 'Enviando...' : 'Enviar reporte'}
+                </button>
+
+                {reportStatusMessage && (
+                  <p className={`${styles.formStatus} ${styles[reportStatus]}`} role="status">
+                    {reportStatusMessage}
+                  </p>
+                )}
+              </div>
+            </form>
+          </div>
+        </details>
       </section>
     </main>
   );
