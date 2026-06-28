@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-06-28 - Bloque 52: verificacion real de compartir en Supabase
+
+Verificado el envio real del formulario publico `/compartir` contra Supabase remoto.
+
+### Resultado validado
+
+- Envio real desde `/compartir` verificado con Playwright local.
+- Fila test creada en `user_messages` con referencia segura `ef74cb60-9c23-4b84-b0b9-5953b8452431`.
+- Campos verificados:
+  - `type='community_suggestion'` y `kind='community_suggestion'`.
+  - `status='pending_review'`.
+  - `source_page='compartir'`.
+  - `privacy_accepted=true`.
+  - `priority='normal'`.
+  - `metadata.source='trust_page_share_form'`.
+  - `metadata.proposal_type='destino'`.
+- Confirmado que no hay policies publicas de `SELECT`.
+- Confirmado que un cliente anon recibe `401` al intentar leer `user_messages`.
+- La fila test fue eliminada despues de la verificacion y quedo `remaining=0`.
+
+### Reglas respetadas
+
+- No se tocaron `src/`, migrations, seeds, mapas, rutas, Home, CountryPage ni CountryZonePage.
+- No se conectaron fotos ni reportes.
+- No se publico ningun mensaje o propuesta en web.
+- No se ejecuto `npm run build` porque solo se documento la verificacion.
+
+---
+
 ## 2026-06-28 - Bloque 51: compartir conectado a user_messages
 
 Conectada la pagina `/compartir` con la cola privada `user_messages` mediante `submitCommunitySuggestion(...)`.
