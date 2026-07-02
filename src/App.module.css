@@ -169,6 +169,7 @@
 
   .headerContent {
     gap: 0.75rem;
+    flex-wrap: wrap;
   }
 
   .logoImage {
@@ -177,7 +178,17 @@
   }
 
   .nav {
-    display: none;
+    order: 3;
+    flex: 0 0 100%;
+    justify-content: center;
+    gap: 0.375rem;
+    overflow-x: auto;
+    padding-top: 0.25rem;
+  }
+
+  .navLink {
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.5rem;
   }
 
   .modeButton {
@@ -202,5 +213,13 @@
 
   .modeButton {
     padding: 0.375rem 0.625rem;
+  }
+
+  .nav {
+    gap: 0.25rem;
+  }
+
+  .navLink {
+    padding-inline: 0.375rem;
   }
 }

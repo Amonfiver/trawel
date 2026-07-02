@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-07-02 - Bloque 60: contacto en menu superior
+
+Anadido el acceso directo a `/contacto` desde el menu superior principal.
+
+### Cambios implementados
+
+- Anadido enlace visible `Contacto` en el `nav` global de `src/App.tsx`.
+- Ajustado el responsive del header para conservar la navegacion superior visible en movil como segunda fila compacta.
+- Mantenida la ruta existente `/contacto` sin tocar formularios, Supabase ni contratos de datos.
+
+### Reglas respetadas
+
+- Solo se tocaron header/nav y documentacion permitida.
+- No se tocaron rutas, formularios, Supabase, mapas, D3, TopoJSON, `package.json`, migrations, seeds ni Storage.
+
+---
+
 ## 2026-06-28 - Bloque 59: checklist pre-hosting
 
 Preparada la checklist tecnica previa a subir Trawel a un hosting real.

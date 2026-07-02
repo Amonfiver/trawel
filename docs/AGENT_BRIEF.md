@@ -77,6 +77,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Paginas de confianza:** existen paginas minimas en `src/pages/TrustPage/` para `/sobre-trawel`, `/contacto`, `/privacidad`, `/cookies`, `/terminos`, `/creditos-imagenes` y `/compartir`. `TrustPage` intenta leer `static_pages` publicadas desde Supabase con `getPublishedStaticPageBySlug(slug)` y conserva fallback local si no hay contenido o falla la configuracion. `/contacto` ya incluye formulario real contra `submitContactMessage(...)` y `/compartir` envia propuestas mediante `submitCommunitySuggestion(...)`; ambos insertan en `user_messages` como cola privada `pending_review` sin lectura publica. El resto son informativas iniciales y no sustituyen textos legales definitivos.
 
+**Header publico:** el header global vive en `src/App.tsx` y muestra enlaces superiores a Inicio, Atlas, Destinos y Contacto. En movil la navegacion se mantiene visible como segunda fila compacta del header para que `/contacto` no dependa solo de enlaces internos o footer.
+
 **Arquitectura de fuentes:**
 
 ```
