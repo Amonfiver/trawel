@@ -26,6 +26,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Tabla: `user_messages`.
 - Estado inicial: `pending_review`.
 - Uso: consultas generales, privacidad, retirada o avisos amplios.
+- Antiabuso: Turnstile en frontend y validacion real en Edge Function `protected-public-submit`.
 - Publicacion directa: no.
 - Revision: Investighost futuro.
 
@@ -44,6 +45,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Fotos: hasta 3 adjuntos opcionales procesados en navegador a WebP para preview, sin subida a Storage todavia.
 - Metadata: `source='trust_page_share_form'`, `country_slug`, `zone_slug`, `contribution_type`, `experience_title` cuando aplica, `photo_count`, `photo_standardization` y `photo_upload_pending`.
 - Decision Storage: ver `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`; upload real queda pendiente de Edge Function o signed upload URL.
+- Antiabuso: Turnstile en frontend y validacion real en Edge Function `protected-public-submit`.
 - Publicacion directa: no.
 - Revision: Investighost futuro.
 
@@ -55,6 +57,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Estado inicial: `pending_review`.
 - Target inicial: `target_entity_type='static_page'` y `target_entity_slug` igual al slug de la pagina.
 - Uso: errores de contenido, derechos de imagen, solicitudes de retirada, contenido inapropiado, informacion desactualizada u otros avisos.
+- Antiabuso: Turnstile en frontend y validacion real en Edge Function `protected-public-submit`.
 - Publicacion directa: no.
 - Revision: Investighost futuro.
 

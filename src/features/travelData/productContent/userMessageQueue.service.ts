@@ -1,4 +1,4 @@
-import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
+import { submitProtectedPublicPayload } from './protectedPublicSubmit.service';
 
 export type UserMessageReviewStatus =
   | 'pending_review'
@@ -28,6 +28,7 @@ export interface SubmitUserMessageInput {
   entitySlug?: string;
   metadata?: Record<string, unknown>;
   privacyAccepted: boolean;
+  turnstileToken: string;
 }
 
 export type SubmitUserMessageResult =
@@ -42,27 +43,6 @@ export type SubmitUserMessageResult =
       message: string;
     };
 
-interface UserMessageQueueRow {
-  type: UserMessageKind;
-  kind: UserMessageKind;
-  name: string;
-  email: string;
-  subject: string | null;
-  message: string;
-  source_page: string | null;
-  country_slug: string | null;
-  zone_slug: string | null;
-  related_entity_type: string | null;
-  related_entity_slug: string | null;
-  entity_type: string | null;
-  entity_slug: string | null;
-  priority: 'normal';
-  metadata: Record<string, unknown>;
-  privacy_accepted: boolean;
-  created_at?: string;
-}
-
-const DEFAULT_USER_MESSAGES_TABLE = 'user_messages';
 const MAX_NAME_LENGTH = 160;
 const MAX_EMAIL_LENGTH = 320;
 const MAX_SUBJECT_LENGTH = 200;
@@ -91,41 +71,24 @@ export async function submitUserMessage(
     };
   }
 
-  const tableName = getConfiguredUserMessageQueueTable();
-
-  if (!isSupabaseConfigured() || !supabase) {
-    return {
-      ok: false,
-      status: 'not_configured',
-      message: 'Supabase no esta configurado en este entorno.',
-    };
-  }
-
-  const row = mapUserMessageInputToQueueRow(input);
-
-  try {
-    const { error } = await supabase.from(tableName).insert(row);
-
-    if (error) {
-      return {
-        ok: false,
-        status: 'submit_error',
-        message: 'No se pudo enviar el mensaje a la cola de revision.',
-      };
-    }
-
-    return {
-      ok: true,
-      status: 'queued',
-      reviewStatus: 'pending_review',
-    };
-  } catch {
-    return {
-      ok: false,
-      status: 'submit_error',
-      message: 'Error inesperado al enviar el mensaje a la cola de revision.',
-    };
-  }
+  return submitProtectedPublicPayload({
+    action: 'user_message',
+    turnstileToken: input.turnstileToken,
+    payload: {
+      kind: input.kind,
+      name: input.name,
+      email: input.email,
+      subject: input.subject,
+      message: input.message,
+      sourcePage: input.sourcePage,
+      countrySlug: input.countrySlug,
+      zoneSlug: input.zoneSlug,
+      entityType: input.entityType,
+      entitySlug: input.entitySlug,
+      metadata: input.metadata,
+      privacyAccepted: input.privacyAccepted,
+    },
+  });
 }
 
 export function submitContactMessage(
@@ -146,20 +109,13 @@ export function submitCommunitySuggestion(
   });
 }
 
-function getConfiguredUserMessageQueueTable(): string {
-  const tableName = import.meta.env.VITE_TRAWEL_USER_MESSAGES_TABLE;
-
-  if (typeof tableName !== 'string') {
-    return DEFAULT_USER_MESSAGES_TABLE;
-  }
-
-  const trimmed = tableName.trim();
-  return trimmed.length > 0 ? trimmed : DEFAULT_USER_MESSAGES_TABLE;
-}
-
 function validateUserMessageInput(input: SubmitUserMessageInput): string | null {
   if (!input.privacyAccepted) {
     return 'Debe aceptarse la privacidad antes de enviar un mensaje.';
+  }
+
+  if (!input.turnstileToken.trim()) {
+    return 'Completa la verificación antiabuso antes de enviar.';
   }
 
   const name = input.name.trim();
@@ -216,31 +172,6 @@ function validateUserMessageInput(input: SubmitUserMessageInput): string | null 
   }
 
   return null;
-}
-
-function mapUserMessageInputToQueueRow(input: SubmitUserMessageInput): UserMessageQueueRow {
-  const entityType = normalizeOptionalText(input.entityType);
-  const entitySlug = normalizeOptionalText(input.entitySlug);
-
-  return {
-    type: input.kind,
-    kind: input.kind,
-    name: input.name.trim(),
-    email: input.email.trim(),
-    subject: normalizeOptionalText(input.subject),
-    message: input.message.trim(),
-    source_page: normalizeOptionalText(input.sourcePage),
-    country_slug: normalizeOptionalText(input.countrySlug),
-    zone_slug: normalizeOptionalText(input.zoneSlug),
-    related_entity_type: entityType,
-    related_entity_slug: entitySlug,
-    entity_type: entityType,
-    entity_slug: entitySlug,
-    priority: 'normal',
-    metadata: input.metadata || {},
-    privacy_accepted: true,
-    created_at: new Date().toISOString(),
-  };
 }
 
 function normalizeOptionalText(value: string | undefined): string | null {

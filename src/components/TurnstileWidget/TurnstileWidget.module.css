@@ -1,0 +1,25 @@
+.turnstileBox {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.turnstileWidget {
+  min-height: 65px;
+}
+
+.turnstileStatus,
+.turnstileError {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.turnstileStatus {
+  color: #475569;
+}
+
+.turnstileError {
+  color: #b91c1c;
+}

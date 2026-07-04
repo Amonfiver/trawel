@@ -1,4 +1,4 @@
-import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
+import { submitProtectedPublicPayload } from './protectedPublicSubmit.service';
 
 export type ContentReportInputType =
   | 'content_error'
@@ -42,6 +42,7 @@ export interface SubmitContentReportInput {
   targetEntityType: ContentReportTargetEntityType;
   targetEntitySlug: string;
   message: string;
+  turnstileToken: string;
 }
 
 export type SubmitContentReportResult =
@@ -56,16 +57,6 @@ export type SubmitContentReportResult =
       message: string;
     };
 
-interface ContentReportQueueRow {
-  report_type: ContentReportStoredType;
-  reporter_name: string;
-  reporter_email: string;
-  target_entity_type: ContentReportTargetEntityType;
-  target_entity_slug: string;
-  message: string;
-}
-
-const CONTENT_REPORTS_TABLE = 'content_reports';
 const MAX_REPORTER_NAME_LENGTH = 160;
 const MAX_REPORTER_EMAIL_LENGTH = 320;
 const MAX_MESSAGE_LENGTH = 5000;
@@ -103,39 +94,18 @@ export async function submitContentReport(
     };
   }
 
-  if (!isSupabaseConfigured() || !supabase) {
-    return {
-      ok: false,
-      status: 'not_configured',
-      message: 'Supabase no esta configurado en este entorno.',
-    };
-  }
-
-  const row = mapContentReportInputToQueueRow(input);
-
-  try {
-    const { error } = await supabase.from(CONTENT_REPORTS_TABLE).insert(row);
-
-    if (error) {
-      return {
-        ok: false,
-        status: 'submit_error',
-        message: 'No se pudo enviar el reporte a la cola de revision.',
-      };
-    }
-
-    return {
-      ok: true,
-      status: 'queued',
-      reviewStatus: 'pending_review',
-    };
-  } catch {
-    return {
-      ok: false,
-      status: 'submit_error',
-      message: 'Error inesperado al enviar el reporte a la cola de revision.',
-    };
-  }
+  return submitProtectedPublicPayload({
+    action: 'content_report',
+    turnstileToken: input.turnstileToken,
+    payload: {
+      reportType: input.reportType,
+      reporterName: input.reporterName,
+      reporterEmail: input.reporterEmail,
+      targetEntityType: input.targetEntityType,
+      targetEntitySlug: input.targetEntitySlug,
+      message: input.message,
+    },
+  });
 }
 
 function validateContentReportInput(input: SubmitContentReportInput): string | null {
@@ -143,9 +113,14 @@ function validateContentReportInput(input: SubmitContentReportInput): string | n
   const reporterEmail = input.reporterEmail.trim();
   const targetEntitySlug = input.targetEntitySlug.trim();
   const message = input.message.trim();
+  const turnstileToken = input.turnstileToken.trim();
 
   if (!SUPPORTED_REPORT_TYPES.has(input.reportType)) {
     return 'El tipo de reporte no es valido.';
+  }
+
+  if (!turnstileToken) {
+    return 'Completa la verificación antiabuso antes de enviar.';
   }
 
   if (!reporterName) {
@@ -181,37 +156,6 @@ function validateContentReportInput(input: SubmitContentReportInput): string | n
   }
 
   return null;
-}
-
-function mapContentReportInputToQueueRow(
-  input: SubmitContentReportInput
-): ContentReportQueueRow {
-  return {
-    report_type: mapReportTypeToStoredType(input.reportType),
-    reporter_name: input.reporterName.trim(),
-    reporter_email: input.reporterEmail.trim(),
-    target_entity_type: input.targetEntityType,
-    target_entity_slug: input.targetEntitySlug.trim(),
-    message: input.message.trim(),
-  };
-}
-
-function mapReportTypeToStoredType(
-  reportType: ContentReportInputType
-): ContentReportStoredType {
-  switch (reportType) {
-    case 'content_error':
-    case 'outdated_information':
-      return 'error';
-    case 'image_rights':
-      return 'image_rights';
-    case 'removal_request':
-      return 'removal_request';
-    case 'inappropriate_content':
-      return 'abuse';
-    case 'other':
-      return 'generic';
-  }
 }
 
 function isValidEmail(value: string): boolean {

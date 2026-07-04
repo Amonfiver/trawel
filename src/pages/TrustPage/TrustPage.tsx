@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   submitCommunitySuggestion,
@@ -22,6 +22,7 @@ import {
 } from '../../features/travelData/productContent/contentReportQueue.service';
 import { getPublishedStaticPageBySlug } from '../../features/travelData/productContent/productContent.service';
 import type { StaticPage } from '../../features/travelData/productContent/productContent.types';
+import { TurnstileWidget } from '../../components/TurnstileWidget';
 import styles from './TrustPage.module.css';
 
 type TrustPageSlug =
@@ -281,6 +282,7 @@ interface SharePhotoItem {
 
 const MAX_SHARE_PHOTOS = 3;
 const SHARE_PHOTO_ACCEPT = 'image/jpeg,image/png,image/webp';
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
 
 interface ReportFormValues {
   name: string;
@@ -303,9 +305,13 @@ export function TrustPage({ page }: TrustPageProps) {
   const [contactFormValues, setContactFormValues] = useState<ContactFormValues>(initialContactFormValues);
   const [contactStatus, setContactStatus] = useState<ContactFormStatus>('idle');
   const [contactStatusMessage, setContactStatusMessage] = useState('');
+  const [contactTurnstileToken, setContactTurnstileToken] = useState('');
+  const [contactTurnstileResetKey, setContactTurnstileResetKey] = useState(0);
   const [shareFormValues, setShareFormValues] = useState<ShareFormValues>(initialShareFormValues);
   const [shareStatus, setShareStatus] = useState<ContactFormStatus>('idle');
   const [shareStatusMessage, setShareStatusMessage] = useState('');
+  const [shareTurnstileToken, setShareTurnstileToken] = useState('');
+  const [shareTurnstileResetKey, setShareTurnstileResetKey] = useState(0);
   const [countryOptions, setCountryOptions] = useState<PublicCountryOption[]>([]);
   const [zoneOptions, setZoneOptions] = useState<PublicZoneOption[]>([]);
   const [countryOptionsStatus, setCountryOptionsStatus] = useState<LocationOptionsStatus>('idle');
@@ -320,6 +326,8 @@ export function TrustPage({ page }: TrustPageProps) {
   const [reportFormValues, setReportFormValues] = useState<ReportFormValues>(initialReportFormValues);
   const [reportStatus, setReportStatus] = useState<ContactFormStatus>('idle');
   const [reportStatusMessage, setReportStatusMessage] = useState('');
+  const [reportTurnstileToken, setReportTurnstileToken] = useState('');
+  const [reportTurnstileResetKey, setReportTurnstileResetKey] = useState(0);
 
   useEffect(() => {
     let isCurrent = true;
@@ -347,6 +355,19 @@ export function TrustPage({ page }: TrustPageProps) {
   );
   const selectedZone = zoneOptions.find((zone) => zone.value === shareFormValues.zoneSlug);
   const isExperienceContribution = shareFormValues.contributionType === 'experiencia_aventura';
+  const isTurnstileConfigured = Boolean(TURNSTILE_SITE_KEY);
+
+  const handleContactTurnstileChange = useCallback((token: string) => {
+    setContactTurnstileToken(token);
+  }, []);
+
+  const handleShareTurnstileChange = useCallback((token: string) => {
+    setShareTurnstileToken(token);
+  }, []);
+
+  const handleReportTurnstileChange = useCallback((token: string) => {
+    setReportTurnstileToken(token);
+  }, []);
 
   useEffect(() => {
     let isCurrent = true;
@@ -512,6 +533,12 @@ export function TrustPage({ page }: TrustPageProps) {
     setContactStatus('submitting');
     setContactStatusMessage('Enviando tu mensaje...');
 
+    if (!contactTurnstileToken) {
+      setContactStatus('error');
+      setContactStatusMessage('Completa la verificación antiabuso antes de enviar.');
+      return;
+    }
+
     const result = await submitContactMessage({
       name: contactFormValues.name,
       email: contactFormValues.email,
@@ -519,10 +546,14 @@ export function TrustPage({ page }: TrustPageProps) {
       message: contactFormValues.message,
       sourcePage: 'contacto',
       privacyAccepted: contactFormValues.privacyAccepted,
+      turnstileToken: contactTurnstileToken,
       metadata: {
         source: 'trust_page_contact_form',
       },
     });
+
+    setContactTurnstileToken('');
+    setContactTurnstileResetKey((currentKey) => currentKey + 1);
 
     if (result.ok) {
       setContactFormValues(initialContactFormValues);
@@ -701,6 +732,12 @@ export function TrustPage({ page }: TrustPageProps) {
       return;
     }
 
+    if (!shareTurnstileToken) {
+      setShareStatus('error');
+      setShareStatusMessage('Completa la verificación antiabuso antes de enviar.');
+      return;
+    }
+
     const contributionLabel = communityContributionLabels[shareFormValues.contributionType];
     const countryLabel = selectedCountry?.label || countrySlug;
     const zoneLabel = selectedZone?.label || zoneSlug;
@@ -718,6 +755,7 @@ export function TrustPage({ page }: TrustPageProps) {
       entityType: 'zone',
       entitySlug: zoneSlug,
       privacyAccepted: shareFormValues.privacyAccepted,
+      turnstileToken: shareTurnstileToken,
       metadata: {
         source: 'trust_page_share_form',
         country_slug: countrySlug,
@@ -729,6 +767,9 @@ export function TrustPage({ page }: TrustPageProps) {
         photo_upload_pending: sharePhotos.length > 0,
       },
     });
+
+    setShareTurnstileToken('');
+    setShareTurnstileResetKey((currentKey) => currentKey + 1);
 
     if (result.ok) {
       setShareFormValues(initialShareFormValues);
@@ -778,6 +819,12 @@ export function TrustPage({ page }: TrustPageProps) {
     setReportStatus('submitting');
     setReportStatusMessage('Enviando reporte...');
 
+    if (!reportTurnstileToken) {
+      setReportStatus('error');
+      setReportStatusMessage('Completa la verificación antiabuso antes de enviar.');
+      return;
+    }
+
     const result = await submitContentReport({
       reportType: reportFormValues.reportType,
       reporterName: reportFormValues.name,
@@ -785,7 +832,11 @@ export function TrustPage({ page }: TrustPageProps) {
       targetEntityType: 'static_page',
       targetEntitySlug: page,
       message: reportFormValues.message,
+      turnstileToken: reportTurnstileToken,
     });
+
+    setReportTurnstileToken('');
+    setReportTurnstileResetKey((currentKey) => currentKey + 1);
 
     if (result.ok) {
       setReportFormValues(initialReportFormValues);
@@ -892,11 +943,23 @@ export function TrustPage({ page }: TrustPageProps) {
                 </span>
               </label>
 
+              <TurnstileWidget
+                siteKey={TURNSTILE_SITE_KEY}
+                resetSignal={contactTurnstileResetKey}
+                onTokenChange={handleContactTurnstileChange}
+              />
+
+              {!isTurnstileConfigured && (
+                <p className={`${styles.formStatus} ${styles.error}`} role="status">
+                  La verificación antiabuso no está configurada en este entorno.
+                </p>
+              )}
+
               <div className={styles.formFooter}>
                 <button
                   type="submit"
                   className={styles.submitButton}
-                  disabled={contactStatus === 'submitting'}
+                  disabled={contactStatus === 'submitting' || !contactTurnstileToken}
                 >
                   {contactStatus === 'submitting' ? 'Enviando...' : 'Enviar mensaje'}
                 </button>
@@ -1144,6 +1207,18 @@ export function TrustPage({ page }: TrustPageProps) {
                 </span>
               </label>
 
+              <TurnstileWidget
+                siteKey={TURNSTILE_SITE_KEY}
+                resetSignal={shareTurnstileResetKey}
+                onTokenChange={handleShareTurnstileChange}
+              />
+
+              {!isTurnstileConfigured && (
+                <p className={`${styles.formStatus} ${styles.error}`} role="status">
+                  La verificación antiabuso no está configurada en este entorno.
+                </p>
+              )}
+
               <div className={styles.formFooter}>
                 <button
                   type="submit"
@@ -1151,6 +1226,7 @@ export function TrustPage({ page }: TrustPageProps) {
                   disabled={
                     shareStatus === 'submitting' ||
                     sharePhotoStatus === 'processing' ||
+                    !shareTurnstileToken ||
                     countryOptionsStatus !== 'ready' ||
                     zoneOptionsStatus !== 'ready'
                   }
@@ -1254,11 +1330,23 @@ export function TrustPage({ page }: TrustPageProps) {
                 />
               </label>
 
+              <TurnstileWidget
+                siteKey={TURNSTILE_SITE_KEY}
+                resetSignal={reportTurnstileResetKey}
+                onTokenChange={handleReportTurnstileChange}
+              />
+
+              {!isTurnstileConfigured && (
+                <p className={`${styles.formStatus} ${styles.error}`} role="status">
+                  La verificación antiabuso no está configurada en este entorno.
+                </p>
+              )}
+
               <div className={styles.formFooter}>
                 <button
                   type="submit"
                   className={styles.reportSubmitButton}
-                  disabled={reportStatus === 'submitting'}
+                  disabled={reportStatus === 'submitting' || !reportTurnstileToken}
                 >
                   {reportStatus === 'submitting' ? 'Enviando...' : 'Enviar reporte'}
                 </button>

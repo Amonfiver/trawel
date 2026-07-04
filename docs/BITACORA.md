@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-07-05 - Bloque 81: antiabuso Turnstile en formularios publicos
+
+Implementada proteccion antiabuso real para formularios publicos mediante Cloudflare Turnstile y Supabase Edge Function.
+
+### Cambios implementados
+
+- Creado componente `TurnstileWidget` sin dependencias externas de npm.
+- Protegidos `/contacto`, `/compartir` y reportes publicos de `TrustPage`.
+- Los formularios exigen token Turnstile antes de enviar.
+- Creada Edge Function `protected-public-submit`.
+- La Edge Function valida el token contra Cloudflare Siteverify usando `TURNSTILE_SECRET_KEY` desde Supabase secrets.
+- Si la validacion pasa, inserta en `user_messages` o `content_reports`.
+- El frontend deja de insertar directamente en las colas protegidas.
+- Documentada la implementacion en `docs/TRAWEL_TURNSTILE_ANTI_ABUSE_IMPLEMENTATION.md`.
+- Anadida `VITE_TURNSTILE_SITE_KEY` a `.env.example` como variable publica.
+
+### Reglas respetadas
+
+- No se imprimio ni pidio la secret key.
+- No se metio ninguna secret en frontend ni en Git.
+- No se abrieron buckets privados.
+- No se uso `service_role` en frontend.
+- No se tocaron mapas, WorldMap, D3, TopoJSON, migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 80: decision metodo antiabuso
 
 Documentada la decision tecnica recomendada para antiabuso.

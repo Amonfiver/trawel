@@ -97,6 +97,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Decision antiabuso:** `docs/TRAWEL_ANTI_ABUSE_DECISION.md` recomienda Cloudflare Turnstile o equivalente, verificado en backend/Edge Function, con rate limit por IP/email. Implementacion pendiente de credenciales externas; no inventar claves ni guardar secretos como `VITE_`.
 
+**Turnstile implementado:** `docs/TRAWEL_TURNSTILE_ANTI_ABUSE_IMPLEMENTATION.md` documenta el Bloque 81. `/contacto`, `/compartir` y reportes publicos usan `TurnstileWidget` con `VITE_TURNSTILE_SITE_KEY` y envian a la Edge Function `protected-public-submit`. La funcion valida contra Cloudflare Siteverify con `TURNSTILE_SECRET_KEY` en Supabase secrets y solo entonces inserta en `user_messages` o `content_reports`. No hay inserts directos desde esos formularios protegidos.
+
 **Opciones publicas pais/zona:** `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` viven en `src/features/travelData/productContent/publicLocationOptions.service.ts`. Leen de `countries` y `cities`, filtran `status='active'`, devuelven opciones `label/value/slug/id` para selects controlados y hacen fallback a `[]` si Supabase falla o no esta configurado. Todavia no estan conectadas a UI.
 
 **Estrategia catalogo pais/ciudad:** `docs/TRAWEL_COUNTRY_CITY_CATALOG_STRATEGY.md` establece que Trawel no consulta internet ni hace scraping para paises/ciudades. Los paises y ciudades/zonas de formularios y Comunidad deben venir de Supabase, alimentados por Investighost/base de datos. Si una ciudad/zona no esta cargada y visible, no aparece en selects ni cards publicas.
@@ -252,7 +254,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Readiness escaparate:** auditoría corta en `docs/TRAWEL_SHOWCASE_READINESS.md`; la checklist de salida real vive en `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md`.
 
-**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y escriben por defecto en `user_messages`, con override opcional via `VITE_TRAWEL_USER_MESSAGES_TABLE`. `/contacto` envia mensajes reales con `sourcePage='contacto'`; `/compartir` envia sugerencias reales con `sourcePage='compartir'`, `countrySlug`, `zoneSlug`, `entityType='zone'`, `entitySlug=zoneSlug` y metadata de clasificacion. El servicio no escribe `status`; Supabase aplica el default seguro `pending_review` para respetar los grants publicos por columna. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
+**Cola mensajes/contactos:** `submitUserMessage`, `submitContactMessage` y `submitCommunitySuggestion` estan preparados en `travelData`; no publican nada y desde el Bloque 81 invocan la Edge Function `protected-public-submit` con token Turnstile antes de insertar en `user_messages`. `/contacto` envia mensajes reales con `sourcePage='contacto'`; `/compartir` envia sugerencias reales con `sourcePage='compartir'`, `countrySlug`, `zoneSlug`, `entityType='zone'`, `entitySlug=zoneSlug` y metadata de clasificacion. El frontend no escribe `status`; Supabase aplica el default seguro `pending_review`. El contrato minimo de colas vive en `docs/TRAWEL_USER_CONTENT_QUEUE_CONTRACT.md`.
 
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` cuando hay derechos y consentimiento confirmados. El servicio no escribe `status`; Supabase aplica el default seguro `submitted` para respetar los grants publicos por columna. Antes de conectar formulario visual, seguir `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md` para Storage privado seguro.
 
@@ -268,7 +270,7 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Selects pais/zona:** para futuros formularios publicos usar `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` desde `productContent`; no aceptar pais/zona como texto libre si el flujo necesita `country_slug` y `zone_slug` fiables para Investighost.
 
-**Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y solo inserta en `content_reports`. `TrustPage` incluye una via discreta "Reportar contenido" apuntando a `static_page` + slug actual. El servicio no escribe `status`; Supabase aplica el default seguro `pending_review` para respetar los grants publicos por columna. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la migration local.
+**Cola reportes contenido:** `submitContentReport` esta preparado en `travelData`; no lee ni muestra reportes y desde el Bloque 81 invoca `protected-public-submit` con token Turnstile antes de insertar en `content_reports`. `TrustPage` incluye una via discreta "Reportar contenido" apuntando a `static_page` + slug actual. El frontend no escribe `status`; Supabase aplica el default seguro `pending_review`. Soporta reportes de error, derechos de imagen, retirada, contenido inapropiado, informacion desactualizada y otros, mapeados a los tipos admitidos por la funcion.
 
 **Auditoria colas:** ver `docs/TRAWEL_USER_QUEUE_READINESS.md` antes de conectar cualquier formulario publico de mensajes, fotos o reportes.
 
