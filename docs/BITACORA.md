@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-07-04 - Bloque 78: decision proveedor email
+
+Documentadas opciones tecnicas para el futuro envio de emails de Trawel.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_EMAIL_PROVIDER_DECISION.md`.
+- Documentadas opciones: Edge Function + Resend, Brevo o Mailgun; SMTP del hosting; Investighost como emisor futuro.
+- Dejadas reglas de seguridad: sin claves en frontend, sin variables `VITE_` para secretos y sin emails desde navegador.
+- Recomendacion provisional: Edge Function + proveedor sencillo, con decision final pendiente del usuario.
+
+### Reglas respetadas
+
+- No se eligio proveedor definitivo.
+- No se contrataron servicios.
+- No se inventaron precios.
+- No se implemento envio real ni se tocaron claves.
+
+---
+
 ## 2026-07-04 - Bloque 77: flujo email participacion
 
 Documentado el flujo de emails de confirmacion para participaciones en Trawel.
