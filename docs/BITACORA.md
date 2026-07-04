@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-07-04 - Bloque 79: estrategia antiabuso
+
+Documentada la estrategia antiabuso antes de abrir subida real de fotos.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_ANTI_ABUSE_STRATEGY.md`.
+- Documentados riesgos: bots, spam, saturacion de Storage, archivos falsos y abuso por IP/email.
+- Documentadas medidas: Turnstile o equivalente, rate limit, limites de fotos, validacion MIME, bucket privado y logs.
+- Reforzado que la subida real debe pasar por Edge Function o URL firmada corta.
+- Reforzado que no debe haber `service_role` en frontend.
+
+### Reglas respetadas
+
+- Solo documentacion.
+- No se implemento captcha ni rate limit.
+- No se tocaron claves, Storage, Supabase, UI, migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 78: decision proveedor email
 
 Documentadas opciones tecnicas para el futuro envio de emails de Trawel.
