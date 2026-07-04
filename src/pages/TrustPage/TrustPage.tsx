@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   submitCommunitySuggestion,
   submitContactMessage,
@@ -295,6 +295,7 @@ const initialReportFormValues: ReportFormValues = {
 };
 
 export function TrustPage({ page }: TrustPageProps) {
+  const location = useLocation();
   const fallbackContent = trustPages[page];
   const [supabaseContent, setSupabaseContent] = useState<TrustPageContent | null>(null);
   const [contactFormValues, setContactFormValues] = useState<ContactFormValues>(initialContactFormValues);
@@ -312,6 +313,8 @@ export function TrustPage({ page }: TrustPageProps) {
   const [sharePhotoStatusMessage, setSharePhotoStatusMessage] = useState('');
   const sharePhotoInputRef = useRef<HTMLInputElement | null>(null);
   const sharePhotosRef = useRef<SharePhotoItem[]>([]);
+  const initialShareQueryAppliedRef = useRef(false);
+  const pendingShareZoneSlugRef = useRef<string | null>(null);
   const [reportFormValues, setReportFormValues] = useState<ReportFormValues>(initialReportFormValues);
   const [reportStatus, setReportStatus] = useState<ContactFormStatus>('idle');
   const [reportStatusMessage, setReportStatusMessage] = useState('');
@@ -380,6 +383,43 @@ export function TrustPage({ page }: TrustPageProps) {
   }, [isSharePage]);
 
   useEffect(() => {
+    initialShareQueryAppliedRef.current = false;
+    pendingShareZoneSlugRef.current = null;
+  }, [location.search, page]);
+
+  useEffect(() => {
+    if (
+      !isSharePage ||
+      initialShareQueryAppliedRef.current ||
+      countryOptionsStatus !== 'ready'
+    ) {
+      return;
+    }
+
+    const searchParams = new URLSearchParams(location.search);
+    const countrySlug = normalizeQuerySlug(searchParams.get('pais'));
+    const zoneSlug = normalizeQuerySlug(searchParams.get('zona'));
+    const contributionType = mapShareQueryType(searchParams.get('tipo'));
+
+    if (!countrySlug && !zoneSlug && !contributionType) {
+      initialShareQueryAppliedRef.current = true;
+      return;
+    }
+
+    const countryExists = countryOptions.some((country) => country.value === countrySlug);
+
+    setShareFormValues((currentValues) => ({
+      ...currentValues,
+      countrySlug: countryExists ? countrySlug || currentValues.countrySlug : currentValues.countrySlug,
+      zoneSlug: '',
+      contributionType: contributionType || currentValues.contributionType,
+    }));
+
+    pendingShareZoneSlugRef.current = zoneSlug;
+    initialShareQueryAppliedRef.current = true;
+  }, [countryOptions, countryOptionsStatus, isSharePage, location.search]);
+
+  useEffect(() => {
     let isCurrent = true;
     const countrySlug = shareFormValues.countrySlug;
 
@@ -414,6 +454,25 @@ export function TrustPage({ page }: TrustPageProps) {
       isCurrent = false;
     };
   }, [isSharePage, shareFormValues.countrySlug]);
+
+  useEffect(() => {
+    const pendingZoneSlug = pendingShareZoneSlugRef.current;
+
+    if (!isSharePage || !pendingZoneSlug || zoneOptionsStatus !== 'ready') {
+      return;
+    }
+
+    const zoneExists = zoneOptions.some((zone) => zone.value === pendingZoneSlug);
+
+    if (zoneExists) {
+      setShareFormValues((currentValues) => ({
+        ...currentValues,
+        zoneSlug: pendingZoneSlug,
+      }));
+    }
+
+    pendingShareZoneSlugRef.current = null;
+  }, [isSharePage, zoneOptions, zoneOptionsStatus]);
 
   useEffect(() => {
     sharePhotosRef.current = sharePhotos;
@@ -1231,6 +1290,23 @@ function asNonEmptyString(value: unknown): string | null {
 
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeQuerySlug(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized) ? normalized : null;
+}
+
+function mapShareQueryType(value: string | null): CommunityContributionType | null {
+  if (value === 'hero_photo' || value === 'foto_encabezado') {
+    return 'foto_encabezado';
+  }
+
+  return null;
 }
 
 async function standardizeSharePhoto(

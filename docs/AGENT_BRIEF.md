@@ -240,6 +240,8 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 
 **Fotos en `/compartir`:** el formulario permite seleccionar hasta 3 JPG/PNG/WebP, genera previews WebP y envia solo metadata (`photo_count`, `photo_standardization`, `photo_upload_pending`) en `user_messages`. No guardar blobs en Supabase ni asumir que Investighost recibe archivos hasta conectar Storage seguro.
 
+**Invitacion a fotos de encabezado:** CountryPage y CountryZonePage muestran una llamada secundaria `Proponer foto` hacia `/compartir?tipo=hero_photo&pais=...` y, en zonas, tambien `zona=...`. `/compartir` preselecciona `foto_encabezado`, pais y zona cuando esos parametros son validos. La invitacion no implica publicacion ni subida real.
+
 **Storage fotos pendiente:** no crear policy publica amplia de `INSERT` en `storage.objects` para `traveler-adventure-photos`. La implementacion recomendada es una Edge Function que valide metadata/fotos, use service role solo en backend, suba al bucket privado e inserte `user_photo_submissions`.
 
 **Selects pais/zona:** para futuros formularios publicos usar `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` desde `productContent`; no aceptar pais/zona como texto libre si el flujo necesita `country_slug` y `zone_slug` fiables para Investighost.

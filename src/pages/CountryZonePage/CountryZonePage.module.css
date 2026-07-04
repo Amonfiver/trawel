@@ -527,6 +527,39 @@
   line-height: 1.55;
 }
 
+.heroContributionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.heroContributionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.62rem 0.9rem;
+  color: #ffffff;
+  background: #0f172a;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.heroContributionButton:hover {
+  background: #2563eb;
+}
+
+.heroContributionReviewText {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 /* ============================================
    PANELES Y SECCIONES EXISTENTES
    ============================================ */

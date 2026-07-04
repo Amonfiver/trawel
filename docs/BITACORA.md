@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-07-04 - Bloque 67: invitacion a fotos de encabezado
+
+Recuperada una invitacion secundaria para que usuarios propongan fotos de encabezado de paises y zonas mediante el flujo controlado de `/compartir`.
+
+### Cambios implementados
+
+- Anadida tarjeta discreta "¿Tienes una foto que represente este lugar?" en CountryPage.
+- Anadida tarjeta equivalente en CountryZonePage.
+- El boton `Proponer foto` enlaza a `/compartir` con query params:
+  - Pais: `/compartir?tipo=hero_photo&pais={countrySlug}`.
+  - Zona: `/compartir?tipo=hero_photo&pais={countrySlug}&zona={zoneSlug}`.
+- La tarjeta se coloca en zona secundaria y deja claro que la foto se revisara antes de publicarse.
+- `/compartir` lee query params simples y preselecciona:
+  - `contribution_type='foto_encabezado'`.
+  - `country_slug`.
+  - `zone_slug` si existe y esta disponible.
+
+### Reglas respetadas
+
+- No se toco Storage, subida real, migrations, seeds, mapas, WorldMap, D3, TopoJSON, `package.json`, HomePage, CountryPage data flow ni CountryZonePage data flow.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+- Verificado con Playwright:
+  - `/pais/mexico` enlaza a `/compartir?tipo=hero_photo&pais=mexico`.
+  - `/pais/espana` enlaza a `/compartir?tipo=hero_photo&pais=espana`.
+  - `/pais/espana/zona/albarracin` enlaza a `/compartir?tipo=hero_photo&pais=espana&zona=albarracin`.
+  - `/compartir?tipo=hero_photo&pais=espana&zona=albarracin` preselecciona pais, zona y foto de encabezado.
+  - Boton visible en movil.
+
+---
+
 ## 2026-07-04 - Bloque 66: decision de subida privada de fotos
 
 Auditada la posibilidad de subir fotos estandarizadas desde frontend anon al bucket privado `traveler-adventure-photos`.

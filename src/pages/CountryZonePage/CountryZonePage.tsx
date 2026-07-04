@@ -156,10 +156,12 @@ function HeroContributionBlock({
   zoneName,
   title,
   text,
+  shareHref,
 }: {
   zoneName: string;
   title: string;
   text: string;
+  shareHref: string;
 }) {
   return (
     <aside className={styles.heroContributionCard} aria-label={`Colabora con una foto de ${zoneName}`}>
@@ -167,9 +169,31 @@ function HeroContributionBlock({
       <div>
         <h2 className={styles.heroContributionTitle}>{title}</h2>
         <p className={styles.heroContributionText}>{text}</p>
+        <div className={styles.heroContributionActions}>
+          <Link to={shareHref} className={styles.heroContributionButton}>
+            Proponer foto
+          </Link>
+          <span className={styles.heroContributionReviewText}>
+            Se revisará antes de publicarse.
+          </span>
+        </div>
       </div>
     </aside>
   );
+}
+
+function getZoneHeroPhotoShareHref(countrySlug?: string, zoneSlug?: string): string {
+  const params = new URLSearchParams({ tipo: 'hero_photo' });
+
+  if (countrySlug) {
+    params.set('pais', countrySlug);
+  }
+
+  if (zoneSlug) {
+    params.set('zona', zoneSlug);
+  }
+
+  return `/compartir?${params.toString()}`;
 }
 
 export function CountryZonePage() {
@@ -216,7 +240,6 @@ export function CountryZonePage() {
     cleanDisplayName(screenData?.hero.subtitle) ||
     'Un lugar en preparación para viajeros curiosos. Muy pronto reuniremos rutas, planes y consejos para descubrirlo con calma.';
   const countryIsoAlpha2 = screenData?.country?.isoAlpha2;
-  const communityCtaTitle = screenData?.communityCta.title || 'Colabora con Trawel';
   const communityCtaText =
     screenData?.communityCta.text ||
     `¿Tienes una foto de ${zoneName}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
@@ -458,13 +481,12 @@ export function CountryZonePage() {
         {/* Bloque de recursos futuros */}
         <FutureResourcesBlock zoneName={zoneName} />
 
-        {!hasZoneHeroImage && (
-          <HeroContributionBlock
-            zoneName={zoneName}
-            title={communityCtaTitle}
-            text={communityCtaText}
-          />
-        )}
+        <HeroContributionBlock
+          zoneName={zoneName}
+          title="¿Tienes una foto que represente este lugar?"
+          text={communityCtaText}
+          shareHref={getZoneHeroPhotoShareHref(normalizedCountrySlug, normalizedZoneSlug)}
+        />
 
         <Link to={countrySlug ? `/pais/${countrySlug}` : '/'} className={styles.backLink}>
           Volver al mapa de {countryName}

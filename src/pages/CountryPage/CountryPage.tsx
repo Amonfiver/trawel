@@ -266,7 +266,11 @@ function getHeroFallbackStyle(slug?: string): CSSProperties | undefined {
 }
 
 function getHeroContributionNote(name: string): string {
-  return `¿Tienes una foto de ${name}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
+  return `¿Tienes una foto que represente ${name}? Puedes proponerla como foto de encabezado para revisión.`;
+}
+
+function getHeroPhotoShareHref(countrySlug: string): string {
+  return `/compartir?tipo=hero_photo&pais=${encodeURIComponent(countrySlug)}`;
 }
 
 // Países con mapa interno local implementado
@@ -972,9 +976,10 @@ export function CountryPage() {
           </div>
         </section>
 
-        {!countryHasHeroImage && (
-          <HeroContributionBlock countryName={country.displayName} />
-        )}
+        <HeroContributionBlock
+          countryName={country.displayName}
+          shareHref={getHeroPhotoShareHref(country.slug)}
+        />
       </main>
     </div>
   );
@@ -1229,21 +1234,36 @@ function DiscoveringCountryView({
           </div>
         </section>
 
-        {!countryHasHeroImage && (
-          <HeroContributionBlock countryName={country.displayName} />
-        )}
+        <HeroContributionBlock
+          countryName={country.displayName}
+          shareHref={getHeroPhotoShareHref(country.slug)}
+        />
       </main>
     </div>
   );
 }
 
-function HeroContributionBlock({ countryName }: { countryName: string }) {
+function HeroContributionBlock({
+  countryName,
+  shareHref,
+}: {
+  countryName: string;
+  shareHref: string;
+}) {
   return (
     <aside className={styles.heroContributionCard} aria-label={`Colabora con una foto de ${countryName}`}>
       <span className={styles.heroContributionIcon} aria-hidden="true">📷</span>
       <div>
-        <h2 className={styles.heroContributionTitle}>Colabora con Trawel</h2>
+        <h2 className={styles.heroContributionTitle}>¿Tienes una foto que represente este lugar?</h2>
         <p className={styles.heroContributionText}>{getHeroContributionNote(countryName)}</p>
+        <div className={styles.heroContributionActions}>
+          <Link to={shareHref} className={styles.heroContributionButton}>
+            Proponer foto
+          </Link>
+          <span className={styles.heroContributionReviewText}>
+            Se revisará antes de publicarse.
+          </span>
+        </div>
       </div>
     </aside>
   );

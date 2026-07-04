@@ -37,6 +37,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Estado inicial: `pending_review`.
 - Uso: propuestas de destino, experiencia/aventura, foto de encabezado, foto de ciudad/zona, correccion u otro aporte comunitario.
 - Clasificacion: pais y zona desde selects Supabase, mas tipo de colaboracion controlado.
+- Entrada enlazada: CountryPage y CountryZonePage pueden abrir `/compartir?tipo=hero_photo&pais=...&zona=...` para preseleccionar foto de encabezado.
 - Fotos: hasta 3 adjuntos opcionales procesados en navegador a WebP para preview, sin subida a Storage todavia.
 - Metadata: `source='trust_page_share_form'`, `country_slug`, `zone_slug`, `contribution_type`, `photo_count`, `photo_standardization` y `photo_upload_pending`.
 - Decision Storage: ver `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`; upload real queda pendiente de Edge Function o signed upload URL.
