@@ -57,6 +57,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **CTA Comunidad en Home:** el CTA de Comunidad invita a contar experiencias y tambien a recomendar sitios para visitar, enlazando siempre a `/compartir`. No debe enviar usuarios a formularios alternativos ni publicar contenido directamente.
 
+**Modelo publico Comunidad:** `docs/TRAWEL_COMMUNITY_PUBLIC_MODEL.md` define que `/comunidad` debe mostrar solo aportes aprobados: experiencias, fotos y recomendaciones de sitio. Las cards publicas deben tener destino por `country_slug` y, si existe, `zone_slug`. Nada pendiente, rechazado, reportado o sin derechos claros aparece en la pagina; Investighost aprueba, rechaza, publica y retira.
+
 **Seed producto fase 1:** existe `supabase/seed/007_product_content_seed.sql` como seed local minimo para probar paginas estaticas, una promocion demo marcada como prueba y contenido editorial publicado de Espana. No se ejecuta automaticamente ni debe lanzarse contra remoto sin bloque explicito.
 
 **Fachada Country/Zone:** empieza a existir una fachada data-driven en `src/features/travelData/screenData/` con `getCountryScreenData()` y `getZoneScreenData()`. Los proximos cambios de pais/zona deben respetarla y evitar nuevo contenido hardcoded en paginas.

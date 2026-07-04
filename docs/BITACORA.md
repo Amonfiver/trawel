@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-07-04 - Bloque 71: modelo publico de Comunidad
+
+Definido el modelo funcional de la futura pagina publica de Comunidad.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_COMMUNITY_PUBLIC_MODEL.md`.
+- Documentado que Comunidad mostrara solo aportes aprobados.
+- Definidos contenidos permitidos: experiencias, fotos y recomendaciones de sitio aprobadas.
+- Definidos contenidos excluidos: pendientes, rechazados, reportados o sin derechos claros.
+- Definida estructura minima de card publica.
+- Definida navegacion por `country_slug` y `zone_slug`.
+- Reforzada la relacion con Investighost como responsable de aprobar, rechazar, publicar y retirar.
+
+### Reglas respetadas
+
+- Solo documentacion.
+- Nada de usuario se publica directo.
+- No se toco UI, Supabase, Storage, rutas, mapas, migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 70: CTA Comunidad en Home
 
 Mejorado el CTA de Comunidad en Home para ampliar la invitacion publica mas alla de experiencias personales.
