@@ -225,6 +225,125 @@
   color: #1d4ed8;
 }
 
+.processing {
+  color: #1d4ed8;
+}
+
+.photoUploadBox {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  background: rgba(248, 250, 252, 0.78);
+  border: 1px solid #dbe4ef;
+  border-radius: 8px;
+}
+
+.photoUploadHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.photoUploadHeader h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.photoUploadHeader p {
+  max-width: 620px;
+  margin: 0.4rem 0 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.photoUploadHeader span {
+  color: #0f766e;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.photoInputLabel {
+  display: inline-grid;
+  gap: 0.5rem;
+  justify-items: start;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.photoInputLabel input {
+  width: 100%;
+  color: #334155;
+  font: inherit;
+}
+
+.photoPreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.photoPreviewCard {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.photoPreviewCard img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #e2e8f0;
+  border-radius: 6px;
+}
+
+.photoPreviewInfo {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.photoPreviewInfo strong {
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  font-size: 0.86rem;
+}
+
+.removePhotoButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0.55rem 0.8rem;
+  color: #991b1b;
+  background: #fff7f7;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 850;
+}
+
+.removePhotoButton:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.removePhotoButton:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
 .section {
   padding: 1.25rem;
   background: #ffffff;
@@ -367,6 +486,10 @@
 
   .formFooter {
     display: grid;
+  }
+
+  .photoPreviewGrid {
+    grid-template-columns: 1fr;
   }
 
   .submitButton {

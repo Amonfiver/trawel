@@ -5,6 +5,44 @@
 
 ---
 
+## 2026-07-04 - Bloque 65: fotos estandarizadas en compartir
+
+Conectado visualmente el estandarizador web de imagenes al formulario publico de `/compartir`, sin subir archivos a Storage.
+
+### Cambios implementados
+
+- Anadido input de fotos opcionales en `/compartir`.
+- Permitidas hasta 3 fotos por envio.
+- Aceptados JPG, PNG y WebP.
+- Usada `standardizeImageFile(...)` al seleccionar fotos.
+- El preset se decide por `contribution_type`:
+  - `foto_encabezado` usa `heroHeader`.
+  - `experiencia_aventura` y `foto_ciudad_zona` usan `adventureCard`.
+  - Resto de tipos conservan `adventureCard` por defecto.
+- Mostradas previews de las fotos procesadas.
+- Mostrados tamano original, tamano final, dimensiones, formato final WebP y preset aplicado.
+- Anadido aviso al usuario: Trawel adaptara las fotos a formato web para carga rapida y buena calidad.
+- Permitido quitar fotos antes de enviar.
+- Los fallos de imagen muestran error amable sin romper el formulario.
+- El envio sigue usando `submitCommunitySuggestion(...)`.
+- La metadata incluye `photo_count`, `photo_standardization=true`, `photo_upload_pending=true`, `contribution_type`, `country_slug` y `zone_slug`.
+- El mensaje de exito indica que la propuesta se recibe para revision y que nada se publica automaticamente.
+
+### Reglas respetadas
+
+- No se subieron fotos a Storage.
+- No se guardaron blobs en Supabase.
+- No se publicaron fotos.
+- No se tocaron buckets, migrations, seeds, `package.json`, mapas, rutas, HomePage, CountryPage ni CountryZonePage.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+- Verificado `/compartir` con Playwright en desktop y movil.
+- Probado seleccionar 1 foto, seleccionar 3 fotos, intentar mas de 3 fotos, quitar una foto y cambiar tipo de colaboracion para confirmar preset.
+- Envio test real creado en `user_messages` como `pending_review` con referencia `546b0baa-b4ed-458c-9858-a8c78d224e5e`.
+- Verificada metadata `photo_count=3`, `photo_standardization=true`, `photo_upload_pending=true` y `contribution_type='foto_ciudad_zona'`.
+- Fila test eliminada tras la verificacion.
+
+---
+
 ## 2026-07-04 - Bloque 64: estandarizador web de imagenes
 
 Preparada la utilidad frontend para convertir fotos aportadas por usuarios a WebP ligero antes de una futura subida.

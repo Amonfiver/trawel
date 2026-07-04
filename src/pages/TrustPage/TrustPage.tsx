@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   submitCommunitySuggestion,
@@ -10,6 +10,12 @@ import {
   type PublicCountryOption,
   type PublicZoneOption,
 } from '../../features/travelData/productContent/publicLocationOptions.service';
+import {
+  formatBytes,
+  getPresetForContributionType,
+  standardizeImageFile,
+  type StandardizedImageResult,
+} from '../../features/travelData/productContent/imageStandardization.service';
 import {
   submitContentReport,
   type ContentReportInputType,
@@ -209,6 +215,7 @@ interface TrustPageProps {
 
 type ContactFormStatus = 'idle' | 'submitting' | 'success' | 'error';
 type LocationOptionsStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
+type SharePhotoStatus = 'idle' | 'processing' | 'error';
 type CommunityContributionType =
   | 'experiencia_aventura'
   | 'foto_encabezado'
@@ -262,6 +269,17 @@ const communityContributionLabels: Record<CommunityContributionType, string> = {
   otro: 'Otro',
 };
 
+interface SharePhotoItem {
+  id: string;
+  originalFile: File;
+  previewUrl: string;
+  result: StandardizedImageResult;
+  presetLabel: string;
+}
+
+const MAX_SHARE_PHOTOS = 3;
+const SHARE_PHOTO_ACCEPT = 'image/jpeg,image/png,image/webp';
+
 interface ReportFormValues {
   name: string;
   email: string;
@@ -289,6 +307,11 @@ export function TrustPage({ page }: TrustPageProps) {
   const [zoneOptions, setZoneOptions] = useState<PublicZoneOption[]>([]);
   const [countryOptionsStatus, setCountryOptionsStatus] = useState<LocationOptionsStatus>('idle');
   const [zoneOptionsStatus, setZoneOptionsStatus] = useState<LocationOptionsStatus>('idle');
+  const [sharePhotos, setSharePhotos] = useState<SharePhotoItem[]>([]);
+  const [sharePhotoStatus, setSharePhotoStatus] = useState<SharePhotoStatus>('idle');
+  const [sharePhotoStatusMessage, setSharePhotoStatusMessage] = useState('');
+  const sharePhotoInputRef = useRef<HTMLInputElement | null>(null);
+  const sharePhotosRef = useRef<SharePhotoItem[]>([]);
   const [reportFormValues, setReportFormValues] = useState<ReportFormValues>(initialReportFormValues);
   const [reportStatus, setReportStatus] = useState<ContactFormStatus>('idle');
   const [reportStatusMessage, setReportStatusMessage] = useState('');
@@ -392,6 +415,16 @@ export function TrustPage({ page }: TrustPageProps) {
     };
   }, [isSharePage, shareFormValues.countrySlug]);
 
+  useEffect(() => {
+    sharePhotosRef.current = sharePhotos;
+  }, [sharePhotos]);
+
+  useEffect(() => {
+    return () => {
+      sharePhotosRef.current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+    };
+  }, []);
+
   const handleContactFormChange = (
     field: keyof ContactFormValues,
     value: string | boolean
@@ -461,6 +494,24 @@ export function TrustPage({ page }: TrustPageProps) {
     }
   };
 
+  const handleShareContributionTypeChange = async (contributionType: CommunityContributionType) => {
+    setShareFormValues((currentValues) => ({
+      ...currentValues,
+      contributionType,
+    }));
+
+    if (shareStatus !== 'submitting') {
+      setShareStatus('idle');
+      setShareStatusMessage('');
+    }
+
+    if (sharePhotos.length === 0) {
+      return;
+    }
+
+    await restandardizeSharePhotos(contributionType);
+  };
+
   const handleShareCountryChange = (countrySlug: string) => {
     setShareFormValues((currentValues) => ({
       ...currentValues,
@@ -471,6 +522,86 @@ export function TrustPage({ page }: TrustPageProps) {
     if (shareStatus !== 'submitting') {
       setShareStatus('idle');
       setShareStatusMessage('');
+    }
+  };
+
+  const handleSharePhotoChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files || []);
+
+    if (sharePhotoInputRef.current) {
+      sharePhotoInputRef.current.value = '';
+    }
+
+    if (selectedFiles.length === 0) {
+      return;
+    }
+
+    if (selectedFiles.length + sharePhotos.length > MAX_SHARE_PHOTOS) {
+      setSharePhotoStatus('error');
+      setSharePhotoStatusMessage('Puedes adjuntar un máximo de 3 fotos por envío.');
+      return;
+    }
+
+    setSharePhotoStatus('processing');
+    setSharePhotoStatusMessage('Adaptando fotos a formato web...');
+
+    try {
+      const processedPhotos = await Promise.all(
+        selectedFiles.map((file) => standardizeSharePhoto(file, shareFormValues.contributionType))
+      );
+
+      setSharePhotos((currentPhotos) => [...currentPhotos, ...processedPhotos]);
+      setSharePhotoStatus('idle');
+      setSharePhotoStatusMessage('');
+    } catch (error) {
+      setSharePhotoStatus('error');
+      setSharePhotoStatusMessage(
+        error instanceof Error
+          ? error.message
+          : 'No hemos podido adaptar una de las fotos. Prueba con JPG, PNG o WebP.'
+      );
+    }
+  };
+
+  const handleRemoveSharePhoto = (photoId: string) => {
+    setSharePhotos((currentPhotos) => {
+      const removedPhoto = currentPhotos.find((photo) => photo.id === photoId);
+
+      if (removedPhoto) {
+        URL.revokeObjectURL(removedPhoto.previewUrl);
+      }
+
+      return currentPhotos.filter((photo) => photo.id !== photoId);
+    });
+
+    if (sharePhotoStatus !== 'processing') {
+      setSharePhotoStatus('idle');
+      setSharePhotoStatusMessage('');
+    }
+  };
+
+  const restandardizeSharePhotos = async (contributionType: CommunityContributionType) => {
+    setSharePhotoStatus('processing');
+    setSharePhotoStatusMessage('Actualizando el formato de las fotos...');
+
+    try {
+      const processedPhotos = await Promise.all(
+        sharePhotos.map((photo) => standardizeSharePhoto(photo.originalFile, contributionType))
+      );
+
+      setSharePhotos((currentPhotos) => {
+        currentPhotos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+        return processedPhotos;
+      });
+      setSharePhotoStatus('idle');
+      setSharePhotoStatusMessage('');
+    } catch (error) {
+      setSharePhotoStatus('error');
+      setSharePhotoStatusMessage(
+        error instanceof Error
+          ? error.message
+          : 'No hemos podido actualizar el formato de las fotos.'
+      );
     }
   };
 
@@ -518,14 +649,23 @@ export function TrustPage({ page }: TrustPageProps) {
         country_slug: countrySlug,
         zone_slug: zoneSlug,
         contribution_type: shareFormValues.contributionType,
+        photo_count: sharePhotos.length,
+        photo_standardization: sharePhotos.length > 0,
+        photo_upload_pending: sharePhotos.length > 0,
       },
     });
 
     if (result.ok) {
       setShareFormValues(initialShareFormValues);
+      setSharePhotos((currentPhotos) => {
+        currentPhotos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+        return [];
+      });
       setShareStatus('success');
       setShareStatusMessage(
-        'Propuesta recibida para revisión. No se publicará automáticamente.'
+        sharePhotos.length > 0
+          ? 'Propuesta recibida para revisión. Tus fotos quedan marcadas como parte de la colaboración y nada se publicará automáticamente.'
+          : 'Propuesta recibida para revisión. No se publicará automáticamente.'
       );
       return;
     }
@@ -803,8 +943,7 @@ export function TrustPage({ page }: TrustPageProps) {
                   name="contributionType"
                   value={shareFormValues.contributionType}
                   onChange={(event) =>
-                    handleShareFormChange(
-                      'contributionType',
+                    handleShareContributionTypeChange(
                       event.target.value as CommunityContributionType
                     )
                   }
@@ -818,6 +957,71 @@ export function TrustPage({ page }: TrustPageProps) {
                   <option value="otro">Otro</option>
                 </select>
               </label>
+
+              <section className={styles.photoUploadBox} aria-labelledby="share-photo-title">
+                <div className={styles.photoUploadHeader}>
+                  <div>
+                    <h3 id="share-photo-title">Fotos opcionales</h3>
+                    <p>
+                      Trawel adaptará tus fotos a formato web para que carguen rápido y mantengan
+                      buena calidad.
+                    </p>
+                  </div>
+                  <span>{sharePhotos.length}/{MAX_SHARE_PHOTOS}</span>
+                </div>
+
+                <label className={styles.photoInputLabel}>
+                  <span>Seleccionar fotos</span>
+                  <input
+                    ref={sharePhotoInputRef}
+                    type="file"
+                    name="sharePhotos"
+                    accept={SHARE_PHOTO_ACCEPT}
+                    multiple
+                    onChange={handleSharePhotoChange}
+                    disabled={
+                      sharePhotoStatus === 'processing' ||
+                      sharePhotos.length >= MAX_SHARE_PHOTOS
+                    }
+                  />
+                </label>
+
+                {sharePhotoStatusMessage && (
+                  <p
+                    className={`${styles.formStatus} ${styles[sharePhotoStatus]}`}
+                    role="status"
+                  >
+                    {sharePhotoStatusMessage}
+                  </p>
+                )}
+
+                {sharePhotos.length > 0 && (
+                  <div className={styles.photoPreviewGrid}>
+                    {sharePhotos.map((photo) => (
+                      <article key={photo.id} className={styles.photoPreviewCard}>
+                        <img src={photo.previewUrl} alt="" />
+                        <div className={styles.photoPreviewInfo}>
+                          <strong>{photo.result.fileName}</strong>
+                          <span>{photo.result.width} x {photo.result.height}px</span>
+                          <span>
+                            Original: {formatBytes(photo.result.originalSize)} · Final:{' '}
+                            {formatBytes(photo.result.outputSize)}
+                          </span>
+                          <span>Formato final: WebP · {photo.presetLabel}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className={styles.removePhotoButton}
+                          onClick={() => handleRemoveSharePhoto(photo.id)}
+                          disabled={sharePhotoStatus === 'processing'}
+                        >
+                          Quitar
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
 
               <label className={styles.formField}>
                 <span>Mensaje</span>
@@ -850,6 +1054,7 @@ export function TrustPage({ page }: TrustPageProps) {
                   className={styles.submitButton}
                   disabled={
                     shareStatus === 'submitting' ||
+                    sharePhotoStatus === 'processing' ||
                     countryOptionsStatus !== 'ready' ||
                     zoneOptionsStatus !== 'ready'
                   }
@@ -1026,4 +1231,20 @@ function asNonEmptyString(value: unknown): string | null {
 
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+async function standardizeSharePhoto(
+  file: File,
+  contributionType: CommunityContributionType
+): Promise<SharePhotoItem> {
+  const preset = getPresetForContributionType(contributionType);
+  const result = await standardizeImageFile(file, { preset });
+
+  return {
+    id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
+    originalFile: file,
+    previewUrl: URL.createObjectURL(result.blob),
+    result,
+    presetLabel: preset.label,
+  };
 }
