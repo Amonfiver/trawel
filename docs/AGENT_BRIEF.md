@@ -59,6 +59,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Modelo publico Comunidad:** `docs/TRAWEL_COMMUNITY_PUBLIC_MODEL.md` define que `/comunidad` debe mostrar solo aportes aprobados: experiencias, fotos y recomendaciones de sitio. Las cards publicas deben tener destino por `country_slug` y, si existe, `zone_slug`. Nada pendiente, rechazado, reportado o sin derechos claros aparece en la pagina; Investighost aprueba, rechaza, publica y retira.
 
+**Ruta Comunidad:** existe `/comunidad` en `src/pages/CommunityPage/` y el header global enlaza a ella como `Comunidad`. La pagina inicial es un estado publico controlado: presenta el espacio y envia propuestas a `/compartir`, pero todavia no lee una tabla publica definitiva ni muestra aportes pendientes.
+
 **Seed producto fase 1:** existe `supabase/seed/007_product_content_seed.sql` como seed local minimo para probar paginas estaticas, una promocion demo marcada como prueba y contenido editorial publicado de Espana. No se ejecuta automaticamente ni debe lanzarse contra remoto sin bloque explicito.
 
 **Fachada Country/Zone:** empieza a existir una fachada data-driven en `src/features/travelData/screenData/` con `getCountryScreenData()` y `getZoneScreenData()`. Los proximos cambios de pais/zona deben respetarla y evitar nuevo contenido hardcoded en paginas.

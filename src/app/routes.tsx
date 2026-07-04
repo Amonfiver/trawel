@@ -25,6 +25,7 @@ import { WithdrawAdventurePage } from '../pages/WithdrawAdventurePage';
 import { CityPage } from '../pages/CityPage';
 import { AdventurePage } from '../pages/AdventurePage';
 import { TrustPage } from '../pages/TrustPage';
+import { CommunityPage } from '../pages/CommunityPage';
 
 export const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
   {
     path: '/compartir',
     element: <TrustPage page="compartir" />,
+  },
+  {
+    path: '/comunidad',
+    element: <CommunityPage />,
   },
   {
     path: '/pais/:countrySlug/:citySlug',

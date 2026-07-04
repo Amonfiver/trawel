@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-07-04 - Bloque 72: pagina Comunidad publica
+
+Creada la entrada publica inicial de Comunidad.
+
+### Cambios implementados
+
+- Anadida ruta `/comunidad`.
+- Anadido enlace `Comunidad` al menu superior global.
+- Creada `CommunityPage` con hero premium y estado vacio controlado.
+- La pagina explica que solo se mostraran aportes aprobados.
+- El CTA principal apunta a `/compartir`.
+
+### Reglas respetadas
+
+- No se conecto a tablas publicas nuevas.
+- No se publica contenido pendiente.
+- No se toco Supabase writes, Storage, migrations, seeds ni mapas.
+
+---
+
 ## 2026-07-04 - Bloque 71: modelo publico de Comunidad
 
 Definido el modelo funcional de la futura pagina publica de Comunidad.

@@ -25,6 +25,7 @@ function GlobalHeader() {
           <a href="/" className={styles.navLink}>Inicio</a>
           <a href="/#atlas-mundial" className={styles.navLink}>Atlas</a>
           <a href="/#destinos" className={styles.navLink}>Destinos</a>
+          <a href="/comunidad" className={styles.navLink}>Comunidad</a>
           <a href="/contacto" className={styles.navLink}>Contacto</a>
         </nav>
         <div className={styles.modeSelector}>
