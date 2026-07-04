@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-07-04 - Bloque 76: contrato catalogo pais ciudad
+
+Definido el contrato minimo para cargar paises y ciudades/zonas en Supabase.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_COUNTRY_CITY_CATALOG_CONTRACT.md`.
+- Documentados campos recomendados para paises.
+- Documentados campos recomendados para ciudades/zonas.
+- Definidas reglas de slugs estables y no duplicados dentro de pais.
+- Reforzado que Investighost/base de datos carga el catalogo y Trawel solo lee.
+- Aclarado que si una ciudad/zona no esta visible en Supabase, no aparece en selects.
+
+### Reglas respetadas
+
+- Solo documentacion.
+- No se tocaron datos reales, migrations, seeds, UI, Storage, mapas ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 75: estrategia catalogo paises y ciudades
 
 Documentada la estrategia para que Trawel use un catalogo de paises y ciudades/zonas en Supabase.
