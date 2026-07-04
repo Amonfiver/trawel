@@ -1,5 +1,59 @@
 import { Link } from 'react-router-dom';
+import albarracinImage from '../../assets/home/plans/albarracin.png';
+import mexicoImage from '../../assets/countries/hero/mexico.webp';
+import spainImage from '../../assets/countries/hero/espana.webp';
 import styles from './CommunityPage.module.css';
+
+interface CommunityPreviewCard {
+  id: string;
+  title: string;
+  countryName: string;
+  zoneName?: string;
+  contributionType: string;
+  summary: string;
+  credit: string;
+  image: string;
+  countrySlug: string;
+  zoneSlug?: string;
+}
+
+const communityPreviewCards: CommunityPreviewCard[] = [
+  {
+    id: 'albarracin-miradores',
+    title: 'Un paseo lento por los miradores de Albarracín',
+    countryName: 'España',
+    zoneName: 'Albarracín',
+    contributionType: 'Experiencia',
+    summary:
+      'Una ruta tranquila para mirar la muralla desde varios ángulos y entender por qué el pueblo cambia con la luz.',
+    credit: 'Muestra editorial Trawel',
+    image: albarracinImage,
+    countrySlug: 'espana',
+    zoneSlug: 'albarracin',
+  },
+  {
+    id: 'mexico-mercados',
+    title: 'Mercados, colores y primeras pistas de México',
+    countryName: 'México',
+    contributionType: 'Recomendación de sitio',
+    summary:
+      'Una invitación a empezar por los mercados locales para leer aromas, ritmos y pequeñas historias cotidianas.',
+    credit: 'Muestra editorial Trawel',
+    image: mexicoImage,
+    countrySlug: 'mexico',
+  },
+  {
+    id: 'espana-encabezado',
+    title: 'Una imagen para abrir una historia de viaje',
+    countryName: 'España',
+    contributionType: 'Foto aprobada',
+    summary:
+      'Las futuras fotos de comunidad se mostrarán solo cuando tengan derechos claros y revisión editorial.',
+    credit: 'Muestra editorial Trawel',
+    image: spainImage,
+    countrySlug: 'espana',
+  },
+];
 
 export function CommunityPage() {
   return (
@@ -20,6 +74,37 @@ export function CommunityPage() {
           <Link to="/#destinos" className={styles.secondaryLink}>
             Explorar destinos
           </Link>
+        </div>
+      </section>
+
+      <section className={styles.cardsSection} aria-labelledby="community-cards-title">
+        <div className={styles.sectionHeader}>
+          <p className={styles.statusEyebrow}>Vista previa</p>
+          <h2 id="community-cards-title">Cards visuales para aportes aprobados</h2>
+          <p>
+            Estas muestras locales anticipan el formato. La versión pública definitiva leerá solo
+            contenido aprobado y preparado para Comunidad.
+          </p>
+        </div>
+
+        <div className={styles.cardsGrid}>
+          {communityPreviewCards.map((card) => (
+            <article key={card.id} className={styles.communityCard}>
+              <div className={styles.cardImageWrap}>
+                <img src={card.image} alt="" className={styles.cardImage} />
+                <span className={styles.cardType}>{card.contributionType}</span>
+              </div>
+              <div className={styles.cardBody}>
+                <p className={styles.cardLocation}>
+                  {card.countryName}
+                  {card.zoneName ? ` · ${card.zoneName}` : ''}
+                </p>
+                <h3>{card.title}</h3>
+                <p>{card.summary}</p>
+                <span className={styles.cardCredit}>Crédito: {card.credit}</span>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 

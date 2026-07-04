@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-07-04 - Bloque 73: cards visuales de Comunidad
+
+Disenadas las primeras cards visuales de Comunidad con datos locales temporales.
+
+### Cambios implementados
+
+- Anadidas cards de vista previa en `/comunidad`.
+- Cada card muestra foto, titulo, pais, zona cuando aplica, tipo de aporte, texto breve y credito.
+- Usados assets locales existentes.
+- Los datos quedan marcados como muestra editorial temporal y no como contenido de usuario publicado.
+
+### Reglas respetadas
+
+- No se conecto una tabla publica definitiva.
+- No se mostro contenido pendiente real.
+- No se toco Supabase writes, Storage, migrations, seeds ni mapas.
+
+---
+
 ## 2026-07-04 - Bloque 72: pagina Comunidad publica
 
 Creada la entrada publica inicial de Comunidad.

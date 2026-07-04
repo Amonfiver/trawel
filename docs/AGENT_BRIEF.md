@@ -61,6 +61,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Ruta Comunidad:** existe `/comunidad` en `src/pages/CommunityPage/` y el header global enlaza a ella como `Comunidad`. La pagina inicial es un estado publico controlado: presenta el espacio y envia propuestas a `/compartir`, pero todavia no lee una tabla publica definitiva ni muestra aportes pendientes.
 
+**Cards Comunidad:** `/comunidad` muestra cards visuales locales de vista previa con foto, titulo, pais, zona cuando aplica, tipo de aporte, resumen y credito. Son muestras editoriales temporales; no representan contenido de usuario publicado ni deben confundirse con una cola pendiente.
+
 **Seed producto fase 1:** existe `supabase/seed/007_product_content_seed.sql` como seed local minimo para probar paginas estaticas, una promocion demo marcada como prueba y contenido editorial publicado de Espana. No se ejecuta automaticamente ni debe lanzarse contra remoto sin bloque explicito.
 
 **Fachada Country/Zone:** empieza a existir una fachada data-driven en `src/features/travelData/screenData/` con `getCountryScreenData()` y `getZoneScreenData()`. Los proximos cambios de pais/zona deben respetarla y evitar nuevo contenido hardcoded en paginas.
