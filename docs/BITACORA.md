@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-07-04 - Bloque 75: estrategia catalogo paises y ciudades
+
+Documentada la estrategia para que Trawel use un catalogo de paises y ciudades/zonas en Supabase.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_COUNTRY_CITY_CATALOG_STRATEGY.md`.
+- Documentado que Trawel no consultara internet en tiempo real para paises/ciudades.
+- Reforzado que `/compartir` debe listar pais y zona desde Supabase.
+- Aclarado que Investighost/base de datos alimenta el catalogo.
+- Actualizado `docs/TRAWEL_PUBLIC_INPUTS_MAP.md`.
+
+### Reglas respetadas
+
+- Solo documentacion.
+- No se toco UI, Supabase, Storage, rutas, mapas, migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 74: Comunidad enlazada a paises y zonas
 
 Aplicada navegacion desde las cards de Comunidad hacia destinos publicos.

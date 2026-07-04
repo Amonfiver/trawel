@@ -37,6 +37,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Estado inicial: `pending_review`.
 - Uso: propuestas de destino, experiencia/aventura, foto de encabezado, foto de ciudad/zona, correccion u otro aporte comunitario.
 - Clasificacion: pais y zona desde selects Supabase, mas tipo de colaboracion controlado.
+- Catalogo: paises desde `countries` y zonas/ciudades desde `cities`; no hay scraping ni consultas externas desde el frontend.
 - Entrada enlazada: CountryPage y CountryZonePage pueden abrir `/compartir?tipo=hero_photo&pais=...&zona=...` para preseleccionar foto de encabezado.
 - Experiencias/aventuras: si `contribution_type='experiencia_aventura'`, el formulario pide `experience_title` y lo envia en metadata.
 - Query params: `/compartir?tipo=adventure...` o `/compartir?tipo=experience...` preseleccionan experiencia/aventura.
