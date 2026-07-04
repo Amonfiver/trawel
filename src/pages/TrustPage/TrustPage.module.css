@@ -135,6 +135,18 @@
   resize: vertical;
 }
 
+.formHint {
+  margin: -0.25rem 0 0;
+  padding: 0.8rem 0.9rem;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
 .formField input:focus,
 .formField select:focus,
 .formField textarea:focus {

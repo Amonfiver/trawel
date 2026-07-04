@@ -5,6 +5,12 @@ import {
   submitContactMessage,
 } from '../../features/travelData/productContent/userMessageQueue.service';
 import {
+  getPublicCountryOptions,
+  getPublicZoneOptionsByCountrySlug,
+  type PublicCountryOption,
+  type PublicZoneOption,
+} from '../../features/travelData/productContent/publicLocationOptions.service';
+import {
   submitContentReport,
   type ContentReportInputType,
 } from '../../features/travelData/productContent/contentReportQueue.service';
@@ -202,7 +208,14 @@ interface TrustPageProps {
 }
 
 type ContactFormStatus = 'idle' | 'submitting' | 'success' | 'error';
-type CommunityProposalType = 'experiencia' | 'destino' | 'colaboracion' | 'correccion' | 'otro';
+type LocationOptionsStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
+type CommunityContributionType =
+  | 'experiencia_aventura'
+  | 'foto_encabezado'
+  | 'foto_ciudad_zona'
+  | 'sugerencia_destino'
+  | 'correccion'
+  | 'otro';
 
 interface ContactFormValues {
   name: string;
@@ -223,8 +236,9 @@ const initialContactFormValues: ContactFormValues = {
 interface ShareFormValues {
   name: string;
   email: string;
-  suggestedPlace: string;
-  proposalType: CommunityProposalType;
+  countrySlug: string;
+  zoneSlug: string;
+  contributionType: CommunityContributionType;
   message: string;
   privacyAccepted: boolean;
 }
@@ -232,16 +246,18 @@ interface ShareFormValues {
 const initialShareFormValues: ShareFormValues = {
   name: '',
   email: '',
-  suggestedPlace: '',
-  proposalType: 'experiencia',
+  countrySlug: '',
+  zoneSlug: '',
+  contributionType: 'experiencia_aventura',
   message: '',
   privacyAccepted: false,
 };
 
-const communityProposalLabels: Record<CommunityProposalType, string> = {
-  experiencia: 'Experiencia',
-  destino: 'Destino',
-  colaboracion: 'Colaboración',
+const communityContributionLabels: Record<CommunityContributionType, string> = {
+  experiencia_aventura: 'Experiencia / aventura',
+  foto_encabezado: 'Foto de encabezado',
+  foto_ciudad_zona: 'Foto de ciudad/zona',
+  sugerencia_destino: 'Sugerencia de destino',
   correccion: 'Corrección',
   otro: 'Otro',
 };
@@ -269,6 +285,10 @@ export function TrustPage({ page }: TrustPageProps) {
   const [shareFormValues, setShareFormValues] = useState<ShareFormValues>(initialShareFormValues);
   const [shareStatus, setShareStatus] = useState<ContactFormStatus>('idle');
   const [shareStatusMessage, setShareStatusMessage] = useState('');
+  const [countryOptions, setCountryOptions] = useState<PublicCountryOption[]>([]);
+  const [zoneOptions, setZoneOptions] = useState<PublicZoneOption[]>([]);
+  const [countryOptionsStatus, setCountryOptionsStatus] = useState<LocationOptionsStatus>('idle');
+  const [zoneOptionsStatus, setZoneOptionsStatus] = useState<LocationOptionsStatus>('idle');
   const [reportFormValues, setReportFormValues] = useState<ReportFormValues>(initialReportFormValues);
   const [reportStatus, setReportStatus] = useState<ContactFormStatus>('idle');
   const [reportStatusMessage, setReportStatusMessage] = useState('');
@@ -294,6 +314,83 @@ export function TrustPage({ page }: TrustPageProps) {
   const content = supabaseContent || fallbackContent;
   const isContactPage = page === 'contacto';
   const isSharePage = page === 'compartir';
+  const selectedCountry = countryOptions.find(
+    (country) => country.value === shareFormValues.countrySlug
+  );
+  const selectedZone = zoneOptions.find((zone) => zone.value === shareFormValues.zoneSlug);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    if (!isSharePage) {
+      return () => {
+        isCurrent = false;
+      };
+    }
+
+    setCountryOptionsStatus('loading');
+    setCountryOptions([]);
+    setZoneOptions([]);
+    setZoneOptionsStatus('idle');
+
+    getPublicCountryOptions()
+      .then((options) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setCountryOptions(options);
+        setCountryOptionsStatus(options.length > 0 ? 'ready' : 'empty');
+      })
+      .catch(() => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setCountryOptions([]);
+        setCountryOptionsStatus('error');
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [isSharePage]);
+
+  useEffect(() => {
+    let isCurrent = true;
+    const countrySlug = shareFormValues.countrySlug;
+
+    setZoneOptions([]);
+    setZoneOptionsStatus(countrySlug ? 'loading' : 'idle');
+
+    if (!isSharePage || !countrySlug) {
+      return () => {
+        isCurrent = false;
+      };
+    }
+
+    getPublicZoneOptionsByCountrySlug(countrySlug)
+      .then((options) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setZoneOptions(options);
+        setZoneOptionsStatus(options.length > 0 ? 'ready' : 'empty');
+      })
+      .catch(() => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setZoneOptions([]);
+        setZoneOptionsStatus('error');
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [isSharePage, shareFormValues.countrySlug]);
 
   const handleContactFormChange = (
     field: keyof ContactFormValues,
@@ -364,6 +461,19 @@ export function TrustPage({ page }: TrustPageProps) {
     }
   };
 
+  const handleShareCountryChange = (countrySlug: string) => {
+    setShareFormValues((currentValues) => ({
+      ...currentValues,
+      countrySlug,
+      zoneSlug: '',
+    }));
+
+    if (shareStatus !== 'submitting') {
+      setShareStatus('idle');
+      setShareStatusMessage('');
+    }
+  };
+
   const handleShareFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -374,26 +484,40 @@ export function TrustPage({ page }: TrustPageProps) {
     setShareStatus('submitting');
     setShareStatusMessage('Enviando tu propuesta...');
 
-    const suggestedPlace = shareFormValues.suggestedPlace.trim();
+    const countrySlug = shareFormValues.countrySlug.trim();
+    const zoneSlug = shareFormValues.zoneSlug.trim();
 
-    if (!suggestedPlace) {
+    if (!countrySlug) {
       setShareStatus('error');
-      setShareStatusMessage('Indica el país o destino relacionado con la propuesta.');
+      setShareStatusMessage('Elige el país relacionado con la colaboración.');
       return;
     }
 
-    const proposalLabel = communityProposalLabels[shareFormValues.proposalType];
+    if (!zoneSlug) {
+      setShareStatus('error');
+      setShareStatusMessage('Elige la zona relacionada con la colaboración.');
+      return;
+    }
+
+    const contributionLabel = communityContributionLabels[shareFormValues.contributionType];
+    const countryLabel = selectedCountry?.label || countrySlug;
+    const zoneLabel = selectedZone?.label || zoneSlug;
     const result = await submitCommunitySuggestion({
       name: shareFormValues.name,
       email: shareFormValues.email,
-      subject: `${proposalLabel}: ${suggestedPlace}`,
+      subject: `${contributionLabel}: ${countryLabel} / ${zoneLabel}`,
       message: shareFormValues.message,
       sourcePage: 'compartir',
+      countrySlug,
+      zoneSlug,
+      entityType: 'zone',
+      entitySlug: zoneSlug,
       privacyAccepted: shareFormValues.privacyAccepted,
       metadata: {
         source: 'trust_page_share_form',
-        proposal_type: shareFormValues.proposalType,
-        suggested_place: suggestedPlace,
+        country_slug: countrySlug,
+        zone_slug: zoneSlug,
+        contribution_type: shareFormValues.contributionType,
       },
     });
 
@@ -614,35 +738,86 @@ export function TrustPage({ page }: TrustPageProps) {
 
               <div className={styles.formGrid}>
                 <label className={styles.formField}>
-                  <span>País o destino sugerido</span>
-                  <input
-                    type="text"
-                    name="suggestedPlace"
-                    value={shareFormValues.suggestedPlace}
-                    onChange={(event) => handleShareFormChange('suggestedPlace', event.target.value)}
+                  <span>País</span>
+                  <select
+                    name="shareCountry"
+                    value={shareFormValues.countrySlug}
+                    onChange={(event) => handleShareCountryChange(event.target.value)}
+                    disabled={countryOptionsStatus === 'loading' || countryOptions.length === 0}
                     required
-                    maxLength={180}
-                  />
+                  >
+                    <option value="">
+                      {countryOptionsStatus === 'loading' ? 'Cargando países...' : 'Elige un país'}
+                    </option>
+                    {countryOptions.map((country) => (
+                      <option key={country.id} value={country.value}>
+                        {country.label}
+                      </option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className={styles.formField}>
-                  <span>Tipo de propuesta</span>
+                  <span>Zona</span>
                   <select
-                    name="proposalType"
-                    value={shareFormValues.proposalType}
-                    onChange={(event) =>
-                      handleShareFormChange('proposalType', event.target.value as CommunityProposalType)
+                    name="shareZone"
+                    value={shareFormValues.zoneSlug}
+                    onChange={(event) => handleShareFormChange('zoneSlug', event.target.value)}
+                    disabled={
+                      !shareFormValues.countrySlug ||
+                      zoneOptionsStatus === 'loading' ||
+                      zoneOptions.length === 0
                     }
                     required
                   >
-                    <option value="experiencia">Experiencia</option>
-                    <option value="destino">Destino</option>
-                    <option value="colaboracion">Colaboración</option>
-                    <option value="correccion">Corrección</option>
-                    <option value="otro">Otro</option>
+                    <option value="">
+                      {zoneOptionsStatus === 'loading' ? 'Cargando zonas...' : 'Elige una zona'}
+                    </option>
+                    {zoneOptions.map((zone) => (
+                      <option key={zone.id} value={zone.value}>
+                        {zone.label}
+                      </option>
+                    ))}
                   </select>
                 </label>
               </div>
+
+              {(countryOptionsStatus === 'empty' || countryOptionsStatus === 'error') && (
+                <p className={styles.formHint} role="status">
+                  No hemos podido cargar la lista de países ahora mismo. Puedes intentarlo de nuevo
+                  en unos minutos.
+                </p>
+              )}
+
+              {shareFormValues.countrySlug &&
+                (zoneOptionsStatus === 'empty' || zoneOptionsStatus === 'error') && (
+                  <p className={styles.formHint} role="status">
+                    No hay zonas disponibles para ese país todavía. La colaboración queda pendiente
+                    hasta que exista una zona seleccionable.
+                  </p>
+                )}
+
+              <label className={styles.formField}>
+                <span>Tipo de colaboración</span>
+                <select
+                  name="contributionType"
+                  value={shareFormValues.contributionType}
+                  onChange={(event) =>
+                    handleShareFormChange(
+                      'contributionType',
+                      event.target.value as CommunityContributionType
+                    )
+                  }
+                  required
+                >
+                  <option value="experiencia_aventura">Experiencia / aventura</option>
+                  <option value="foto_encabezado">Foto de encabezado</option>
+                  <option value="foto_ciudad_zona">Foto de ciudad/zona</option>
+                  <option value="sugerencia_destino">Sugerencia de destino</option>
+                  <option value="correccion">Corrección</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </label>
 
               <label className={styles.formField}>
                 <span>Mensaje</span>
@@ -673,7 +848,11 @@ export function TrustPage({ page }: TrustPageProps) {
                 <button
                   type="submit"
                   className={styles.submitButton}
-                  disabled={shareStatus === 'submitting'}
+                  disabled={
+                    shareStatus === 'submitting' ||
+                    countryOptionsStatus !== 'ready' ||
+                    zoneOptionsStatus !== 'ready'
+                  }
                 >
                   {shareStatus === 'submitting' ? 'Enviando...' : 'Enviar propuesta'}
                 </button>

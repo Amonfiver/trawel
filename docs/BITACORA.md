@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-07-04 - Bloque 63: compartir con paises, zonas y tipo
+
+Mejorado el formulario publico de `/compartir` para clasificar colaboraciones desde el origen con opciones reales de Supabase.
+
+### Cambios implementados
+
+- Sustituido el campo manual de pais/destino por select de pais y select de zona dependiente.
+- Usadas `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` para cargar opciones desde `countries` y `cities`.
+- Anadido tipo de colaboracion: experiencia / aventura, foto de encabezado, foto de ciudad/zona, sugerencia de destino, correccion u otro.
+- Mantenidos nombre, email, mensaje y aceptacion de privacidad.
+- El envio sigue usando `submitCommunitySuggestion(...)`.
+- El mensaje se inserta con `countrySlug`, `zoneSlug`, `entityType='zone'` y `entitySlug=zoneSlug`.
+- La metadata incluye `source='trust_page_share_form'`, `country_slug`, `zone_slug` y `contribution_type`.
+- Anadidos avisos amables cuando no hay paises o zonas disponibles.
+
+### Reglas respetadas
+
+- No se toco Storage, fotos, subida de archivos, migrations, seeds, mapas, rutas, `package.json`, HomePage, CountryPage ni CountryZonePage.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+- Verificado `/compartir` con Playwright en desktop y movil.
+- Carga real validada: 3 paises disponibles; Espana seleccionada con 5 zonas y zona `albarracin`.
+- Envio test real creado en `user_messages` como `pending_review` con referencia `703bcad9-c55e-4364-92e6-3501810955e3`.
+- Verificados `country_slug='espana'`, `zone_slug='albarracin'`, `entity_type='zone'`, `entity_slug='albarracin'` y metadata `contribution_type='foto_ciudad_zona'`.
+- Fila test eliminada tras la verificacion.
+
+---
+
 ## 2026-07-04 - Bloque 62: selects publicos de paises y zonas
 
 Preparado el servicio publico de lectura para cargar opciones controladas de pais y zona desde Supabase, orientado a futuros formularios de colaboracion con fotos.

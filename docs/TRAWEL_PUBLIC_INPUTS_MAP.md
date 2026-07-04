@@ -35,7 +35,9 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Servicio: `submitCommunitySuggestion(...)`.
 - Tabla: `user_messages`.
 - Estado inicial: `pending_review`.
-- Uso: propuestas de destino, experiencia, colaboracion, correccion u otro aporte comunitario.
+- Uso: propuestas de destino, experiencia/aventura, foto de encabezado, foto de ciudad/zona, correccion u otro aporte comunitario.
+- Clasificacion: pais y zona desde selects Supabase, mas tipo de colaboracion controlado.
+- Metadata: `source='trust_page_share_form'`, `country_slug`, `zone_slug` y `contribution_type`.
 - Publicacion directa: no.
 - Revision: Investighost futuro.
 
