@@ -246,6 +246,7 @@ interface ShareFormValues {
   countrySlug: string;
   zoneSlug: string;
   contributionType: CommunityContributionType;
+  experienceTitle: string;
   message: string;
   privacyAccepted: boolean;
 }
@@ -256,6 +257,7 @@ const initialShareFormValues: ShareFormValues = {
   countrySlug: '',
   zoneSlug: '',
   contributionType: 'experiencia_aventura',
+  experienceTitle: '',
   message: '',
   privacyAccepted: false,
 };
@@ -344,6 +346,7 @@ export function TrustPage({ page }: TrustPageProps) {
     (country) => country.value === shareFormValues.countrySlug
   );
   const selectedZone = zoneOptions.find((zone) => zone.value === shareFormValues.zoneSlug);
+  const isExperienceContribution = shareFormValues.contributionType === 'experiencia_aventura';
 
   useEffect(() => {
     let isCurrent = true;
@@ -676,6 +679,9 @@ export function TrustPage({ page }: TrustPageProps) {
 
     const countrySlug = shareFormValues.countrySlug.trim();
     const zoneSlug = shareFormValues.zoneSlug.trim();
+    const experienceTitle = isExperienceContribution
+      ? shareFormValues.experienceTitle.trim()
+      : '';
 
     if (!countrySlug) {
       setShareStatus('error');
@@ -689,13 +695,22 @@ export function TrustPage({ page }: TrustPageProps) {
       return;
     }
 
+    if (isExperienceContribution && !experienceTitle) {
+      setShareStatus('error');
+      setShareStatusMessage('Escribe un título para tu experiencia.');
+      return;
+    }
+
     const contributionLabel = communityContributionLabels[shareFormValues.contributionType];
     const countryLabel = selectedCountry?.label || countrySlug;
     const zoneLabel = selectedZone?.label || zoneSlug;
+    const subject = experienceTitle
+      ? `${contributionLabel}: ${experienceTitle} (${countryLabel} / ${zoneLabel})`
+      : `${contributionLabel}: ${countryLabel} / ${zoneLabel}`;
     const result = await submitCommunitySuggestion({
       name: shareFormValues.name,
       email: shareFormValues.email,
-      subject: `${contributionLabel}: ${countryLabel} / ${zoneLabel}`,
+      subject,
       message: shareFormValues.message,
       sourcePage: 'compartir',
       countrySlug,
@@ -708,6 +723,7 @@ export function TrustPage({ page }: TrustPageProps) {
         country_slug: countrySlug,
         zone_slug: zoneSlug,
         contribution_type: shareFormValues.contributionType,
+        ...(experienceTitle ? { experience_title: experienceTitle } : {}),
         photo_count: sharePhotos.length,
         photo_standardization: sharePhotos.length > 0,
         photo_upload_pending: sharePhotos.length > 0,
@@ -902,7 +918,7 @@ export function TrustPage({ page }: TrustPageProps) {
               <h2 id="share-form-title">Comparte una idea para Trawel</h2>
               <p>
                 Tu propuesta entra en una cola privada de revisión. Puede ayudarnos a priorizar
-                destinos, experiencias o correcciones, pero no se publica automáticamente.
+                destinos, experiencias o correcciones, y se revisará antes de publicarse.
               </p>
             </div>
 
@@ -1017,13 +1033,29 @@ export function TrustPage({ page }: TrustPageProps) {
                 </select>
               </label>
 
+              {isExperienceContribution && (
+                <label className={styles.formField}>
+                  <span>Título de la experiencia</span>
+                  <input
+                    type="text"
+                    name="experienceTitle"
+                    value={shareFormValues.experienceTitle}
+                    onChange={(event) =>
+                      handleShareFormChange('experienceTitle', event.target.value)
+                    }
+                    required
+                    maxLength={180}
+                  />
+                </label>
+              )}
+
               <section className={styles.photoUploadBox} aria-labelledby="share-photo-title">
                 <div className={styles.photoUploadHeader}>
                   <div>
                     <h3 id="share-photo-title">Fotos opcionales</h3>
                     <p>
-                      Trawel adaptará tus fotos a formato web para que carguen rápido y mantengan
-                      buena calidad.
+                      Puedes añadir hasta 3 fotos. Trawel adaptará tus fotos a formato web para que
+                      carguen rápido y mantengan buena calidad.
                     </p>
                   </div>
                   <span>{sharePhotos.length}/{MAX_SHARE_PHOTOS}</span>
@@ -1083,11 +1115,16 @@ export function TrustPage({ page }: TrustPageProps) {
               </section>
 
               <label className={styles.formField}>
-                <span>Mensaje</span>
+                <span>{isExperienceContribution ? 'Cuéntanos tu experiencia' : 'Mensaje'}</span>
                 <textarea
                   name="shareMessage"
                   value={shareFormValues.message}
                   onChange={(event) => handleShareFormChange('message', event.target.value)}
+                  placeholder={
+                    isExperienceContribution
+                      ? 'Relata qué viviste, qué recomiendas y qué deberían saber otros viajeros.'
+                      : undefined
+                  }
                   required
                   maxLength={5000}
                   rows={7}
@@ -1302,8 +1339,24 @@ function normalizeQuerySlug(value: string | null): string | null {
 }
 
 function mapShareQueryType(value: string | null): CommunityContributionType | null {
-  if (value === 'hero_photo' || value === 'foto_encabezado') {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === 'hero_photo' || normalized === 'foto_encabezado') {
     return 'foto_encabezado';
+  }
+
+  if (
+    normalized === 'adventure' ||
+    normalized === 'experience' ||
+    normalized === 'aventura' ||
+    normalized === 'experiencia' ||
+    normalized === 'experiencia_aventura'
+  ) {
+    return 'experiencia_aventura';
   }
 
   return null;

@@ -25,6 +25,8 @@ Los envios deben clasificar su intencion desde el formulario o servicio de entra
 - `sugerencia_de_destino`: propuesta de nuevo destino o mejora de cobertura.
 - `correccion`: aviso de error, dato incompleto o mejora editorial.
 
+Cuando el envio sea `experiencia_aventura`, Trawel debe pedir un titulo breve de la experiencia y enviarlo como `experience_title` junto al relato, pais, zona, tipo y metadata de fotos. El titulo facilita que Investighost identifique la pieza sin interpretar el texto completo.
+
 ## Reglas De Fotos
 
 - Maximo 3 fotos por envio.

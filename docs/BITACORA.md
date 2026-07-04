@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-07-04 - Bloque 68: aventuras de ciudad con fotos
+
+Afinado el flujo de `/compartir` para que las experiencias o aventuras de ciudad lleguen mejor clasificadas a la cola privada.
+
+### Cambios implementados
+
+- Anadido campo condicional `Titulo de la experiencia` cuando el tipo de colaboracion es `experiencia_aventura`.
+- El formulario mantiene pais, zona, relato y hasta 3 fotos opcionales estandarizadas localmente.
+- El copy de `/compartir` aclara que la propuesta se revisara antes de publicarse.
+- El relato pasa a mostrarse como `Cuentanos tu experiencia` para aportes de experiencia/aventura.
+- La metadata enviada a `user_messages` incluye `experience_title` cuando aplica, ademas de `country_slug`, `zone_slug`, `contribution_type`, `photo_count`, `photo_standardization`, `photo_upload_pending` y `source='trust_page_share_form'`.
+- `/compartir` acepta `tipo=adventure` o `tipo=experience` para preseleccionar `experiencia_aventura`.
+
+### Reglas respetadas
+
+- No se toco Storage, subida real, bucket, policies, migrations, seeds, mapas, WorldMap, D3, TopoJSON, `package.json`, HomePage, CountryPage ni CountryZonePage.
+- Las fotos siguen sin subirse a Storage y nada se publica automaticamente.
+
+---
+
 ## 2026-07-04 - Bloque 67: invitacion a fotos de encabezado
 
 Recuperada una invitacion secundaria para que usuarios propongan fotos de encabezado de paises y zonas mediante el flujo controlado de `/compartir`.
