@@ -5,6 +5,55 @@
 
 ---
 
+## 2026-07-04 - Bloque 69: revision final pre-hosting
+
+Registrada la revision final local antes de preparar hosting multiweb de pago.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_FINAL_PRE_HOSTING_REVIEW.md`.
+- Documentada la decision: Trawel esta listo para preparar hosting multiweb.
+- Actualizados `docs/TRAWEL_PRE_HOSTING_CHECKLIST.md` y `docs/TRAWEL_PRODUCTION_READINESS_CHECKLIST.md` con el cierre del bloque 69.
+- Actualizado `docs/AGENT_BRIEF.md` para que futuros agentes sepan que la revision final local ya fue superada.
+
+### Validacion ejecutada
+
+- `npm run build` pasa; queda solo el aviso conocido de chunk grande de Vite.
+- `npm run preview` usado para revisar la build generada.
+- Rutas revisadas:
+  - `/`
+  - `/contacto`
+  - `/compartir`
+  - `/pais/mexico`
+  - `/pais/espana`
+  - `/pais/espana/zona/albarracin`
+  - `/privacidad`
+  - `/cookies`
+  - `/terminos`
+  - `/sobre-trawel`
+- Playwright no detecto errores bloqueantes de consola.
+- Header validado en desktop y movil.
+- `/compartir` validado con query params de foto de encabezado y experiencia/aventura.
+- Foto opcional estandarizada a WebP, preview visible y retirada antes de reenviar.
+- Envios reales verificados:
+  - `/contacto` inserto en `user_messages` como `pending_review`.
+  - `/compartir` inserto en `user_messages` como `pending_review`, con `experience_title` y metadata de foto.
+  - `Reportar contenido` inserto en `content_reports` como `pending_review`.
+- Filas test eliminadas tras la comprobacion.
+
+### Decision
+
+Listo para preparar hosting multiweb de pago.
+
+Siguientes bloques sugeridos:
+
+- Bloque 70: elegir hosting multiweb de pago.
+- Bloque 71: preparar deploy segun hosting elegido.
+- Bloque 72: subida real.
+- Bloque 73: validacion online.
+
+---
+
 ## 2026-07-04 - Bloque 68: aventuras de ciudad con fotos
 
 Afinado el flujo de `/compartir` para que las experiencias o aventuras de ciudad lleguen mejor clasificadas a la cola privada.

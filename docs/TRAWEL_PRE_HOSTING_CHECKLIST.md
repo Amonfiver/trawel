@@ -4,11 +4,17 @@ Checklist tecnica para preparar Trawel antes de subirlo a un hosting real.
 
 ## 1. Objetivo
 
-- [ ] Preparar Trawel para hosting real.
+- [x] Preparar Trawel para hosting real.
 - [ ] Evitar fallos de rutas SPA al refrescar paginas internas.
-- [ ] Confirmar variables de entorno publicas necesarias.
-- [ ] Confirmar build de produccion.
+- [x] Confirmar variables de entorno publicas necesarias.
+- [x] Confirmar build de produccion.
 - [ ] Confirmar pruebas online posteriores al deploy.
+
+Revision final local:
+
+- Bloque 69 documentado en `docs/TRAWEL_FINAL_PRE_HOSTING_REVIEW.md`.
+- Decision: listo para preparar hosting multiweb.
+- Pendiente: elegir proveedor, configurar fallback SPA, configurar variables `VITE_` y repetir pruebas online post-deploy.
 
 ## 2. Variables Necesarias
 
@@ -101,18 +107,18 @@ No crear este archivo todavia hasta decidir que Netlify sera el hosting elegido.
 
 ## 7. Checklist Antes De Deploy
 
-- [ ] Ejecutar `npm run build`.
-- [ ] Confirmar que existe `dist/`.
-- [ ] Revisar `.env.example` o documentacion de variables necesarias.
+- [x] Ejecutar `npm run build`.
+- [x] Confirmar que existe `dist/`.
+- [x] Revisar `.env.example` o documentacion de variables necesarias.
 - [ ] Configurar `VITE_SUPABASE_URL` en hosting.
 - [ ] Configurar `VITE_SUPABASE_ANON_KEY` en hosting.
-- [ ] Confirmar que no hay secretos privados en variables frontend.
-- [ ] Confirmar que no aparece `SUPABASE_SERVICE_ROLE_KEY` en frontend.
-- [ ] Revisar rutas locales principales.
-- [ ] Revisar `/contacto`.
-- [ ] Revisar `/compartir`.
-- [ ] Revisar reporte discreto en TrustPage.
-- [ ] Revisar consola del navegador sin errores bloqueantes.
+- [x] Confirmar que no hay secretos privados en variables frontend.
+- [x] Confirmar que no aparece `SUPABASE_SERVICE_ROLE_KEY` en frontend.
+- [x] Revisar rutas locales principales.
+- [x] Revisar `/contacto`.
+- [x] Revisar `/compartir`.
+- [x] Revisar reporte discreto en TrustPage.
+- [x] Revisar consola del navegador sin errores bloqueantes.
 
 ## 8. Checklist Despues De Deploy
 

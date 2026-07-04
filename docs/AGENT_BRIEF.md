@@ -41,6 +41,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Checklist pre-hosting:** consultar `docs/TRAWEL_PRE_HOSTING_CHECKLIST.md` antes de subir Trawel a hosting real para validar variables `VITE_`, build `dist/`, fallback SPA y pruebas online post-deploy.
 
+**Revision final pre-hosting:** `docs/TRAWEL_FINAL_PRE_HOSTING_REVIEW.md` deja registrada la revision local del bloque 69. Decision: Trawel esta listo para preparar hosting multiweb de pago. Se verificaron build, preview, rutas criticas, header responsive, `/compartir`, formularios reales, Supabase y limpieza de filas test. Los siguientes bloques deben elegir hosting y preparar deploy sin cambiar Storage ni abrir colas.
+
 **Manual Investighost -> Trawel:** consultar `docs/INVESTIGHOST_TO_TRAWEL_HANDOFF_MANUAL.md` como manual maestro para entender que debe alimentar Investighost, que tablas usa Trawel, estados principales, colas de usuario, promociones y reglas de no publicacion directa.
 
 **Modelo Supabase futuro:** antes de proponer tablas, migraciones, cambios de datos o RLS, consultar `docs/TRAWEL_SUPABASE_MODEL.md`.

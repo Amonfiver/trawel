@@ -18,6 +18,7 @@ Checklist practica para validar Trawel como producto online inicial y escaparate
 - [x] CountryZonePage operativa con fachada Database First, fallback local y promociones nativas.
 - [x] Paginas trust operativas con fallback local y lectura progresiva desde `static_pages`.
 - [x] `/contacto` conectado a Supabase mediante `submitContactMessage(...)`.
+- [x] `/compartir` conectado a Supabase mediante `submitCommunitySuggestion(...)`, con pais/zona desde Supabase, tipo controlado, titulo para experiencia/aventura y fotos opcionales estandarizadas localmente.
 - [x] Colas reales creadas en Supabase:
   - `user_messages`.
   - `user_photo_submissions`.
@@ -25,19 +26,20 @@ Checklist practica para validar Trawel como producto online inicial y escaparate
 - [x] Nada enviado por usuarios se publica directamente.
 - [x] Monetizacion controlada preparada mediante `MonetizationSlot` y `promotions`.
 - [x] Manual Investighost -> Trawel disponible para orientar carga y moderacion futura.
+- [x] Revision final pre-hosting local superada en `docs/TRAWEL_FINAL_PRE_HOSTING_REVIEW.md`.
 
 ## 3. Rutas Criticas A Verificar
 
-- [ ] `/`
-- [ ] `/contacto`
-- [ ] `/pais/mexico`
-- [ ] `/pais/espana`
-- [ ] `/pais/espana/zona/madrid` si existe como zona real activa.
-- [ ] `/sobre-trawel`
-- [ ] `/privacidad`
-- [ ] `/cookies`
-- [ ] `/terminos`
-- [ ] `/compartir`
+- [x] `/`
+- [x] `/contacto`
+- [x] `/pais/mexico`
+- [x] `/pais/espana`
+- [x] `/pais/espana/zona/albarracin`.
+- [x] `/sobre-trawel`
+- [x] `/privacidad`
+- [x] `/cookies`
+- [x] `/terminos`
+- [x] `/compartir`
 
 Si una zona sugerida no existe o no esta activa, sustituirla por una ruta real publicada en `cities`/fachada de zona y dejar anotada la ruta usada.
 
@@ -56,38 +58,40 @@ Si una zona sugerida no existe o no esta activa, sustituirla por una ruta real p
 
 ## 5. Checklist Funcional
 
-- [ ] Home lee datos remotos o fallback sin romper.
-- [ ] Mexico carga editorial remoto publicado cuando esta disponible.
-- [ ] Espana carga contenido remoto disponible y conserva fallback cuando falte una pieza.
-- [ ] CountryZonePage resuelve una zona real sin romper.
+- [x] Home lee datos remotos o fallback sin romper.
+- [x] Mexico carga editorial remoto publicado cuando esta disponible.
+- [x] Espana carga contenido remoto disponible y conserva fallback cuando falte una pieza.
+- [x] CountryZonePage resuelve una zona real sin romper.
 - [ ] Promociones se muestran solo si existen, estan publicadas y encajan con el placement.
-- [ ] `/contacto` inserta realmente en `user_messages`.
-- [ ] Los mensajes de contacto entran como `pending_review`.
-- [ ] Los mensajes de contacto guardan `source_page='contacto'`.
-- [ ] Los mensajes de contacto guardan `privacy_accepted=true`.
-- [ ] Las colas no tienen `SELECT` publico.
-- [ ] `npm run build` pasa antes de publicar.
-- [ ] No aparecen errores visibles en consola durante las rutas criticas.
+- [x] `/contacto` inserta realmente en `user_messages`.
+- [x] `/compartir` inserta realmente en `user_messages`.
+- [x] Reportar contenido inserta realmente en `content_reports`.
+- [x] Los mensajes de contacto entran como `pending_review`.
+- [x] Los mensajes de contacto guardan `source_page='contacto'`.
+- [x] Los mensajes de contacto guardan `privacy_accepted=true`.
+- [x] Las colas no tienen `SELECT` publico util para el cliente anon segun auditorias previas y revision final.
+- [x] `npm run build` pasa antes de publicar.
+- [x] No aparecen errores visibles en consola durante las rutas criticas revisadas en preview.
 - [ ] Fallback SPA del hosting preparado para rutas internas.
 
 ## 6. Checklist Supabase
 
 Proyecto correcto:
 
-- [ ] `trawel-prod`.
-- [ ] Ref `pjqisqzxajdfkimtrcby`.
+- [x] `trawel-prod`.
+- [x] Ref `pjqisqzxajdfkimtrcby`.
 
 Tablas activas a comprobar:
 
-- [ ] `countries`.
-- [ ] `cities`.
+- [x] `countries`.
+- [x] `cities`.
 - [ ] `destinations`.
 - [ ] `editorial_contents`.
 - [ ] `promotions`.
 - [ ] `static_pages`.
-- [ ] `user_messages`.
-- [ ] `user_photo_submissions`.
-- [ ] `content_reports`.
+- [x] `user_messages`.
+- [x] `user_photo_submissions`.
+- [x] `content_reports`.
 
 Seguridad de colas:
 
@@ -111,7 +115,11 @@ Seguridad de colas:
 
 ## 8. Siguiente Fase Real
 
-- [ ] Conectar `/compartir` o sugerencias a `user_messages`.
+- [x] Conectar `/compartir` o sugerencias a `user_messages`.
+- [ ] Elegir hosting multiweb de pago.
+- [ ] Preparar deploy segun hosting elegido.
+- [ ] Publicar Trawel online.
+- [ ] Validar rutas y formularios online post-deploy.
 - [ ] Preparar subida real de fotos con Storage seguro.
 - [ ] Crear o activar Investighost como panel de carga y moderacion.
 - [ ] Cargar mas paises, zonas y destinos desde Supabase.
