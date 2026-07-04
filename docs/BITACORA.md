@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-07-04 - Bloque 61: contrato de colaboracion con fotos
+
+Definido el contrato documental previo a conectar colaboraciones con fotos, manteniendo el flujo sin publicacion directa.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md`.
+- Documentado el flujo usuario aporta -> Trawel estandariza/clasifica -> Supabase guarda -> Investighost aprueba -> Trawel publica.
+- Definidos tipos de colaboracion, reglas de fotos, estandares WebP y aviso al usuario.
+- Reforzada la clasificacion obligatoria mediante pais, zona dependiente y tipo de colaboracion controlados.
+- Documentados destinos de datos: bucket privado `traveler-adventure-photos`, `user_photo_submissions`, `user_messages` y `content_reports`.
+- Actualizados `docs/AGENT_BRIEF.md` y `docs/TRAWEL_PUBLIC_INPUTS_MAP.md` con referencia al nuevo contrato.
+
+### Reglas respetadas
+
+- Solo se tocaron documentos.
+- No se tocaron `src/`, UI, Storage, `package.json`, migrations, seeds, mapas ni rutas.
+- No se ejecuto `npm run build` porque no hubo cambios de codigo.
+
+---
+
 ## 2026-07-02 - Bloque 60: contacto en menu superior
 
 Anadido el acceso directo a `/contacto` desde el menu superior principal.

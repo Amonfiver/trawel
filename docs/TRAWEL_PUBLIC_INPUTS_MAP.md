@@ -58,6 +58,9 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Estado inicial: `submitted`.
 - Storage previsto: bucket privado `traveler-adventure-photos`.
 - Uso: propuestas de fotos con derechos y consentimiento confirmados.
+- Contrato: `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md`.
+- Clasificacion obligatoria: pais, zona dependiente del pais y tipo de colaboracion.
+- Limite documental: maximo 3 fotos por envio, entrada JPG/PNG/WebP y salida WebP.
 - Publicacion directa: no.
 - Revision: Investighost futuro.
 
@@ -78,6 +81,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 ## Proximos Pasos
 
 - Crear formulario visual de fotos solo cuando exista subida segura.
+- Seguir `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md` antes de disenar UI o activar Storage para fotos.
 - Implementar Edge Function o backend para subir fotos al bucket privado.
 - Preparar panel Investighost de moderacion.
 - Definir flujo interno de aprobacion, rechazo, archivado y publicacion.
