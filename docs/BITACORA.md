@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-07-04 - Bloque 77: flujo email participacion
+
+Documentado el flujo de emails de confirmacion para participaciones en Trawel.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_PARTICIPATION_EMAIL_FLOW.md`.
+- Definido cuando enviar email: contacto, colaboracion, foto futura y avisos de revision/aprobacion.
+- Anadido copy base para contacto, colaboracion y fotos futuras.
+- Reforzado que no se promete publicacion.
+- Documentado que el envio debe hacerlo backend seguro, Edge Function o proveedor autorizado.
+- Aclarado que no se deben meter claves de email en frontend.
+
+### Reglas respetadas
+
+- No se implemento envio real.
+- No se contrataron servicios.
+- No se tocaron claves, frontend, Supabase, Storage, migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 76: contrato catalogo pais ciudad
 
 Definido el contrato minimo para cargar paises y ciudades/zonas en Supabase.

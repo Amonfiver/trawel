@@ -89,6 +89,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Decision subida privada fotos:** `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md` documenta que no hay policy segura de `INSERT` anon en `traveler-adventure-photos`. El intento anon de upload devuelve `403`, y solo existe lectura publica de Storage para `map-assets`. No conectar subida directa desde frontend; usar Edge Function con service role o signed upload URL corta.
 
+**Email participacion:** `docs/TRAWEL_PARTICIPATION_EMAIL_FLOW.md` define emails futuros para contacto, colaboracion, fotos recibidas y avisos de revision/aprobacion. No hay envio implementado. No enviar emails desde frontend ni guardar claves de proveedor como `VITE_`; debe hacerlo backend seguro, Edge Function o Investighost.
+
 **Opciones publicas pais/zona:** `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` viven en `src/features/travelData/productContent/publicLocationOptions.service.ts`. Leen de `countries` y `cities`, filtran `status='active'`, devuelven opciones `label/value/slug/id` para selects controlados y hacen fallback a `[]` si Supabase falla o no esta configurado. Todavia no estan conectadas a UI.
 
 **Estrategia catalogo pais/ciudad:** `docs/TRAWEL_COUNTRY_CITY_CATALOG_STRATEGY.md` establece que Trawel no consulta internet ni hace scraping para paises/ciudades. Los paises y ciudades/zonas de formularios y Comunidad deben venir de Supabase, alimentados por Investighost/base de datos. Si una ciudad/zona no esta cargada y visible, no aparece en selects ni cards publicas.
