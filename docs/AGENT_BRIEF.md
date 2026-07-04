@@ -55,6 +55,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Home data-driven inicial:** `HomePage` consume `getResolvedHomeScreenData(mode)` para hero, destinos destacados, planes destacados y CTA comunidad. Puede intentar paises destacados desde `countries` legacy (`status` publico y `featured=true`), planes/destinos destacados desde `destinations` legacy (`status=published`, `featured=true`) y deja preparadas `homePromotions` desde `promotions` para contexto `generic/home`, manteniendo `getHomeScreenFallbackData(mode)` como fallback local inmediato. No cambia `WorldMap` ni muestra promociones en Home todavia.
 
+**CTA Comunidad en Home:** el CTA de Comunidad invita a contar experiencias y tambien a recomendar sitios para visitar, enlazando siempre a `/compartir`. No debe enviar usuarios a formularios alternativos ni publicar contenido directamente.
+
 **Seed producto fase 1:** existe `supabase/seed/007_product_content_seed.sql` como seed local minimo para probar paginas estaticas, una promocion demo marcada como prueba y contenido editorial publicado de Espana. No se ejecuta automaticamente ni debe lanzarse contra remoto sin bloque explicito.
 
 **Fachada Country/Zone:** empieza a existir una fachada data-driven en `src/features/travelData/screenData/` con `getCountryScreenData()` y `getZoneScreenData()`. Los proximos cambios de pais/zona deben respetarla y evitar nuevo contenido hardcoded en paginas.

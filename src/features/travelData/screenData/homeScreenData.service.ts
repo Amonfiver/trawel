@@ -236,9 +236,9 @@ export function getHomeScreenFallbackData(mode: ScreenExperienceMode): ResolvedH
     homePromotions: [],
     communityCta: {
       eyebrow: 'Comunidad',
-      title: '¿Tienes una experiencia que contar?',
+      title: '¿Tienes una experiencia que contar o recomiendas un sitio para visitar?',
       description:
-        'Comparte tu aventura con la comunidad Trawel. Todas las historias se revisan antes de publicarse.',
+        'Comparte tu aventura o recomienda ese lugar que merece aparecer en el mapa. Todas las propuestas se revisan antes de publicarse.',
       href: '/compartir',
       label: 'Compartir mi aventura',
     },

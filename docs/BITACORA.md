@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-07-04 - Bloque 70: CTA Comunidad en Home
+
+Mejorado el CTA de Comunidad en Home para ampliar la invitacion publica mas alla de experiencias personales.
+
+### Cambios implementados
+
+- Actualizado el titulo del CTA a: "¿Tienes una experiencia que contar o recomiendas un sitio para visitar?".
+- Ajustada la descripcion para invitar a compartir aventuras o recomendar lugares que merecen aparecer en el mapa.
+- Se mantiene el enlace hacia `/compartir`.
+
+### Reglas respetadas
+
+- No se toco la logica de formularios.
+- No se toco Supabase, Storage, rutas ni mapas.
+- No se modificaron migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 69: revision final pre-hosting
 
 Registrada la revision final local antes de preparar hosting multiweb de pago.
