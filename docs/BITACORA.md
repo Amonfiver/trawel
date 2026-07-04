@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-07-04 - Bloque 80: decision metodo antiabuso
+
+Documentada la decision tecnica recomendada para antiabuso.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_ANTI_ABUSE_DECISION.md`.
+- Recomendado Cloudflare Turnstile o equivalente como captcha amable.
+- Definida verificacion en backend o Edge Function.
+- Definido rate limit por IP/email.
+- Aclarado que la implementacion queda pendiente de credenciales externas del usuario.
+- Reforzado que debe activarse antes de subida real de fotos.
+
+### Reglas respetadas
+
+- No se crearon cuentas ni claves externas.
+- No se implemento captcha.
+- No se tocaron frontend, Supabase, Storage, migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 79: estrategia antiabuso
 
 Documentada la estrategia antiabuso antes de abrir subida real de fotos.

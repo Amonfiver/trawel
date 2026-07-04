@@ -95,6 +95,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Estrategia antiabuso:** `docs/TRAWEL_ANTI_ABUSE_STRATEGY.md` define riesgos y medidas antes de abrir fotos reales: Turnstile o equivalente, rate limit por IP/email, maximo 3 fotos, limite de peso, validacion MIME real, bucket privado, logs, cola de revision y Edge Function para upload. No implementar subida real sin antiabuso y mecanismo seguro.
 
+**Decision antiabuso:** `docs/TRAWEL_ANTI_ABUSE_DECISION.md` recomienda Cloudflare Turnstile o equivalente, verificado en backend/Edge Function, con rate limit por IP/email. Implementacion pendiente de credenciales externas; no inventar claves ni guardar secretos como `VITE_`.
+
 **Opciones publicas pais/zona:** `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` viven en `src/features/travelData/productContent/publicLocationOptions.service.ts`. Leen de `countries` y `cities`, filtran `status='active'`, devuelven opciones `label/value/slug/id` para selects controlados y hacen fallback a `[]` si Supabase falla o no esta configurado. Todavia no estan conectadas a UI.
 
 **Estrategia catalogo pais/ciudad:** `docs/TRAWEL_COUNTRY_CITY_CATALOG_STRATEGY.md` establece que Trawel no consulta internet ni hace scraping para paises/ciudades. Los paises y ciudades/zonas de formularios y Comunidad deben venir de Supabase, alimentados por Investighost/base de datos. Si una ciudad/zona no esta cargada y visible, no aparece en selects ni cards publicas.
