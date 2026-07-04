@@ -120,10 +120,27 @@
 
 .communityCard {
   overflow: hidden;
+  color: inherit;
   background: #ffffff;
   border: 1px solid #dbe4ef;
   border-radius: 8px;
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.communityCard:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
+}
+
+.communityCard:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
 }
 
 .cardImageWrap {
@@ -184,6 +201,12 @@
   color: #64748b;
   font-size: 0.82rem;
   font-weight: 800;
+}
+
+.cardAction {
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 900;
 }
 
 .emptyState h2 {

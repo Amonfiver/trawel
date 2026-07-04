@@ -89,7 +89,11 @@ export function CommunityPage() {
 
         <div className={styles.cardsGrid}>
           {communityPreviewCards.map((card) => (
-            <article key={card.id} className={styles.communityCard}>
+            <Link
+              key={card.id}
+              to={getCommunityCardHref(card)}
+              className={styles.communityCard}
+            >
               <div className={styles.cardImageWrap}>
                 <img src={card.image} alt="" className={styles.cardImage} />
                 <span className={styles.cardType}>{card.contributionType}</span>
@@ -102,8 +106,9 @@ export function CommunityPage() {
                 <h3>{card.title}</h3>
                 <p>{card.summary}</p>
                 <span className={styles.cardCredit}>Crédito: {card.credit}</span>
+                <span className={styles.cardAction}>Ver destino</span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </section>
@@ -125,4 +130,12 @@ export function CommunityPage() {
       </section>
     </main>
   );
+}
+
+function getCommunityCardHref(card: CommunityPreviewCard): string {
+  if (card.zoneSlug) {
+    return `/pais/${card.countrySlug}/zona/${card.zoneSlug}`;
+  }
+
+  return `/pais/${card.countrySlug}`;
 }

@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-07-04 - Bloque 74: Comunidad enlazada a paises y zonas
+
+Aplicada navegacion desde las cards de Comunidad hacia destinos publicos.
+
+### Cambios implementados
+
+- Las cards con `country_slug` y `zone_slug` enlazan a `/pais/{countrySlug}/zona/{zoneSlug}`.
+- Las cards con solo `country_slug` enlazan a `/pais/{countrySlug}`.
+- Anadida indicacion visual `Ver destino` en cada card.
+- Mantenido el contenido como muestra local temporal.
+
+### Reglas respetadas
+
+- No se tocaron rutas existentes ni mapas.
+- No se publico contenido pendiente.
+- No se toco Supabase, Storage, migrations, seeds ni `package.json`.
+
+---
+
 ## 2026-07-04 - Bloque 73: cards visuales de Comunidad
 
 Disenadas las primeras cards visuales de Comunidad con datos locales temporales.
