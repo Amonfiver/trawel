@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-07-04 - Bloque 64: estandarizador web de imagenes
+
+Preparada la utilidad frontend para convertir fotos aportadas por usuarios a WebP ligero antes de una futura subida.
+
+### Cambios implementados
+
+- Creado `src/features/travelData/productContent/imageStandardization.service.ts`.
+- Definidos tipos `ImageStandardizationPreset`, `StandardizedImageResult` y `StandardizeImageOptions`.
+- Definidos presets:
+  - `heroHeader`: 1920 px maximo, `image/webp`, calidad `0.82`.
+  - `adventureCard`: 1400 px maximo, `image/webp`, calidad `0.80`.
+  - `thumbnailFuture`: 800 px maximo, `image/webp`, calidad `0.78`.
+- Anadida `standardizeImageFile(file, options)` para validar JPG/PNG/WebP, cargar en navegador, reducir manteniendo proporcion y convertir a WebP mediante canvas.
+- Anadidos helpers `getPresetForContributionType(...)`, `formatBytes(...)` y `createStandardizedFileName(...)`.
+- Exportadas funciones, presets y tipos desde `src/features/travelData/productContent/index.ts`.
+
+### Reglas respetadas
+
+- No se toco UI, `/compartir`, Storage, inserts Supabase, migrations, seeds, mapas, rutas, `package.json`, HomePage, CountryPage ni CountryZonePage.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-07-04 - Bloque 63: compartir con paises, zonas y tipo
 
 Mejorado el formulario publico de `/compartir` para clasificar colaboraciones desde el origen con opciones reales de Supabase.

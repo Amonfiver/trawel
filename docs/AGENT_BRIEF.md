@@ -75,6 +75,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Contrato colaboraciones con fotos:** `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md` define el flujo documental previo a UI/Storage fuerte: maximo 3 fotos por envio, entrada JPG/PNG/WebP, salida WebP estandar, aceptacion de derechos y consentimiento, clasificacion obligatoria por pais/zona/tipo y publicacion solo tras aprobacion de Investighost.
 
+**Estandarizador web de imagenes:** `src/features/travelData/productContent/imageStandardization.service.ts` prepara `standardizeImageFile(file, options)` para navegador: acepta JPG/PNG/WebP, reescala con canvas, convierte a WebP y devuelve blob, nombre sugerido, tamanos y dimensiones. Presets: `heroHeader` 1920/0.82, `adventureCard` 1400/0.80 y `thumbnailFuture` 800/0.78. No sube archivos ni toca Storage.
+
 **Opciones publicas pais/zona:** `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` viven en `src/features/travelData/productContent/publicLocationOptions.service.ts`. Leen de `countries` y `cities`, filtran `status='active'`, devuelven opciones `label/value/slug/id` para selects controlados y hacen fallback a `[]` si Supabase falla o no esta configurado. Todavia no estan conectadas a UI.
 
 **CountryZonePage data-driven:** `CountryZonePage` consume `getResolvedZoneScreenData(countrySlug, zoneSlug, mode)` como fachada resuelta de zona: parte de `getZoneScreenData(...)` como fallback local, intenta leer datos base seguros desde `cities` legacy mediante `countries.slug + cities.slug`, expone `countrySlug`, `zoneSlug`, nombres, estado, hero/fallback, editorial/copy, CTA y promociones nativas publicadas desde Supabase. Las promociones ya no deben cargarse directamente desde la pagina. Futuros cambios de zona deben pasar por la fachada antes de tocar la pagina.
@@ -231,6 +233,8 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 **Cola fotos usuarios:** `submitUserPhotoSubmission` esta preparado en `travelData`; no sube archivos, no publica fotos y solo inserta propuestas en `user_photo_submissions` cuando hay derechos y consentimiento confirmados. El servicio no escribe `status`; Supabase aplica el default seguro `submitted` para respetar los grants publicos por columna. Antes de conectar formulario visual, seguir `docs/TRAWEL_USER_PHOTO_STORAGE_PLAN.md` para Storage privado seguro.
 
 **Contrato subida fotos:** antes de disenar UI de fotos o activar Storage, seguir `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md`: pais y zona deben venir de selects controlados, el tipo de colaboracion debe llegar clasificado y nada se publica sin revision de Investighost.
+
+**Imagenes antes de Storage:** para futuras subidas publicas, usar `standardizeImageFile(...)` antes de enviar al bucket privado. La utilidad solo prepara WebP ligero en cliente; la subida, rutas, policies y publicacion siguen pendientes de un bloque Storage explicito.
 
 **Selects pais/zona:** para futuros formularios publicos usar `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` desde `productContent`; no aceptar pais/zona como texto libre si el flujo necesita `country_slug` y `zone_slug` fiables para Investighost.
 

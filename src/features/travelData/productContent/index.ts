@@ -28,6 +28,13 @@ export type {
 } from './userPhotoSubmissionQueue.service';
 
 export type {
+  ImageStandardizationPreset,
+  ImageStandardizationPresetName,
+  StandardizedImageResult,
+  StandardizeImageOptions,
+} from './imageStandardization.service';
+
+export type {
   PublicCountryOption,
   PublicZoneOption,
 } from './publicLocationOptions.service';
@@ -44,6 +51,14 @@ export {
   getPublishedPromotionsForContext,
   getPublishedStaticPageBySlug,
 } from './productContent.service';
+
+export {
+  createStandardizedFileName,
+  formatBytes,
+  getPresetForContributionType,
+  IMAGE_STANDARDIZATION_PRESETS,
+  standardizeImageFile,
+} from './imageStandardization.service';
 
 export {
   getPublicCountryOptions,
