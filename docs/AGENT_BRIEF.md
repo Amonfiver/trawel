@@ -77,6 +77,8 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Estandarizador web de imagenes:** `src/features/travelData/productContent/imageStandardization.service.ts` prepara `standardizeImageFile(file, options)` para navegador: acepta JPG/PNG/WebP, reescala con canvas, convierte a WebP y devuelve blob, nombre sugerido, tamanos y dimensiones. Presets: `heroHeader` 1920/0.82, `adventureCard` 1400/0.80 y `thumbnailFuture` 800/0.78. No sube archivos ni toca Storage.
 
+**Decision subida privada fotos:** `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md` documenta que no hay policy segura de `INSERT` anon en `traveler-adventure-photos`. El intento anon de upload devuelve `403`, y solo existe lectura publica de Storage para `map-assets`. No conectar subida directa desde frontend; usar Edge Function con service role o signed upload URL corta.
+
 **Opciones publicas pais/zona:** `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` viven en `src/features/travelData/productContent/publicLocationOptions.service.ts`. Leen de `countries` y `cities`, filtran `status='active'`, devuelven opciones `label/value/slug/id` para selects controlados y hacen fallback a `[]` si Supabase falla o no esta configurado. Todavia no estan conectadas a UI.
 
 **CountryZonePage data-driven:** `CountryZonePage` consume `getResolvedZoneScreenData(countrySlug, zoneSlug, mode)` como fachada resuelta de zona: parte de `getZoneScreenData(...)` como fallback local, intenta leer datos base seguros desde `cities` legacy mediante `countries.slug + cities.slug`, expone `countrySlug`, `zoneSlug`, nombres, estado, hero/fallback, editorial/copy, CTA y promociones nativas publicadas desde Supabase. Las promociones ya no deben cargarse directamente desde la pagina. Futuros cambios de zona deben pasar por la fachada antes de tocar la pagina.
@@ -237,6 +239,8 @@ Ver estrategia completa en `docs/TRAWEL_MONETIZATION_STRATEGY.md`.
 **Imagenes antes de Storage:** para futuras subidas publicas, usar `standardizeImageFile(...)` antes de enviar al bucket privado. La utilidad solo prepara WebP ligero en cliente; la subida, rutas, policies y publicacion siguen pendientes de un bloque Storage explicito.
 
 **Fotos en `/compartir`:** el formulario permite seleccionar hasta 3 JPG/PNG/WebP, genera previews WebP y envia solo metadata (`photo_count`, `photo_standardization`, `photo_upload_pending`) en `user_messages`. No guardar blobs en Supabase ni asumir que Investighost recibe archivos hasta conectar Storage seguro.
+
+**Storage fotos pendiente:** no crear policy publica amplia de `INSERT` en `storage.objects` para `traveler-adventure-photos`. La implementacion recomendada es una Edge Function que valide metadata/fotos, use service role solo en backend, suba al bucket privado e inserte `user_photo_submissions`.
 
 **Selects pais/zona:** para futuros formularios publicos usar `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` desde `productContent`; no aceptar pais/zona como texto libre si el flujo necesita `country_slug` y `zone_slug` fiables para Investighost.
 

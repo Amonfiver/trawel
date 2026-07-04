@@ -71,6 +71,8 @@ La UI futura debe resolver `country_slug`, `zone_slug` y `submission_type` desde
 
 Las colas publicas no deben tener lectura publica. Trawel solo inserta aportes; la revision y publicacion pertenecen al flujo interno.
 
+Decision vigente: la subida real al bucket privado no debe hacerse directamente desde frontend anon mientras no exista una policy segura especifica. Ver `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`. La via recomendada es una Edge Function controlada que valide metadata/fotos, use `service_role` solo en backend, suba a `traveler-adventure-photos` e inserte `user_photo_submissions`.
+
 ## Relacion Con Investighost
 
 Investighost revisa cada envio, decide si se aprueba o rechaza y asigna/publica el contenido aprobado.

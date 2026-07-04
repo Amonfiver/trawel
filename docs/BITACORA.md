@@ -5,6 +5,40 @@
 
 ---
 
+## 2026-07-04 - Bloque 66: decision de subida privada de fotos
+
+Auditada la posibilidad de subir fotos estandarizadas desde frontend anon al bucket privado `traveler-adventure-photos`.
+
+### Resultado de auditoria
+
+- Bucket `traveler-adventure-photos` confirmado como privado.
+- Limite del bucket confirmado: 5 MB.
+- MIME permitidos confirmados: `image/jpeg`, `image/png`, `image/webp`.
+- Policies remotas de `storage.objects` consultadas mediante Supabase CLI.
+- Solo existe policy publica de `SELECT` para `bucket_id='map-assets'`.
+- No existe policy publica de `INSERT` para `traveler-adventure-photos`.
+- Prueba controlada de upload anon a `traveler-adventure-photos` rechazada con `403 new row violates row-level security policy`.
+- No se creo ningun objeto de prueba en Storage.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`.
+- Documentada la decision de no conectar upload directo desde frontend anon.
+- Documentado que el frontend nunca debe recibir `SUPABASE_SERVICE_ROLE_KEY`.
+- Documentadas opciones seguras: Edge Function con service role o signed upload URL corta.
+- Recomendada Edge Function controlada para validar metadata, subir al bucket privado e insertar `user_photo_submissions`.
+- Actualizados `docs/AGENT_BRIEF.md`, `docs/TRAWEL_PUBLIC_INPUTS_MAP.md` y `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md`.
+
+### Reglas respetadas
+
+- No se tocaron policies.
+- No se abrio el bucket.
+- No se subieron fotos.
+- No se tocaron `src/`, UI, Storage real, migrations, seeds, mapas, rutas, `package.json`, HomePage, CountryPage ni CountryZonePage.
+- No se ejecuto `npm run build` porque solo hubo cambios de documentacion.
+
+---
+
 ## 2026-07-04 - Bloque 65: fotos estandarizadas en compartir
 
 Conectado visualmente el estandarizador web de imagenes al formulario publico de `/compartir`, sin subir archivos a Storage.

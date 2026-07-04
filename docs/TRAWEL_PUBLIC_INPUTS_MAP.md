@@ -39,6 +39,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Clasificacion: pais y zona desde selects Supabase, mas tipo de colaboracion controlado.
 - Fotos: hasta 3 adjuntos opcionales procesados en navegador a WebP para preview, sin subida a Storage todavia.
 - Metadata: `source='trust_page_share_form'`, `country_slug`, `zone_slug`, `contribution_type`, `photo_count`, `photo_standardization` y `photo_upload_pending`.
+- Decision Storage: ver `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`; upload real queda pendiente de Edge Function o signed upload URL.
 - Publicacion directa: no.
 - Revision: Investighost futuro.
 
@@ -62,6 +63,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Storage previsto: bucket privado `traveler-adventure-photos`.
 - Uso: propuestas de fotos con derechos y consentimiento confirmados.
 - Contrato: `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md`.
+- Decision de subida privada: `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`.
 - Clasificacion obligatoria: pais, zona dependiente del pais y tipo de colaboracion.
 - Limite documental: maximo 3 fotos por envio, entrada JPG/PNG/WebP y salida WebP.
 - Publicacion directa: no.
