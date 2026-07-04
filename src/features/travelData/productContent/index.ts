@@ -28,6 +28,11 @@ export type {
 } from './userPhotoSubmissionQueue.service';
 
 export type {
+  PublicCountryOption,
+  PublicZoneOption,
+} from './publicLocationOptions.service';
+
+export type {
   SubmitUserMessageInput,
   SubmitUserMessageResult,
   UserMessageKind,
@@ -39,6 +44,11 @@ export {
   getPublishedPromotionsForContext,
   getPublishedStaticPageBySlug,
 } from './productContent.service';
+
+export {
+  getPublicCountryOptions,
+  getPublicZoneOptionsByCountrySlug,
+} from './publicLocationOptions.service';
 
 export {
   submitContentReport,

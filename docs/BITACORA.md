@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-07-04 - Bloque 62: selects publicos de paises y zonas
+
+Preparado el servicio publico de lectura para cargar opciones controladas de pais y zona desde Supabase, orientado a futuros formularios de colaboracion con fotos.
+
+### Cambios implementados
+
+- Creado `src/features/travelData/productContent/publicLocationOptions.service.ts`.
+- Anadida `getPublicCountryOptions()` para leer paises publicos desde `countries`.
+- Anadida `getPublicZoneOptionsByCountrySlug(countrySlug)` para leer zonas/ciudades publicas desde `cities` tras resolver el pais en `countries`.
+- Definidos tipos `PublicCountryOption` y `PublicZoneOption` con `label`, `value`, `slug`, `id` y metadatos minimos.
+- Exportadas las funciones y tipos desde `src/features/travelData/productContent/index.ts`.
+- El servicio devuelve `[]` si Supabase no esta configurado, si hay error o si no hay datos validos.
+- El logging de fallo queda limitado a desarrollo mediante `console.warn`.
+- Actualizado `docs/AGENT_BRIEF.md` con la nueva pieza previa a formularios.
+
+### Reglas respetadas
+
+- No se toco UI, `/compartir`, CountryPage, CountryZonePage, mapas, WorldMap, D3, TopoJSON, Storage, `package.json`, migrations ni seeds.
+- `npm run build` pasa; queda solo el aviso habitual de chunk grande de Vite.
+
+---
+
 ## 2026-07-04 - Bloque 61: contrato de colaboracion con fotos
 
 Definido el contrato documental previo a conectar colaboraciones con fotos, manteniendo el flujo sin publicacion directa.
