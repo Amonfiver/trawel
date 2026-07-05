@@ -1180,6 +1180,15 @@ export function TrustPage({ page }: TrustPageProps) {
                           ))}
                         </div>
                       )}
+
+                    {citySearchHasEnoughText &&
+                      !shouldShowManualCityField &&
+                      matchingZoneOptions.length === 0 &&
+                      zoneOptionsStatus === 'ready' && (
+                        <p className={styles.locationEmptyHint} role="status">
+                          Todavía no tenemos esa ciudad en el catálogo.
+                        </p>
+                      )}
                   </div>
                 </div>
               </div>

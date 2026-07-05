@@ -10,6 +10,7 @@ Trawel usa `location_countries` y `location_cities` como catalogo propio de sele
 - `location_countries` / `location_cities`: opciones de formulario para paises, ciudades y zonas.
 - Investighost o un proceso interno futuro puede ampliar `location_cities` de forma progresiva.
 - Anadir una ciudad al catalogo no publica una pagina ni crea contenido editorial.
+- `location_cities` empieza como catalogo de ciudades principales, no como lista exhaustiva de todos los municipios del mundo.
 
 ## Reglas publicas
 
@@ -17,6 +18,7 @@ Trawel usa `location_countries` y `location_cities` como catalogo propio de sele
 - El frontend solo lee ciudades con `status = 'active'`.
 - No hay `INSERT`, `UPDATE` ni `DELETE` publico anonimo sobre el catalogo.
 - Si falta una ciudad, `/compartir` permite escribirla manualmente para revision.
+- Las ciudades manuales no se anaden automaticamente al catalogo.
 
 ## Flujo en /compartir
 
@@ -33,6 +35,8 @@ Trawel usa `location_countries` y `location_cities` como catalogo propio de sele
    - `metadata.city_name_manual`
    - `metadata.location_catalog_source = "manual"`
 
+Investighost podra revisar `metadata.city_name_manual` y convertirlo despues en una fila oficial de `location_cities` si procede.
+
 ## Alcance inicial
 
-La migracion `009_create_location_catalog_tables.sql` incluye paises activos y una semilla inicial de ciudades para Espana, Mexico, Italia e India. No pretende cargar todos los pueblos del mundo en codigo; las altas posteriores deben venir de Investighost, importaciones revisadas o procesos internos seguros.
+La migracion `009_create_location_catalog_tables.sql` incluye paises activos y una semilla inicial de ciudades para Espana, Mexico, Italia e India. La migracion `010_expand_initial_location_cities.sql` amplia ciudades principales de Mexico y Espana. No pretende cargar todos los pueblos del mundo en codigo; las altas posteriores deben venir de Investighost, importaciones revisadas o procesos internos seguros.

@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-07-05 - Bloque 82B: ampliacion catalogo inicial de ciudades
+
+Ampliado el catalogo inicial de ciudades y mejorado el estado vacio del buscador de ciudad/zona en `/compartir`.
+
+### Cambios implementados
+
+- Creada migracion `010_expand_initial_location_cities.sql`.
+- Anadidas ciudades principales adicionales de Mexico y Espana a `location_cities`.
+- La migracion usa `INSERT ... ON CONFLICT DO NOTHING` y no toca contenido publicado.
+- El autocomplete muestra el aviso "Todavia no tenemos esa ciudad en el catalogo" si no hay resultados desde 2 letras.
+- Se mantiene la salida manual "No encuentro mi ciudad o zona".
+- Actualizado `docs/TRAWEL_LOCATION_CATALOG_CONTRACT.md`.
+
+### Reglas respetadas
+
+- No se metieron ciudades en React como lista fija.
+- No se tocaron mapas, Storage, Turnstile, Edge Function, `package.json`, seeds legacy ni paginas publicas de pais/zona.
+- Las ciudades nuevas no se publican automaticamente como paginas.
+
+---
+
 ## 2026-07-05 - Bloque 82: catalogo propio de localizaciones
 
 Creado el catalogo separado de localizaciones para formularios publicos.
