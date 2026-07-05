@@ -101,6 +101,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Catalogo de localizaciones:** `docs/TRAWEL_LOCATION_CATALOG_CONTRACT.md` documenta `location_countries` y `location_cities`, creadas por `supabase/migrations/009_create_location_catalog_tables.sql`. Son tablas de seleccion para formularios publicos y revision editorial, separadas de `countries/cities` que alimentan contenido publicado. `/compartir` lee paises desde `location_countries`, carga ciudades solo del pais elegido desde `location_cities`, busca a partir de 2 letras y permite ciudad/zona manual con `metadata.location_catalog_source = "manual"` si falta en catalogo. No publicar nada solo por anadir una localizacion.
 La migracion `010_expand_initial_location_cities.sql` amplia ciudades principales de Mexico y Espana con `ON CONFLICT DO NOTHING`; el catalogo debe crecer progresivamente desde Investighost o procesos revisados, no desde listas hardcodeadas en React.
+Las sugerencias del autocomplete de ciudad usan titulo y subtitulo separados (`locationSuggestionTitle` / `locationSuggestionMeta`) para evitar solapamientos en desktop y movil.
 
 **Opciones publicas pais/zona:** `getPublicCountryOptions()` y `getPublicZoneOptionsByCountrySlug(countrySlug)` viven en `src/features/travelData/productContent/publicLocationOptions.service.ts`. Leen de `countries` y `cities`, filtran `status='active'`, devuelven opciones `label/value/slug/id` para selects controlados y hacen fallback a `[]` si Supabase falla o no esta configurado. Todavia no estan conectadas a UI.
 

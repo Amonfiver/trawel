@@ -177,10 +177,10 @@
 
 .locationSuggestionList {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.45rem;
   max-height: 230px;
   overflow: auto;
-  padding: 0.35rem;
+  padding: 0.45rem;
   background: #ffffff;
   border: 1px solid #dbe4ef;
   border-radius: 8px;
@@ -190,8 +190,8 @@
 .locationSuggestionButton,
 .manualLocationButton {
   width: 100%;
-  min-height: 42px;
-  padding: 0.68rem 0.8rem;
+  min-height: 46px;
+  padding: 0.76rem 0.85rem;
   color: #0f172a;
   background: #ffffff;
   border: 1px solid #dbe4ef;
@@ -204,7 +204,11 @@
 
 .locationSuggestionButton {
   display: grid;
-  gap: 0.15rem;
+  gap: 0.28rem;
+  align-content: center;
+  align-items: start;
+  min-height: 64px;
+  line-height: 1.35;
 }
 
 .locationSuggestionButton:hover,
@@ -213,10 +217,24 @@
   background: #f8fafc;
 }
 
-.locationSuggestionButton small {
+.locationSuggestionButton .locationSuggestionTitle {
+  display: block;
+  min-width: 0;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.locationSuggestionButton .locationSuggestionMeta {
+  display: block;
+  min-width: 0;
   color: #64748b;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 750;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .formField input:focus,

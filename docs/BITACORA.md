@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-07-05 - Bloque 82C: layout autocomplete ciudades
+
+Corregida la presentacion visual de las opciones del autocomplete de ciudad/zona en `/compartir`.
+
+### Cambios implementados
+
+- Separado el nombre principal de ciudad y la region/admin area en elementos con clases propias.
+- Ajustado padding, gap, line-height, min-height y alineacion vertical de cada opcion.
+- Evitado que los estilos generales de labels del formulario se apliquen de forma confusa dentro de las sugerencias.
+
+### Reglas respetadas
+
+- No se cambio la logica de seleccion.
+- No se tocaron Supabase, Turnstile, Edge Function, mapas, rutas ni Storage.
+
+---
+
 ## 2026-07-05 - Bloque 82B: ampliacion catalogo inicial de ciudades
 
 Ampliado el catalogo inicial de ciudades y mejorado el estado vacio del buscador de ciudad/zona en `/compartir`.

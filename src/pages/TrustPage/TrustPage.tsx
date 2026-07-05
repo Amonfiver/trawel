@@ -1174,8 +1174,14 @@ export function TrustPage({ page }: TrustPageProps) {
                               className={styles.locationSuggestionButton}
                               onClick={() => handleSelectShareZone(zone)}
                             >
-                              <span>{zone.label}</span>
-                              {zone.region && <small>{zone.region}</small>}
+                              <span className={styles.locationSuggestionTitle}>
+                                {zone.label}
+                              </span>
+                              {getZoneSecondaryLabel(zone) && (
+                                <span className={styles.locationSuggestionMeta}>
+                                  {getZoneSecondaryLabel(zone)}
+                                </span>
+                              )}
                             </button>
                           ))}
                         </div>
@@ -1595,6 +1601,14 @@ function normalizeLocationSearch(value: string): string {
 
 function formatZoneOptionLabel(zone: PublicZoneOption): string {
   return zone.region ? `${zone.label} (${zone.region})` : zone.label;
+}
+
+function getZoneSecondaryLabel(zone: PublicZoneOption): string | null {
+  const details = [zone.region, zone.adminArea]
+    .filter((value): value is string => Boolean(value))
+    .filter((value, index, values) => values.indexOf(value) === index);
+
+  return details.length > 0 ? details.join(' · ') : null;
 }
 
 function mapShareQueryType(value: string | null): CommunityContributionType | null {
