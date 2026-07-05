@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-07-05 - Bloque 82: catalogo propio de localizaciones
+
+Creado el catalogo separado de localizaciones para formularios publicos.
+
+### Cambios implementados
+
+- Anadida migracion `009_create_location_catalog_tables.sql`.
+- Creadas tablas `location_countries` y `location_cities`.
+- Anadidos indices, triggers `updated_at`, RLS y lectura publica solo de registros activos.
+- Sembrada lista inicial de paises y ciudades para Espana, Mexico, Italia e India.
+- Actualizado `publicLocationOptions.service.ts` para leer del catalogo nuevo.
+- `/compartir` ahora busca ciudades por pais y permite ciudad/zona manual si falta en catalogo.
+- Documentado el contrato en `docs/TRAWEL_LOCATION_CATALOG_CONTRACT.md`.
+
+### Reglas respetadas
+
+- No se contaminaron `countries` ni `cities` existentes.
+- No se tocaron mapas, Storage, buckets, seeds heredados ni `package.json`.
+- No se abrio escritura publica anonima sobre el catalogo.
+- Nada del catalogo publica contenido automaticamente.
+
+---
+
 ## 2026-07-05 - Bloque 81: antiabuso Turnstile en formularios publicos
 
 Implementada proteccion antiabuso real para formularios publicos mediante Cloudflare Turnstile y Supabase Edge Function.

@@ -246,6 +246,9 @@ interface ShareFormValues {
   email: string;
   countrySlug: string;
   zoneSlug: string;
+  citySearch: string;
+  manualCityName: string;
+  useManualCity: boolean;
   contributionType: CommunityContributionType;
   experienceTitle: string;
   message: string;
@@ -257,6 +260,9 @@ const initialShareFormValues: ShareFormValues = {
   email: '',
   countrySlug: '',
   zoneSlug: '',
+  citySearch: '',
+  manualCityName: '',
+  useManualCity: false,
   contributionType: 'experiencia_aventura',
   experienceTitle: '',
   message: '',
@@ -354,6 +360,28 @@ export function TrustPage({ page }: TrustPageProps) {
     (country) => country.value === shareFormValues.countrySlug
   );
   const selectedZone = zoneOptions.find((zone) => zone.value === shareFormValues.zoneSlug);
+  const normalizedCitySearch = normalizeLocationSearch(shareFormValues.citySearch);
+  const citySearchHasEnoughText = normalizedCitySearch.length >= 2;
+  const matchingZoneOptions = citySearchHasEnoughText
+    ? zoneOptions.filter((zone) =>
+        normalizeLocationSearch(
+          [zone.label, zone.region, zone.adminArea].filter(Boolean).join(' ')
+        ).includes(normalizedCitySearch)
+      )
+    : [];
+  const shouldShowManualCityOption =
+    Boolean(shareFormValues.countrySlug) &&
+    !shareFormValues.useManualCity &&
+    (zoneOptionsStatus === 'empty' ||
+      zoneOptionsStatus === 'error' ||
+      (citySearchHasEnoughText && matchingZoneOptions.length === 0));
+  const shouldShowManualCityField =
+    shareFormValues.useManualCity ||
+    (Boolean(shareFormValues.countrySlug) && zoneOptionsStatus === 'empty');
+  const manualCityName = shareFormValues.manualCityName.trim();
+  const isShareLocationReady = Boolean(shareFormValues.countrySlug) && (
+    Boolean(shareFormValues.zoneSlug) || Boolean(manualCityName)
+  );
   const isExperienceContribution = shareFormValues.contributionType === 'experiencia_aventura';
   const isTurnstileConfigured = Boolean(TURNSTILE_SITE_KEY);
 
@@ -436,6 +464,9 @@ export function TrustPage({ page }: TrustPageProps) {
       ...currentValues,
       countrySlug: countryExists ? countrySlug || currentValues.countrySlug : currentValues.countrySlug,
       zoneSlug: '',
+      citySearch: '',
+      manualCityName: '',
+      useManualCity: false,
       contributionType: contributionType || currentValues.contributionType,
     }));
 
@@ -489,9 +520,14 @@ export function TrustPage({ page }: TrustPageProps) {
     const zoneExists = zoneOptions.some((zone) => zone.value === pendingZoneSlug);
 
     if (zoneExists) {
+      const zone = zoneOptions.find((option) => option.value === pendingZoneSlug);
+
       setShareFormValues((currentValues) => ({
         ...currentValues,
         zoneSlug: pendingZoneSlug,
+        citySearch: zone?.label || currentValues.citySearch,
+        manualCityName: '',
+        useManualCity: false,
       }));
     }
 
@@ -610,6 +646,54 @@ export function TrustPage({ page }: TrustPageProps) {
       ...currentValues,
       countrySlug,
       zoneSlug: '',
+      citySearch: '',
+      manualCityName: '',
+      useManualCity: false,
+    }));
+
+    if (shareStatus !== 'submitting') {
+      setShareStatus('idle');
+      setShareStatusMessage('');
+    }
+  };
+
+  const handleShareCitySearchChange = (value: string) => {
+    setShareFormValues((currentValues) => ({
+      ...currentValues,
+      citySearch: value,
+      zoneSlug: '',
+      manualCityName: '',
+      useManualCity: false,
+    }));
+
+    if (shareStatus !== 'submitting') {
+      setShareStatus('idle');
+      setShareStatusMessage('');
+    }
+  };
+
+  const handleSelectShareZone = (zone: PublicZoneOption) => {
+    setShareFormValues((currentValues) => ({
+      ...currentValues,
+      zoneSlug: zone.value,
+      citySearch: zone.label,
+      manualCityName: '',
+      useManualCity: false,
+    }));
+
+    if (shareStatus !== 'submitting') {
+      setShareStatus('idle');
+      setShareStatusMessage('');
+    }
+  };
+
+  const handleUseManualCity = () => {
+    setShareFormValues((currentValues) => ({
+      ...currentValues,
+      zoneSlug: '',
+      citySearch: '',
+      manualCityName: '',
+      useManualCity: true,
     }));
 
     if (shareStatus !== 'submitting') {
@@ -710,6 +794,7 @@ export function TrustPage({ page }: TrustPageProps) {
 
     const countrySlug = shareFormValues.countrySlug.trim();
     const zoneSlug = shareFormValues.zoneSlug.trim();
+    const manualCity = manualCityName;
     const experienceTitle = isExperienceContribution
       ? shareFormValues.experienceTitle.trim()
       : '';
@@ -720,9 +805,9 @@ export function TrustPage({ page }: TrustPageProps) {
       return;
     }
 
-    if (!zoneSlug) {
+    if (!zoneSlug && !manualCity) {
       setShareStatus('error');
-      setShareStatusMessage('Elige la zona relacionada con la colaboración.');
+      setShareStatusMessage('Elige una ciudad/zona del catalogo o escribe una manualmente.');
       return;
     }
 
@@ -740,7 +825,9 @@ export function TrustPage({ page }: TrustPageProps) {
 
     const contributionLabel = communityContributionLabels[shareFormValues.contributionType];
     const countryLabel = selectedCountry?.label || countrySlug;
-    const zoneLabel = selectedZone?.label || zoneSlug;
+    const zoneLabel = selectedZone?.label || manualCity || zoneSlug;
+    const zoneSlugForSubmit = zoneSlug || undefined;
+    const locationCatalogSource = zoneSlugForSubmit ? 'location_cities' : 'manual';
     const subject = experienceTitle
       ? `${contributionLabel}: ${experienceTitle} (${countryLabel} / ${zoneLabel})`
       : `${contributionLabel}: ${countryLabel} / ${zoneLabel}`;
@@ -751,15 +838,18 @@ export function TrustPage({ page }: TrustPageProps) {
       message: shareFormValues.message,
       sourcePage: 'compartir',
       countrySlug,
-      zoneSlug,
-      entityType: 'zone',
-      entitySlug: zoneSlug,
+      zoneSlug: zoneSlugForSubmit,
+      entityType: zoneSlugForSubmit ? 'zone' : 'country',
+      entitySlug: zoneSlugForSubmit || countrySlug,
       privacyAccepted: shareFormValues.privacyAccepted,
       turnstileToken: shareTurnstileToken,
       metadata: {
         source: 'trust_page_share_form',
         country_slug: countrySlug,
-        zone_slug: zoneSlug,
+        ...(zoneSlugForSubmit ? { zone_slug: zoneSlugForSubmit } : {}),
+        location_catalog_source: locationCatalogSource,
+        ...(zoneSlugForSubmit ? { location_city_name: selectedZone?.label || zoneSlugForSubmit } : {}),
+        ...(manualCity ? { city_name_manual: manualCity } : {}),
         contribution_type: shareFormValues.contributionType,
         ...(experienceTitle ? { experience_title: experienceTitle } : {}),
         photo_count: sharePhotos.length,
@@ -1035,29 +1125,63 @@ export function TrustPage({ page }: TrustPageProps) {
                   </select>
                 </label>
 
-                <label className={styles.formField}>
-                  <span>Zona</span>
-                  <select
-                    name="shareZone"
-                    value={shareFormValues.zoneSlug}
-                    onChange={(event) => handleShareFormChange('zoneSlug', event.target.value)}
-                    disabled={
-                      !shareFormValues.countrySlug ||
-                      zoneOptionsStatus === 'loading' ||
-                      zoneOptions.length === 0
-                    }
-                    required
-                  >
-                    <option value="">
-                      {zoneOptionsStatus === 'loading' ? 'Cargando zonas...' : 'Elige una zona'}
-                    </option>
-                    {zoneOptions.map((zone) => (
-                      <option key={zone.id} value={zone.value}>
-                        {zone.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <div className={styles.formField}>
+                  <span>Ciudad o zona</span>
+                  <div className={styles.locationAutocomplete}>
+                    <input
+                      type="search"
+                      name="shareCitySearch"
+                      value={shareFormValues.citySearch}
+                      onChange={(event) => handleShareCitySearchChange(event.target.value)}
+                      disabled={
+                        !shareFormValues.countrySlug ||
+                        zoneOptionsStatus === 'loading' ||
+                        shouldShowManualCityField
+                      }
+                      placeholder={
+                        zoneOptionsStatus === 'loading'
+                          ? 'Cargando ciudades...'
+                          : 'Escribe al menos 2 letras'
+                      }
+                      autoComplete="off"
+                      aria-label="Buscar ciudad o zona"
+                    />
+
+                    {selectedZone && !shouldShowManualCityField && (
+                      <p className={styles.selectedLocationHint}>
+                        Seleccionado: {formatZoneOptionLabel(selectedZone)}
+                      </p>
+                    )}
+
+                    {!selectedZone &&
+                      shareFormValues.countrySlug &&
+                      !shouldShowManualCityField &&
+                      !citySearchHasEnoughText &&
+                      zoneOptionsStatus === 'ready' && (
+                        <p className={styles.locationSearchHint}>
+                          Empieza a escribir para buscar solo dentro del país elegido.
+                        </p>
+                      )}
+
+                    {citySearchHasEnoughText &&
+                      !shouldShowManualCityField &&
+                      matchingZoneOptions.length > 0 && (
+                        <div className={styles.locationSuggestionList}>
+                          {matchingZoneOptions.map((zone) => (
+                            <button
+                              key={zone.id}
+                              type="button"
+                              className={styles.locationSuggestionButton}
+                              onClick={() => handleSelectShareZone(zone)}
+                            >
+                              <span>{zone.label}</span>
+                              {zone.region && <small>{zone.region}</small>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                </div>
               </div>
 
               {(countryOptionsStatus === 'empty' || countryOptionsStatus === 'error') && (
@@ -1070,10 +1194,36 @@ export function TrustPage({ page }: TrustPageProps) {
               {shareFormValues.countrySlug &&
                 (zoneOptionsStatus === 'empty' || zoneOptionsStatus === 'error') && (
                   <p className={styles.formHint} role="status">
-                    No hay zonas disponibles para ese país todavía. La colaboración queda pendiente
-                    hasta que exista una zona seleccionable.
+                    No hay ciudades cargadas para ese país todavía. Puedes escribir la ciudad o
+                    zona manualmente para que Investighost la revise.
                   </p>
                 )}
+
+              {shouldShowManualCityOption && (
+                <button
+                  type="button"
+                  className={styles.manualLocationButton}
+                  onClick={handleUseManualCity}
+                >
+                  No encuentro mi ciudad o zona
+                </button>
+              )}
+
+              {shouldShowManualCityField && (
+                <label className={styles.formField}>
+                  <span>Escribe la ciudad o zona</span>
+                  <input
+                    type="text"
+                    name="shareManualCity"
+                    value={shareFormValues.manualCityName}
+                    onChange={(event) =>
+                      handleShareFormChange('manualCityName', event.target.value)
+                    }
+                    required
+                    maxLength={180}
+                  />
+                </label>
+              )}
 
               <label className={styles.formField}>
                 <span>Tipo de colaboración</span>
@@ -1228,7 +1378,7 @@ export function TrustPage({ page }: TrustPageProps) {
                     sharePhotoStatus === 'processing' ||
                     !shareTurnstileToken ||
                     countryOptionsStatus !== 'ready' ||
-                    zoneOptionsStatus !== 'ready'
+                    !isShareLocationReady
                   }
                 >
                   {shareStatus === 'submitting' ? 'Enviando...' : 'Enviar propuesta'}
@@ -1424,6 +1574,18 @@ function normalizeQuerySlug(value: string | null): string | null {
 
   const normalized = value.trim().toLowerCase();
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized) ? normalized : null;
+}
+
+function normalizeLocationSearch(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function formatZoneOptionLabel(zone: PublicZoneOption): string {
+  return zone.region ? `${zone.label} (${zone.region})` : zone.label;
 }
 
 function mapShareQueryType(value: string | null): CommunityContributionType | null {

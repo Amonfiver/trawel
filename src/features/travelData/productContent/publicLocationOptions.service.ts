@@ -5,7 +5,10 @@ export interface PublicCountryOption {
   slug: string;
   value: string;
   label: string;
-  featured: boolean;
+  iso2: string;
+  iso3: string | null;
+  continent: string | null;
+  hasPublicContent: boolean;
 }
 
 export interface PublicZoneOption {
@@ -13,25 +16,32 @@ export interface PublicZoneOption {
   slug: string;
   value: string;
   label: string;
-  countryId: string;
-  featured: boolean;
+  countryId: string | null;
+  countrySlug: string;
+  region: string | null;
+  adminArea: string | null;
 }
 
 interface DBCountryOption {
   id: string | null;
   slug: string | null;
   name_es: string | null;
-  status: string | null;
-  featured: boolean | null;
+  iso2: string | null;
+  iso3: string | null;
+  continent: string | null;
+  is_active: boolean | null;
+  has_public_content: boolean | null;
 }
 
 interface DBCityOption {
   id: string | null;
   slug: string | null;
-  name_es: string | null;
+  name: string | null;
   country_id: string | null;
+  country_slug: string | null;
+  region: string | null;
+  admin_area: string | null;
   status: string | null;
-  featured: boolean | null;
 }
 
 const PUBLIC_STATUS = 'active';
@@ -40,17 +50,22 @@ const COUNTRY_OPTION_COLUMNS = [
   'id',
   'slug',
   'name_es',
-  'status',
-  'featured',
+  'iso2',
+  'iso3',
+  'continent',
+  'is_active',
+  'has_public_content',
 ].join(',');
 
 const CITY_OPTION_COLUMNS = [
   'id',
   'slug',
-  'name_es',
+  'name',
   'country_id',
+  'country_slug',
+  'region',
+  'admin_area',
   'status',
-  'featured',
 ].join(',');
 
 export async function getPublicCountryOptions(): Promise<PublicCountryOption[]> {
@@ -60,10 +75,9 @@ export async function getPublicCountryOptions(): Promise<PublicCountryOption[]> 
 
   try {
     const { data, error } = await supabase
-      .from('countries')
+      .from('location_countries')
       .select(COUNTRY_OPTION_COLUMNS)
-      .eq('status', PUBLIC_STATUS)
-      .order('featured', { ascending: false })
+      .eq('is_active', true)
       .order('name_es', { ascending: true });
 
     if (error) {
@@ -90,19 +104,12 @@ export async function getPublicZoneOptionsByCountrySlug(
   }
 
   try {
-    const countryId = await getPublicCountryIdBySlug(normalizedCountrySlug);
-
-    if (!countryId) {
-      return [];
-    }
-
     const { data, error } = await supabase
-      .from('cities')
+      .from('location_cities')
       .select(CITY_OPTION_COLUMNS)
-      .eq('country_id', countryId)
+      .eq('country_slug', normalizedCountrySlug)
       .eq('status', PUBLIC_STATUS)
-      .order('featured', { ascending: false })
-      .order('name_es', { ascending: true });
+      .order('name', { ascending: true });
 
     if (error) {
       logPublicLocationOptionsWarning('Error loading public zone options', error);
@@ -118,43 +125,13 @@ export async function getPublicZoneOptionsByCountrySlug(
   }
 }
 
-async function getPublicCountryIdBySlug(countrySlug: string): Promise<string | null> {
-  if (!isSupabaseConfigured() || !supabase) {
-    return null;
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('countries')
-      .select('id,slug,status')
-      .eq('slug', countrySlug)
-      .eq('status', PUBLIC_STATUS)
-      .maybeSingle();
-
-    if (error) {
-      logPublicLocationOptionsWarning('Error loading public country id for zones', error);
-      return null;
-    }
-
-    const country = data as { id?: string | null; slug?: string | null; status?: string | null } | null;
-
-    if (country?.status !== PUBLIC_STATUS) {
-      return null;
-    }
-
-    return normalizeRequiredText(country.id);
-  } catch (error) {
-    logPublicLocationOptionsWarning('Unexpected error loading public country id for zones', error);
-    return null;
-  }
-}
-
 function mapCountryOption(db: DBCountryOption): PublicCountryOption | null {
   const id = normalizeRequiredText(db.id);
   const slug = normalizeSlug(db.slug || '');
   const label = normalizeRequiredText(db.name_es);
+  const iso2 = normalizeRequiredText(db.iso2)?.toUpperCase();
 
-  if (!id || !slug || !label || db.status !== PUBLIC_STATUS) {
+  if (!id || !slug || !label || !iso2 || db.is_active !== true) {
     return null;
   }
 
@@ -163,17 +140,20 @@ function mapCountryOption(db: DBCountryOption): PublicCountryOption | null {
     slug,
     value: slug,
     label,
-    featured: Boolean(db.featured),
+    iso2,
+    iso3: normalizeRequiredText(db.iso3)?.toUpperCase() || null,
+    continent: normalizeRequiredText(db.continent),
+    hasPublicContent: Boolean(db.has_public_content),
   };
 }
 
 function mapZoneOption(db: DBCityOption): PublicZoneOption | null {
   const id = normalizeRequiredText(db.id);
   const slug = normalizeSlug(db.slug || '');
-  const label = normalizeRequiredText(db.name_es);
-  const countryId = normalizeRequiredText(db.country_id);
+  const label = normalizeRequiredText(db.name);
+  const countrySlug = normalizeSlug(db.country_slug || '');
 
-  if (!id || !slug || !label || !countryId || db.status !== PUBLIC_STATUS) {
+  if (!id || !slug || !label || !countrySlug || db.status !== PUBLIC_STATUS) {
     return null;
   }
 
@@ -182,8 +162,10 @@ function mapZoneOption(db: DBCityOption): PublicZoneOption | null {
     slug,
     value: slug,
     label,
-    countryId,
-    featured: Boolean(db.featured),
+    countryId: normalizeRequiredText(db.country_id),
+    countrySlug,
+    region: normalizeRequiredText(db.region),
+    adminArea: normalizeRequiredText(db.admin_area),
   };
 }
 

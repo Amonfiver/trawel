@@ -37,13 +37,13 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Tabla: `user_messages`.
 - Estado inicial: `pending_review`.
 - Uso: propuestas de destino, experiencia/aventura, foto de encabezado, foto de ciudad/zona, correccion u otro aporte comunitario.
-- Clasificacion: pais y zona desde selects Supabase, mas tipo de colaboracion controlado.
-- Catalogo: paises desde `countries` y zonas/ciudades desde `cities`; no hay scraping ni consultas externas desde el frontend.
+- Clasificacion: pais desde `location_countries`, ciudad/zona desde `location_cities` o entrada manual revisable, mas tipo de colaboracion controlado.
+- Catalogo: `location_countries` y `location_cities` son tablas de seleccion separadas de `countries/cities`, que siguen alimentando contenido publicado. No hay scraping ni consultas externas desde el frontend.
 - Entrada enlazada: CountryPage y CountryZonePage pueden abrir `/compartir?tipo=hero_photo&pais=...&zona=...` para preseleccionar foto de encabezado.
 - Experiencias/aventuras: si `contribution_type='experiencia_aventura'`, el formulario pide `experience_title` y lo envia en metadata.
 - Query params: `/compartir?tipo=adventure...` o `/compartir?tipo=experience...` preseleccionan experiencia/aventura.
 - Fotos: hasta 3 adjuntos opcionales procesados en navegador a WebP para preview, sin subida a Storage todavia.
-- Metadata: `source='trust_page_share_form'`, `country_slug`, `zone_slug`, `contribution_type`, `experience_title` cuando aplica, `photo_count`, `photo_standardization` y `photo_upload_pending`.
+- Metadata: `source='trust_page_share_form'`, `country_slug`, `zone_slug` si existe en catalogo, `location_catalog_source`, `location_city_name` o `city_name_manual`, `contribution_type`, `experience_title` cuando aplica, `photo_count`, `photo_standardization` y `photo_upload_pending`.
 - Decision Storage: ver `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`; upload real queda pendiente de Edge Function o signed upload URL.
 - Antiabuso: Turnstile en frontend y validacion real en Edge Function `protected-public-submit`.
 - Publicacion directa: no.
@@ -71,7 +71,7 @@ Ninguna entrada publica se muestra automaticamente en la web.
 - Uso: propuestas de fotos con derechos y consentimiento confirmados.
 - Contrato: `docs/TRAWEL_USER_PHOTO_UPLOAD_CONTRACT.md`.
 - Decision de subida privada: `docs/TRAWEL_PRIVATE_PHOTO_UPLOAD_DECISION.md`.
-- Clasificacion obligatoria: pais, zona dependiente del pais y tipo de colaboracion.
+- Clasificacion obligatoria: pais, ciudad/zona dependiente del pais o ciudad/zona manual revisable, y tipo de colaboracion.
 - Limite documental: maximo 3 fotos por envio, entrada JPG/PNG/WebP y salida WebP.
 - Publicacion directa: no.
 - Revision: Investighost futuro.

@@ -147,6 +147,69 @@
   line-height: 1.5;
 }
 
+.locationAutocomplete {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.locationSearchHint,
+.selectedLocationHint {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.84rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.selectedLocationHint {
+  color: #0f766e;
+}
+
+.locationSuggestionList {
+  display: grid;
+  gap: 0.35rem;
+  max-height: 230px;
+  overflow: auto;
+  padding: 0.35rem;
+  background: #ffffff;
+  border: 1px solid #dbe4ef;
+  border-radius: 8px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+}
+
+.locationSuggestionButton,
+.manualLocationButton {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.68rem 0.8rem;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #dbe4ef;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 850;
+  text-align: left;
+}
+
+.locationSuggestionButton {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.locationSuggestionButton:hover,
+.manualLocationButton:hover {
+  border-color: #2563eb;
+  background: #f8fafc;
+}
+
+.locationSuggestionButton small {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
 .formField input:focus,
 .formField select:focus,
 .formField textarea:focus {
