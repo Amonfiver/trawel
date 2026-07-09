@@ -7,3 +7,7 @@ playwright-report/
 .vscode/
 .DS_Store
 supabase/.temp/
+# Build/deploy artifacts
+trawel-dist.zip
+*.tar.gz
+*.tgz
