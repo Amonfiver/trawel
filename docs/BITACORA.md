@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-07-09 - Bloque 85: railes de coste globales
+
+Creada la base tecnica para controlar costes, apagado rapido y eventos de uso antes de activar subida real de fotos.
+
+### Cambios implementados
+
+- Creada migracion `011_create_cost_guardrails.sql`.
+- Creada tabla `system_flags` con lectura publica solo para flags marcados como publicos.
+- Creadas tablas internas `storage_usage_events` y `moderation_cleanup_queue` sin lectura ni escritura publica.
+- Sembrados flags iniciales para apagar contacto, compartir, reportes y mantener `photo_uploads_enabled=false`.
+- Documentados limites por envio, archivo, email/IP hash, storage mensual pendiente y caducidad de colas.
+- Creado `docs/TRAWEL_COST_GUARDRAILS.md`.
+
+### Reglas respetadas
+
+- No se activo subida real de fotos.
+- No se toco Edge Function.
+- No se abrio Storage.
+- No se tocaron migraciones antiguas, mapas ni `package.json`.
+- No se metio `service_role` en frontend.
+
+---
+
 ## 2026-07-09 - Bloque 84: paquete final para hosting
 
 Preparado el paquete documental de produccion para subir Trawel a hosting estatico tipo Hostinger.
