@@ -5,6 +5,31 @@
 
 ---
 
+## 2026-07-09 - Bloque 84: paquete final para hosting
+
+Preparado el paquete documental de produccion para subir Trawel a hosting estatico tipo Hostinger.
+
+### Verificaciones
+
+- `git status --short` y `git diff --stat` limpios al inicio.
+- `npm run build` OK, con warning conocido de chunk grande no bloqueante.
+- Confirmado `dist/index.html`.
+- Recreado y confirmado `dist/.htaccess` tras el build, porque Vite limpia `dist/`.
+
+### Documentacion creada
+
+- `docs/TRAWEL_HOSTING_DEPLOYMENT_GUIDE.md`.
+- `docs/TRAWEL_POST_DEPLOY_CHECKLIST.md`.
+
+### Reglas respetadas
+
+- No se toco logica de producto.
+- No se tocaron Supabase migrations, Edge Functions, mapas ni `package.json`.
+- No se metieron secrets en repo.
+- No se subio `.env.local`.
+
+---
+
 ## 2026-07-09 - Bloque 83: checklist final pre-hosting
 
 Ejecutada revision final local y remota antes de preparar hosting.

@@ -41,6 +41,10 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Checklist pre-hosting:** consultar `docs/TRAWEL_PRE_HOSTING_CHECKLIST.md` antes de subir Trawel a hosting real para validar variables `VITE_`, build `dist/`, fallback SPA y pruebas online post-deploy.
 
+**Guia despliegue hosting:** consultar `docs/TRAWEL_HOSTING_DEPLOYMENT_GUIDE.md` para preparar el paquete final de produccion en hosting estatico tipo Hostinger. El paquete a subir es el contenido de `dist/`, incluyendo `index.html`, `assets/` y `.htaccess`. Variables frontend antes del build: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_TURNSTILE_SITE_KEY`. `TURNSTILE_SECRET_KEY` vive en Supabase secrets, no en hosting estatico.
+
+**Checklist post-deploy:** consultar `docs/TRAWEL_POST_DEPLOY_CHECKLIST.md` tras subir Trawel online. Hay que comprobar rutas internas con recarga directa, formularios protegidos con Turnstile real, consola sin errores, movil y filas recientes desde Supabase SQL Editor.
+
 **Revision final pre-hosting:** `docs/TRAWEL_FINAL_PRE_HOSTING_REVIEW.md` deja registrada la revision local del bloque 69. Decision: Trawel esta listo para preparar hosting multiweb de pago. Se verificaron build, preview, rutas criticas, header responsive, `/compartir`, formularios reales, Supabase y limpieza de filas test. Los siguientes bloques deben elegir hosting y preparar deploy sin cambiar Storage ni abrir colas.
 
 **Manual Investighost -> Trawel:** consultar `docs/INVESTIGHOST_TO_TRAWEL_HANDOFF_MANUAL.md` como manual maestro para entender que debe alimentar Investighost, que tablas usa Trawel, estados principales, colas de usuario, promociones y reglas de no publicacion directa.
