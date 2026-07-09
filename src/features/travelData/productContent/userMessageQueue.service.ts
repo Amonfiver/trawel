@@ -39,7 +39,7 @@ export type SubmitUserMessageResult =
     }
   | {
       ok: false;
-      status: 'validation_error' | 'not_configured' | 'submit_error';
+      status: 'validation_error' | 'rate_limited' | 'not_configured' | 'submit_error';
       message: string;
     };
 

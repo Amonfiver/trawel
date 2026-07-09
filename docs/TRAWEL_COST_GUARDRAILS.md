@@ -59,6 +59,28 @@ Limites previstos:
 
 Si se supera una cuota de fotos, la subida de fotos debe desactivarse o rechazarse, pero el texto puede seguir entrando si los formularios de texto estan habilitados y dentro de limites.
 
+## Rate Limit De Formularios
+
+Turnstile no sustituye los limites internos.
+
+Desde el Bloque 86, `protected-public-submit` registra eventos en `public_submission_events` y aplica rate limit por `email_hash` antes de insertar en colas privadas:
+
+- Maximo 3 envios aceptados por email hash en la ultima hora.
+- Maximo 10 envios aceptados por email hash en las ultimas 24 horas.
+- Si se supera el limite, responde `429` con bloqueo suave.
+- El frontend muestra: "Has enviado varias aportaciones recientemente. Intentalo de nuevo mas tarde."
+- No se guardan emails en claro en eventos de rate limit.
+- La IP se hashea si la Edge Function recibe cabeceras como `x-forwarded-for` o `cf-connecting-ip`.
+- No se bloquea por IP todavia porque la fiabilidad de esas cabeceras depende del entorno Supabase/edge/proxy.
+
+Estados de evento:
+
+- `accepted`: envio aceptado e insertado en cola.
+- `rejected_rate_limit`: envio bloqueado por limite.
+- `rejected_turnstile`: Turnstile no valido.
+- `rejected_validation`: payload invalido.
+- `error`: fallo interno despues de validar.
+
 ## Eventos De Uso
 
 `storage_usage_events` registra eventos internos relacionados con Storage y fotos:
@@ -101,6 +123,7 @@ RLS inicial:
 - `system_flags`: lectura publica solo de flags `is_public=true`.
 - `storage_usage_events`: sin lectura ni escritura publica.
 - `moderation_cleanup_queue`: sin lectura ni escritura publica.
+- `public_submission_events`: sin lectura ni escritura publica.
 
 La gestion interna debe hacerse desde Supabase SQL Editor, Edge Functions o Investighost con permisos seguros.
 

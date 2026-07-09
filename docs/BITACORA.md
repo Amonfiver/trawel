@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-07-09 - Bloque 86: rate limit en formularios protegidos
+
+Aplicado rate limit logico a los formularios publicos protegidos para reducir spam y costes aunque Turnstile sea superado.
+
+### Cambios implementados
+
+- Creada migracion `012_create_public_submission_events.sql`.
+- Creada tabla interna `public_submission_events` sin lectura ni escritura publica.
+- Actualizada Edge Function `protected-public-submit`.
+- La funcion calcula hash SHA-256 de email normalizado.
+- La funcion hashea IP si recibe cabeceras disponibles, pero no bloquea por IP todavia.
+- Lee `max_hourly_submissions_per_email` y `max_daily_submissions_per_email` desde `system_flags`.
+- Bloquea con `429` si se supera el limite por email hash.
+- Registra eventos `accepted`, `rejected_rate_limit`, `rejected_turnstile`, `rejected_validation` y `error`.
+- El frontend muestra mensaje amable para `429`.
+- Actualizado `docs/TRAWEL_COST_GUARDRAILS.md`.
+
+### Reglas respetadas
+
+- No se metio `service_role` en frontend.
+- No se abrio Storage.
+- No se cambio RLS para permitir lectura publica de colas.
+- No se activo subida real de fotos.
+
+---
+
 ## 2026-07-09 - Bloque 85: railes de coste globales
 
 Creada la base tecnica para controlar costes, apagado rapido y eventos de uso antes de activar subida real de fotos.

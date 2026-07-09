@@ -13,6 +13,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 type ProtectedAction = 'user_message' | 'content_report';
+type SupabaseClient = ReturnType<typeof createClient>;
 type UserMessageKind =
   | 'contact'
   | 'community_suggestion'
@@ -52,6 +53,20 @@ interface ProtectedSubmitInput {
 interface TurnstileSiteverifyResponse {
   success: boolean;
   'error-codes'?: string[];
+}
+
+interface RateLimitConfig {
+  maxHourlySubmissionsPerEmail: number;
+  maxDailySubmissionsPerEmail: number;
+}
+
+interface SubmissionEventInput {
+  submissionType: string;
+  emailHash: string | null;
+  ipHash: string | null;
+  sourcePage: string | null;
+  status: 'accepted' | 'rejected_rate_limit' | 'rejected_turnstile' | 'rejected_validation' | 'error';
+  metadata?: Record<string, unknown>;
 }
 
 const corsHeaders = {
@@ -100,6 +115,9 @@ const SUPPORTED_TARGET_ENTITY_TYPES = new Set<ContentReportTargetEntityType>([
   'promotion',
   'generic',
 ]);
+const DEFAULT_MAX_HOURLY_SUBMISSIONS_PER_EMAIL = 3;
+const DEFAULT_MAX_DAILY_SUBMISSIONS_PER_EMAIL = 10;
+const RATE_LIMIT_MESSAGE = 'Has enviado varias aportaciones recientemente. Inténtalo de nuevo más tarde.';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -130,7 +148,14 @@ Deno.serve(async (req) => {
       return jsonResponse({ success: false, status: 'validation_error', error: inputValidation.error }, 400);
     }
 
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
     const remoteIp = getClientIp(req);
+    const rawSubmissionContext = await getRawSubmissionContext(inputValidation.data, remoteIp);
     const turnstileOk = await verifyTurnstileToken(
       inputValidation.data.turnstileToken,
       turnstileSecretKey,
@@ -138,32 +163,61 @@ Deno.serve(async (req) => {
     );
 
     if (!turnstileOk) {
+      await recordSubmissionEvent(supabase, {
+        ...rawSubmissionContext,
+        status: 'rejected_turnstile',
+        metadata: { reason: 'turnstile_failed' },
+      });
+
       return jsonResponse(
         { success: false, status: 'validation_error', error: 'No hemos podido validar la verificacion antiabuso.' },
         403
       );
     }
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
-
     if (inputValidation.data.action === 'user_message') {
       const messageValidation = validateUserMessagePayload(inputValidation.data.payload);
 
       if (!messageValidation.valid) {
+        await recordSubmissionEvent(supabase, {
+          ...rawSubmissionContext,
+          status: 'rejected_validation',
+          metadata: { reason: 'payload_validation_failed' },
+        });
+
         return jsonResponse({ success: false, status: 'validation_error', error: messageValidation.error }, 400);
+      }
+
+      const submissionContext = await getUserMessageSubmissionContext(messageValidation.data, remoteIp);
+      const rateLimit = await checkEmailRateLimit(supabase, submissionContext.emailHash);
+
+      if (!rateLimit.allowed) {
+        await recordSubmissionEvent(supabase, {
+          ...submissionContext,
+          status: 'rejected_rate_limit',
+          metadata: { reason: rateLimit.reason },
+        });
+
+        return jsonResponse({ success: false, status: 'rate_limited', error: RATE_LIMIT_MESSAGE }, 429);
       }
 
       const { error } = await supabase.from('user_messages').insert(mapUserMessageRow(messageValidation.data));
 
       if (error) {
         console.error('protected-public-submit: error insertando user_messages', error.message);
+        await recordSubmissionEvent(supabase, {
+          ...submissionContext,
+          status: 'error',
+          metadata: { reason: 'user_messages_insert_failed' },
+        });
+
         return jsonResponse({ success: false, status: 'submit_error', error: 'No se pudo enviar el mensaje.' }, 500);
       }
+
+      await recordSubmissionEvent(supabase, {
+        ...submissionContext,
+        status: 'accepted',
+      });
 
       return jsonResponse({ success: true, status: 'queued', reviewStatus: 'pending_review' });
     }
@@ -171,15 +225,45 @@ Deno.serve(async (req) => {
     const reportValidation = validateContentReportPayload(inputValidation.data.payload);
 
     if (!reportValidation.valid) {
+      await recordSubmissionEvent(supabase, {
+        ...rawSubmissionContext,
+        status: 'rejected_validation',
+        metadata: { reason: 'payload_validation_failed' },
+      });
+
       return jsonResponse({ success: false, status: 'validation_error', error: reportValidation.error }, 400);
+    }
+
+    const submissionContext = await getContentReportSubmissionContext(reportValidation.data, remoteIp);
+    const rateLimit = await checkEmailRateLimit(supabase, submissionContext.emailHash);
+
+    if (!rateLimit.allowed) {
+      await recordSubmissionEvent(supabase, {
+        ...submissionContext,
+        status: 'rejected_rate_limit',
+        metadata: { reason: rateLimit.reason },
+      });
+
+      return jsonResponse({ success: false, status: 'rate_limited', error: RATE_LIMIT_MESSAGE }, 429);
     }
 
     const { error } = await supabase.from('content_reports').insert(mapContentReportRow(reportValidation.data));
 
     if (error) {
       console.error('protected-public-submit: error insertando content_reports', error.message);
+      await recordSubmissionEvent(supabase, {
+        ...submissionContext,
+        status: 'error',
+        metadata: { reason: 'content_reports_insert_failed' },
+      });
+
       return jsonResponse({ success: false, status: 'submit_error', error: 'No se pudo enviar el reporte.' }, 500);
     }
+
+    await recordSubmissionEvent(supabase, {
+      ...submissionContext,
+      status: 'accepted',
+    });
 
     return jsonResponse({ success: true, status: 'queued', reviewStatus: 'pending_review' });
   } catch (error) {
@@ -400,6 +484,171 @@ function mapContentReportRow(data: Record<string, unknown>) {
     target_entity_slug: data.targetEntitySlug,
     message: data.message,
   };
+}
+
+async function getRawSubmissionContext(
+  input: ProtectedSubmitInput,
+  remoteIp: string | null
+): Promise<Omit<SubmissionEventInput, 'status' | 'metadata'>> {
+  const payload = input.payload;
+  const email = normalizeOptionalText(payload.email) || normalizeOptionalText(payload.reporterEmail);
+  const sourcePage = normalizeOptionalText(payload.sourcePage);
+  const kind = normalizeOptionalText(payload.kind);
+
+  return {
+    submissionType: kind || input.action,
+    emailHash: email ? await hashValue(email.toLowerCase()) : null,
+    ipHash: remoteIp ? await hashValue(remoteIp) : null,
+    sourcePage,
+  };
+}
+
+async function getUserMessageSubmissionContext(
+  data: Record<string, unknown>,
+  remoteIp: string | null
+): Promise<Omit<SubmissionEventInput, 'status' | 'metadata'>> {
+  const email = String(data.email).toLowerCase();
+
+  return {
+    submissionType: String(data.kind),
+    emailHash: await hashValue(email),
+    ipHash: remoteIp ? await hashValue(remoteIp) : null,
+    sourcePage: normalizeOptionalText(data.sourcePage),
+  };
+}
+
+async function getContentReportSubmissionContext(
+  data: Record<string, unknown>,
+  remoteIp: string | null
+): Promise<Omit<SubmissionEventInput, 'status' | 'metadata'>> {
+  const email = String(data.reporterEmail).toLowerCase();
+
+  return {
+    submissionType: 'content_report',
+    emailHash: await hashValue(email),
+    ipHash: remoteIp ? await hashValue(remoteIp) : null,
+    sourcePage: null,
+  };
+}
+
+async function checkEmailRateLimit(
+  supabase: SupabaseClient,
+  emailHash: string | null
+): Promise<{ allowed: true } | { allowed: false; reason: string }> {
+  if (!emailHash) {
+    return { allowed: true };
+  }
+
+  const config = await readRateLimitConfig(supabase);
+  const now = Date.now();
+  const oneHourAgo = new Date(now - 60 * 60 * 1000).toISOString();
+  const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+
+  const hourlyCount = await countAcceptedSubmissionsSince(supabase, emailHash, oneHourAgo);
+
+  if (hourlyCount !== null && hourlyCount >= config.maxHourlySubmissionsPerEmail) {
+    return { allowed: false, reason: 'hourly_email_limit' };
+  }
+
+  const dailyCount = await countAcceptedSubmissionsSince(supabase, emailHash, oneDayAgo);
+
+  if (dailyCount !== null && dailyCount >= config.maxDailySubmissionsPerEmail) {
+    return { allowed: false, reason: 'daily_email_limit' };
+  }
+
+  return { allowed: true };
+}
+
+async function readRateLimitConfig(supabase: SupabaseClient): Promise<RateLimitConfig> {
+  const fallback = {
+    maxHourlySubmissionsPerEmail: DEFAULT_MAX_HOURLY_SUBMISSIONS_PER_EMAIL,
+    maxDailySubmissionsPerEmail: DEFAULT_MAX_DAILY_SUBMISSIONS_PER_EMAIL,
+  };
+
+  const { data, error } = await supabase
+    .from('system_flags')
+    .select('key,value')
+    .in('key', ['max_hourly_submissions_per_email', 'max_daily_submissions_per_email']);
+
+  if (error || !Array.isArray(data)) {
+    console.error('protected-public-submit: no se pudieron leer flags de rate limit');
+    return fallback;
+  }
+
+  const flags = new Map<string, unknown>(data.map((row) => [String(row.key), row.value]));
+
+  return {
+    maxHourlySubmissionsPerEmail: parsePositiveIntegerFlag(
+      flags.get('max_hourly_submissions_per_email'),
+      fallback.maxHourlySubmissionsPerEmail
+    ),
+    maxDailySubmissionsPerEmail: parsePositiveIntegerFlag(
+      flags.get('max_daily_submissions_per_email'),
+      fallback.maxDailySubmissionsPerEmail
+    ),
+  };
+}
+
+async function countAcceptedSubmissionsSince(
+  supabase: SupabaseClient,
+  emailHash: string,
+  sinceIso: string
+): Promise<number | null> {
+  const { count, error } = await supabase
+    .from('public_submission_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('email_hash', emailHash)
+    .eq('status', 'accepted')
+    .gte('created_at', sinceIso);
+
+  if (error) {
+    console.error('protected-public-submit: no se pudieron contar eventos de rate limit');
+    return null;
+  }
+
+  return count ?? 0;
+}
+
+async function recordSubmissionEvent(
+  supabase: SupabaseClient,
+  input: SubmissionEventInput
+): Promise<void> {
+  const { error } = await supabase.from('public_submission_events').insert({
+    submission_type: input.submissionType,
+    email_hash: input.emailHash,
+    ip_hash: input.ipHash,
+    source_page: input.sourcePage,
+    status: input.status,
+    metadata: input.metadata ?? {},
+  });
+
+  if (error) {
+    console.error('protected-public-submit: no se pudo registrar evento publico protegido');
+  }
+}
+
+async function hashValue(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value.trim().toLowerCase());
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function parsePositiveIntegerFlag(value: unknown, fallback: number): number {
+  const parsed =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number(value)
+        : null;
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return fallback;
+  }
+
+  return parsed;
 }
 
 async function verifyTurnstileToken(
