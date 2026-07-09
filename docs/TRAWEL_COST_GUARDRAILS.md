@@ -124,6 +124,8 @@ Reglas de Storage:
 
 Para fotos publicas masivas a futuro, evaluar Cloudflare R2 u otro storage optimizado para distribucion publica despues de moderacion.
 
+El contrato futuro de subida con coste cerrado vive en `docs/TRAWEL_PHOTO_UPLOAD_GUARDED_FLOW.md`. La Edge Function propuesta `guarded-photo-upload` no existe todavia y no debe crearse/desplegarse sin decision explicita.
+
 ## Seguridad
 
 RLS inicial:

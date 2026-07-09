@@ -37,6 +37,8 @@ Trawel usa `location_countries` y `location_cities` como catalogo propio de sele
 
 Investighost podra revisar `metadata.city_name_manual` y convertirlo despues en una fila oficial de `location_cities` si procede.
 
+La clasificacion por pais/ciudad es independiente de la subida real de fotos. Si una propuesta incluye fotos, `/compartir` solo conserva metadata y `photo_upload_pending=true`; los archivos no se suben hasta que exista un flujo seguro documentado en `docs/TRAWEL_PHOTO_UPLOAD_GUARDED_FLOW.md`.
+
 ## Alcance inicial
 
 La migracion `009_create_location_catalog_tables.sql` incluye paises activos y una semilla inicial de ciudades para Espana, Mexico, Italia e India. La migracion `010_expand_initial_location_cities.sql` amplia ciudades principales de Mexico y Espana. No pretende cargar todos los pueblos del mundo en codigo; las altas posteriores deben venir de Investighost, importaciones revisadas o procesos internos seguros.

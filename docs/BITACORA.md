@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-07-09 - Bloque 88: flujo futuro de subida de fotos
+
+Preparado el contrato documental de subida futura de fotos con coste cerrado, manteniendo la subida real desactivada.
+
+### Cambios implementados
+
+- Creado `docs/TRAWEL_PHOTO_UPLOAD_GUARDED_FLOW.md`.
+- Documentado flujo futuro `guarded-photo-upload` sin crearlo ni desplegarlo.
+- Confirmado que los flags/eventos creados en bloques 85-87 cubren el contrato inicial.
+- Actualizado `docs/TRAWEL_COST_GUARDRAILS.md`.
+- Actualizado `docs/TRAWEL_LOCATION_CATALOG_CONTRACT.md` para aclarar que clasificacion de ubicacion y subida de fotos son flujos separados.
+
+### Reglas respetadas
+
+- No se activo subida real de fotos.
+- No se creo Edge Function nueva.
+- No se abrio Storage.
+- No se toco frontend.
+- No se creo migracion 014 porque no faltaban flags ni eventos.
+
+---
+
 ## 2026-07-09 - Bloque 87: caducidad de colas pendientes
 
 Definida la politica de retencion para evitar colas infinitas y preparada auditoria interna de caducados.
