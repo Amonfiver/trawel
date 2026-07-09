@@ -5,6 +5,39 @@
 
 ---
 
+## 2026-07-09 - Bloque 89: revision seguridad/costes pre-hosting
+
+Cerrada la revision final de seguridad y costes antes de hosting.
+
+### Verificaciones
+
+- `npm run build` OK.
+- `dist/index.html` existe.
+- `dist/.htaccess` recreado tras build.
+- Rutas locales revisadas: `/`, `/contacto`, `/compartir`, `/comunidad`, `/pais/mexico`, `/pais/espana`, `/pais/espana/zona/castellon`.
+- Formularios revisados: contacto, compartir y reporte publico.
+- Sin token Turnstile, los botones quedan deshabilitados.
+- Con token simulado, los formularios llaman a `protected-public-submit`.
+- `.env.local` y `.env` ignorados.
+- `.env.example` trackeado sin secrets.
+- `photo_uploads_enabled=false` documentado en migracion 011.
+- No hay subida real de fotos desde frontend.
+
+### Pendientes antes de hosting real
+
+- Aplicar migraciones 011-013 en Supabase remoto.
+- Desplegar `protected-public-submit` actualizado.
+- Repetir pruebas online con dominio real y Turnstile real.
+
+### Reglas respetadas
+
+- No se abrio Storage.
+- No se activo subida real de fotos.
+- No se metio `service_role` en frontend.
+- No se publico contenido de usuario.
+
+---
+
 ## 2026-07-09 - Bloque 88: flujo futuro de subida de fotos
 
 Preparado el contrato documental de subida futura de fotos con coste cerrado, manteniendo la subida real desactivada.
