@@ -104,6 +104,14 @@ Las colas pendientes no son eternas:
 
 `moderation_cleanup_queue` prepara una cola interna para programar limpieza. No borra nada por si sola.
 
+Desde el Bloque 87, `docs/TRAWEL_RETENTION_AND_CLEANUP_POLICY.md` define la politica operativa y la migracion `013_create_cleanup_helpers.sql` crea vistas internas para auditar caducados:
+
+- `pending_user_messages_for_cleanup`.
+- `rejected_user_messages_for_cleanup`.
+- `pending_content_reports_for_cleanup`.
+
+La funcion `enqueue_expired_pending_items()` solo encola candidatos en `moderation_cleanup_queue`; no borra filas ni objetos.
+
 ## Storage
 
 Reglas de Storage:

@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-07-09 - Bloque 87: caducidad de colas pendientes
+
+Definida la politica de retencion para evitar colas infinitas y preparada auditoria interna de caducados.
+
+### Cambios implementados
+
+- Creada migracion `013_create_cleanup_helpers.sql`.
+- Creadas vistas internas:
+  - `pending_user_messages_for_cleanup`.
+  - `rejected_user_messages_for_cleanup`.
+  - `pending_content_reports_for_cleanup`.
+- Creada funcion manual `enqueue_expired_pending_items()`.
+- La funcion solo encola candidatos en `moderation_cleanup_queue`; no borra datos automaticamente.
+- Creado `docs/TRAWEL_RETENTION_AND_CLEANUP_POLICY.md`.
+- Actualizado `docs/TRAWEL_COST_GUARDRAILS.md`.
+
+### Reglas respetadas
+
+- No se borraron datos reales.
+- No se tocaron datos remotos.
+- No se activo cron externo.
+- No se toco Storage.
+- No se publico contenido de usuario.
+
+---
+
 ## 2026-07-09 - Bloque 86: rate limit en formularios protegidos
 
 Aplicado rate limit logico a los formularios publicos protegidos para reducir spam y costes aunque Turnstile sea superado.
