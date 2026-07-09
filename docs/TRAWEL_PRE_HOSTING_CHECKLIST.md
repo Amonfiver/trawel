@@ -16,12 +16,32 @@ Revision final local:
 - Decision: listo para preparar hosting multiweb.
 - Pendiente: elegir proveedor, configurar fallback SPA, configurar variables `VITE_` y repetir pruebas online post-deploy.
 
+Revision final pre-hosting 83:
+
+- Fecha: 2026-07-09.
+- `npm run build` OK.
+- `npm run dev` levantado en `http://127.0.0.1:5173/`.
+- Rutas revisadas: `/`, `/contacto`, `/compartir`, `/comunidad`, `/pais/mexico`, `/pais/espana`, `/pais/espana/zona/castellon`.
+- Formularios protegidos revisados en navegador: `/contacto`, `/compartir` con Mexico + Chihuahua, `/compartir` con ciudad manual inventada y reporte publico en TrustPage.
+- Sin token Turnstile los botones de envio quedan deshabilitados.
+- Con token simulado en navegador, los formularios llaman por POST a `protected-public-submit` con token presente.
+- Turnstile real inyecta el script de Cloudflare; en Chromium headless no se confirmo iframe interactivo visible.
+- Supabase remoto confirmado con anon para catalogo: `location_countries=197`, `location_cities=111`, Mexico contiene `chihuahua` y `veracruz`.
+- `user_messages` no permite lectura anonima (`42501 permission denied`), por lo que la consulta de ultimas filas debe ejecutarse desde SQL Editor o rol interno.
+- `dist/.htaccess` creado tras el build para hosting tradicional con fallback SPA.
+- Recordatorio: cuando se decida dominio/subdominio real, anadirlo en Cloudflare Turnstile y repetir envios reales online.
+
 ## 2. Variables Necesarias
 
 Variables frontend requeridas:
 
 - `VITE_SUPABASE_URL`.
 - `VITE_SUPABASE_ANON_KEY`.
+- `VITE_TURNSTILE_SITE_KEY`.
+
+Secret backend/Supabase requerida:
+
+- `TURNSTILE_SECRET_KEY`.
 
 Comprobaciones:
 
@@ -112,6 +132,9 @@ No crear este archivo todavia hasta decidir que Netlify sera el hosting elegido.
 - [x] Revisar `.env.example` o documentacion de variables necesarias.
 - [ ] Configurar `VITE_SUPABASE_URL` en hosting.
 - [ ] Configurar `VITE_SUPABASE_ANON_KEY` en hosting.
+- [ ] Configurar `VITE_TURNSTILE_SITE_KEY` en hosting.
+- [ ] Confirmar `TURNSTILE_SECRET_KEY` como Supabase secret.
+- [ ] Anadir dominio/subdominio real en Cloudflare Turnstile cuando se decida.
 - [x] Confirmar que no hay secretos privados en variables frontend.
 - [x] Confirmar que no aparece `SUPABASE_SERVICE_ROLE_KEY` en frontend.
 - [x] Revisar rutas locales principales.
@@ -145,5 +168,18 @@ Elegir hosting:
 - Netlify.
 - Vercel.
 - Otro.
+
+Para hosting tradicional compatible con Apache, `dist/.htaccess` debe incluir:
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+```
 
 Hasta elegir hosting, no crear archivos especificos de plataforma ni cambiar configuracion del proyecto.

@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-07-09 - Bloque 83: checklist final pre-hosting
+
+Ejecutada revision final local y remota antes de preparar hosting.
+
+### Verificaciones
+
+- `git status --short` y `git diff --stat` limpios al inicio.
+- `npm run build` OK, con warning conocido de chunk grande no bloqueante.
+- `npm run dev` levantado en `http://127.0.0.1:5173/`.
+- Revisadas rutas: `/`, `/contacto`, `/compartir`, `/comunidad`, `/pais/mexico`, `/pais/espana`, `/pais/espana/zona/castellon`.
+- Formularios protegidos revisados: contacto, compartir con Mexico + Chihuahua, compartir con ciudad manual inventada y reporte publico en TrustPage.
+- Sin token Turnstile, los envios quedan deshabilitados.
+- Con token simulado en navegador, los formularios envian POST a `protected-public-submit` con token presente.
+- Turnstile real inyecta el script de Cloudflare; en Chromium headless no se confirmo iframe interactivo visible.
+- Supabase remoto confirmado con anon para catalogo: 197 paises, 111 ciudades, Chihuahua y Veracruz presentes para Mexico.
+- `user_messages` no permite lectura anonima (`42501 permission denied`), pendiente consulta interna en SQL Editor para ultimas filas.
+- `dist/.htaccess` creado para fallback SPA en hosting tradicional.
+
+### Reglas respetadas
+
+- No se toco `src/`.
+- No se tocaron mapas, WorldMap, D3, TopoJSON, Storage, migraciones, seeds ni `package.json`.
+- No se subio `.env.local`.
+- No se expuso `service_role` en frontend.
+- No se publico contenido de usuario directo.
+
+---
+
 ## 2026-07-05 - Bloque 82C: layout autocomplete ciudades
 
 Corregida la presentacion visual de las opciones del autocomplete de ciudad/zona en `/compartir`.
