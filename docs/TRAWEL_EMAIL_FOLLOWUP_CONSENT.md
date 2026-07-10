@@ -37,9 +37,15 @@ Este consentimiento no autoriza marketing ni newsletter. Solo cubre comunicacion
 
 El email se usa para contactar con la persona sobre su propuesta. No se publica el email en Trawel ni en Comunidad.
 
+## Cola Interna
+
+Desde el bloque 92, si el consentimiento es `true`, la Edge Function `protected-public-submit` crea una fila `pending` en `email_notification_queue` con `notification_type='submission_copy'`. Esa fila no envia ningun email por si misma.
+
+Si el consentimiento es `false`, no debe crearse notificacion de seguimiento.
+
 ## Estado De Envio Real
 
-No hay envio real de emails en este bloque. Trawel solo guarda metadata de consentimiento para que Investighost o una Edge Function futura puedan actuar con seguridad cuando exista proveedor transaccional configurado.
+No hay envio real de emails en este bloque. Trawel guarda metadata de consentimiento y, cuando procede, una notificacion interna pendiente para que Investighost o una Edge Function futura puedan actuar con seguridad cuando exista proveedor transaccional configurado.
 
 ## Relacion Con Investighost
 

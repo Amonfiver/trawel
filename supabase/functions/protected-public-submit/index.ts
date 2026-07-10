@@ -70,6 +70,18 @@ interface SubmissionEventInput {
   metadata?: Record<string, unknown>;
 }
 
+interface EmailNotificationInput {
+  notification_type: 'submission_copy' | 'review_status' | 'publication_notice' | 'rejection_notice' | 'admin_alert';
+  recipient_email: string;
+  recipient_name: string | null;
+  related_table: string | null;
+  related_id: string | null;
+  status: 'pending';
+  subject: string;
+  body_text: string;
+  metadata: Record<string, unknown>;
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -202,7 +214,11 @@ Deno.serve(async (req) => {
         return jsonResponse({ success: false, status: 'rate_limited', error: RATE_LIMIT_MESSAGE }, 429);
       }
 
-      const { error } = await supabase.from('user_messages').insert(mapUserMessageRow(messageValidation.data));
+      const { data: insertedMessage, error } = await supabase
+        .from('user_messages')
+        .insert(mapUserMessageRow(messageValidation.data))
+        .select('id')
+        .single();
 
       if (error) {
         console.error('protected-public-submit: error insertando user_messages', error.message);
@@ -215,12 +231,24 @@ Deno.serve(async (req) => {
         return jsonResponse({ success: false, status: 'submit_error', error: 'No se pudo enviar el mensaje.' }, 500);
       }
 
+      const emailQueueStatus = await enqueueSubmissionCopyIfConsented(
+        supabase,
+        messageValidation.data,
+        getInsertedId(insertedMessage)
+      );
+
       await recordSubmissionEvent(supabase, {
         ...submissionContext,
         status: 'accepted',
+        metadata: emailQueueStatus,
       });
 
-      return jsonResponse({ success: true, status: 'queued', reviewStatus: 'pending_review' });
+      return jsonResponse({
+        success: true,
+        status: 'queued',
+        reviewStatus: 'pending_review',
+        emailQueue: emailQueueStatus,
+      });
     }
 
     const reportValidation = validateContentReportPayload(inputValidation.data.payload);
@@ -493,6 +521,90 @@ function mapUserMessageRow(data: Record<string, unknown>) {
     privacy_accepted: true,
     created_at: new Date().toISOString(),
   };
+}
+
+async function enqueueSubmissionCopyIfConsented(
+  supabase: SupabaseClient,
+  data: Record<string, unknown>,
+  userMessageId: string | null
+): Promise<Record<string, unknown>> {
+  if (!shouldQueueSubmissionCopy(data)) {
+    return { email_queue_status: 'skipped', reason: 'email_followup_consent_false' };
+  }
+
+  const notification = buildSubmissionCopyNotification(data, userMessageId);
+  const { error } = await supabase.from('email_notification_queue').insert(notification);
+
+  if (error) {
+    console.error('protected-public-submit: error insertando email_notification_queue', error.message);
+    return { email_queue_status: 'failed', reason: 'email_notification_queue_insert_failed' };
+  }
+
+  return { email_queue_status: 'pending', notification_type: 'submission_copy' };
+}
+
+function shouldQueueSubmissionCopy(data: Record<string, unknown>): boolean {
+  const metadata = isPlainObject(data.metadata) ? data.metadata : {};
+  return data.kind === 'community_suggestion' && metadata.email_followup_consent === true;
+}
+
+function buildSubmissionCopyNotification(
+  data: Record<string, unknown>,
+  userMessageId: string | null
+): EmailNotificationInput {
+  const name = String(data.name || '').trim();
+  const email = String(data.email || '').trim();
+  const subject = 'Hemos recibido tu propuesta en Trawel';
+  const contributionSubject = normalizeOptionalText(data.subject) || 'Propuesta recibida';
+  const message = String(data.message || '').trim();
+  const countrySlug = normalizeOptionalText(data.countrySlug);
+  const zoneSlug = normalizeOptionalText(data.zoneSlug);
+
+  return {
+    notification_type: 'submission_copy',
+    recipient_email: email,
+    recipient_name: name || null,
+    related_table: 'user_messages',
+    related_id: userMessageId,
+    status: 'pending',
+    subject,
+    body_text: [
+      `Hola${name ? ` ${name}` : ''},`,
+      '',
+      'Hemos recibido tu propuesta en Trawel y queda pendiente de revision editorial.',
+      '',
+      `Resumen: ${contributionSubject}`,
+      countrySlug ? `Pais: ${countrySlug}` : null,
+      zoneSlug ? `Zona: ${zoneSlug}` : null,
+      '',
+      'Texto enviado:',
+      message,
+      '',
+      'Nada enviado por usuarios se publica automaticamente. Trawel e Investighost revisaran permisos, clasificacion y encaje editorial antes de cualquier publicacion.',
+      '',
+      'Gracias por ayudar a construir Trawel.',
+      'Equipo Trawel',
+    ]
+      .filter((line): line is string => line !== null)
+      .join('\n'),
+    metadata: {
+      source: 'protected-public-submit',
+      related_kind: data.kind,
+      source_page: data.sourcePage,
+      country_slug: countrySlug,
+      zone_slug: zoneSlug,
+      email_provider_active: false,
+    },
+  };
+}
+
+function getInsertedId(value: unknown): string | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+
+  const id = (value as Record<string, unknown>).id;
+  return typeof id === 'string' ? id : null;
 }
 
 function mapContentReportRow(data: Record<string, unknown>) {
