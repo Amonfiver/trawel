@@ -262,6 +262,15 @@
   accent-color: #2563eb;
 }
 
+.consentMicrocopy {
+  display: block;
+  margin-top: 0.28rem;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
 .formFooter {
   display: flex;
   flex-wrap: wrap;

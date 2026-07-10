@@ -2,7 +2,8 @@
  * Edge Function: protected-public-submit
  *
  * Protege formularios publicos con Cloudflare Turnstile antes de insertar
- * en colas privadas de Supabase.
+ * en colas privadas de Supabase. La metadata puede incluir consentimiento
+ * opcional de seguimiento editorial por email; esta funcion solo lo guarda.
  *
  * Variables requeridas:
  * - SUPABASE_URL
@@ -386,8 +387,27 @@ function validateUserMessagePayload(
       zoneSlug,
       entityType,
       entitySlug,
-      metadata,
+      metadata: normalizeUserMessageMetadata(metadata),
     },
+  };
+}
+
+function normalizeUserMessageMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+  const emailFollowupConsent = metadata.email_followup_consent === true;
+  const emailFollowupScope = Array.isArray(metadata.email_followup_scope)
+    ? metadata.email_followup_scope.filter((item): item is string => typeof item === 'string')
+    : undefined;
+
+  return {
+    ...metadata,
+    ...(emailFollowupConsent
+      ? {
+          email_followup_consent: true,
+          email_followup_scope: emailFollowupScope ?? [],
+        }
+      : {
+          email_followup_consent: false,
+        }),
   };
 }
 

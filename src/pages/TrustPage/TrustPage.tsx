@@ -253,6 +253,7 @@ interface ShareFormValues {
   experienceTitle: string;
   message: string;
   privacyAccepted: boolean;
+  emailFollowupConsent: boolean;
 }
 
 const initialShareFormValues: ShareFormValues = {
@@ -267,7 +268,14 @@ const initialShareFormValues: ShareFormValues = {
   experienceTitle: '',
   message: '',
   privacyAccepted: false,
+  emailFollowupConsent: false,
 };
+
+const SHARE_EMAIL_FOLLOWUP_SCOPE = [
+  'submission_copy',
+  'review_status',
+  'publication_notice',
+] as const;
 
 const communityContributionLabels: Record<CommunityContributionType, string> = {
   experiencia_aventura: 'Experiencia / aventura',
@@ -585,6 +593,7 @@ export function TrustPage({ page }: TrustPageProps) {
       turnstileToken: contactTurnstileToken,
       metadata: {
         source: 'trust_page_contact_form',
+        email_followup_consent: false,
       },
     });
 
@@ -852,6 +861,10 @@ export function TrustPage({ page }: TrustPageProps) {
         ...(manualCity ? { city_name_manual: manualCity } : {}),
         contribution_type: shareFormValues.contributionType,
         ...(experienceTitle ? { experience_title: experienceTitle } : {}),
+        email_followup_consent: shareFormValues.emailFollowupConsent,
+        ...(shareFormValues.emailFollowupConsent
+          ? { email_followup_scope: [...SHARE_EMAIL_FOLLOWUP_SCOPE] }
+          : {}),
         photo_count: sharePhotos.length,
         photo_standardization: sharePhotos.length > 0,
         photo_upload_pending: sharePhotos.length > 0,
@@ -1369,6 +1382,25 @@ export function TrustPage({ page }: TrustPageProps) {
                 />
                 <span>
                   Acepto que Trawel use estos datos para revisar esta propuesta privada.
+                </span>
+              </label>
+
+              <label className={styles.privacyConsent}>
+                <input
+                  type="checkbox"
+                  name="shareEmailFollowupConsent"
+                  checked={shareFormValues.emailFollowupConsent}
+                  onChange={(event) =>
+                    handleShareFormChange('emailFollowupConsent', event.target.checked)
+                  }
+                />
+                <span>
+                  Quiero recibir una copia de mi propuesta y avisos sobre su revisión o
+                  publicación.
+                  <small className={styles.consentMicrocopy}>
+                    Solo usaremos tu email para informarte sobre esta aportación. No publicaremos tu
+                    email.
+                  </small>
                 </span>
               </label>
 
