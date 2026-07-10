@@ -4028,5 +4028,20 @@ Archivos tocados:
 
 ---
 
+## 2026-07-10 - Bloque 93: decision segura de emails transaccionales
+
+Creada documentacion de decision para proveedor transaccional sin activar envio real: Hostinger SMTP queda como opcion por identidad `@trawel.net`, pero requiere confirmar compatibilidad Deno/SMTP, limites y credenciales seguras; Resend/Brevo quedan como opcion HTTP sencilla para Edge Functions, pendiente de revisar coste/free tier y dominio verificado.
+
+Decision vigente: mantener `email_notification_queue` como cola interna y no enviar emails reales hasta que Octavio elija proveedor y configure secrets solo en Supabase. Tambien se documentaron plantillas para `submission_copy`, `publication_notice`, `review_status` y `rejection_notice` opcional.
+
+Archivos tocados:
+
+- `docs/TRAWEL_TRANSACTIONAL_EMAIL_PROVIDER_DECISION.md`
+- `docs/TRAWEL_EMAIL_TEMPLATES.md`
+- `docs/BITACORA.md`
+- `docs/AGENT_BRIEF.md`
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-07-10*

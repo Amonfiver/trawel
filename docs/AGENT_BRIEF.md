@@ -95,7 +95,9 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Email participacion:** `docs/TRAWEL_PARTICIPATION_EMAIL_FLOW.md` define emails futuros para contacto, colaboracion, fotos recibidas y avisos de revision/aprobacion. No hay envio implementado. No enviar emails desde frontend ni guardar claves de proveedor como `VITE_`; debe hacerlo backend seguro, Edge Function o Investighost.
 
-**Decision proveedor email:** `docs/TRAWEL_EMAIL_PROVIDER_DECISION.md` compara opciones documentales: Supabase Edge Function + Resend/Brevo/Mailgun, SMTP del hosting o Investighost emisor futuro. Recomendacion provisional tecnica: Edge Function + proveedor sencillo, pendiente de decision y credenciales del usuario.
+**Decision proveedor email:** `docs/TRAWEL_EMAIL_PROVIDER_DECISION.md` y `docs/TRAWEL_TRANSACTIONAL_EMAIL_PROVIDER_DECISION.md` comparan opciones documentales: Hostinger SMTP, Supabase Edge Function + Resend/Brevo/otro proveedor HTTP o Investighost emisor futuro. Recomendacion vigente: mantener `email_notification_queue` y no enviar emails reales hasta elegir proveedor, coste y credenciales. Secrets futuros solo en Supabase (`EMAIL_PROVIDER`, `EMAIL_FROM_ADDRESS`, `EMAIL_FROM_NAME`, `EMAIL_API_KEY` o `SMTP_*`), nunca frontend ni Git.
+
+**Plantillas email:** `docs/TRAWEL_EMAIL_TEMPLATES.md` define plantillas documentales para `submission_copy`, `publication_notice`, `review_status` y `rejection_notice` opcional. No activan envio real.
 
 **Estrategia antiabuso:** `docs/TRAWEL_ANTI_ABUSE_STRATEGY.md` define riesgos y medidas antes de abrir fotos reales: Turnstile o equivalente, rate limit por IP/email, maximo 3 fotos, limite de peso, validacion MIME real, bucket privado, logs, cola de revision y Edge Function para upload. No implementar subida real sin antiabuso y mecanismo seguro.
 
