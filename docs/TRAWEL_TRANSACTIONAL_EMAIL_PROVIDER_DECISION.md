@@ -81,3 +81,15 @@ Variables seguras futuras:
 ## Regla De Activacion
 
 La activacion requiere decision explicita de Octavio sobre proveedor y coste. Hasta entonces, `email_notification_queue` es solo cola interna y cualquier procesador debe permanecer desactivado.
+
+## Stub Seguro
+
+Desde el bloque 94 existe `process-email-notifications` como Edge Function de preparacion. Su comportamiento actual es intencionadamente conservador:
+
+- Lee `EMAIL_PROVIDER`.
+- Si falta o vale `disabled`, responde `email_provider_not_configured`.
+- No lee ni procesa `email_notification_queue`.
+- No envia emails reales.
+- No marca notificaciones como `sent`.
+
+Para activar envio real en el futuro haran falta proveedor elegido, secrets en Supabase y una implementacion nueva revisada.

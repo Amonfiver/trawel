@@ -45,6 +45,17 @@ Si no hay consentimiento, no se crea notificacion.
 
 La cola no envia emails, no llama APIs externas y no marca filas como `sent`.
 
+Desde el bloque 94 existe la Edge Function `process-email-notifications` como stub seguro. Si `EMAIL_PROVIDER` falta o vale `disabled`, responde:
+
+```json
+{
+  "ok": false,
+  "reason": "email_provider_not_configured"
+}
+```
+
+Aunque `EMAIL_PROVIDER` tuviera otro valor, el stub responde `email_processor_stub_only`: no lee la cola, no consume APIs externas y no actualiza estados.
+
 ## Seguridad
 
 - No hay SELECT publico.
@@ -69,4 +80,10 @@ Si se despliega la Edge Function ajustada:
 
 ```bash
 npx supabase functions deploy protected-public-submit
+```
+
+Si se despliega el stub de procesamiento:
+
+```bash
+npx supabase functions deploy process-email-notifications
 ```
