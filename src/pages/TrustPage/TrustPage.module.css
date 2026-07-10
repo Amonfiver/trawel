@@ -298,8 +298,12 @@
 }
 
 .submitButton:disabled {
-  cursor: progress;
+  cursor: not-allowed;
   opacity: 0.72;
+}
+
+.submitButtonSubmitting:disabled {
+  cursor: progress;
 }
 
 .formStatus {
@@ -527,7 +531,7 @@
 }
 
 .reportSubmitButton:disabled {
-  cursor: progress;
+  cursor: not-allowed;
   opacity: 0.72;
 }
 

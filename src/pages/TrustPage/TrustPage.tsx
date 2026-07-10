@@ -387,10 +387,21 @@ export function TrustPage({ page }: TrustPageProps) {
     shareFormValues.useManualCity ||
     (Boolean(shareFormValues.countrySlug) && zoneOptionsStatus === 'empty');
   const manualCityName = shareFormValues.manualCityName.trim();
+  const shareName = shareFormValues.name.trim();
+  const shareEmail = shareFormValues.email.trim();
+  const shareMessage = shareFormValues.message.trim();
+  const shareExperienceTitle = shareFormValues.experienceTitle.trim();
   const isShareLocationReady = Boolean(shareFormValues.countrySlug) && (
     Boolean(shareFormValues.zoneSlug) || Boolean(manualCityName)
   );
   const isExperienceContribution = shareFormValues.contributionType === 'experiencia_aventura';
+  const isShareFormReadyToSubmit =
+    Boolean(shareName) &&
+    Boolean(shareEmail) &&
+    Boolean(shareMessage) &&
+    shareFormValues.privacyAccepted &&
+    isShareLocationReady &&
+    (!isExperienceContribution || Boolean(shareExperienceTitle));
   const isTurnstileConfigured = Boolean(TURNSTILE_SITE_KEY);
 
   const handleContactTurnstileChange = useCallback((token: string) => {
@@ -399,6 +410,9 @@ export function TrustPage({ page }: TrustPageProps) {
 
   const handleShareTurnstileChange = useCallback((token: string) => {
     setShareTurnstileToken(token);
+
+    setShareStatus((currentStatus) => (currentStatus === 'submitting' ? currentStatus : 'idle'));
+    setShareStatusMessage('');
   }, []);
 
   const handleReportTurnstileChange = useCallback((token: string) => {
@@ -804,9 +818,7 @@ export function TrustPage({ page }: TrustPageProps) {
     const countrySlug = shareFormValues.countrySlug.trim();
     const zoneSlug = shareFormValues.zoneSlug.trim();
     const manualCity = manualCityName;
-    const experienceTitle = isExperienceContribution
-      ? shareFormValues.experienceTitle.trim()
-      : '';
+    const experienceTitle = isExperienceContribution ? shareExperienceTitle : '';
 
     if (!countrySlug) {
       setShareStatus('error');
@@ -1419,13 +1431,14 @@ export function TrustPage({ page }: TrustPageProps) {
               <div className={styles.formFooter}>
                 <button
                   type="submit"
-                  className={styles.submitButton}
+                  className={`${styles.submitButton} ${
+                    shareStatus === 'submitting' ? styles.submitButtonSubmitting : ''
+                  }`}
                   disabled={
                     shareStatus === 'submitting' ||
                     sharePhotoStatus === 'processing' ||
                     !shareTurnstileToken ||
-                    countryOptionsStatus !== 'ready' ||
-                    !isShareLocationReady
+                    !isShareFormReadyToSubmit
                   }
                 >
                   {shareStatus === 'submitting' ? 'Enviando...' : 'Enviar propuesta'}
