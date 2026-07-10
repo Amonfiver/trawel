@@ -267,6 +267,8 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 
 **Diagnostico workflow mapas:** desde el bloque 95, `.github/workflows/process-country-map-queue.yml` queda solo con `workflow_dispatch`; se retiro el schedule cada 30 minutos para evitar correos recurrentes de fallos mientras se revisan logs/secrets/cola. Ver `docs/TRAWEL_GITHUB_ACTIONS_MAP_QUEUE_DIAGNOSTIC.md`. No se tocaron WorldMap, D3, TopoJSON ni scripts visuales.
 
+**Cierre online pre-Investighost:** `docs/TRAWEL_ONLINE_POST_DEPLOY_REVIEW.md` recoge dominio, rutas, formularios, seguridad, costes, pendientes remotos y entrada a Investighost. Trawel queda como escaparate online con colas privadas y revision previa; Investighost sera el panel maestro para revisar, aprobar, cargar catalogos y gestionar `email_notification_queue`.
+
 **Aventuras de viajeros:** la tabla `traveler_adventures` acepta envíos públicos como `pending`, pero el público solo puede leer `approved`. El envío requiere aceptación de privacidad (`privacy_accepted_at`, `privacy_version`) y marketing queda separado/opcional. Fotos en bucket privado; subida/serving seguro queda para Edge Function futura.
 
 **Retirada de aventuras:** al enviar una aventura se genera un token privado en navegador; la DB guarda solo `withdrawal_token_hash`. La ruta `/retirar-aventura` invoca la Edge Function `withdraw-traveler-adventure`, que usa `service_role` solo en backend y marca `status = withdrawn` si la aventura sigue `pending`.

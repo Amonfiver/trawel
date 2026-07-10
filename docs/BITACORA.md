@@ -4058,5 +4058,19 @@ Archivos tocados:
 
 ---
 
+## 2026-07-10 - Bloque 96: revision online pre-Investighost
+
+Creado `docs/TRAWEL_ONLINE_POST_DEPLOY_REVIEW.md` como checklist de cierre de la fase online: dominio/SSL/Hostinger, rutas principales, formularios, Turnstile, colas privadas, seguridad, costes y pendientes remotos.
+
+Queda documentada la entrada a Investighost como siguiente fase: login/admin seguro, revision de `user_messages`, `content_reports`, `public_submission_events`, `email_notification_queue`, control de `system_flags`, carga de paises/ciudades y aprobacion/publicacion controlada de aportes.
+
+Archivos tocados:
+
+- `docs/TRAWEL_ONLINE_POST_DEPLOY_REVIEW.md`
+- `docs/BITACORA.md`
+- `docs/AGENT_BRIEF.md`
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-07-10*
