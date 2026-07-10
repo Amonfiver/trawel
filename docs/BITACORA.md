@@ -4011,5 +4011,22 @@ Preparado servicio `submitUserMessage`/`submitContactMessage`/`submitCommunitySu
 
 ---
 
+---
+
+## 2026-07-10 - Bloque 90: checkpoint online y copy de Comunidad
+
+Registrado el estado online confirmado: `https://trawel.net` y `https://www.trawel.net` cargan con SSL, las rutas funcionan y `/contacto` y `/compartir` completan envios. `/compartir` mantiene el aviso de revision antes de publicar.
+
+Pulido el copy publico de `/comunidad` para retirar lenguaje de demo tecnica. La seccion pasa de "Vista previa" y "muestras locales" a una seleccion editorial inicial con ejemplos editoriales, dejando claro que nada enviado por usuarios se publica automaticamente y que Investighost revisara, clasificara y aprobara antes de que algo aparezca.
+
+Archivos tocados:
+
+- `src/pages/CommunityPage/CommunityPage.tsx`
+- `docs/TRAWEL_POST_DEPLOY_CHECKLIST.md`
+- `docs/BITACORA.md`
+- `docs/AGENT_BRIEF.md`
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-06-27*
+*Última actualización: 2026-07-10*

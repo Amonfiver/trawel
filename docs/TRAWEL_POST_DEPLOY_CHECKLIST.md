@@ -3,7 +3,17 @@
 Checklist de validacion online tras subir Trawel a hosting real.
 
 Fecha: 2026-07-09.
-Bloque: 84.
+Bloque: 84. Actualizado en bloque 90 con estado online confirmado.
+
+## Estado Online Confirmado
+
+- [x] `https://trawel.net` carga correctamente.
+- [x] `https://www.trawel.net` carga correctamente.
+- [x] SSL/candado activo.
+- [x] Rutas internas cargan online.
+- [x] `/contacto` completa envio online.
+- [x] `/compartir` completa envio online y avisa que se revisara antes de publicar.
+- [x] `/comunidad` queda como espacio publico editorial inicial, sin publicar contenido de usuario automaticamente.
 
 ## 1. Sitio Online
 
@@ -112,4 +122,4 @@ Si se prueba reporte publico, revisar tambien `content_reports` desde SQL Editor
 - [ ] Documentar dominio final.
 - [ ] Documentar resultado de formularios online.
 - [ ] No publicar contenido de usuario directamente.
-
+- [ ] Cuando Investighost este activo, revisar y aprobar aportaciones antes de mostrarlas en Comunidad.

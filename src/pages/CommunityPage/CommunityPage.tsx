@@ -26,7 +26,7 @@ const communityPreviewCards: CommunityPreviewCard[] = [
     contributionType: 'Experiencia',
     summary:
       'Una ruta tranquila para mirar la muralla desde varios ángulos y entender por qué el pueblo cambia con la luz.',
-    credit: 'Muestra editorial Trawel',
+    credit: 'Ejemplo editorial Trawel',
     image: albarracinImage,
     countrySlug: 'espana',
     zoneSlug: 'albarracin',
@@ -38,7 +38,7 @@ const communityPreviewCards: CommunityPreviewCard[] = [
     contributionType: 'Recomendación de sitio',
     summary:
       'Una invitación a empezar por los mercados locales para leer aromas, ritmos y pequeñas historias cotidianas.',
-    credit: 'Muestra editorial Trawel',
+    credit: 'Ejemplo editorial Trawel',
     image: mexicoImage,
     countrySlug: 'mexico',
   },
@@ -49,7 +49,7 @@ const communityPreviewCards: CommunityPreviewCard[] = [
     contributionType: 'Foto aprobada',
     summary:
       'Las futuras fotos de comunidad se mostrarán solo cuando tengan derechos claros y revisión editorial.',
-    credit: 'Muestra editorial Trawel',
+    credit: 'Ejemplo editorial Trawel',
     image: spainImage,
     countrySlug: 'espana',
   },
@@ -79,11 +79,12 @@ export function CommunityPage() {
 
       <section className={styles.cardsSection} aria-labelledby="community-cards-title">
         <div className={styles.sectionHeader}>
-          <p className={styles.statusEyebrow}>Vista previa</p>
+          <p className={styles.statusEyebrow}>Selección editorial inicial</p>
           <h2 id="community-cards-title">Cards visuales para aportes aprobados</h2>
           <p>
-            Estas muestras locales anticipan el formato. La versión pública definitiva leerá solo
-            contenido aprobado y preparado para Comunidad.
+            Mientras abrimos las primeras aportaciones reales, mostramos ejemplos editoriales del
+            tipo de historias que formarán parte de la comunidad. La versión pública definitiva
+            leerá solo contenido aprobado por Trawel e Investighost.
           </p>
         </div>
 
@@ -119,7 +120,8 @@ export function CommunityPage() {
           <h2 id="community-status-title">La selección pública se abrirá con aportes revisados</h2>
           <p>
             Las futuras cards mostrarán fotos, experiencias y sitios recomendados solo cuando
-            tengan derechos claros, clasificación por país/zona y aprobación editorial.
+            tengan derechos claros, clasificación por país/zona y aprobación editorial. Investighost
+            revisará, clasificará y aprobará cada aportación antes de que pueda aparecer.
           </p>
         </div>
         <ul className={styles.checklist}>
