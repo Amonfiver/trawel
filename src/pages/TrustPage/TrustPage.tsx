@@ -324,6 +324,7 @@ export function TrustPage({ page }: TrustPageProps) {
   const [shareFormValues, setShareFormValues] = useState<ShareFormValues>(initialShareFormValues);
   const [shareStatus, setShareStatus] = useState<ContactFormStatus>('idle');
   const [shareStatusMessage, setShareStatusMessage] = useState('');
+  const [hasShareSubmittedSuccessfully, setHasShareSubmittedSuccessfully] = useState(false);
   const [shareTurnstileToken, setShareTurnstileToken] = useState('');
   const [shareTurnstileResetKey, setShareTurnstileResetKey] = useState(0);
   const [countryOptions, setCountryOptions] = useState<PublicCountryOption[]>([]);
@@ -413,6 +414,11 @@ export function TrustPage({ page }: TrustPageProps) {
     missingShareSubmitRequirements.length > 0
       ? missingShareSubmitRequirements[0]
       : '';
+  const shouldShowShareSubmitHelp =
+    !hasShareSubmittedSuccessfully &&
+    !canSubmitShareForm &&
+    shareStatus !== 'submitting' &&
+    Boolean(shareSubmitHelpMessage);
   const isTurnstileConfigured = Boolean(TURNSTILE_SITE_KEY);
 
   const handleContactTurnstileChange = useCallback((token: string) => {
@@ -422,8 +428,12 @@ export function TrustPage({ page }: TrustPageProps) {
   const handleShareTurnstileChange = useCallback((token: string) => {
     setShareTurnstileToken(token);
 
-    setShareStatus((currentStatus) => (currentStatus === 'submitting' ? currentStatus : 'idle'));
-    setShareStatusMessage('');
+    if (token) {
+      setShareStatus((currentStatus) =>
+        currentStatus === 'submitting' || currentStatus === 'success' ? currentStatus : 'idle'
+      );
+      setShareStatusMessage('');
+    }
   }, []);
 
   const handleReportTurnstileChange = useCallback((token: string) => {
@@ -646,6 +656,7 @@ export function TrustPage({ page }: TrustPageProps) {
     field: keyof ShareFormValues,
     value: string | boolean
   ) => {
+    setHasShareSubmittedSuccessfully(false);
     setShareFormValues((currentValues) => ({
       ...currentValues,
       [field]: value,
@@ -658,6 +669,7 @@ export function TrustPage({ page }: TrustPageProps) {
   };
 
   const handleShareContributionTypeChange = async (contributionType: CommunityContributionType) => {
+    setHasShareSubmittedSuccessfully(false);
     setShareFormValues((currentValues) => ({
       ...currentValues,
       contributionType,
@@ -676,6 +688,7 @@ export function TrustPage({ page }: TrustPageProps) {
   };
 
   const handleShareCountryChange = (countrySlug: string) => {
+    setHasShareSubmittedSuccessfully(false);
     setShareFormValues((currentValues) => ({
       ...currentValues,
       countrySlug,
@@ -692,6 +705,7 @@ export function TrustPage({ page }: TrustPageProps) {
   };
 
   const handleShareCitySearchChange = (value: string) => {
+    setHasShareSubmittedSuccessfully(false);
     setShareFormValues((currentValues) => ({
       ...currentValues,
       citySearch: value,
@@ -707,6 +721,7 @@ export function TrustPage({ page }: TrustPageProps) {
   };
 
   const handleSelectShareZone = (zone: PublicZoneOption) => {
+    setHasShareSubmittedSuccessfully(false);
     setShareFormValues((currentValues) => ({
       ...currentValues,
       zoneSlug: zone.value,
@@ -722,6 +737,7 @@ export function TrustPage({ page }: TrustPageProps) {
   };
 
   const handleUseManualCity = () => {
+    setHasShareSubmittedSuccessfully(false);
     setShareFormValues((currentValues) => ({
       ...currentValues,
       zoneSlug: '',
@@ -746,6 +762,8 @@ export function TrustPage({ page }: TrustPageProps) {
     if (selectedFiles.length === 0) {
       return;
     }
+
+    setHasShareSubmittedSuccessfully(false);
 
     if (selectedFiles.length + sharePhotos.length > MAX_SHARE_PHOTOS) {
       setSharePhotoStatus('error');
@@ -775,6 +793,7 @@ export function TrustPage({ page }: TrustPageProps) {
   };
 
   const handleRemoveSharePhoto = (photoId: string) => {
+    setHasShareSubmittedSuccessfully(false);
     setSharePhotos((currentPhotos) => {
       const removedPhoto = currentPhotos.find((photo) => photo.id === photoId);
 
@@ -898,6 +917,7 @@ export function TrustPage({ page }: TrustPageProps) {
     setShareTurnstileResetKey((currentKey) => currentKey + 1);
 
     if (result.ok) {
+      setHasShareSubmittedSuccessfully(true);
       setShareFormValues(initialShareFormValues);
       setSharePhotos((currentPhotos) => {
         currentPhotos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
@@ -905,9 +925,7 @@ export function TrustPage({ page }: TrustPageProps) {
       });
       setShareStatus('success');
       setShareStatusMessage(
-        sharePhotos.length > 0
-          ? 'Propuesta recibida para revisión. Tus fotos quedan marcadas como parte de la colaboración y nada se publicará automáticamente.'
-          : 'Propuesta recibida para revisión. No se publicará automáticamente.'
+        '¡Gracias! Tu experiencia se ha enviado correctamente. La revisaremos antes de publicarla. Si aceptaste recibir avisos, te escribiremos cuando tengamos novedades.'
       );
       return;
     }
@@ -1455,7 +1473,7 @@ export function TrustPage({ page }: TrustPageProps) {
                   {shareStatus === 'submitting' ? 'Enviando...' : 'Enviar propuesta'}
                 </button>
 
-                {!canSubmitShareForm && shareStatus !== 'submitting' && shareSubmitHelpMessage && (
+                {shouldShowShareSubmitHelp && (
                   <p className={styles.submitHelp} role="status">
                     {shareSubmitHelpMessage}
                   </p>
