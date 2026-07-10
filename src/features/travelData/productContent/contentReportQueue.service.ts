@@ -55,6 +55,7 @@ export type SubmitContentReportResult =
       ok: false;
       status: 'validation_error' | 'rate_limited' | 'not_configured' | 'submit_error';
       message: string;
+      reason?: string;
     };
 
 const MAX_REPORTER_NAME_LENGTH = 160;

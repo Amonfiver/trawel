@@ -646,9 +646,10 @@ export function TrustPage({ page }: TrustPageProps) {
 
     setContactStatus('error');
     setContactStatusMessage(
-      result.status === 'validation_error'
-        ? result.message
-        : 'No hemos podido enviar el mensaje ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+      getPublicSubmitErrorMessage(
+        result,
+        'No hemos podido enviar el mensaje ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+      )
     );
   };
 
@@ -932,9 +933,11 @@ export function TrustPage({ page }: TrustPageProps) {
 
     setShareStatus('error');
     setShareStatusMessage(
-      result.status === 'validation_error'
-        ? result.message
-        : 'No hemos podido enviar la propuesta ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+      getPublicSubmitErrorMessage(
+        result,
+        'No hemos podido enviar la propuesta ahora mismo. Puedes intentarlo de nuevo en unos minutos.',
+        { preferEmailFollowupRateLimit: shareFormValues.emailFollowupConsent }
+      )
     );
   };
 
@@ -993,9 +996,10 @@ export function TrustPage({ page }: TrustPageProps) {
 
     setReportStatus('error');
     setReportStatusMessage(
-      result.status === 'validation_error'
-        ? result.message
-        : 'No hemos podido enviar el reporte ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+      getPublicSubmitErrorMessage(
+        result,
+        'No hemos podido enviar el reporte ahora mismo. Puedes intentarlo de nuevo en unos minutos.'
+      )
     );
   };
 
@@ -1733,6 +1737,89 @@ function getMissingShareSubmitRequirements(input: {
   }
 
   return missingMessages;
+}
+
+function getPublicSubmitErrorMessage(
+  result: {
+    status: string;
+    message?: string;
+    reason?: string;
+  },
+  fallbackMessage: string,
+  options: {
+    preferEmailFollowupRateLimit?: boolean;
+  } = {}
+): string {
+  const reason = normalizeSubmitFailureReason(result.reason) || normalizeSubmitFailureReason(result.message);
+
+  if (
+    reason === 'hourly_email_limit' ||
+    (result.status === 'rate_limited' && options.preferEmailFollowupRateLimit)
+  ) {
+    return 'Has solicitado varios avisos por email en poco tiempo. Para proteger Trawel contra spam, espera un rato antes de enviar otra propuesta con seguimiento.';
+  }
+
+  if (isGeneralRateLimitReason(reason) || result.status === 'rate_limited') {
+    return 'Has enviado varias propuestas en poco tiempo. Para proteger Trawel contra spam, espera un rato antes de volver a intentarlo.';
+  }
+
+  if (isTurnstileFailureReason(reason) || isTurnstileFailureMessage(result.message)) {
+    return 'No hemos podido verificar que eres una persona. Recarga la verificación de Cloudflare e inténtalo de nuevo.';
+  }
+
+  if (result.status === 'validation_error' && result.message) {
+    return result.message;
+  }
+
+  return fallbackMessage;
+}
+
+function normalizeSubmitFailureReason(value: string | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (!normalized) {
+    return null;
+  }
+
+  const knownReasons = [
+    'hourly_email_limit',
+    'hourly_limit',
+    'daily_limit',
+    'rate_limit',
+    'too_many_requests',
+    'turnstile_failed',
+    'missing_turnstile_token',
+  ];
+
+  return knownReasons.find((reason) => normalized.includes(reason)) || normalized;
+}
+
+function isGeneralRateLimitReason(reason: string | null): boolean {
+  return Boolean(
+    reason &&
+      ['hourly_limit', 'daily_limit', 'rate_limit', 'too_many_requests'].includes(reason)
+  );
+}
+
+function isTurnstileFailureReason(reason: string | null): boolean {
+  return Boolean(reason && ['turnstile_failed', 'missing_turnstile_token'].includes(reason));
+}
+
+function isTurnstileFailureMessage(message: string | undefined): boolean {
+  if (!message) {
+    return false;
+  }
+
+  const normalized = message
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+  return normalized.includes('turnstile') || normalized.includes('antiabuso');
 }
 
 function mapShareQueryType(value: string | null): CommunityContributionType | null {
