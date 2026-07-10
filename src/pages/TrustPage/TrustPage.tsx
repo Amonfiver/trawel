@@ -391,17 +391,28 @@ export function TrustPage({ page }: TrustPageProps) {
   const shareEmail = shareFormValues.email.trim();
   const shareMessage = shareFormValues.message.trim();
   const shareExperienceTitle = shareFormValues.experienceTitle.trim();
-  const isShareLocationReady = Boolean(shareFormValues.countrySlug) && (
-    Boolean(shareFormValues.zoneSlug) || Boolean(manualCityName)
-  );
+  const shareCountrySlug = shareFormValues.countrySlug.trim();
+  const shareZoneSlug = shareFormValues.zoneSlug.trim();
   const isExperienceContribution = shareFormValues.contributionType === 'experiencia_aventura';
-  const isShareFormReadyToSubmit =
-    Boolean(shareName) &&
-    Boolean(shareEmail) &&
-    Boolean(shareMessage) &&
-    shareFormValues.privacyAccepted &&
-    isShareLocationReady &&
-    (!isExperienceContribution || Boolean(shareExperienceTitle));
+  const missingShareSubmitRequirements = getMissingShareSubmitRequirements({
+    name: shareName,
+    email: shareEmail,
+    countrySlug: shareCountrySlug,
+    zoneSlug: shareZoneSlug,
+    manualCityName,
+    isExperienceContribution,
+    experienceTitle: shareExperienceTitle,
+    message: shareMessage,
+    privacyAccepted: shareFormValues.privacyAccepted,
+    turnstileToken: shareTurnstileToken,
+    photoStatus: sharePhotoStatus,
+  });
+  const canSubmitShareForm =
+    shareStatus !== 'submitting' && missingShareSubmitRequirements.length === 0;
+  const shareSubmitHelpMessage =
+    missingShareSubmitRequirements.length > 0
+      ? missingShareSubmitRequirements[0]
+      : '';
   const isTurnstileConfigured = Boolean(TURNSTILE_SITE_KEY);
 
   const handleContactTurnstileChange = useCallback((token: string) => {
@@ -1098,12 +1109,13 @@ export function TrustPage({ page }: TrustPageProps) {
                 Tu propuesta entra en una cola privada de revisión. Puede ayudarnos a priorizar
                 destinos, experiencias o correcciones, y se revisará antes de publicarse.
               </p>
+              <p className={styles.requiredNote}>Los campos marcados con * son obligatorios.</p>
             </div>
 
             <form className={styles.contactForm} onSubmit={handleShareFormSubmit}>
               <div className={styles.formGrid}>
                 <label className={styles.formField}>
-                  <span>Nombre</span>
+                  <span>Nombre <span className={styles.requiredMark} aria-hidden="true">*</span></span>
                   <input
                     type="text"
                     name="shareName"
@@ -1116,7 +1128,7 @@ export function TrustPage({ page }: TrustPageProps) {
                 </label>
 
                 <label className={styles.formField}>
-                  <span>Email</span>
+                  <span>Email <span className={styles.requiredMark} aria-hidden="true">*</span></span>
                   <input
                     type="email"
                     name="shareEmail"
@@ -1131,7 +1143,7 @@ export function TrustPage({ page }: TrustPageProps) {
 
               <div className={styles.formGrid}>
                 <label className={styles.formField}>
-                  <span>País</span>
+                  <span>País <span className={styles.requiredMark} aria-hidden="true">*</span></span>
                   <select
                     name="shareCountry"
                     value={shareFormValues.countrySlug}
@@ -1151,7 +1163,7 @@ export function TrustPage({ page }: TrustPageProps) {
                 </label>
 
                 <div className={styles.formField}>
-                  <span>Ciudad o zona</span>
+                  <span>Ciudad o zona <span className={styles.requiredMark} aria-hidden="true">*</span></span>
                   <div className={styles.locationAutocomplete}>
                     <input
                       type="search"
@@ -1251,7 +1263,7 @@ export function TrustPage({ page }: TrustPageProps) {
 
               {shouldShowManualCityField && (
                 <label className={styles.formField}>
-                  <span>Escribe la ciudad o zona</span>
+                  <span>Escribe la ciudad o zona <span className={styles.requiredMark} aria-hidden="true">*</span></span>
                   <input
                     type="text"
                     name="shareManualCity"
@@ -1266,7 +1278,7 @@ export function TrustPage({ page }: TrustPageProps) {
               )}
 
               <label className={styles.formField}>
-                <span>Tipo de colaboración</span>
+                <span>Tipo de propuesta <span className={styles.requiredMark} aria-hidden="true">*</span></span>
                 <select
                   name="contributionType"
                   value={shareFormValues.contributionType}
@@ -1288,7 +1300,7 @@ export function TrustPage({ page }: TrustPageProps) {
 
               {isExperienceContribution && (
                 <label className={styles.formField}>
-                  <span>Título de la experiencia</span>
+                  <span>Título <span className={styles.requiredMark} aria-hidden="true">*</span></span>
                   <input
                     type="text"
                     name="experienceTitle"
@@ -1368,7 +1380,10 @@ export function TrustPage({ page }: TrustPageProps) {
               </section>
 
               <label className={styles.formField}>
-                <span>{isExperienceContribution ? 'Cuéntanos tu experiencia' : 'Mensaje'}</span>
+                <span>
+                  {isExperienceContribution ? 'Cuéntanos tu experiencia' : 'Mensaje'}{' '}
+                  <span className={styles.requiredMark} aria-hidden="true">*</span>
+                </span>
                 <textarea
                   name="shareMessage"
                   value={shareFormValues.message}
@@ -1393,7 +1408,8 @@ export function TrustPage({ page }: TrustPageProps) {
                   required
                 />
                 <span>
-                  Acepto que Trawel use estos datos para revisar esta propuesta privada.
+                  Acepto que Trawel use estos datos para revisar esta propuesta privada.{' '}
+                  <span className={styles.requiredMark} aria-hidden="true">*</span>
                 </span>
               </label>
 
@@ -1434,15 +1450,16 @@ export function TrustPage({ page }: TrustPageProps) {
                   className={`${styles.submitButton} ${
                     shareStatus === 'submitting' ? styles.submitButtonSubmitting : ''
                   }`}
-                  disabled={
-                    shareStatus === 'submitting' ||
-                    sharePhotoStatus === 'processing' ||
-                    !shareTurnstileToken ||
-                    !isShareFormReadyToSubmit
-                  }
+                  disabled={!canSubmitShareForm}
                 >
                   {shareStatus === 'submitting' ? 'Enviando...' : 'Enviar propuesta'}
                 </button>
+
+                {!canSubmitShareForm && shareStatus !== 'submitting' && shareSubmitHelpMessage && (
+                  <p className={styles.submitHelp} role="status">
+                    {shareSubmitHelpMessage}
+                  </p>
+                )}
 
                 {shareStatusMessage && (
                   <p className={`${styles.formStatus} ${styles[shareStatus]}`} role="status">
@@ -1644,6 +1661,10 @@ function normalizeLocationSearch(value: string): string {
     .toLowerCase();
 }
 
+function isValidEmail(value: string): boolean {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim());
+}
+
 function formatZoneOptionLabel(zone: PublicZoneOption): string {
   return zone.region ? `${zone.label} (${zone.region})` : zone.label;
 }
@@ -1654,6 +1675,46 @@ function getZoneSecondaryLabel(zone: PublicZoneOption): string | null {
     .filter((value, index, values) => values.indexOf(value) === index);
 
   return details.length > 0 ? details.join(' · ') : null;
+}
+
+function getMissingShareSubmitRequirements(input: {
+  name: string;
+  email: string;
+  countrySlug: string;
+  zoneSlug: string;
+  manualCityName: string;
+  isExperienceContribution: boolean;
+  experienceTitle: string;
+  message: string;
+  privacyAccepted: boolean;
+  turnstileToken: string;
+  photoStatus: SharePhotoStatus;
+}): string[] {
+  const missingMessages: string[] = [];
+
+  if (!input.name || !input.email || !input.message || (input.isExperienceContribution && !input.experienceTitle)) {
+    missingMessages.push('Completa los campos obligatorios marcados con *.');
+  } else if (!isValidEmail(input.email)) {
+    missingMessages.push('Revisa que el email tenga un formato válido.');
+  }
+
+  if (!input.countrySlug || (!input.zoneSlug && !input.manualCityName)) {
+    missingMessages.push('Selecciona un país y una ciudad o escribe una ciudad manual.');
+  }
+
+  if (!input.privacyAccepted) {
+    missingMessages.push('Falta aceptar el uso de datos.');
+  }
+
+  if (!input.turnstileToken) {
+    missingMessages.push('Espera a que Cloudflare complete la verificación.');
+  }
+
+  if (input.photoStatus === 'processing') {
+    missingMessages.push('Espera a que terminemos de preparar las fotos.');
+  }
+
+  return missingMessages;
 }
 
 function mapShareQueryType(value: string | null): CommunityContributionType | null {
