@@ -99,7 +99,7 @@ Home/Mundo → País → Zona → Aventuras futuras
 
 **Plantillas email:** `docs/TRAWEL_EMAIL_TEMPLATES.md` define plantillas documentales para `submission_copy`, `publication_notice`, `review_status` y `rejection_notice` opcional. No activan envio real.
 
-**Envio email Hostinger:** desde el bloque 102, `process-email-notifications` puede enviar por Hostinger SMTP desde `contacto@trawel.net` usando solo Supabase secrets (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_REPLY_TO`, `EMAIL_DRY_RUN`). Por defecto `EMAIL_DRY_RUN` evita envio real salvo valor exacto `false`. `protected-public-submit` sigue solo encolando, no envia.
+**Envio email Hostinger:** desde el bloque 102, `process-email-notifications` puede enviar por Hostinger SMTP desde `contacto@trawel.net` usando solo Supabase secrets (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_NAME`, `SMTP_FROM_EMAIL`, `SMTP_REPLY_TO`, `EMAIL_DRY_RUN`; `SMTP_FROM` queda como fallback compatible). Desde el bloque 103, el remitente visible recomendado es `Trawel <contacto@trawel.net>`. Por defecto `EMAIL_DRY_RUN` evita envio real salvo valor exacto `false`. `protected-public-submit` sigue solo encolando, no envia.
 
 **Estrategia antiabuso:** `docs/TRAWEL_ANTI_ABUSE_STRATEGY.md` define riesgos y medidas antes de abrir fotos reales: Turnstile o equivalente, rate limit por IP/email, maximo 3 fotos, limite de peso, validacion MIME real, bucket privado, logs, cola de revision y Edge Function para upload. No implementar subida real sin antiabuso y mecanismo seguro.
 

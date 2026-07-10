@@ -93,3 +93,17 @@ Desde el bloque 102 existe `process-email-notifications` como Edge Function de p
 - Marca correctos como `sent` y fallidos como `failed`.
 
 El proveedor activo documentado es Hostinger SMTP con `contacto@trawel.net` como remitente. La contrasena del buzon debe vivir solo en Supabase secrets.
+
+Desde el bloque 103, el remitente visible recomendado se construye con secrets separados:
+
+```bash
+npx supabase secrets set SMTP_FROM_NAME="Trawel" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_FROM_EMAIL="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_REPLY_TO="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
+```
+
+Con esos valores, `process-email-notifications` envia como `Trawel <contacto@trawel.net>` y mantiene `Reply-To: contacto@trawel.net`. Si no existen `SMTP_FROM_NAME` y `SMTP_FROM_EMAIL`, se conserva compatibilidad con el secret antiguo:
+
+```bash
+npx supabase secrets set SMTP_FROM="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
+```

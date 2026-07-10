@@ -88,9 +88,18 @@ npx supabase secrets set SMTP_PORT="465" --project-ref pjqisqzxajdfkimtrcby
 npx supabase secrets set SMTP_SECURE="true" --project-ref pjqisqzxajdfkimtrcby
 npx supabase secrets set SMTP_USER="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
 npx supabase secrets set SMTP_PASSWORD="PEGAR_PASSWORD_DEL_BUZON_HOSTINGER" --project-ref pjqisqzxajdfkimtrcby
-npx supabase secrets set SMTP_FROM="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_FROM_NAME="Trawel" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_FROM_EMAIL="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
 npx supabase secrets set SMTP_REPLY_TO="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
 npx supabase secrets set EMAIL_DRY_RUN="true" --project-ref pjqisqzxajdfkimtrcby
+```
+
+Con `SMTP_FROM_NAME` y `SMTP_FROM_EMAIL`, la funcion construye el remitente visible como `Trawel <contacto@trawel.net>`. `SMTP_REPLY_TO` se mantiene como `contacto@trawel.net`.
+
+Fallback compatible si no se configuran los secrets nuevos:
+
+```bash
+npx supabase secrets set SMTP_FROM="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
 ```
 
 Fallback documentado si `465` falla:

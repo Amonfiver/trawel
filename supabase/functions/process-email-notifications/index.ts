@@ -241,12 +241,32 @@ function readSmtpConfig():
     secure: Deno.env.get('SMTP_SECURE'),
     user: Deno.env.get('SMTP_USER'),
     password: Deno.env.get('SMTP_PASSWORD'),
-    from: Deno.env.get('SMTP_FROM'),
+    fromName: Deno.env.get('SMTP_FROM_NAME'),
+    fromEmail: Deno.env.get('SMTP_FROM_EMAIL'),
+    fromFallback: Deno.env.get('SMTP_FROM'),
     replyTo: Deno.env.get('SMTP_REPLY_TO'),
   };
-  const missing = Object.entries(rawConfig)
+  const requiredConfig = {
+    host: rawConfig.host,
+    port: rawConfig.port,
+    secure: rawConfig.secure,
+    user: rawConfig.user,
+    password: rawConfig.password,
+    replyTo: rawConfig.replyTo,
+  };
+  const missing = Object.entries(requiredConfig)
     .filter(([, value]) => !value || !value.trim())
     .map(([key]) => key.toUpperCase());
+  const from = resolveFromAddress(rawConfig.fromName, rawConfig.fromEmail, rawConfig.fromFallback);
+  const replyTo = sanitizeEmailHeaderValue(rawConfig.replyTo);
+
+  if (!from) {
+    missing.push('SMTP_FROM_NAME+SMTP_FROM_EMAIL_OR_SMTP_FROM');
+  }
+
+  if (!replyTo) {
+    missing.push('SMTP_REPLY_TO_VALID');
+  }
 
   if (missing.length > 0) {
     return { ok: false, missing };
@@ -266,11 +286,41 @@ function readSmtpConfig():
       secure: rawConfig.secure!.trim().toLowerCase() === 'true',
       user: rawConfig.user!.trim(),
       password: rawConfig.password!,
-      from: rawConfig.from!.trim(),
-      replyTo: rawConfig.replyTo!.trim(),
+      from: from!,
+      replyTo,
       dryRun: Deno.env.get('EMAIL_DRY_RUN')?.trim().toLowerCase() !== 'false',
     },
   };
+}
+
+function resolveFromAddress(
+  rawName: string | undefined,
+  rawEmail: string | undefined,
+  rawFallback: string | undefined
+): string | null {
+  const email = sanitizeEmailHeaderValue(rawEmail);
+
+  if (email) {
+    const name = sanitizeDisplayName(rawName);
+    return name ? `${name} <${email}>` : email;
+  }
+
+  const fallback = sanitizeEmailHeaderValue(rawFallback);
+  return fallback || null;
+}
+
+function sanitizeDisplayName(value: string | undefined): string {
+  return (value || '')
+    .replace(/[\r\n]/g, ' ')
+    .replace(/[<>"]/g, '')
+    .trim();
+}
+
+function sanitizeEmailHeaderValue(value: string | undefined): string {
+  return (value || '')
+    .replace(/[\r\n]/g, '')
+    .replace(/[<>"]/g, '')
+    .trim();
 }
 
 function getBatchLimit(body: unknown): number {
