@@ -84,12 +84,12 @@ La activacion requiere decision explicita de Octavio sobre proveedor y coste. Ha
 
 ## Stub Seguro
 
-Desde el bloque 94 existe `process-email-notifications` como Edge Function de preparacion. Su comportamiento actual es intencionadamente conservador:
+Desde el bloque 102 existe `process-email-notifications` como Edge Function de procesamiento SMTP para Hostinger. Su comportamiento es conservador:
 
-- Lee `EMAIL_PROVIDER`.
-- Si falta o vale `disabled`, responde `email_provider_not_configured`.
-- No lee ni procesa `email_notification_queue`.
-- No envia emails reales.
-- No marca notificaciones como `sent`.
+- Lee secrets `SMTP_*` y `EMAIL_DRY_RUN`.
+- Si falta cualquier secret obligatorio, responde `email_provider_not_configured`.
+- Con `EMAIL_DRY_RUN` distinto de `false`, no envia ni modifica la cola.
+- Con `EMAIL_DRY_RUN=false`, procesa un lote pequeno de `email_notification_queue`.
+- Marca correctos como `sent` y fallidos como `failed`.
 
-Para activar envio real en el futuro haran falta proveedor elegido, secrets en Supabase y una implementacion nueva revisada.
+El proveedor activo documentado es Hostinger SMTP con `contacto@trawel.net` como remitente. La contrasena del buzon debe vivir solo en Supabase secrets.

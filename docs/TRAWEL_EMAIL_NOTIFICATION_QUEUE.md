@@ -43,9 +43,11 @@ Cuando `/compartir` envia una propuesta con `metadata.email_followup_consent = t
 
 Si no hay consentimiento, no se crea notificacion.
 
-La cola no envia emails, no llama APIs externas y no marca filas como `sent`.
+`protected-public-submit` no envia emails directamente. Solo crea cola.
 
-Desde el bloque 94 existe la Edge Function `process-email-notifications` como stub seguro. Si `EMAIL_PROVIDER` falta o vale `disabled`, responde:
+Desde el bloque 102, `process-email-notifications` puede procesar la cola con Hostinger SMTP si todos los secrets estan configurados. Por seguridad, `EMAIL_DRY_RUN` esta activo por defecto salvo que se configure exactamente como `false`.
+
+Si falta algun secret obligatorio, responde:
 
 ```json
 {
@@ -54,7 +56,15 @@ Desde el bloque 94 existe la Edge Function `process-email-notifications` como st
 }
 ```
 
-Aunque `EMAIL_PROVIDER` tuviera otro valor, el stub responde `email_processor_stub_only`: no lee la cola, no consume APIs externas y no actualiza estados.
+En dry-run no envia emails ni cambia estados; solo informa que filas procesaria.
+
+En envio real, procesa un lote pequeno (`limit` por defecto 5, maximo 10):
+
+- Lee `status='pending'`.
+- Respeta `scheduled_for <= now` o `scheduled_for is null`.
+- Marca envio correcto como `sent`.
+- Marca fallo como `failed` con `error_message` seguro.
+- Usa `provider='hostinger_smtp'`.
 
 ## Seguridad
 
@@ -68,7 +78,35 @@ Aunque `EMAIL_PROVIDER` tuviera otro valor, el stub responde `email_processor_st
 
 Investighost debe poder revisar `email_notification_queue` junto a `user_messages`, aprobar cambios de estado y activar avisos solo cuando exista proveedor transaccional elegido y configurado con secrets seguros en Supabase.
 
-## Pendientes Operativos
+## Secrets SMTP Hostinger
+
+Configurar secrets en Supabase:
+
+```bash
+npx supabase secrets set SMTP_HOST="smtp.hostinger.com" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_PORT="465" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_SECURE="true" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_USER="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_PASSWORD="PEGAR_PASSWORD_DEL_BUZON_HOSTINGER" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_FROM="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_REPLY_TO="contacto@trawel.net" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set EMAIL_DRY_RUN="true" --project-ref pjqisqzxajdfkimtrcby
+```
+
+Fallback documentado si `465` falla:
+
+```bash
+npx supabase secrets set SMTP_PORT="587" --project-ref pjqisqzxajdfkimtrcby
+npx supabase secrets set SMTP_SECURE="false" --project-ref pjqisqzxajdfkimtrcby
+```
+
+Para activar envio real despues de probar:
+
+```bash
+npx supabase secrets set EMAIL_DRY_RUN="false" --project-ref pjqisqzxajdfkimtrcby
+```
+
+## Operacion
 
 Aplicar migracion:
 
@@ -87,3 +125,11 @@ Si se despliega el stub de procesamiento:
 ```bash
 npx supabase functions deploy process-email-notifications
 ```
+
+Invocar dry-run con lote pequeno:
+
+```bash
+npx supabase functions invoke process-email-notifications --project-ref pjqisqzxajdfkimtrcby --body '{"limit":1}'
+```
+
+Cuando `EMAIL_DRY_RUN=false`, el mismo comando intentara envio real para filas pendientes.

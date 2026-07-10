@@ -4072,5 +4072,21 @@ Archivos tocados:
 
 ---
 
+## 2026-07-10 - Bloque 102: preparacion de envio real SMTP
+
+`process-email-notifications` pasa de stub a procesador seguro de `email_notification_queue` con Hostinger SMTP. Lee secrets desde Supabase, procesa lotes pequenos de filas `pending`, mantiene dry-run activo por defecto y solo envia si `EMAIL_DRY_RUN=false` y todos los secrets SMTP existen.
+
+El remitente documentado es `contacto@trawel.net`; la contrasena del buzon no se guarda en Git ni en `.env.example`. `protected-public-submit` sigue sin enviar emails directamente: solo crea filas pendientes cuando hay consentimiento de seguimiento.
+
+Archivos tocados:
+
+- `supabase/functions/process-email-notifications/index.ts`
+- `docs/TRAWEL_EMAIL_NOTIFICATION_QUEUE.md`
+- `docs/TRAWEL_TRANSACTIONAL_EMAIL_PROVIDER_DECISION.md`
+- `docs/AGENT_BRIEF.md`
+- `docs/BITACORA.md`
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-07-10*
