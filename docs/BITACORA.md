@@ -4043,5 +4043,20 @@ Archivos tocados:
 
 ---
 
+## 2026-07-10 - Bloque 95: diagnostico workflow de mapas fallido
+
+Diagnosticado el aviso de GitHub Actions del worker `Process country map queue`. El workflow afectado es `.github/workflows/process-country-map-queue.yml`, que ejecutaba `npm run maps:queue:process -- --limit 1` cada 30 minutos y requiere `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` como secrets.
+
+Sin acceso a logs remotos no se confirma causa unica. Causas probables: secret faltante/incorrecto, fila `country_map_assets` en cola sin `iso_alpha3`, error de geoBoundaries o subida a Storage. Para detener el spam de correos se desactivo el schedule automatico y se dejo ejecucion manual con `workflow_dispatch`.
+
+Archivos tocados:
+
+- `.github/workflows/process-country-map-queue.yml`
+- `docs/TRAWEL_GITHUB_ACTIONS_MAP_QUEUE_DIAGNOSTIC.md`
+- `docs/BITACORA.md`
+- `docs/AGENT_BRIEF.md`
+
+---
+
 *Bitácora activa v3.2 - Trawel*
 *Última actualización: 2026-07-10*

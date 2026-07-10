@@ -1,13 +1,12 @@
 # Purpose: Run the country_map_assets worker from trusted CI, outside the browser.
-# Scope: Scheduled and manual processing for queued map assets only.
+# Scope: Manual processing for queued map assets only.
 # Decisions: Uses Node 22.13.0, npm 11.6.2, npm ci, and a conservative --limit 1 per run.
 # Limitations: Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY repository secrets.
-# Recent changes: Pin npm 11.6.2 before npm ci to match the lockfile behavior used locally.
+# Recent changes: Automatic schedule disabled in block 95 to stop failure emails
+# until the map queue is reviewed from GitHub Actions/Investighost.
 name: Process country map queue
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:

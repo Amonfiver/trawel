@@ -265,6 +265,8 @@ npm run maps:queue:process -- --limit 1  # Worker local/CI: procesa 1 mapa en co
 
 **Automatización de mapas:** GitHub Actions procesa `country_map_assets` cada 30 minutos con `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` como secrets. El frontend nunca usa service role; solo consulta estado público y solicita cola vía Edge Function.
 
+**Diagnostico workflow mapas:** desde el bloque 95, `.github/workflows/process-country-map-queue.yml` queda solo con `workflow_dispatch`; se retiro el schedule cada 30 minutos para evitar correos recurrentes de fallos mientras se revisan logs/secrets/cola. Ver `docs/TRAWEL_GITHUB_ACTIONS_MAP_QUEUE_DIAGNOSTIC.md`. No se tocaron WorldMap, D3, TopoJSON ni scripts visuales.
+
 **Aventuras de viajeros:** la tabla `traveler_adventures` acepta envíos públicos como `pending`, pero el público solo puede leer `approved`. El envío requiere aceptación de privacidad (`privacy_accepted_at`, `privacy_version`) y marketing queda separado/opcional. Fotos en bucket privado; subida/serving seguro queda para Edge Function futura.
 
 **Retirada de aventuras:** al enviar una aventura se genera un token privado en navegador; la DB guarda solo `withdrawal_token_hash`. La ruta `/retirar-aventura` invoca la Edge Function `withdraw-traveler-adventure`, que usa `service_role` solo en backend y marca `status = withdrawn` si la aventura sigue `pending`.
