@@ -4108,5 +4108,46 @@ Archivos tocados:
 
 ---
 
+## 2026-09-10 - Bloque 108: cierre remoto de IP-TW-001 / Ingress Editorial V2
+
+IP-TW-001 queda validado en remoto como **REMOTE INTEGRATION PASS COMPLETO** en el proyecto Supabase `trawel-prod` (`pjqisqzxajdfkimtrcby`). La aduana técnica Investighost → Trawel recibe la entrega, conserva su identidad durable, crea drafts privados por perfil y no publica contenido automáticamente.
+
+### Mapping de prueba activo
+
+- `source_system`: `investighost`
+- `source_mapping_id`: `test-albarracin-v2`
+- `canonical_destination_id`: `investighost:test:albarracin:v2`
+- Mapping UUID: `f42177b5-0009-4c34-bed4-551632ddd979`
+- Entidad Trawel: `zone` / `espana` / `albarracin`
+- Estado: `active`
+
+### Resultado de la entrega inicial
+
+El POST de `test-albarracin-v2-001` fue aceptado con `success: true`, `idempotent: false` y estado `accepted`.
+
+- Delivery UUID: `d8185130-ae96-4642-b8c8-451128020d60`
+- Publicación: `draft_only`
+- Perfiles creados: `adventure`, `student`
+- `editorial_content_ids`:
+  - `1698eec9-36b0-47b8-9a21-0cc8765f8c64`
+  - `9427cf4c-023b-40ae-bdcc-e207d38d6357`
+
+La verificación de `editorial_contents` confirmó exactamente dos registros. Ambos mantienen `status = draft`, `review_state = pending_trawel_review` y `published_at = null`:
+
+- `adventure`: `Albarracin para viajeros de aventura`
+- `student`: `Albarracin para estudiantes`
+
+En ambos casos, `metadata.ingress` conserva `handoff_key = test-albarracin-v2-001`, `mapping_id = test-albarracin-v2` y `canonical_destination_id = investighost:test:albarracin:v2`.
+
+### Idempotencia, conflicto y no publicación
+
+- Repetir el mismo POST devolvió `success: true`, `idempotent: true` y la delivery original, sin crear duplicados.
+- Reutilizar el mismo `handoffKey` con un `payloadFingerprint` distinto devolvió `status: conflict` y el error esperado, sin sobrescribir contenido.
+- El recuento final por `metadata.ingress.handoff_key = test-albarracin-v2-001` fue `2`.
+
+Conclusión: el ingress crea de forma segura los dos drafts privados `adventure` y `student`, respeta la idempotencia, bloquea conflictos de fingerprint y mantiene la publicación fuera del flujo de recepción.
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-07-10*
+*Última actualización: 2026-09-10*

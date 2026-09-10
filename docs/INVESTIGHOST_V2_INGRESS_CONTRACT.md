@@ -106,3 +106,7 @@ Pendiente de acordar con el contrato serializado final de Investighost:
 - versionado sucesor, archivado de la versión previa y transición a `published`;
 - tipos/shape de `sections` y `sources`;
 - código de despliegue y provisioning seguro de mappings.
+
+## Cierre de validación remota
+
+El 2026-09-10, IP-TW-001 obtuvo **REMOTE INTEGRATION PASS COMPLETO** en `trawel-prod`. Con un mapping activo de Albarracín, una entrega V2 creó exactamente los drafts privados `adventure` y `student`; la repetición fue idempotente, un fingerprint distinto produjo `409 conflict` y ningún contenido quedó publicado.
