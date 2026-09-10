@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-09-10 - IP-TW-001: ingress editorial V2 durable
+
+Preparada localmente la base de entrada privada para handoffs V2 de Investighost.
+
+### Cambios implementados
+
+- Creada migración `015_create_editorial_ingress_v2.sql` con mapping durable, inbox de deliveries, receipts y función SQL atómica.
+- Creada Edge Function `internal-editorial-deliveries`, autenticada mediante secret interno de Supabase.
+- La entrada valida `handoffKey`, fingerprint, hashes, mapping, identidad canónica y los perfiles `adventure`/`student`.
+- Cada entrega aceptada crea exclusivamente dos filas `draft` en `editorial_contents`; nunca publica contenido.
+- Documentado el payload mínimo asumido y los campos V2 pendientes de cerrar.
+
+### Reglas respetadas
+
+- Sin cambios de frontend, mapas, Storage, fotos ni RLS pública.
+- Sin migraciones ni despliegues remotos.
+- Sin service role en frontend.
+
+---
+
 ## 2026-07-09 - Bloque 89: revision seguridad/costes pre-hosting
 
 Cerrada la revision final de seguridad y costes antes de hosting.
