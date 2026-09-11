@@ -1,9 +1,14 @@
 import { localCountryZoneScreenDataRepository } from './localCountryZoneScreenData.repository';
 import { getPublishedEditorialContent, getPublishedPromotionsForContext } from '../productContent';
-import type { EditorialContent, Promotion } from '../productContent';
+import type { Promotion } from '../productContent';
 import { getCountryPageData } from '../services/travelData.service';
 import type { CountryPageData } from '../types/travelData.types';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
+import {
+  isZoneEditorialPilot,
+  normalizePublishedEditorialContent,
+  resolvePilotZoneEditorial,
+} from './editorialScreenData.utils';
 import type {
   CountryScreenData,
   CountryZoneScreenDataRepository,
@@ -57,6 +62,7 @@ export interface ResolvedZoneScreenData extends ZoneScreenData {
       | 'remoteZoneAndPromotions';
     hasRemoteZone: boolean;
     hasRemotePromotions: boolean;
+    hasRemoteEditorial: boolean;
     isUsingPremiumFallback: boolean;
   };
 }
@@ -150,6 +156,7 @@ export function getZoneScreenFallbackData(
   return buildResolvedZoneScreenData(fallbackScreenData, [], {
     source: 'localFallback',
     hasRemoteZone: false,
+    hasRemoteEditorial: false,
   });
 }
 
@@ -234,15 +241,22 @@ export async function getResolvedZoneScreenData(
   const zoneScreenData = remoteZone
     ? applyRemoteZoneBaseData(fallbackScreenData, remoteZone)
     : fallbackScreenData;
-  const promotions = await fetchRemoteZonePromotions(
-    normalizedCountrySlug,
-    normalizedZoneSlug,
-    mode
-  );
+  const [promotions, remoteEditorial] = await Promise.all([
+    fetchRemoteZonePromotions(normalizedCountrySlug, normalizedZoneSlug, mode),
+    fetchRemoteZoneEditorial(normalizedCountrySlug, normalizedZoneSlug, mode),
+  ]);
 
-  return buildResolvedZoneScreenData(zoneScreenData, promotions, {
+  const resolvedZoneScreenData = remoteEditorial
+    ? {
+        ...zoneScreenData,
+        editorial: remoteEditorial,
+      }
+    : zoneScreenData;
+
+  return buildResolvedZoneScreenData(resolvedZoneScreenData, promotions, {
     source: getResolvedZoneSource(Boolean(remoteZone), promotions.length > 0),
     hasRemoteZone: Boolean(remoteZone),
+    hasRemoteEditorial: Boolean(remoteEditorial),
   });
 }
 
@@ -288,7 +302,7 @@ async function fetchRemoteCountryEditorial(
     mode,
   });
 
-  return normalizeRemoteEditorialContent(contents[0]);
+  return normalizePublishedEditorialContent(contents[0]);
 }
 
 async function fetchRemoteCountryPromotions(
@@ -439,6 +453,26 @@ async function fetchRemoteZonePromotions(
   });
 }
 
+async function fetchRemoteZoneEditorial(
+  countrySlug: string,
+  zoneSlug: string,
+  mode: ScreenExperienceMode
+): Promise<ScreenEditorialData | null> {
+  if (!isZoneEditorialPilot(countrySlug, zoneSlug)) {
+    return null;
+  }
+
+  const contents = await getPublishedEditorialContent({
+    entityType: 'zone',
+    entitySlug: zoneSlug,
+    countrySlug,
+    zoneSlug,
+    mode,
+  });
+
+  return resolvePilotZoneEditorial(contents, { countrySlug, zoneSlug, mode });
+}
+
 function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData | null {
   if (!db) {
     return null;
@@ -483,6 +517,7 @@ function applyRemoteZoneBaseData(
     {
       source: 'remoteZone',
       hasRemoteZone: true,
+      hasRemoteEditorial: fallbackScreenData.metadata.hasRemoteEditorial,
     }
   );
 }
@@ -527,7 +562,10 @@ function buildResolvedCountryScreenData(
 function buildResolvedZoneScreenData(
   screenData: ZoneScreenData,
   promotions: Promotion[],
-  metadata: Pick<ResolvedZoneScreenData['metadata'], 'source' | 'hasRemoteZone'>
+  metadata: Pick<
+    ResolvedZoneScreenData['metadata'],
+    'source' | 'hasRemoteZone' | 'hasRemoteEditorial'
+  >
 ): ResolvedZoneScreenData {
   const countrySlug = screenData.country?.slug || screenData.zone.countrySlug;
   const zoneSlug = screenData.zone.slug;
@@ -544,6 +582,7 @@ function buildResolvedZoneScreenData(
     metadata: {
       ...metadata,
       hasRemotePromotions: promotions.length > 0,
+      hasRemoteEditorial: metadata.hasRemoteEditorial,
       isUsingPremiumFallback: screenData.fallback.isUsingPremiumFallback,
     },
   };
@@ -572,43 +611,6 @@ function getResolvedZoneSource(
 // NORMALIZERS AND LOGGING
 // =============================================================================
 
-function normalizeRemoteEditorialContent(
-  content: EditorialContent | undefined
-): ScreenEditorialData | null {
-  if (!content || content.status !== 'published' || !content.mode) {
-    return null;
-  }
-
-  const headline = normalizeRequiredText(content.headline);
-  const intro = normalizeRequiredText(content.intro);
-  const whatMakesSpecial = normalizeRequiredText(content.whatMakesSpecial);
-  const highlights = normalizeRequiredStringList(content.highlights);
-  const suggestedRoute = normalizeRequiredText(content.suggestedRoute);
-  const practicalTips = normalizeRequiredTextList(content.practicalTips);
-
-  if (
-    !headline ||
-    !intro ||
-    !whatMakesSpecial ||
-    highlights.length === 0 ||
-    !suggestedRoute ||
-    !practicalTips
-  ) {
-    return null;
-  }
-
-  return {
-    mode: content.mode,
-    status: 'published',
-    headline,
-    intro,
-    whatMakesSpecial,
-    highlights,
-    suggestedRoute,
-    practicalTips,
-  };
-}
-
 function normalizeCountryStatus(status: string): 'active' | 'comingSoon' | 'disabled' {
   if (status === 'active' || status === 'comingSoon' || status === 'disabled') {
     return status;
@@ -624,18 +626,6 @@ function normalizeSlug(value: string): string {
 function normalizeRequiredText(value: string | null | undefined): string | null {
   const normalized = value?.trim();
   return normalized || null;
-}
-
-function normalizeRequiredStringList(value: unknown[]): string[] {
-  return value
-    .filter((item): item is string => typeof item === 'string')
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function normalizeRequiredTextList(value: unknown[]): string | null {
-  const items = normalizeRequiredStringList(value);
-  return items.length > 0 ? items.join(' ') : null;
 }
 
 function logCountryScreenDataResolution(

@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-09-11 - IP-TW-002: consumo editorial piloto de zona en Albarracín
+
+Implementado el consumo público acotado de `editorial_contents` para
+`/pais/espana/zona/albarracin`.
+
+### Reglas aplicadas
+
+- La lectura pública exige `status = published` y `published_at IS NOT NULL`.
+- El allowlist es explícito: solo `espana/albarracin`; otras zonas no consultan
+  `editorial_contents`.
+- Respeta los perfiles globales `adventure` y `student`, sin fallback cruzado.
+- Una versión más reciente incompleta conserva el fallback local; no rescata una
+  versión anterior.
+- Si no hay editorial remoto válido, la página mantiene el bloque de recursos en preparación.
+
+### Seguridad y alcance
+
+- No se muestran drafts, `pending_trawel_review` ni filas sin `published_at`.
+- No hay preview, publicación automática, cambios de RLS, migraciones, Edge Functions ni secrets.
+
+---
+
 ## 2026-09-10 - IP-TW-001: ingress editorial V2 durable
 
 Preparada localmente la base de entrada privada para handoffs V2 de Investighost.

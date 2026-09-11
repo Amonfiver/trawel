@@ -168,6 +168,7 @@ export async function getPublishedEditorialContent(
       .from('editorial_contents')
       .select(EDITORIAL_CONTENT_COLUMNS)
       .eq('status', 'published')
+      .not('published_at', 'is', null)
       .eq('entity_type', input.entityType);
 
     if (input.entityId) {

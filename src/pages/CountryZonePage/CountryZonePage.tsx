@@ -26,6 +26,7 @@ import {
   getApprovedAdventuresByZone,
   type TravelerAdventurePublic,
 } from '../../features/adventures';
+import { ZoneEditorialSection } from './ZoneEditorialSection';
 import styles from './CountryZonePage.module.css';
 
 interface ZoneLocationState {
@@ -245,6 +246,10 @@ export function CountryZonePage() {
     `¿Tienes una foto de ${zoneName}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
   const [adventuresState, setAdventuresState] = useState<AdventuresState>({ status: 'loading' });
   const promotions = screenData?.promotions || [];
+  const remoteEditorial =
+    screenData?.metadata.hasRemoteEditorial && screenData.editorial.status === 'published'
+      ? screenData.editorial
+      : null;
 
   useEffect(() => {
     if (!normalizedCountrySlug || !normalizedZoneSlug) {
@@ -478,8 +483,11 @@ export function CountryZonePage() {
           </section>
         )}
 
-        {/* Bloque de recursos futuros */}
-        <FutureResourcesBlock zoneName={zoneName} />
+        {remoteEditorial ? (
+          <ZoneEditorialSection editorial={remoteEditorial} zoneName={zoneName} />
+        ) : (
+          <FutureResourcesBlock zoneName={zoneName} />
+        )}
 
         <HeroContributionBlock
           zoneName={zoneName}
