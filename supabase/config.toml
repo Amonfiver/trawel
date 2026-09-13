@@ -1,0 +1,2 @@
+[functions.internal-editorial-deliveries]
+verify_jwt = false
