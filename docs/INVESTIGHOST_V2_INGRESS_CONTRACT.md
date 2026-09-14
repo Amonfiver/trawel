@@ -94,6 +94,21 @@ Una repetición con el mismo `handoffKey` y fingerprint devuelve el receipt exis
 
 Todos los contenidos creados tienen `status = draft`, `review_state = pending_trawel_review` y `published_at = null`. La publicación queda fuera de IP-TW-001.
 
+## Trazabilidad V2 por perfil
+
+El sobre raíz conserva la identidad compartida de la delivery. Para cada draft,
+la función SQL toma la trazabilidad editorial de su propio perfil desde:
+
+```text
+profiles.<adventure|student>.metadata.investighost.libraryEntryId
+profiles.<adventure|student>.metadata.investighost.currentApproved
+```
+
+De `currentApproved` proyecta los hashes, `versionId`, `revisionId`,
+`approvalDecisionId` y la procedencia de ese perfil a `metadata.ingress`,
+`metadata.provenance` y `metadata.approval`. Si un payload V2 anterior no
+incluye ese bloque, se conserva el fallback compatible con la traza raíz.
+
 ## Campos V2 conservados y pendientes
 
 El ingress conserva `libraryEntryId`, hashes, provenance, approval y metadata de perfil en `editorial_deliveries.payload` y en `editorial_contents.metadata`. También conserva campos adicionales de raíz en el payload durable; si Investighost usa `sourceStatus` y `review`, se copian como metadata sin alterar el estado `draft` de Trawel.
