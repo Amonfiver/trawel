@@ -4171,5 +4171,20 @@ Conclusión: el ingress crea de forma segura los dos drafts privados `adventure`
 
 ---
 
+## 2026-09-17 - Bloque 109: lector móvil privado de borradores editoriales
+
+Se añadió `/editorial/destinos/cuenca` como lector privado para los dos drafts reales de Cuenca, sin cambiar su contenido ni su publicación. La ruta usa sesión de Supabase Auth y la Edge Function `private-editorial-reader`; esta valida servidor-side una allow-list explícita de `editor`/`admin` en `editorial_reader_roles` antes de devolver únicamente drafts de la `location_cities.id` solicitada.
+
+La migración `017` y la Edge Function fueron desplegadas en `trawel-prod` (`pjqisqzxajdfkimtrcby`). Se verificó contra remoto: anónimo denegado, autenticado sin rol denegado, editor autorizado recibe exactamente Adventure y Student de Cuenca, y la API pública no recibe los drafts. Una prueba real a 390×844 confirmó lectura, cambio de perfil y estado `DRAFT / UNPUBLISHED` visible.
+
+Archivos principales:
+
+- `supabase/migrations/017_create_private_editorial_reader.sql`
+- `supabase/functions/private-editorial-reader/index.ts`
+- `src/pages/PrivateEditorialPage/`
+- `docs/TRAWEL_PRIVATE_EDITORIAL_READER.md`
+
+---
+
 *Bitácora activa v3.2 - Trawel*
-*Última actualización: 2026-09-10*
+*Última actualización: 2026-09-17*

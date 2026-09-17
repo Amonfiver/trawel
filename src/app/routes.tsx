@@ -26,6 +26,7 @@ import { CityPage } from '../pages/CityPage';
 import { AdventurePage } from '../pages/AdventurePage';
 import { TrustPage } from '../pages/TrustPage';
 import { CommunityPage } from '../pages/CommunityPage';
+import { PrivateEditorialPage } from '../pages/PrivateEditorialPage';
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ export const router = createBrowserRouter([
   {
     path: '/comunidad',
     element: <CommunityPage />,
+  },
+  {
+    path: '/editorial/destinos/cuenca',
+    element: <PrivateEditorialPage />,
   },
   {
     path: '/pais/:countrySlug/:citySlug',

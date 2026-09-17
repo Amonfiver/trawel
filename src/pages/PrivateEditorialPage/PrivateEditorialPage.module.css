@@ -1,0 +1,274 @@
+.page {
+  width: min(100% - 2rem, 52rem);
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+  color: #1e293b;
+}
+
+.header,
+.signInCard,
+.notice,
+.article {
+  background: #fff;
+  border: 1px solid #dbe4ed;
+  border-radius: 1rem;
+  box-shadow: 0 12px 28px rgb(15 23 42 / 0.08);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.header h1,
+.signInCard h1,
+.notice h1,
+.article h2 {
+  margin: 0;
+  color: #10243e;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  color: #365c78;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.region {
+  margin: 0.45rem 0 0;
+  color: #52677b;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.draftBadge,
+.articleStatus span {
+  border: 1px solid #bf1d35;
+  border-radius: 999px;
+  background: #fff1f2;
+  color: #991b2f;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.38rem 0.6rem;
+}
+
+.signOutButton,
+.notice button {
+  border: 1px solid #9aabba;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #1e3a56;
+  cursor: pointer;
+  font: inherit;
+  padding: 0.45rem 0.65rem;
+}
+
+.modeTabs {
+  display: flex;
+  gap: 0.55rem;
+  margin: 1.1rem 0;
+}
+
+.tab,
+.activeTab,
+.signInForm button {
+  border: 1px solid #afc2d3;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.65rem 0.9rem;
+}
+
+.tab {
+  background: #fff;
+  color: #28455f;
+}
+
+.activeTab,
+.signInForm button {
+  border-color: #145b80;
+  background: #145b80;
+  color: #fff;
+}
+
+.tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.article {
+  padding: clamp(1.1rem, 4vw, 2rem);
+}
+
+.articleStatus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.articleStatus span:not(:first-child) {
+  border-color: #b7c7d6;
+  background: #f7fafc;
+  color: #385168;
+}
+
+.article h2 {
+  font-size: clamp(1.65rem, 6vw, 2.35rem);
+  line-height: 1.15;
+}
+
+.contentSection {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 1.7rem;
+  padding-top: 1.25rem;
+}
+
+.contentSection h3 {
+  color: #173d5b;
+  font-size: 1.08rem;
+  margin: 0 0 0.75rem;
+}
+
+.prose,
+.contentSection li {
+  color: #293c4e;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.prose {
+  margin: 1rem 0 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.contentSection ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.sources a {
+  color: #075985;
+  overflow-wrap: anywhere;
+}
+
+.traceability {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 1.7rem;
+  padding-top: 1.25rem;
+}
+
+.traceability summary {
+  color: #173d5b;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.traceability dl {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+}
+
+.traceability dl div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.traceability dt {
+  color: #52677b;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.traceability dd {
+  margin: 0;
+  color: #1e293b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.signInCard,
+.notice {
+  margin-top: 2rem;
+  padding: clamp(1.25rem, 5vw, 2rem);
+}
+
+.signInCard > p,
+.notice > p {
+  color: #52677b;
+  line-height: 1.55;
+}
+
+.signInForm {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.signInForm label {
+  display: grid;
+  gap: 0.45rem;
+  color: #28455f;
+  font-weight: 700;
+}
+
+.signInForm input {
+  border: 1px solid #afc2d3;
+  border-radius: 0.5rem;
+  font: inherit;
+  padding: 0.7rem;
+}
+
+.signInForm button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.formError {
+  color: #b4233b;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .page {
+    width: min(100% - 1.25rem, 52rem);
+    padding-top: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .headerActions {
+    justify-content: flex-start;
+  }
+
+  .modeTabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tab,
+  .activeTab {
+    min-height: 2.8rem;
+  }
+}

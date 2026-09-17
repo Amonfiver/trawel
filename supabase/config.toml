@@ -1,2 +1,7 @@
 [functions.internal-editorial-deliveries]
 verify_jwt = false
+
+[functions.private-editorial-reader]
+# The function verifies the bearer token itself so it can return intentional
+# 401/403 responses and enforce the editorial allow-list server-side.
+verify_jwt = false
