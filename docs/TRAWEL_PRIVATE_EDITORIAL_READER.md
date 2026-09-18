@@ -1,6 +1,10 @@
-# Lector editorial privado
+# DEPRECATED — lector editorial privado
 
-La ruta privada para revisar los borradores de Cuenca es:
+`PRIVATE_READER_REQUIRED = NO`
+
+La ruta ya no está registrada en el frontend y no forma parte del producto ni del flujo de consumo. Investighost es la única autoridad editorial; Trawel consume directamente perfiles V2 ya aprobados desde `/pais/espana/cuenca`, sin sesión ni rol editorial. El resto del documento conserva únicamente contexto técnico histórico.
+
+La antigua ruta privada para revisar los borradores de Cuenca era:
 
 ```text
 /editorial/destinos/cuenca

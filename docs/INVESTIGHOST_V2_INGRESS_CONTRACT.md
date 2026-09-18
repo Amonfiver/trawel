@@ -2,9 +2,9 @@
 
 ## Propósito
 
-La Edge Function `internal-editorial-deliveries` recibe entregas editoriales privadas de Investighost. No es una API pública ni un panel: valida identidad, registra la entrega y crea dos filas `draft` en `editorial_contents`.
+La Edge Function `internal-editorial-deliveries` recibe entregas privadas de contenido ya aprobado por Investighost. No es una API pública ni un panel: valida identidad, registra el handoff y deja disponibles los perfiles `adventure` y `student` en `editorial_contents`.
 
-No cambia entidades legacy, no publica contenido y no concede permisos al frontend.
+No cambia entidades legacy ni concede permisos de escritura al frontend. En Trawel, `published` significa solamente `AVAILABLE_TO_TRAWEL`: la aprobación editorial ocurrió antes, en Investighost.
 
 ## Provisionado previo obligatorio
 
@@ -86,17 +86,17 @@ Como el contrato serializado exacto no existe en Trawel, IP-TW-001 adopta este m
 
 ## Persistencia y estados
 
-- `editorial_deliveries`: inbox durable; `handoff_key` es único.
+- `editorial_deliveries`: ledger técnico durable e idempotente; `handoff_key` es único. No es una inbox o cola editorial de Trawel.
 - `editorial_delivery_receipts`: eventos `received`, `processing`, `accepted`, `failed`, `duplicate` o `conflict`.
-- `editorial_contents`: la función SQL atómica crea exactamente un draft `adventure` y uno `student`.
+- `editorial_contents`: la función SQL atómica crea exactamente un perfil disponible `adventure` y uno `student`.
 
 Una repetición con el mismo `handoffKey` y fingerprint devuelve el receipt existente. Si el fingerprint cambia, devuelve `409 conflict`. Las entregas fallidas pueden reintentarse con el mismo payload. La operación SQL es atómica: no puede quedar publicado un perfil ni quedar creado solo uno de los dos perfiles.
 
-Todos los contenidos creados tienen `status = draft`, `review_state = pending_trawel_review` y `published_at = null`. La publicación queda fuera de IP-TW-001.
+Todos los contenidos creados tienen `status = published`, `review_state = approved_by_investighost` y `published_at` asignado atómicamente. No hay transición de draft, review o aprobación dentro de Trawel.
 
 ## Trazabilidad V2 por perfil
 
-El sobre raíz conserva la identidad compartida de la delivery. Para cada draft,
+El sobre raíz conserva la identidad compartida de la delivery. Para cada perfil disponible,
 la función SQL toma la trazabilidad editorial de su propio perfil desde:
 
 ```text
@@ -111,17 +111,17 @@ incluye ese bloque, se conserva el fallback compatible con la traza raíz.
 
 ## Campos V2 conservados y pendientes
 
-El ingress conserva `libraryEntryId`, hashes, provenance, approval y metadata de perfil en `editorial_deliveries.payload` y en `editorial_contents.metadata`. También conserva campos adicionales de raíz en el payload durable; si Investighost usa `sourceStatus` y `review`, se copian como metadata sin alterar el estado `draft` de Trawel.
+El ingress conserva `libraryEntryId`, hashes, provenance, approval y la traza mínima por perfil en `editorial_deliveries.payload` y en `editorial_contents.metadata`. El receiver descarta campos adicionales de raíz y metadata de perfil ajena a esa traza. No se entrega ni persiste investigación bruta, dossier, claims internos, reasoning, borradores rechazados o costes.
 
 Pendiente de acordar con el contrato serializado final de Investighost:
 
 - semántica exacta y emisor de `mappingId`;
 - estructura y valores admitidos de `provenance` y `approval`;
 - campos obligatorios de cada perfil más allá de `headline`;
-- versionado sucesor, archivado de la versión previa y transición a `published`;
+- contrato de actualización de una versión sucesora (la lectura pública ya selecciona la versión disponible más reciente por `published_at`);
 - tipos/shape de `sections` y `sources`;
 - código de despliegue y provisioning seguro de mappings.
 
 ## Cierre de validación remota
 
-El 2026-09-10, IP-TW-001 obtuvo **REMOTE INTEGRATION PASS COMPLETO** en `trawel-prod`. Con un mapping activo de Albarracín, una entrega V2 creó exactamente los drafts privados `adventure` y `student`; la repetición fue idempotente, un fingerprint distinto produjo `409 conflict` y ningún contenido quedó publicado.
+La repetición de un handoff V2 aceptado es idempotente; un fingerprint distinto produce `409 conflict`. La disponibilidad no requiere una segunda aprobación en Trawel.

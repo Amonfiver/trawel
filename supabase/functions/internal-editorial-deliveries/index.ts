@@ -3,7 +3,8 @@
  *
  * Receiver privado para handoffs editoriales V2 de Investighost.
  * Requiere el secret INTERNAL_EDITORIAL_DELIVERIES_SECRET en Supabase secrets.
- * No se invoca desde el frontend y nunca publica contenido: solo crea drafts.
+ * No se invoca desde el frontend. Investighost ya entrega contenido aprobado,
+ * que queda disponible para el lector público normal de Trawel.
  */
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
@@ -200,7 +201,7 @@ async function receiveDelivery(
   const recordedDelivery = data as unknown as EditorialDeliveryRow;
   await appendReceipt(supabase, recordedDelivery.id, 'received', {
     schema_version: delivery.schemaVersion,
-    publication: 'draft_only',
+    publication: 'available_to_trawel',
   });
 
   return processDelivery(supabase, recordedDelivery, delivery, false);
@@ -260,12 +261,12 @@ async function processDelivery(
 
   if (ingestError) {
     console.error('internal-editorial-deliveries: atomic ingest failed', ingestError.message);
-    await markDeliveryFailed(supabase, deliveryRow.id, 'atomic_ingest_failed', 'The draft transaction did not complete.');
+    await markDeliveryFailed(supabase, deliveryRow.id, 'atomic_ingest_failed', 'The available-content transaction did not complete.');
     return jsonResponse(
       {
         success: false,
         status: 'failed',
-        error: 'Draft creation failed; no profile was partially published.',
+        error: 'Content availability update failed; no profile was partially published.',
         retryable: true,
       },
       500
@@ -424,7 +425,6 @@ function validateDeliveryV2(
   return {
     valid: true,
     data: {
-      ...value,
       schemaVersion: 'v2',
       handoffKey,
       payloadFingerprint,
@@ -486,9 +486,58 @@ function validateProfile(
       practicalTips: value.practicalTips as string[] | undefined,
       sections: value.sections as unknown[] | undefined,
       sources: value.sources as unknown[] | undefined,
-      metadata: value.metadata as Record<string, unknown> | undefined,
+      metadata: projectProfileMetadata(value.metadata),
     },
   };
+}
+
+/**
+ * Trawel keeps only the profile-level trace needed to identify the approved
+ * version. Research, dossiers, claims, reasoning and arbitrary producer
+ * metadata must remain in Investighost.
+ */
+function projectProfileMetadata(value: unknown): Record<string, unknown> | undefined {
+  if (!isPlainObject(value) || !isPlainObject(value.investighost)) {
+    return undefined;
+  }
+
+  const investighost = value.investighost;
+  const currentApproved = isPlainObject(investighost.currentApproved)
+    ? investighost.currentApproved
+    : undefined;
+  const projectedApproved = currentApproved
+    ? pickTextFields(currentApproved, [
+        'source',
+        'versionId',
+        'revisionId',
+        'versionHash',
+        'contentHash',
+        'originVersionHash',
+        'approvalDecisionId',
+        'approvedAt',
+      ])
+    : undefined;
+
+  return {
+    investighost: {
+      ...pickTextFields(investighost, ['profile', 'libraryEntryId']),
+      ...(projectedApproved && Object.keys(projectedApproved).length > 0
+        ? { currentApproved: projectedApproved }
+        : {}),
+    },
+  };
+}
+
+function pickTextFields(
+  value: Record<string, unknown>,
+  fields: string[]
+): Record<string, unknown> {
+  return fields.reduce<Record<string, unknown>>((result, field) => {
+    if (typeof value[field] === 'string') {
+      result[field] = value[field];
+    }
+    return result;
+  }, {});
 }
 
 function isStatusRequest(value: unknown): value is { action: 'status'; handoffKey: string } {

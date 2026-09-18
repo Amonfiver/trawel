@@ -2,9 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { EditorialContent } from '../../src/features/travelData/productContent';
 import {
-  isZoneEditorialPilot,
   normalizePublishedEditorialContent,
-  resolvePilotZoneEditorial,
+  resolvePublishedZoneEditorial,
 } from '../../src/features/travelData/screenData/editorialScreenData.utils';
 
 function createEditorial(
@@ -36,13 +35,13 @@ function createEditorial(
   };
 }
 
-test('admite Albarracín publicado para adventure y student sin cruzar perfiles', () => {
-  const adventure = resolvePilotZoneEditorial([createEditorial()], {
+test('admite contenido publicado para adventure y student sin cruzar perfiles', () => {
+  const adventure = resolvePublishedZoneEditorial([createEditorial()], {
     countrySlug: 'espana',
     zoneSlug: 'albarracin',
     mode: 'adventure',
   });
-  const student = resolvePilotZoneEditorial(
+  const student = resolvePublishedZoneEditorial(
     [createEditorial({ mode: 'student', headline: 'Albarracín para estudiantes' })],
     { countrySlug: 'espana', zoneSlug: 'albarracin', mode: 'student' }
   );
@@ -50,7 +49,7 @@ test('admite Albarracín publicado para adventure y student sin cruzar perfiles'
   assert.equal(adventure?.mode, 'adventure');
   assert.equal(student?.mode, 'student');
   assert.equal(
-    resolvePilotZoneEditorial([createEditorial()], {
+    resolvePublishedZoneEditorial([createEditorial()], {
       countrySlug: 'espana',
       zoneSlug: 'albarracin',
       mode: 'student',
@@ -59,11 +58,11 @@ test('admite Albarracín publicado para adventure y student sin cruzar perfiles'
   );
 });
 
-test('mantiene fallback para ausencia, borrador, fecha nula e incompletitud', () => {
+test('mantiene fallback para ausencia, borrador y fecha nula, sin reevaluar la completitud editorial', () => {
   const context = { countrySlug: 'espana', zoneSlug: 'albarracin', mode: 'adventure' as const };
 
   // La capa de consulta devuelve [] tanto ante ausencia como ante error de Supabase.
-  assert.equal(resolvePilotZoneEditorial([], context), null);
+  assert.equal(resolvePublishedZoneEditorial([], context), null);
   assert.equal(
     normalizePublishedEditorialContent(
       createEditorial({ status: 'draft' as unknown as 'published' })
@@ -71,7 +70,12 @@ test('mantiene fallback para ausencia, borrador, fecha nula e incompletitud', ()
     null
   );
   assert.equal(normalizePublishedEditorialContent(createEditorial({ publishedAt: null })), null);
-  assert.equal(normalizePublishedEditorialContent(createEditorial({ intro: '   ' })), null);
+  assert.equal(
+    normalizePublishedEditorialContent(
+      createEditorial({ intro: '   ', highlights: [], suggestedRoute: null, practicalTips: [] })
+    )?.status,
+    'published'
+  );
 });
 
 test('conserva la normalización que utiliza CountryPage para contenido publicado fechado', () => {
@@ -84,20 +88,18 @@ test('conserva la normalización que utiliza CountryPage para contenido publicad
   assert.equal(normalizePublishedEditorialContent(countryEditorial)?.headline, countryEditorial.headline);
 });
 
-test('no activa otras zonas ni rescata una versión anterior si la ganadora es inválida', () => {
-  assert.equal(isZoneEditorialPilot('espana', 'albarracin'), true);
-  assert.equal(isZoneEditorialPilot('espana', 'madrid'), false);
+test('resuelve cualquier zona disponible y no rescata una versión anterior si falta su titular', () => {
   assert.equal(
-    resolvePilotZoneEditorial([createEditorial()], {
+    resolvePublishedZoneEditorial([createEditorial({ entitySlug: 'cuenca', zoneSlug: 'cuenca' })], {
       countrySlug: 'espana',
-      zoneSlug: 'madrid',
+      zoneSlug: 'cuenca',
       mode: 'adventure',
-    }),
-    null
+    })?.headline,
+    createEditorial({ entitySlug: 'cuenca', zoneSlug: 'cuenca' }).headline
   );
   assert.equal(
-    resolvePilotZoneEditorial(
-      [createEditorial({ intro: '' }), createEditorial({ id: 'older-valid' })],
+    resolvePublishedZoneEditorial(
+      [createEditorial({ headline: '  ' }), createEditorial({ id: 'older-valid' })],
       { countrySlug: 'espana', zoneSlug: 'albarracin', mode: 'adventure' }
     ),
     null

@@ -47,7 +47,7 @@ select is(
   'accepts the delivery atomically'
 );
 
-select is((select count(*)::integer from editorial_contents where metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), 2, 'creates exactly two drafts');
+select is((select count(*)::integer from editorial_contents where metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), 2, 'creates exactly two available profiles');
 select is((select metadata #>> '{ingress,library_entry_id}' from editorial_contents where mode = 'adventure' and metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'adventure ingress keeps Adventure entry');
 select is((select metadata #>> '{ingress,library_entry_id}' from editorial_contents where mode = 'student' and metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'student ingress keeps Student entry');
 select is((select metadata #>> '{ingress,version_hash}' from editorial_contents where mode = 'adventure' and metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), repeat('a', 64), 'adventure ingress keeps Adventure version hash');
@@ -69,7 +69,7 @@ select is((select metadata #>> '{ingress,handoff_key}' from editorial_contents w
 select is((select metadata #>> '{ingress,payload_fingerprint}' from editorial_contents where mode = 'student' and metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), repeat('f', 64), 'payload fingerprint remains shared');
 select is((select metadata #>> '{ingress,mapping_id}' from editorial_contents where mode = 'student' and metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), 'test-profile-traceability', 'mapping remains shared');
 select is((select metadata #>> '{ingress,canonical_destination_id}' from editorial_contents where mode = 'student' and metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001'), 'investighost:test:profile-traceability', 'canonical destination remains shared');
-select is((select count(*)::integer from editorial_contents where metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001' and status = 'draft' and review_state = 'pending_trawel_review' and published_at is null), 2, 'both rows remain unpublished drafts');
+select is((select count(*)::integer from editorial_contents where metadata #>> '{ingress,handoff_key}' = 'profile-traceability-test-001' and status = 'published' and review_state = 'approved_by_investighost' and published_at is not null), 2, 'both approved profiles are directly available to Trawel');
 select is(
   (select ingest_editorial_delivery_v2(
     '20000000-0000-4000-8000-000000000001',

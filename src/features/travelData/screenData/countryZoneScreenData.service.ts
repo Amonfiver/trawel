@@ -5,9 +5,8 @@ import { getCountryPageData } from '../services/travelData.service';
 import type { CountryPageData } from '../types/travelData.types';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
 import {
-  isZoneEditorialPilot,
   normalizePublishedEditorialContent,
-  resolvePilotZoneEditorial,
+  resolvePublishedZoneEditorial,
 } from './editorialScreenData.utils';
 import type {
   CountryScreenData,
@@ -105,10 +104,8 @@ interface RemoteZoneBaseData {
 interface DBCityBase {
   id: string;
   slug: string | null;
-  name_es: string | null;
-  short_description_es: string | null;
+  name: string | null;
   status: string | null;
-  featured: boolean | null;
 }
 
 // =============================================================================
@@ -402,30 +399,12 @@ async function fetchRemoteZoneBaseBySlugs(
   }
 
   try {
-    const { data: countryData, error: countryError } = await supabase
-      .from('countries')
-      .select('id')
-      .eq('slug', countrySlug)
-      .in('status', ['active', 'comingSoon'])
-      .maybeSingle();
-
-    if (countryError) {
-      logScreenDataError('Error loading remote zone country id', countryError);
-      return null;
-    }
-
-    const countryId = normalizeRequiredText((countryData as { id?: string } | null)?.id);
-
-    if (!countryId) {
-      return null;
-    }
-
     const { data: cityData, error: cityError } = await supabase
-      .from('cities')
-      .select('id,slug,name_es,short_description_es,status,featured')
-      .eq('country_id', countryId)
+      .from('location_cities')
+      .select('id,slug,name,status')
+      .eq('country_slug', countrySlug)
       .eq('slug', zoneSlug)
-      .in('status', ['active', 'comingSoon'])
+      .eq('status', 'active')
       .maybeSingle();
 
     if (cityError) {
@@ -458,10 +437,6 @@ async function fetchRemoteZoneEditorial(
   zoneSlug: string,
   mode: ScreenExperienceMode
 ): Promise<ScreenEditorialData | null> {
-  if (!isZoneEditorialPilot(countrySlug, zoneSlug)) {
-    return null;
-  }
-
   const contents = await getPublishedEditorialContent({
     entityType: 'zone',
     entitySlug: zoneSlug,
@@ -470,7 +445,7 @@ async function fetchRemoteZoneEditorial(
     mode,
   });
 
-  return resolvePilotZoneEditorial(contents, { countrySlug, zoneSlug, mode });
+  return resolvePublishedZoneEditorial(contents, { countrySlug, zoneSlug, mode });
 }
 
 function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData | null {
@@ -479,7 +454,7 @@ function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData 
   }
 
   const slug = normalizeRequiredText(db.slug);
-  const name = normalizeRequiredText(db.name_es);
+  const name = normalizeRequiredText(db.name);
   const status = normalizeRequiredText(db.status);
 
   if (!slug || !name || !status) {
@@ -491,8 +466,7 @@ function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData 
     slug,
     name,
     status,
-    featured: Boolean(db.featured),
-    summary: normalizeRequiredText(db.short_description_es) || undefined,
+    featured: false,
   };
 }
 

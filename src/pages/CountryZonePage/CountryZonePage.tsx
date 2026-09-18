@@ -1,17 +1,15 @@
 /**
  * Purpose: Show a friendly placeholder for a selected internal country zone.
- * Scope: Public read-only route for /pais/:countrySlug/zona/:zoneSlug and approved traveler adventures.
+ * Scope: Public read-only route for a country destination.
  * Decisions: Uses router state for the best zone name and falls back to a clean title from the slug.
  * Limitations: No upload, moderation UI, auth, or private photo rendering in this phase.
  * Recent changes (2026-05-12):
  * - Hero visual with prominent placeholder for future zone photo
- * - Community-focused copy clarifying purpose
- * - Improved empty state inviting participation
  * - Future resources block added
  * - Visual coherence with CityPage/AdventurePage
  */
 
-import { type FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
   MonetizationSlot,
@@ -21,11 +19,6 @@ import {
 } from '../../features/travelData';
 import { CountryFlag } from '../../features/countries';
 import { useExperienceMode } from '../../features/experienceMode';
-import {
-  createTravelerAdventure,
-  getApprovedAdventuresByZone,
-  type TravelerAdventurePublic,
-} from '../../features/adventures';
 import { ZoneEditorialSection } from './ZoneEditorialSection';
 import styles from './CountryZonePage.module.css';
 
@@ -34,42 +27,11 @@ interface ZoneLocationState {
   countryName?: string;
 }
 
-type AdventuresState =
-  | { status: 'loading' }
-  | { status: 'ready'; adventures: TravelerAdventurePublic[] }
-  | { status: 'error'; message: string };
-
-interface AdventureFormValues {
-  title: string;
-  story: string;
-  practicalTips: string;
-  authorName: string;
-  authorEmail: string;
-  privacyAccepted: boolean;
-  marketingConsent: boolean;
-}
-
-type SubmitState =
-  | { status: 'idle' }
-  | { status: 'submitting' }
-  | { status: 'success'; message: string; withdrawalToken: string; withdrawalUrl: string }
-  | { status: 'error'; message: string };
-
 type ResolvedZoneScreenState = {
   countrySlug: string;
   zoneSlug: string;
   mode: ReturnType<typeof useExperienceMode>['mode'];
   data: ResolvedZoneScreenData;
-};
-
-const EMPTY_FORM_VALUES: AdventureFormValues = {
-  title: '',
-  story: '',
-  practicalTips: '',
-  authorName: '',
-  authorEmail: '',
-  privacyAccepted: false,
-  marketingConsent: false,
 };
 
 function ZoneHeroVisual({
@@ -106,30 +68,6 @@ function ZoneHeroVisual({
             <CountryFlag isoAlpha2={isoAlpha2} countryName={countryName} size="large" />
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Empty state component inviting community participation
- */
-function EmptyAdventuresState({ zoneName }: { zoneName: string }) {
-  return (
-    <div className={styles.emptyState}>
-      <div className={styles.emptyStateVisual}>
-        <span className={styles.emptyStateIcon}>✨</span>
-      </div>
-      <h3 className={styles.emptyStateTitle}>
-        Sé la primera persona en compartir una aventura en esta zona
-      </h3>
-      <p className={styles.emptyStateText}>
-        Puedes contar una ruta, un mirador, una fiesta local o un lugar especial de {zoneName}.
-        Tu experiencia ayuda a otros viajeros a descubrir lugares que no están en las guías tradicionales.
-      </p>
-      <div className={styles.emptyStateHint}>
-        <span className={styles.emptyStateHintIcon}>💡</span>
-        <span>Ideas: una ruta en coche, un restaurante familiar, una vista secreta, un evento local...</span>
       </div>
     </div>
   );
@@ -244,7 +182,6 @@ export function CountryZonePage() {
   const communityCtaText =
     screenData?.communityCta.text ||
     `¿Tienes una foto de ${zoneName}? Puedes colaborar con Trawel y aparecer en nuestros créditos de agradecimiento.`;
-  const [adventuresState, setAdventuresState] = useState<AdventuresState>({ status: 'loading' });
   const promotions = screenData?.promotions || [];
   const remoteEditorial =
     screenData?.metadata.hasRemoteEditorial && screenData.editorial.status === 'published'
@@ -284,46 +221,6 @@ export function CountryZonePage() {
       isMounted = false;
     };
   }, [mode, normalizedCountrySlug, normalizedZoneSlug]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadAdventures = async () => {
-      if (!countrySlug || !zoneSlug) {
-        setAdventuresState({ status: 'ready', adventures: [] });
-        return;
-      }
-
-      setAdventuresState({ status: 'loading' });
-
-      try {
-        const adventures = await getApprovedAdventuresByZone(countrySlug, zoneSlug);
-        if (isMounted) {
-          setAdventuresState({ status: 'ready', adventures });
-        }
-      } catch (error) {
-        if (!isMounted) {
-          return;
-        }
-
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'No se pudieron cargar las aventuras de esta zona';
-        setAdventuresState({ status: 'error', message });
-      }
-    };
-
-    loadAdventures();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [countrySlug, zoneSlug]);
-
-  const approvedAdventures =
-    adventuresState.status === 'ready' ? adventuresState.adventures : [];
-  const hasApprovedAdventures = approvedAdventures.length > 0;
 
   return (
     <div className={styles.container}>
@@ -367,31 +264,11 @@ export function CountryZonePage() {
             <p className={styles.kicker}>{countryName}</p>
             <h1 className={styles.title}>{zoneName}</h1>
             <p className={styles.subtitle}>
-              {!hasZoneHeroImage
-                ? zoneFallbackCopy
-                : hasApprovedAdventures
-                ? 'Aventuras reales compartidas por viajeros.'
-                : 'Próximamente aventuras en esta zona.'}
+              {!hasZoneHeroImage ? zoneFallbackCopy : 'Contenido disponible para explorar.'}
             </p>
           </div>
         </div>
       </header>
-
-      {/* Propósito comunitario */}
-      <section className={styles.communityPurpose} aria-labelledby="purpose-title">
-        <div className={styles.communityPurposeContent}>
-          <span className={styles.communityPurposeIcon}>🤝</span>
-          <div className={styles.communityPurposeText}>
-            <h2 id="purpose-title" className={styles.communityPurposeTitle}>
-              Comunidad de viajeros
-            </h2>
-            <p className={styles.communityPurposeDescription}>
-              Esta zona reúne aventuras, recuerdos y consejos compartidos por viajeros. 
-              Tu experiencia ayuda a otros a descubrir lugares especiales que no están en las guías tradicionales.
-            </p>
-          </div>
-        </div>
-      </section>
 
       <MonetizationSlot
         placement="zone-after-intro"
@@ -399,90 +276,6 @@ export function CountryZonePage() {
       />
 
       <main className={styles.main}>
-        {adventuresState.status === 'loading' && (
-          <section className={styles.panel} aria-live="polite" aria-busy="true">
-            <div className={styles.panelContent}>
-              <h2 className={styles.panelTitle}>Cargando aventuras...</h2>
-              <p className={styles.panelText}>
-                Estamos buscando experiencias aprobadas en {zoneName}.
-              </p>
-            </div>
-          </section>
-        )}
-
-        {adventuresState.status === 'error' && (
-          <section className={styles.panel} role="alert">
-            <div className={styles.panelContent}>
-              <h2 className={styles.panelTitle}>No pudimos cargar las aventuras</h2>
-              <p className={styles.panelText}>
-                {adventuresState.message}. Puedes volver al mapa y seguir explorando otras zonas.
-              </p>
-            </div>
-          </section>
-        )}
-
-        {adventuresState.status === 'ready' && hasApprovedAdventures && (
-          <section className={styles.adventuresSection} aria-labelledby="approved-adventures-title">
-            <div className={styles.sectionHeader}>
-              <h2 id="approved-adventures-title" className={styles.sectionTitle}>
-                Aventuras en {zoneName}
-              </h2>
-              <p className={styles.sectionSubtitle}>
-                Historias aprobadas de viajeros que ya estrenaron esta zona.
-              </p>
-            </div>
-
-            <div className={styles.adventuresList}>
-              {approvedAdventures.map((adventure) => (
-                <article key={adventure.id} className={styles.adventureCard}>
-                  <h3 className={styles.adventureTitle}>{adventure.title}</h3>
-                  <p className={styles.adventureStory}>{adventure.story}</p>
-
-                  {cleanDisplayName(adventure.practical_tips) && (
-                    <div className={styles.tipsBlock}>
-                      <h4 className={styles.tipsTitle}>Consejos prácticos</h4>
-                      <p className={styles.tipsText}>{adventure.practical_tips}</p>
-                    </div>
-                  )}
-
-                  {adventure.photo_path && (
-                    <p className={styles.photoNote}>
-                      Esta aventura tiene foto aprobada, pero las imágenes privadas se servirán en
-                      una próxima fase segura.
-                    </p>
-                  )}
-
-                  <footer className={styles.adventureMeta}>
-                    <span>Por {adventure.author_name}</span>
-                    <span>{formatAdventureDate(adventure.approved_at || adventure.created_at)}</span>
-                  </footer>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {adventuresState.status === 'ready' && hasApprovedAdventures && (
-          <AdventureSubmissionForm
-            countrySlug={countrySlug}
-            zoneSlug={zoneSlug}
-            zoneName={zoneName}
-            title="Comparte tu aventura"
-          />
-        )}
-
-        {adventuresState.status === 'ready' && !hasApprovedAdventures && (
-          <section className={styles.panel} aria-labelledby="zone-coming-soon-title">
-            <EmptyAdventuresState zoneName={zoneName} />
-            <AdventureSubmissionForm
-              countrySlug={countrySlug}
-              zoneSlug={zoneSlug}
-              zoneName={zoneName}
-              title="Sé el primero en compartir tu aventura"
-            />
-          </section>
-        )}
-
         {remoteEditorial ? (
           <ZoneEditorialSection editorial={remoteEditorial} zoneName={zoneName} />
         ) : (
@@ -501,260 +294,6 @@ export function CountryZonePage() {
         </Link>
       </main>
     </div>
-  );
-}
-
-function AdventureSubmissionForm({
-  countrySlug,
-  zoneSlug,
-  zoneName,
-  title,
-}: {
-  countrySlug?: string;
-  zoneSlug?: string;
-  zoneName: string;
-  title: string;
-}) {
-  const [values, setValues] = useState<AdventureFormValues>(EMPTY_FORM_VALUES);
-  const [submitState, setSubmitState] = useState<SubmitState>({ status: 'idle' });
-  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
-
-  const handleChange = (field: keyof AdventureFormValues, value: string) => {
-    setValues((current) => ({ ...current, [field]: value }));
-
-    if (submitState.status !== 'submitting') {
-      setSubmitState({ status: 'idle' });
-    }
-  };
-
-  const handleConsentChange = (
-    field: 'privacyAccepted' | 'marketingConsent',
-    value: boolean
-  ) => {
-    setValues((current) => ({ ...current, [field]: value }));
-
-    if (submitState.status !== 'submitting') {
-      setSubmitState({ status: 'idle' });
-    }
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const validationError = validateAdventureForm(values, countrySlug, zoneSlug);
-    if (validationError) {
-      setSubmitState({ status: 'error', message: validationError });
-      return;
-    }
-
-    setSubmitState({ status: 'submitting' });
-
-    const result = await createTravelerAdventure({
-      countrySlug: countrySlug!,
-      zoneSlug: zoneSlug!,
-      zoneName,
-      title: values.title,
-      story: values.story,
-      practicalTips: values.practicalTips,
-      authorName: values.authorName,
-      authorEmail: values.authorEmail,
-      privacyAccepted: values.privacyAccepted,
-      marketingConsent: values.marketingConsent,
-    });
-
-    if (!result.success) {
-      setSubmitState({ status: 'error', message: result.error });
-      return;
-    }
-
-    setValues(EMPTY_FORM_VALUES);
-    setSubmitState({
-      status: 'success',
-      message: 'Hemos recibido tu aventura. La revisaremos antes de publicarla.',
-      withdrawalToken: result.withdrawalToken,
-      withdrawalUrl: result.withdrawalUrl,
-    });
-  };
-
-  const isSubmitting = submitState.status === 'submitting';
-
-  return (
-    <form className={styles.adventureForm} onSubmit={handleSubmit}>
-      <div className={styles.formHeader}>
-        <h3 className={styles.formTitle}>{title}</h3>
-        <p className={styles.formIntro}>
-          Por seguridad, revisamos las aventuras antes de publicarlas. No necesitas iniciar sesión.
-        </p>
-      </div>
-
-      <label className={styles.formField}>
-        <span>Título de la aventura</span>
-        <input
-          value={values.title}
-          onChange={(event) => handleChange('title', event.target.value)}
-          type="text"
-          name="title"
-          required
-          maxLength={140}
-          disabled={isSubmitting}
-        />
-      </label>
-
-      <label className={styles.formField}>
-        <span>Historia / experiencia</span>
-        <textarea
-          value={values.story}
-          onChange={(event) => handleChange('story', event.target.value)}
-          name="story"
-          required
-          rows={6}
-          disabled={isSubmitting}
-        />
-      </label>
-
-      <label className={styles.formField}>
-        <span>Consejos prácticos</span>
-        <textarea
-          value={values.practicalTips}
-          onChange={(event) => handleChange('practicalTips', event.target.value)}
-          name="practicalTips"
-          rows={4}
-          disabled={isSubmitting}
-        />
-      </label>
-
-      <div className={styles.formGrid}>
-        <label className={styles.formField}>
-          <span>Tu nombre</span>
-          <input
-            value={values.authorName}
-            onChange={(event) => handleChange('authorName', event.target.value)}
-            type="text"
-            name="authorName"
-            required
-            maxLength={120}
-            disabled={isSubmitting}
-          />
-        </label>
-
-        <label className={styles.formField}>
-          <span>Tu email</span>
-          <input
-            value={values.authorEmail}
-            onChange={(event) => handleChange('authorEmail', event.target.value)}
-            type="email"
-            name="authorEmail"
-            required
-            maxLength={180}
-            disabled={isSubmitting}
-          />
-        </label>
-      </div>
-
-      <div className={styles.consentGroup}>
-        <label className={styles.checkboxField}>
-          <input
-            checked={values.privacyAccepted}
-            onChange={(event) => handleConsentChange('privacyAccepted', event.target.checked)}
-            type="checkbox"
-            name="privacyAccepted"
-            required
-            disabled={isSubmitting}
-          />
-          <span>He leído y acepto la política de privacidad.</span>
-        </label>
-
-        <button
-          className={styles.privacyToggle}
-          type="button"
-          onClick={() => setIsPrivacyOpen((current) => !current)}
-          aria-expanded={isPrivacyOpen}
-        >
-          Ver política de privacidad
-        </button>
-
-        {isPrivacyOpen && (
-          <div className={styles.privacyPanel}>
-            <p><strong>Responsable:</strong> Trawel.</p>
-            <p>
-              <strong>Finalidad:</strong> revisar, moderar y publicar aventuras enviadas por
-              viajeros.
-            </p>
-            <p>
-              <strong>Datos tratados:</strong> nombre, email, contenido enviado y, en fases
-              futuras, fotos.
-            </p>
-            <p>
-              <strong>Publicación:</strong> si se aprueba la aventura, se publicarán el título,
-              historia, consejos, zona y nombre visible. El email no será público.
-            </p>
-            <p>
-              <strong>Comunicaciones/promociones:</strong> solo se enviarán si aceptas el
-              consentimiento opcional separado.
-            </p>
-            <p>
-              <strong>Cesiones:</strong> Trawel no venderá datos personales a terceros.
-            </p>
-            <p>
-              <strong>Conservación:</strong> los datos se conservarán mientras sea necesario para
-              gestionar la aventura, moderación, publicación y posibles responsabilidades.
-            </p>
-            <p>
-              <strong>Derechos:</strong> puedes solicitar acceso, rectificación, supresión,
-              oposición, limitación y retirada del consentimiento.
-            </p>
-            <p>
-              <strong>Contacto:</strong> privacidad@trawel.net. Este contacto es temporal y debe
-              reemplazarse por el email real definitivo antes de producción pública.
-            </p>
-            <p className={styles.privacyReviewNote}>
-              Este texto es informativo y debe revisarse por asesoría/legal antes de producción
-              pública.
-            </p>
-          </div>
-        )}
-
-        <label className={styles.checkboxField}>
-          <input
-            checked={values.marketingConsent}
-            onChange={(event) => handleConsentChange('marketingConsent', event.target.checked)}
-            type="checkbox"
-            name="marketingConsent"
-            disabled={isSubmitting}
-          />
-          <span>
-            Acepto recibir comunicaciones de Trawel con novedades, promociones, ofertas de viaje o
-            lugares de interés.
-          </span>
-        </label>
-      </div>
-
-      {submitState.status === 'success' && (
-        <div className={styles.formSuccess} role="status">
-          <p>{submitState.message}</p>
-          <div className={styles.withdrawalSummary}>
-            <p>
-              Guarda este enlace o código privado. Te permite retirar la aventura mientras siga
-              pendiente de revisión.
-            </p>
-            <a href={submitState.withdrawalUrl} className={styles.withdrawalLink}>
-              Abrir enlace de retirada
-            </a>
-            <code className={styles.withdrawalCode}>{submitState.withdrawalToken}</code>
-          </div>
-        </div>
-      )}
-
-      {submitState.status === 'error' && (
-        <p className={styles.formError} role="alert">
-          {submitState.message}
-        </p>
-      )}
-
-      <button className={styles.submitButton} type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Enviando...' : 'Enviar aventura para revisión'}
-      </button>
-    </form>
   );
 }
 
@@ -777,54 +316,4 @@ function createNameFromSlug(zoneSlug?: string): string | null {
   }
 
   return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-}
-
-function validateAdventureForm(
-  values: AdventureFormValues,
-  countrySlug?: string,
-  zoneSlug?: string
-): string | null {
-  if (!countrySlug || !zoneSlug) {
-    return 'No pudimos identificar esta zona. Vuelve al mapa e inténtalo de nuevo.';
-  }
-
-  if (!values.title.trim()) {
-    return 'Escribe un título para tu aventura.';
-  }
-
-  if (!values.story.trim()) {
-    return 'Cuéntanos la historia o experiencia principal.';
-  }
-
-  if (!values.authorName.trim()) {
-    return 'Indica tu nombre.';
-  }
-
-  if (!isBasicEmail(values.authorEmail)) {
-    return 'Escribe un email válido.';
-  }
-
-  if (!values.privacyAccepted) {
-    return 'Debes leer y aceptar la política de privacidad para enviar tu aventura.';
-  }
-
-  return null;
-}
-
-function isBasicEmail(value: string): boolean {
-  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value.trim());
-}
-
-function formatAdventureDate(value: string): string {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Aprobada recientemente';
-  }
-
-  return new Intl.DateTimeFormat('es', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
 }

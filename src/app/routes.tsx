@@ -22,11 +22,9 @@ import { HomePage } from '../pages/HomePage';
 import { CountryPage } from '../pages/CountryPage';
 import { CountryZonePage } from '../pages/CountryZonePage';
 import { WithdrawAdventurePage } from '../pages/WithdrawAdventurePage';
-import { CityPage } from '../pages/CityPage';
 import { AdventurePage } from '../pages/AdventurePage';
 import { TrustPage } from '../pages/TrustPage';
 import { CommunityPage } from '../pages/CommunityPage';
-import { PrivateEditorialPage } from '../pages/PrivateEditorialPage';
 
 export const router = createBrowserRouter([
   {
@@ -78,12 +76,8 @@ export const router = createBrowserRouter([
     element: <CommunityPage />,
   },
   {
-    path: '/editorial/destinos/cuenca',
-    element: <PrivateEditorialPage />,
-  },
-  {
-    path: '/pais/:countrySlug/:citySlug',
-    element: <CityPage />,
+    path: '/pais/:countrySlug/:zoneSlug',
+    element: <CountryZonePage />,
   },
   {
     path: '/aventura/:adventureSlug',
