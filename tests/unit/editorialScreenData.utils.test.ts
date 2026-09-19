@@ -5,6 +5,11 @@ import {
   normalizePublishedEditorialContent,
   resolvePublishedZoneEditorial,
 } from '../../src/features/travelData/screenData/editorialScreenData.utils';
+import {
+  CUENCA_STUDENT_067_EXPECTED_QUESTION_COUNT,
+  CUENCA_STUDENT_067_EXPECTED_WORD_COUNT,
+  cuencaStudent067,
+} from '../fixtures/cuencaStudent067.fixture';
 
 function createEditorial(
   overrides: Partial<EditorialContent> = {}
@@ -104,4 +109,24 @@ test('resuelve cualquier zona disponible y no rescata una versión anterior si f
     ),
     null
   );
+});
+
+test('preserva todos los bloques estructurados de Cuenca Student 067 sin mezclar Adventure', () => {
+  const normalized = resolvePublishedZoneEditorial([cuencaStudent067], {
+    countrySlug: 'espana',
+    zoneSlug: 'cuenca',
+    mode: 'student',
+  });
+
+  assert.equal(normalized?.mode, 'student');
+  assert.equal(normalized?.sections.length, cuencaStudent067.sections.length);
+  assert.deepEqual(
+    normalized?.sections.map((section) => section.kind),
+    ['history', 'heritage', 'art_culture', 'nature_science', 'daily_life', 'observation', 'study', 'budget', 'risks']
+  );
+  assert.equal(normalized?.sections.find((section) => section.kind === 'study')?.content.match(/\?/g)?.length, CUENCA_STUDENT_067_EXPECTED_QUESTION_COUNT);
+  assert.equal(normalized?.practicalTips instanceof Array, true);
+  assert.equal((normalized?.practicalTips as string[]).length, 4);
+  assert.ok(CUENCA_STUDENT_067_EXPECTED_WORD_COUNT >= 1400);
+  assert.deepEqual(normalizePublishedEditorialContent(createEditorial())?.sections, []);
 });

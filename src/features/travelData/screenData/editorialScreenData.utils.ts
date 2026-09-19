@@ -1,5 +1,9 @@
 import type { EditorialContent } from '../productContent';
-import type { ScreenEditorialData, ScreenExperienceMode } from './screenData.types';
+import type {
+  ScreenEditorialData,
+  ScreenEditorialSection,
+  ScreenExperienceMode,
+} from './screenData.types';
 
 interface ZoneEditorialContext {
   countrySlug: string;
@@ -48,7 +52,8 @@ export function normalizePublishedEditorialContent(
   const whatMakesSpecial = normalizeOptionalText(content.whatMakesSpecial);
   const highlights = normalizeRequiredStringList(content.highlights);
   const suggestedRoute = normalizeOptionalText(content.suggestedRoute);
-  const practicalTips = normalizeOptionalTextList(content.practicalTips);
+  const practicalTips = normalizeStringList(content.practicalTips);
+  const sections = normalizeEditorialSections(content.sections);
 
   if (!headline) {
     return null;
@@ -62,7 +67,8 @@ export function normalizePublishedEditorialContent(
     whatMakesSpecial: whatMakesSpecial || undefined,
     highlights,
     suggestedRoute: suggestedRoute || undefined,
-    practicalTips: practicalTips || undefined,
+    practicalTips: practicalTips.length > 0 ? practicalTips : undefined,
+    sections,
   };
 }
 
@@ -72,13 +78,48 @@ function normalizeOptionalText(value: string | null | undefined): string | null 
 }
 
 function normalizeRequiredStringList(value: unknown[]): string[] {
+  return normalizeStringList(value);
+}
+
+function normalizeStringList(value: unknown[]): string[] {
   return value
     .filter((item): item is string => typeof item === 'string')
     .map((item) => item.trim())
     .filter(Boolean);
 }
 
-function normalizeOptionalTextList(value: unknown[]): string | null {
-  const items = normalizeRequiredStringList(value);
-  return items.length > 0 ? items.join(' ') : null;
+function normalizeEditorialSections(value: unknown[]): ScreenEditorialSection[] {
+  return value
+    .map((item, index) => normalizeEditorialSection(item, index))
+    .filter((item): item is ScreenEditorialSection => item !== null)
+    .sort((left, right) => left.position - right.position);
+}
+
+function normalizeEditorialSection(
+  value: unknown,
+  index: number
+): ScreenEditorialSection | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+
+  const section = value as Record<string, unknown>;
+  const content = normalizeOptionalText(
+    typeof section.content === 'string' ? section.content : undefined
+  );
+
+  if (!content) {
+    return null;
+  }
+
+  const position = typeof section.position === 'number' && Number.isFinite(section.position)
+    ? section.position
+    : index;
+
+  return {
+    kind: normalizeOptionalText(typeof section.kind === 'string' ? section.kind : undefined) || 'section',
+    heading: normalizeOptionalText(typeof section.heading === 'string' ? section.heading : undefined) || undefined,
+    content,
+    position,
+  };
 }

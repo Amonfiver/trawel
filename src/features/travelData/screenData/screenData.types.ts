@@ -29,7 +29,16 @@ export interface ScreenEditorialData {
   whatMakesSpecial?: string;
   highlights: string[];
   suggestedRoute?: string;
-  practicalTips?: string;
+  practicalTips?: string | string[];
+  sections: ScreenEditorialSection[];
+}
+
+/** Bloque editorial público recibido desde el contrato V2. */
+export interface ScreenEditorialSection {
+  kind: string;
+  heading?: string;
+  content: string;
+  position: number;
 }
 
 export interface ScreenCommunityCtaData {

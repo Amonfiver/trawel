@@ -192,6 +192,7 @@ function buildCountryEditorial(
       highlights: editorial.explorationIdeas,
       suggestedRoute: editorial.suggestedRoute,
       practicalTips: editorial.quickTip,
+      sections: [],
     };
   }
 
@@ -203,6 +204,7 @@ function buildCountryEditorial(
       fallbackDescription ||
       `Estamos preparando contenido editorial para ${displayName} con estructura data-driven.`,
     highlights: [],
+    sections: [],
   };
 }
 
@@ -223,6 +225,7 @@ function buildZoneEditorial(
       intro ||
       `Estamos preparando una guia editorial de ${zone.name} con lugares, rutas, planes y consejos practicos.`,
     highlights: [],
+    sections: [],
   };
 }
 

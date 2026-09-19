@@ -4,6 +4,7 @@ export type {
   ScreenCommunityCtaData,
   ScreenCountrySummary,
   ScreenEditorialData,
+  ScreenEditorialSection,
   ScreenEditorialStatus,
   ScreenExperienceMode,
   ScreenHeroData,
