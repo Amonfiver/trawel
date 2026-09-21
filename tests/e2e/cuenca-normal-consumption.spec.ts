@@ -28,9 +28,13 @@ test('Cuenca se consume como destino público desde location_cities', async ({ p
   await expect(page.locator('section[aria-labelledby="adventure-highlights-title"] img')).toHaveCount(6);
   await expect(page.locator('#aventura-galeria img').first()).toHaveAttribute('loading', 'lazy');
   await expect(page.locator('#aventura-galeria img').first()).toHaveAttribute('decoding', 'async');
-  await expect(page.locator('[data-traveler-source="none"]')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Lo que hace especial a este destino' })).toBeVisible();
-  await expect(page.getByText(/no son testimonios atribuidos/i)).toBeVisible();
+  await expect(page.locator('[data-traveler-experiences="true"]')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Experiencias de viajeros' })).toBeVisible();
+  await expect(page.locator('[data-ai-notice="true"]')).toContainText(/ilustrativas generadas con IA/i);
+  await expect(page.locator('[data-experience-type="AI_SAMPLE"]')).toHaveCount(4);
+  await expect(page.getByText('Generada con IA')).toHaveCount(4);
+  await expect(page.getByRole('button', { name: 'Cuéntanos tu experiencia' })).toBeDisabled();
+  await expect(page.getByText(/Próximamente: podrás compartir una experiencia real/i)).toBeVisible();
   await expect(page.getByText(/borradores sin publicar|lector privado|aprobar contenido/i)).toHaveCount(0);
 
 });
@@ -144,8 +148,38 @@ test('AdventureCarousel conserva swipe nativo y peek intencional en móvil', asy
     expect(metrics.snap).toBe('x mandatory');
     expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth);
     expect(metrics.secondCardPeeks).toBe(true);
+
+    const travelerMetrics = await page.locator('[data-carousel-track="Experiencias de viajeros"]').evaluate((track) => ({
+      clientWidth: track.clientWidth,
+      scrollWidth: track.scrollWidth,
+      overflowX: getComputedStyle(track).overflowX,
+      snap: getComputedStyle(track).scrollSnapType,
+    }));
+    expect(travelerMetrics.overflowX).toBe('auto');
+    expect(travelerMetrics.snap).toBe('x mandatory');
+    expect(travelerMetrics.scrollWidth).toBeGreaterThan(travelerMetrics.clientWidth);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
+});
+
+test('Adventure presenta muestras IA transparentes y un carrusel de experiencias reutilizable', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('trawel-experience-mode', 'adventure');
+  });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/pais/espana/cuenca');
+
+  const section = page.locator('[data-traveler-experiences="true"]');
+  const track = page.locator('[data-carousel-track="Experiencias de viajeros"]');
+  const counter = page.locator('[aria-live="polite"]').filter({ hasText: 'Experiencias de viajeros' });
+  await section.scrollIntoViewIfNeeded();
+  await expect(track).toHaveCSS('overflow-x', 'auto');
+  await expect(track).toHaveCSS('scroll-snap-type', 'x mandatory');
+  await expect(counter).toHaveText('1 de 4: Experiencias de viajeros');
+  await page.getByRole('button', { name: 'Siguiente en Experiencias de viajeros' }).click();
+  await expect(counter).toHaveText('2 de 4: Experiencias de viajeros');
+  await expect(section.locator('[data-experience-type="REAL_USER"]')).toHaveCount(0);
+  await expect(section.locator('img')).toHaveCount(1);
 });
 
 test('el cambio de modo mantiene Adventure inmersivo y Student enciclopédico', async ({ page }) => {
@@ -188,5 +222,5 @@ test('Cuenca Student muestra las secciones educativas públicas completas', asyn
   await expect(page.getByRole('heading', { name: /datos y conceptos clave/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /visión de conjunto/i })).toBeVisible();
   await expect(page.getByText(/borradores sin publicar|lector privado|aprobar contenido/i)).toHaveCount(0);
-  await expect(page.locator('[data-traveler-source]')).toHaveCount(0);
+  await expect(page.locator('[data-traveler-experiences]')).toHaveCount(0);
 });
