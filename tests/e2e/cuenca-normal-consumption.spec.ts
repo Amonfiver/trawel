@@ -35,6 +35,18 @@ test('Cuenca se consume como destino público desde location_cities', async ({ p
   await expect(page.getByText('Generada con IA')).toHaveCount(4);
   await expect(page.getByRole('button', { name: 'Cuéntanos tu experiencia' })).toBeDisabled();
   await expect(page.getByText(/Próximamente: podrás compartir una experiencia real/i)).toBeVisible();
+  const businessLayer = page.locator('[data-destination-business="true"]');
+  await expect(businessLayer).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dónde alojarte' })).toBeVisible();
+  const businessNext = page.getByRole('button', { name: 'Siguiente en Propuestas locales' });
+  await businessNext.click();
+  await expect(page.getByRole('heading', { name: 'Dónde comer' })).toBeVisible();
+  await businessNext.click();
+  await expect(page.getByRole('heading', { name: 'Experiencias locales' })).toBeVisible();
+  await expect(businessLayer.locator('[data-business-status="PLACEHOLDER"]')).toHaveCount(3);
+  await expect(businessLayer.getByText('Espacio disponible')).toHaveCount(3);
+  await expect(businessLayer.locator('article img')).toHaveCount(3);
+  await expect(page.getByRole('button', { name: 'Quiero aparecer en Trawel' })).toBeDisabled();
   await expect(page.getByText(/borradores sin publicar|lector privado|aprobar contenido/i)).toHaveCount(0);
 
 });
@@ -158,6 +170,16 @@ test('AdventureCarousel conserva swipe nativo y peek intencional en móvil', asy
     expect(travelerMetrics.overflowX).toBe('auto');
     expect(travelerMetrics.snap).toBe('x mandatory');
     expect(travelerMetrics.scrollWidth).toBeGreaterThan(travelerMetrics.clientWidth);
+
+    const businessMetrics = await page.locator('[data-carousel-track="Propuestas locales"]').evaluate((track) => ({
+      clientWidth: track.clientWidth,
+      scrollWidth: track.scrollWidth,
+      overflowX: getComputedStyle(track).overflowX,
+      snap: getComputedStyle(track).scrollSnapType,
+    }));
+    expect(businessMetrics.overflowX).toBe('auto');
+    expect(businessMetrics.snap).toBe('x mandatory');
+    expect(businessMetrics.scrollWidth).toBeGreaterThan(businessMetrics.clientWidth);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
 });
@@ -180,6 +202,28 @@ test('Adventure presenta muestras IA transparentes y un carrusel de experiencias
   await expect(counter).toHaveText('2 de 4: Experiencias de viajeros');
   await expect(section.locator('[data-experience-type="REAL_USER"]')).toHaveCount(0);
   await expect(section.locator('img')).toHaveCount(1);
+});
+
+test('Adventure presenta slots comerciales transparentes y contextuales', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('trawel-experience-mode', 'adventure');
+  });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/pais/espana/cuenca');
+
+  const layer = page.locator('[data-destination-business="true"]');
+  const track = page.locator('[data-carousel-track="Propuestas locales"]');
+  const counter = page.locator('[aria-live="polite"]').filter({ hasText: 'Propuestas locales' });
+  await layer.scrollIntoViewIfNeeded();
+  await expect(track).toHaveCSS('overflow-x', 'auto');
+  await expect(track).toHaveCSS('scroll-snap-type', 'x mandatory');
+  await expect(counter).toHaveText('1 de 3: Propuestas locales');
+  await page.getByRole('button', { name: 'Siguiente en Propuestas locales' }).click();
+  await expect(counter).toHaveText('2 de 3: Propuestas locales');
+  await expect(layer.locator('[data-business-status="READY"]')).toHaveCount(0);
+  await expect(layer.locator('[data-business-category="STAY"]')).toHaveCount(1);
+  await expect(layer.locator('[data-business-category="EAT"]')).toHaveCount(1);
+  await expect(layer.locator('[data-business-category="LOCAL_EXPERIENCE"]')).toHaveCount(1);
 });
 
 test('el cambio de modo mantiene Adventure inmersivo y Student enciclopédico', async ({ page }) => {
@@ -223,4 +267,5 @@ test('Cuenca Student muestra las secciones educativas públicas completas', asyn
   await expect(page.getByRole('heading', { name: /visión de conjunto/i })).toBeVisible();
   await expect(page.getByText(/borradores sin publicar|lector privado|aprobar contenido/i)).toHaveCount(0);
   await expect(page.locator('[data-traveler-experiences]')).toHaveCount(0);
+  await expect(page.locator('[data-destination-business]')).toHaveCount(0);
 });

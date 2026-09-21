@@ -2,6 +2,7 @@ import { DestinationMedia, type ResolvedDestinationVisualAsset, type ResolvedDes
 import type { ScreenEditorialData } from '../../features/travelData';
 import { AdventureCarousel } from './AdventureCarousel';
 import { getAdventureExpectations } from './adventureVisuals.utils';
+import { DestinationBusinessLayer } from './DestinationBusinessLayer';
 import { TravelerExperiences } from './TravelerExperiences';
 import styles from './AdventureVisualExperience.module.css';
 
@@ -134,6 +135,12 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
       <TravelerExperiences
         destinationSlug={visuals?.destinationSlug}
         backgroundAsset={visuals?.gallery[0]}
+      />
+
+      <DestinationBusinessLayer
+        destinationSlug={visuals?.destinationSlug}
+        destinationName={visuals?.destinationName}
+        visualAssets={visuals?.gallery}
       />
 
       {editorial.suggestedRoute && (
