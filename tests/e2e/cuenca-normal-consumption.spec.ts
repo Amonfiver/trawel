@@ -22,7 +22,7 @@ test('Cuenca se consume como destino público desde location_cities', async ({ p
   await page.getByRole('button', { name: 'Siguiente en No te pierdas' }).evaluate((button) => (
     (button as HTMLButtonElement).click()
   ));
-  await expect(page.locator('[aria-live="polite"]').first()).toHaveText(/2 de/);
+  await expect(page.locator('[aria-live="polite"]').filter({ hasText: 'No te pierdas' })).toHaveText(/2 de/);
   await expect(page.locator('#aventura-galeria img')).toHaveCount(4);
   await expect(page.locator('section[aria-labelledby="adventure-expectations-title"] img')).toHaveCount(4);
   await expect(page.locator('section[aria-labelledby="adventure-highlights-title"] img')).toHaveCount(6);
@@ -72,7 +72,7 @@ test('Adventure conserva carruseles táctiles sin overflow horizontal en viewpor
   });
   await page.goto('/pais/espana/cuenca');
 
-  for (const width of [360, 390, 430, 768, 1024, 1440]) {
+  for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     await expect(page.getByRole('heading', { name: 'Cuenca', exact: true })).toBeVisible();
     await expect(page.locator('[data-experience-mode="adventure"]')).toBeVisible();
@@ -81,6 +81,71 @@ test('Adventure conserva carruseles táctiles sin overflow horizontal en viewpor
 
   const ctaBox = await page.getByRole('link', { name: /descubrir cuenca/i }).boundingBox();
   expect(ctaBox?.height).toBeGreaterThanOrEqual(44);
+});
+
+test('AdventureCarousel desplaza contenido real con flechas, teclado y arrastre de ratón', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('trawel-experience-mode', 'adventure');
+  });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/pais/espana/cuenca');
+
+  const track = page.locator('[data-carousel-track="Qué te espera"]');
+  const counter = page.locator('[aria-live="polite"]').filter({ hasText: 'Qué te espera' });
+  const next = page.getByRole('button', { name: 'Siguiente en Qué te espera' });
+  await track.scrollIntoViewIfNeeded();
+  await expect(track).toHaveCSS('overflow-x', 'auto');
+  await expect(track).toHaveCSS('scroll-snap-type', 'x mandatory');
+  await expect(counter).toHaveText('1 de 4: Qué te espera');
+
+  const initialScroll = await track.evaluate((element) => element.scrollLeft);
+  await next.click();
+  await expect(counter).toHaveText('2 de 4: Qué te espera');
+  await expect.poll(() => track.evaluate((element) => element.scrollLeft)).toBeGreaterThan(initialScroll);
+
+  await track.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(counter).toHaveText('3 de 4: Qué te espera');
+
+  const box = await track.boundingBox();
+  if (!box) throw new Error('Carousel track is not measurable');
+  const beforeDrag = await track.evaluate((element) => element.scrollLeft);
+  await page.mouse.move(box.x + box.width * 0.7, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.25, box.y + box.height / 2, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(() => track.evaluate((element) => element.scrollLeft)).toBeGreaterThan(beforeDrag);
+  await expect(track).toHaveAttribute('data-dragging', 'false');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('AdventureCarousel conserva swipe nativo y peek intencional en móvil', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('trawel-experience-mode', 'adventure');
+  });
+  await page.goto('/pais/espana/cuenca');
+
+  for (const width of [360, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    const metrics = await page.locator('[data-carousel-track="Qué te espera"]').evaluate((track) => {
+      const secondCard = track.children.item(1) as HTMLElement;
+      const trackRect = track.getBoundingClientRect();
+      const secondRect = secondCard.getBoundingClientRect();
+      return {
+        clientWidth: track.clientWidth,
+        scrollWidth: track.scrollWidth,
+        overflowX: getComputedStyle(track).overflowX,
+        snap: getComputedStyle(track).scrollSnapType,
+        secondCardPeeks: secondRect.left < trackRect.right && secondRect.right > trackRect.right,
+      };
+    });
+
+    expect(metrics.overflowX).toBe('auto');
+    expect(metrics.snap).toBe('x mandatory');
+    expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth);
+    expect(metrics.secondCardPeeks).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  }
 });
 
 test('el cambio de modo mantiene Adventure inmersivo y Student enciclopédico', async ({ page }) => {

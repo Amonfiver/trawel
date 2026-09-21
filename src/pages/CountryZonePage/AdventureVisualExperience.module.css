@@ -1,7 +1,14 @@
 .experience {
   display: grid;
   gap: clamp(3.5rem, 8vw, 7.5rem);
+  min-width: 0;
+  max-width: 100%;
   color: #f8fafc;
+}
+
+.experience > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .introduction,
@@ -83,13 +90,8 @@
   line-height: 1.8;
 }
 
-.expectationGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9rem;
-}
-
 .expectationCard {
+  flex: 0 0 clamp(230px, 27vw, 350px);
   min-height: clamp(180px, 19vw, 275px);
   position: relative;
   display: flex;
@@ -104,6 +106,7 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   box-shadow: 0 16px 35px rgba(2, 6, 23, 0.2);
+  scroll-snap-align: start;
   transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
@@ -141,6 +144,8 @@
 }
 
 .carousel {
+  min-width: 0;
+  max-width: 100%;
   position: relative;
 }
 
@@ -152,7 +157,7 @@
   width: fit-content;
 }
 
-.carouselControls button {
+.carouselControls > button {
   width: 46px;
   min-height: 46px;
   display: inline-grid;
@@ -167,7 +172,7 @@
   transition: transform 180ms ease, background 180ms ease;
 }
 
-.carouselControls button:disabled {
+.carouselControls > button:disabled {
   cursor: default;
   opacity: 0.45;
 }
@@ -178,12 +183,15 @@
   gap: 0.35rem;
 }
 
-.indicators span {
+.indicators button {
   width: 6px;
   height: 6px;
+  padding: 0;
   display: block;
   background: rgba(255, 255, 255, 0.38);
+  border: 0;
   border-radius: 999px;
+  cursor: pointer;
   transition: width 180ms ease, background 180ms ease;
 }
 
@@ -193,15 +201,28 @@
 }
 
 .carouselTrack {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
+  position: relative;
   gap: clamp(0.9rem, 2vw, 1.4rem);
-  margin: 0 -0.25rem;
-  padding: 0.25rem;
+  margin: 0;
+  padding: 0.35rem;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
   scroll-behavior: smooth;
+  scroll-padding-inline: 0.35rem;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
+}
+
+.carouselTrack[data-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .carouselTrack::-webkit-scrollbar {
@@ -219,6 +240,7 @@
   overflow: hidden;
   isolation: isolate;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 24px;
@@ -349,7 +371,8 @@
 }
 
 .expectationCard:focus-visible,
-.carouselControls button:focus-visible {
+.carouselControls button:focus-visible,
+.carouselTrack:focus-visible {
   outline: 3px solid #fcd34d;
   outline-offset: 3px;
 }
@@ -368,7 +391,7 @@
     transform: scale(1.045);
   }
 
-  .carouselControls button:hover:not(:disabled) {
+  .carouselControls > button:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.24);
     transform: translateY(-2px);
   }
@@ -398,11 +421,8 @@
     grid-template-columns: 1fr;
   }
 
-  .expectationGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .expectationCard {
+    flex-basis: 84vw;
     min-height: 158px;
     padding: 0.85rem;
     border-radius: 16px;
@@ -426,7 +446,7 @@
     margin-bottom: 0.7rem;
   }
 
-  .carouselControls button {
+  .carouselControls > button {
     width: 44px;
     min-height: 44px;
   }
@@ -440,7 +460,7 @@
   .expectationCard,
   .expectationMedia,
   .carouselControls button,
-  .indicators span,
+  .indicators button,
   .highlightCard,
   .galleryCard,
   .cardMedia,
