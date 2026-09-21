@@ -1,6 +1,8 @@
 export {
   loadDestinationVisualManifest,
   resolveDestinationVisuals,
+  getDestinationVisualManifestUrl,
+  getDestinationVisualAssetUrl,
 } from './destinationVisuals.service';
 export { DestinationMedia } from './DestinationMedia';
 

@@ -23,15 +23,30 @@ export function loadDestinationVisualManifest(
     return cachedManifest;
   }
 
-  const manifestRequest = fetch(`/destinations/${encodeURIComponent(normalizedSlug)}/manifest.json`)
+  const manifestUrl = getDestinationVisualManifestUrl(normalizedSlug);
+  const manifestRequest = fetch(manifestUrl)
     .then(async (response) => {
       if (!response.ok) {
+        reportManifestFailure(manifestUrl, `HTTP ${response.status}`);
         return null;
       }
 
-      return normalizeDestinationVisualManifest(await response.json(), normalizedSlug);
+      const contentType = response.headers.get('content-type') ?? '';
+      if (!contentType.toLowerCase().includes('application/json')) {
+        reportManifestFailure(manifestUrl, `content-type inesperado (${contentType || 'ausente'})`);
+        return null;
+      }
+
+      const manifest = normalizeDestinationVisualManifest(await response.json(), normalizedSlug);
+      if (!manifest) {
+        reportManifestFailure(manifestUrl, 'JSON inválido para el contrato visual');
+      }
+      return manifest;
     })
-    .catch(() => null);
+    .catch(() => {
+      reportManifestFailure(manifestUrl, 'error de red o JSON no legible');
+      return null;
+    });
 
   manifestCache.set(normalizedSlug, manifestRequest);
   return manifestRequest;
@@ -49,7 +64,7 @@ export function resolveDestinationVisuals(
     destinationName: manifest.destinationName,
     assets: manifest.assets.map((asset) => ({
       ...asset,
-      url: `/destinations/${encodeURIComponent(manifest.destinationSlug)}/${asset.path}`,
+      url: getDestinationVisualAssetUrl(manifest.destinationSlug, asset.path),
     })),
     hero: selection.hero ? resolveAsset(assetById.get(selection.hero), manifest.destinationSlug) : undefined,
     highlights: resolveAssets(selection.highlights, assetById, manifest.destinationSlug),
@@ -79,8 +94,20 @@ function resolveAsset(
 
   return {
     ...asset,
-    url: `/destinations/${encodeURIComponent(destinationSlug)}/${asset.path}`,
+    url: getDestinationVisualAssetUrl(destinationSlug, asset.path),
   };
+}
+
+export function getDestinationVisualManifestUrl(destinationSlug: string): string {
+  return `/destinations/${encodeURIComponent(destinationSlug)}/manifest.json`;
+}
+
+export function getDestinationVisualAssetUrl(destinationSlug: string, assetPath: string): string {
+  return `/destinations/${encodeURIComponent(destinationSlug)}/${assetPath}`;
+}
+
+function reportManifestFailure(manifestUrl: string, reason: string): void {
+  console.warn(`[DestinationVisuals] Manifest no disponible (${reason}): ${manifestUrl}`);
 }
 
 function normalizeDestinationVisualManifest(

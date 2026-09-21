@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  getDestinationVisualAssetUrl,
+  getDestinationVisualManifestUrl,
   resolveDestinationVisuals,
   type DestinationVisualManifest,
 } from '../../src/features/destinationVisuals';
@@ -55,4 +57,12 @@ test('resuelve de forma determinista los assets seleccionados por el manifest y 
   assert.equal(adventure.gallery[0]?.url, '/destinations/cuenca/shared/hero/cuenca.png');
   assert.equal(student.hero?.id, 'student-figure');
   assert.equal(student.gallery[0]?.usage.includes('figure'), true);
+});
+
+test('construye URLs visuales desde la raíz pública, también bajo una ruta SPA profunda', () => {
+  assert.equal(getDestinationVisualManifestUrl('cuenca'), '/destinations/cuenca/manifest.json');
+  assert.equal(
+    getDestinationVisualAssetUrl('cuenca', 'shared/hero/cuenca.png'),
+    '/destinations/cuenca/shared/hero/cuenca.png',
+  );
 });

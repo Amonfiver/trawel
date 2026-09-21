@@ -95,7 +95,29 @@ Debe incluir:
 
 - `index.html`.
 - Carpeta `assets/`.
+- Carpeta `destinations/`, incluyendo cada `manifest.json` y sus medios. No es parte de `assets/`.
 - `.htaccess`.
+
+Estructura mínima para el piloto Cuenca:
+
+```text
+public_html/
+├── index.html
+├── assets/
+├── destinations/
+│   └── cuenca/
+│       ├── manifest.json
+│       └── shared/
+│           ├── hero/casas-colgadas-atardecer.png
+│           └── ...
+├── maps/
+└── .htaccess
+```
+
+Después de subir, abrir directamente estas URLs. Deben devolver JSON y PNG, nunca la página HTML de la SPA:
+
+- `https://trawel.net/destinations/cuenca/manifest.json`
+- `https://trawel.net/destinations/cuenca/shared/hero/casas-colgadas-atardecer.png`
 
 No subir:
 
@@ -178,4 +200,3 @@ limit 10;
 ```
 
 Recordatorio: el cliente anon no debe poder leer `user_messages`.
-

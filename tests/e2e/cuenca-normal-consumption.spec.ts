@@ -46,6 +46,26 @@ test('Adventure aplica fallback premium solo cuando falla un asset del manifest'
   await expect(page.locator('header[aria-label] img')).toHaveCount(0);
 });
 
+test('detecta un manifest capturado por la SPA en vez de ocultar el fallo', async ({ page }) => {
+  const warnings: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'warning') warnings.push(message.text());
+  });
+  await page.route('**/destinations/cuenca/manifest.json', (route) => route.fulfill({
+    contentType: 'text/html',
+    body: '<!doctype html><html><body><div id="root"></div></body></html>',
+  }));
+  await page.addInitScript(() => {
+    localStorage.setItem('trawel-experience-mode', 'adventure');
+  });
+  await page.goto('/pais/espana/cuenca');
+
+  await expect.poll(() => warnings.some((warning) => (
+    warning.includes('content-type inesperado') && warning.includes('/destinations/cuenca/manifest.json')
+  ))).toBe(true);
+  await expect(page.locator('img[src^="/destinations/cuenca/"]')).toHaveCount(0);
+});
+
 test('Adventure conserva carruseles táctiles sin overflow horizontal en viewports focalizados', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('trawel-experience-mode', 'adventure');
