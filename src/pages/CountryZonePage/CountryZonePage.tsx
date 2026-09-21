@@ -253,7 +253,10 @@ export function CountryZonePage() {
   }, [mode, normalizedCountrySlug, normalizedZoneSlug]);
 
   return (
-    <div className={`${styles.container} ${mode === 'adventure' ? styles.adventureMode : styles.studentMode}`}>
+    <div
+      className={`${styles.container} ${mode === 'adventure' ? styles.adventureMode : styles.studentMode}`}
+      data-experience-mode={mode}
+    >
       {/* Hero visual de la Zona - Con recuadro prominente para foto */}
       <header
         className={`${styles.hero} ${mode === 'adventure' ? styles.adventureHero : styles.studentHero}`}
@@ -292,11 +295,21 @@ export function CountryZonePage() {
           </nav>
 
           <div className={styles.heroContent}>
-            <p className={styles.kicker}>{countryName}</p>
+            <p className={styles.kicker}>{mode === 'adventure' ? 'Aventura' : countryName}</p>
             <h1 className={styles.title}>{zoneName}</h1>
             <p className={styles.subtitle}>
               {remoteEditorial?.headline || (!hasZoneHeroImage ? zoneFallbackCopy : 'Contenido disponible para explorar.')}
             </p>
+            {mode === 'adventure' && remoteEditorial && (
+              <div className={styles.adventureHeroActions}>
+                <a className={styles.adventureHeroPrimary} href="#aventura-no-te-pierdas">
+                  Descubrir {zoneName}<span aria-hidden="true">↓</span>
+                </a>
+                {destinationVisuals?.gallery.length ? (
+                  <a className={styles.adventureHeroSecondary} href="#aventura-galeria">Ver paisajes</a>
+                ) : null}
+              </div>
+            )}
           </div>
         </div>
       </header>

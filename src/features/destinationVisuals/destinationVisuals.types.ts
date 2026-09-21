@@ -49,6 +49,7 @@ export interface ResolvedDestinationVisualAsset extends DestinationVisualAsset {
 export interface ResolvedDestinationVisuals {
   destinationSlug: string;
   destinationName: string;
+  assets: ResolvedDestinationVisualAsset[];
   hero?: ResolvedDestinationVisualAsset;
   highlights: ResolvedDestinationVisualAsset[];
   gallery: ResolvedDestinationVisualAsset[];

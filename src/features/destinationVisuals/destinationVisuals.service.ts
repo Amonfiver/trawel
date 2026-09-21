@@ -47,6 +47,10 @@ export function resolveDestinationVisuals(
   return {
     destinationSlug: manifest.destinationSlug,
     destinationName: manifest.destinationName,
+    assets: manifest.assets.map((asset) => ({
+      ...asset,
+      url: `/destinations/${encodeURIComponent(manifest.destinationSlug)}/${asset.path}`,
+    })),
     hero: selection.hero ? resolveAsset(assetById.get(selection.hero), manifest.destinationSlug) : undefined,
     highlights: resolveAssets(selection.highlights, assetById, manifest.destinationSlug),
     gallery: resolveAssets(selection.gallery, assetById, manifest.destinationSlug),

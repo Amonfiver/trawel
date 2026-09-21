@@ -1,6 +1,6 @@
 .experience {
   display: grid;
-  gap: clamp(2.5rem, 6vw, 5rem);
+  gap: clamp(3.5rem, 8vw, 7.5rem);
   color: #f8fafc;
 }
 
@@ -8,28 +8,29 @@
 .whyGo,
 .highlights,
 .gallery,
-.dontMiss {
+.dontMiss,
+.expectations {
   position: relative;
 }
 
 .introduction {
-  max-width: 840px;
-  padding: clamp(2rem, 5vw, 4rem);
+  max-width: 860px;
+  padding: clamp(2rem, 5vw, 4.5rem);
   overflow: hidden;
   background:
-    radial-gradient(circle at 92% 5%, rgba(251, 191, 36, 0.22), transparent 28%),
-    linear-gradient(135deg, #172033 0%, #102c36 50%, #193f43 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.25);
+    radial-gradient(circle at 90% 8%, rgba(251, 191, 36, 0.24), transparent 30%),
+    linear-gradient(135deg, #101b2e 0%, #0b3138 56%, #173d3f 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 30px;
+  box-shadow: 0 32px 75px rgba(2, 6, 23, 0.35);
 }
 
 .eyebrow {
   margin: 0 0 0.7rem;
-  color: #fbbf24;
+  color: #fcd34d;
   font-size: 0.72rem;
   font-weight: 850;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
@@ -40,7 +41,7 @@
   margin: 0;
   color: #ffffff;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(2rem, 5vw, 4.2rem);
   line-height: 1.02;
 }
 
@@ -52,29 +53,9 @@
   line-height: 1.75;
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  margin-top: 1.7rem;
-}
-
-.actions a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 46px;
-  padding: 0.72rem 1rem;
-  color: #102c36;
-  background: #fbbf24;
-  border-radius: 999px;
-  font-weight: 850;
-  text-decoration: none;
-}
-
-.actions a + a {
-  color: #ffffff;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+.sectionHeader {
+  max-width: 680px;
+  margin-bottom: 1.4rem;
 }
 
 .whyGo {
@@ -82,7 +63,7 @@
   grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.3fr);
   gap: clamp(1.5rem, 5vw, 4rem);
   align-items: start;
-  padding: clamp(1.5rem, 4vw, 3rem) 0;
+  padding: clamp(2rem, 4vw, 3.5rem) 0;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -90,7 +71,7 @@
 .whyGo h3,
 .sectionHeader h3,
 .dontMiss h3 {
-  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
 }
 
 .whyGo > p,
@@ -101,94 +82,186 @@
   line-height: 1.8;
 }
 
-.sectionHeader {
-  max-width: 680px;
-  margin-bottom: 1.35rem;
+.expectationGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
 }
 
-.highlightGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.highlightCard {
-  min-height: 280px;
-  display: grid;
-  align-content: end;
+.expectationCard {
+  min-height: clamp(180px, 19vw, 275px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.1rem;
   overflow: hidden;
   isolation: isolate;
+  color: #ffffff;
+  text-decoration: none;
   background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
+  box-shadow: 0 16px 35px rgba(2, 6, 23, 0.2);
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
-.highlightCard img {
+.expectationCard img {
   width: 100%;
   height: 100%;
   position: absolute;
   inset: 0;
   z-index: -2;
   object-fit: cover;
+  transition: transform 350ms ease;
 }
 
-.highlightCard::after {
+.expectationCard::after,
+.highlightCard::after,
+.galleryCard::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(180deg, transparent 28%, rgba(2, 6, 23, 0.92) 100%);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.03) 22%, rgba(2, 6, 23, 0.9) 100%);
+}
+
+.expectationCard span {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.2rem, 2vw, 1.65rem);
+  font-weight: 700;
+}
+
+.expectationCard small {
+  margin-top: 0.35rem;
+  color: #fcd34d;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.carousel {
+  position: relative;
+}
+
+.carouselControls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 1rem auto;
+  width: fit-content;
+}
+
+.carouselControls button {
+  width: 46px;
+  min-height: 46px;
+  display: inline-grid;
+  place-items: center;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.2);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.carouselControls button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.indicators {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.indicators span {
+  width: 6px;
+  height: 6px;
+  display: block;
+  background: rgba(255, 255, 255, 0.38);
+  border-radius: 999px;
+  transition: width 180ms ease, background 180ms ease;
+}
+
+.indicators .activeIndicator {
+  width: 18px;
+  background: #fcd34d;
+}
+
+.carouselTrack {
+  display: flex;
+  gap: clamp(0.9rem, 2vw, 1.4rem);
+  margin: 0 -0.25rem;
+  padding: 0.25rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.carouselTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.highlightCard,
+.galleryCard {
+  flex: 0 0 min(78vw, 390px);
+  min-height: 320px;
+  position: relative;
+  display: grid;
+  align-content: end;
+  margin: 0;
+  overflow: hidden;
+  isolation: isolate;
+  scroll-snap-align: start;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(2, 6, 23, 0.24);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.highlightCard img,
+.galleryCard img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  object-fit: cover;
+  transition: transform 450ms ease;
 }
 
 .highlightCard p {
   margin: 0;
-  padding: 1.15rem;
+  padding: 1.25rem;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 750;
   line-height: 1.55;
 }
 
-.galleryGrid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 0.85rem;
+.galleryCard {
+  flex-basis: min(85vw, 580px);
+  min-height: clamp(300px, 38vw, 490px);
 }
 
-.galleryGrid figure {
-  grid-column: span 6;
-  margin: 0;
-  overflow: hidden;
-  background: #172033;
-  border-radius: 18px;
-}
-
-.galleryGrid figure:first-child {
-  grid-column: span 12;
-}
-
-.galleryGrid img {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  display: block;
-  object-fit: cover;
-}
-
-.galleryGrid figure:first-child img {
-  aspect-ratio: 2 / 1;
-}
-
-.galleryGrid figcaption {
-  padding: 0.8rem 0.95rem;
-  color: #cbd5e1;
-  font-size: 0.9rem;
+.galleryCard figcaption {
+  padding: 1.15rem 1.25rem;
+  color: #f8fafc;
+  font-size: 0.94rem;
   line-height: 1.45;
 }
 
 .dontMiss {
-  padding: clamp(1.5rem, 4vw, 3rem);
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  border-radius: 24px;
-  box-shadow: 0 24px 50px rgba(120, 53, 15, 0.25);
+  padding: clamp(1.7rem, 4vw, 3.3rem);
+  background: linear-gradient(135deg, #fcd34d, #f59e0b);
+  border-radius: 28px;
+  box-shadow: 0 24px 55px rgba(120, 53, 15, 0.28);
 }
 
 .dontMiss .eyebrow,
@@ -212,26 +285,95 @@
   line-height: 1.6;
 }
 
+.expectationCard:focus-visible,
+.carouselControls button:focus-visible {
+  outline: 3px solid #fcd34d;
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .expectationCard:hover,
+  .highlightCard:hover,
+  .galleryCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 28px 55px rgba(2, 6, 23, 0.35);
+  }
+
+  .expectationCard:hover img,
+  .highlightCard:hover img,
+  .galleryCard:hover img {
+    transform: scale(1.045);
+  }
+
+  .carouselControls button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.24);
+    transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 900px) {
+  .highlightCard:first-child {
+    flex-basis: min(44vw, 570px);
+  }
+
+  .galleryCard:nth-child(3n + 1) {
+    flex-basis: min(52vw, 700px);
+  }
+}
+
 @media (max-width: 680px) {
   .experience {
-    gap: 2rem;
+    gap: 3rem;
   }
 
   .introduction,
   .dontMiss {
-    border-radius: 20px;
+    border-radius: 22px;
   }
 
   .whyGo {
     grid-template-columns: 1fr;
   }
 
-  .galleryGrid figure,
-  .galleryGrid figure:first-child {
-    grid-column: span 12;
+  .expectationGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .galleryGrid figure:first-child img {
-    aspect-ratio: 16 / 10;
+  .expectationCard {
+    min-height: 158px;
+    padding: 0.85rem;
+    border-radius: 16px;
+  }
+
+  .expectationCard span {
+    font-size: 1.05rem;
+  }
+
+  .carouselControls {
+    margin-bottom: 0.7rem;
+  }
+
+  .carouselControls button {
+    width: 44px;
+    min-height: 44px;
+  }
+
+  .highlightCard {
+    min-height: 280px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expectationCard,
+  .expectationCard img,
+  .carouselControls button,
+  .indicators span,
+  .highlightCard,
+  .galleryCard,
+  .highlightCard img,
+  .galleryCard img,
+  .carouselTrack {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
   }
 }
