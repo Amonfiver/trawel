@@ -49,6 +49,9 @@ test('resuelve de forma determinista los assets seleccionados por el manifest y 
   const student = resolveDestinationVisuals(manifest, 'student');
 
   assert.equal(adventure.hero?.id, 'hero');
+  assert.equal(adventure.assets.length, 2);
+  assert.equal(adventure.assets[1]?.url, '/destinations/cuenca/shared/detail/cuenca.png');
+  assert.equal(adventure.hero?.referenceOnly, true);
   assert.equal(adventure.gallery[0]?.url, '/destinations/cuenca/shared/hero/cuenca.png');
   assert.equal(student.hero?.id, 'student-figure');
   assert.equal(student.gallery[0]?.usage.includes('figure'), true);

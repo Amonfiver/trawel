@@ -20,7 +20,9 @@ import {
 import {
   loadDestinationVisualManifest,
   resolveDestinationVisuals,
+  DestinationMedia,
   type DestinationVisualManifest,
+  type ResolvedDestinationVisualAsset,
 } from '../../features/destinationVisuals';
 import { CountryFlag } from '../../features/countries';
 import { useExperienceMode } from '../../features/experienceMode';
@@ -44,23 +46,43 @@ function ZoneHeroVisual({
   zoneName,
   countryName,
   isoAlpha2,
+  asset,
   imageUrl,
   imageAlt,
 }: {
   zoneName: string;
   countryName: string;
   isoAlpha2?: string;
+  asset?: ResolvedDestinationVisualAsset;
   imageUrl?: string;
   imageAlt?: string;
 }) {
+  if (asset) {
+    return (
+      <div className={`${styles.zoneVisual} ${styles.zoneVisualWithImage}`}>
+        <DestinationMedia
+          asset={asset}
+          className={styles.zoneVisualImage}
+          sizes="100vw"
+          priority
+        />
+      </div>
+    );
+  }
+
   if (imageUrl) {
     return (
-      <div
-        className={`${styles.zoneVisual} ${styles.zoneVisualWithImage}`}
-        style={{ backgroundImage: `url(${imageUrl})` }}
-        role="img"
-        aria-label={imageAlt || `Imagen panorámica de ${zoneName}`}
-      />
+      <div className={`${styles.zoneVisual} ${styles.zoneVisualWithImage}`}>
+        <img
+          className={styles.zoneVisualImage}
+          src={imageUrl}
+          alt={imageAlt || `Imagen panorámica de ${zoneName}`}
+          sizes="100vw"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+        />
+      </div>
     );
   }
 
@@ -183,9 +205,10 @@ export function CountryZonePage() {
     createNameFromSlug(zoneSlug) ||
     'Zona por descubrir';
   const destinationVisuals = visualManifest ? resolveDestinationVisuals(visualManifest, mode) : null;
-  const zoneHeroImageUrl = destinationVisuals?.hero?.url || screenData?.hero.imageUrl;
-  const zoneHeroImageAlt = destinationVisuals?.hero?.alt || screenData?.hero.imageAlt;
-  const hasZoneHeroImage = Boolean(zoneHeroImageUrl);
+  const zoneHeroAsset = destinationVisuals?.hero;
+  const zoneHeroImageUrl = zoneHeroAsset?.url || screenData?.hero.imageUrl;
+  const zoneHeroImageAlt = zoneHeroAsset?.alt || screenData?.hero.imageAlt;
+  const hasZoneHeroImage = Boolean(zoneHeroAsset || zoneHeroImageUrl);
   const zoneFallbackCopy =
     cleanDisplayName(screenData?.hero.subtitle) ||
     'Un lugar en preparación para viajeros curiosos. Muy pronto reuniremos rutas, planes y consejos para descubrirlo con calma.';
@@ -271,6 +294,7 @@ export function CountryZonePage() {
           zoneName={zoneName}
           countryName={countryName}
           isoAlpha2={countryIsoAlpha2}
+          asset={zoneHeroAsset}
           imageUrl={zoneHeroImageUrl}
           imageAlt={zoneHeroImageAlt}
         />

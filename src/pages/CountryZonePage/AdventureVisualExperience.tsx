@@ -1,7 +1,8 @@
 import { useRef, useState, type ReactNode, type UIEvent } from 'react';
-import type { ResolvedDestinationVisualAsset, ResolvedDestinationVisuals } from '../../features/destinationVisuals';
+import { DestinationMedia, type ResolvedDestinationVisualAsset, type ResolvedDestinationVisuals } from '../../features/destinationVisuals';
 import type { ScreenEditorialData } from '../../features/travelData';
 import { getAdventureExpectations } from './adventureVisuals.utils';
+import { TravelerPerspective } from './TravelerPerspective';
 import styles from './AdventureVisualExperience.module.css';
 
 interface AdventureVisualExperienceProps {
@@ -110,7 +111,7 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
           <div className={styles.expectationGrid}>
             {expectations.map(({ asset, title }) => (
               <a className={styles.expectationCard} href="#aventura-galeria" key={asset.id}>
-                <img src={asset.url} alt={asset.alt} loading="lazy" />
+                <DestinationMedia asset={asset} className={styles.expectationMedia} sizes="(max-width: 680px) 50vw, 25vw" />
                 <span>{title}</span>
                 <small aria-hidden="true">Explorar →</small>
               </a>
@@ -142,7 +143,7 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
               const highlight = highlights[index];
               return (
                 <article className={styles.highlightCard} key={`${highlight.text}-${index}`}>
-                  {asset.url && <img src={asset.url} alt={asset.alt} loading="lazy" />}
+                  {asset.url && <DestinationMedia asset={asset} className={styles.cardMedia} sizes="(max-width: 680px) 78vw, 44vw" />}
                   <p>{highlight.text}</p>
                 </article>
               );
@@ -162,13 +163,20 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
             label="Galería del destino"
             renderItem={(asset) => (
               <figure className={styles.galleryCard} key={asset.id}>
-                <img src={asset.url} alt={asset.alt} loading="lazy" />
-                {asset.caption && <figcaption>{asset.caption}</figcaption>}
+                <DestinationMedia asset={asset} className={styles.cardMedia} sizes="(max-width: 680px) 85vw, 52vw" />
+                {asset.caption && (
+                  <figcaption>
+                    {asset.caption}
+                    {asset.credit && <span className="srOnly">Crédito visual: {asset.credit}</span>}
+                  </figcaption>
+                )}
               </figure>
             )}
           />
         </section>
       ) : null}
+
+      <TravelerPerspective themes={editorial.highlights} />
 
       {editorial.suggestedRoute && (
         <section className={styles.dontMiss} id="aventura-no-te-pierdas" aria-labelledby="adventure-dont-miss-title">

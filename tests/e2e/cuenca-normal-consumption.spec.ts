@@ -11,6 +11,9 @@ test('Cuenca se consume como destino público desde location_cities', async ({ p
   await expect(
     page.locator('header').getByRole('img', { name: /Casas Colgadas de Cuenca iluminadas al atardecer/i })
   ).toBeVisible();
+  const heroImage = page.locator('header[aria-label] img');
+  await expect(heroImage).toHaveAttribute('src', /\/destinations\/cuenca\/shared\/hero\/casas-colgadas-atardecer\.png$/);
+  await expect(heroImage).toHaveAttribute('fetchpriority', 'high');
   await expect(page.getByRole('heading', { name: 'Por qué ir' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Qué te espera' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'No te pierdas' })).toBeVisible();
@@ -21,8 +24,26 @@ test('Cuenca se consume como destino público desde location_cities', async ({ p
   ));
   await expect(page.locator('[aria-live="polite"]').first()).toHaveText(/2 de/);
   await expect(page.locator('#aventura-galeria img')).toHaveCount(4);
+  await expect(page.locator('section[aria-labelledby="adventure-expectations-title"] img')).toHaveCount(4);
+  await expect(page.locator('section[aria-labelledby="adventure-highlights-title"] img')).toHaveCount(6);
+  await expect(page.locator('#aventura-galeria img').first()).toHaveAttribute('loading', 'lazy');
+  await expect(page.locator('#aventura-galeria img').first()).toHaveAttribute('decoding', 'async');
+  await expect(page.locator('[data-traveler-source="none"]')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Lo que hace especial a este destino' })).toBeVisible();
+  await expect(page.getByText(/no son testimonios atribuidos/i)).toBeVisible();
   await expect(page.getByText(/borradores sin publicar|lector privado|aprobar contenido/i)).toHaveCount(0);
 
+});
+
+test('Adventure aplica fallback premium solo cuando falla un asset del manifest', async ({ page }) => {
+  await page.route('**/destinations/cuenca/shared/hero/casas-colgadas-atardecer.png', (route) => route.abort());
+  await page.addInitScript(() => {
+    localStorage.setItem('trawel-experience-mode', 'adventure');
+  });
+  await page.goto('/pais/espana/cuenca');
+
+  await expect(page.locator('[data-media-fallback="true"]').first()).toBeVisible();
+  await expect(page.locator('header[aria-label] img')).toHaveCount(0);
 });
 
 test('Adventure conserva carruseles táctiles sin overflow horizontal en viewports focalizados', async ({ page }) => {
@@ -82,4 +103,5 @@ test('Cuenca Student muestra las secciones educativas públicas completas', asyn
   await expect(page.getByRole('heading', { name: /datos y conceptos clave/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /visión de conjunto/i })).toBeVisible();
   await expect(page.getByText(/borradores sin publicar|lector privado|aprobar contenido/i)).toHaveCount(0);
+  await expect(page.locator('[data-traveler-source]')).toHaveCount(0);
 });

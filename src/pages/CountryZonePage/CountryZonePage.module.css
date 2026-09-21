@@ -55,8 +55,11 @@
 }
 
 .adventureHero .zoneVisualWithImage {
-  background-size: 100%;
-  transition: background-size 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  background: #0f172a;
+}
+
+.adventureHero .zoneVisualImage {
+  transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .adventureHero .heroOverlay {
@@ -141,9 +144,6 @@
   height: 320px;
   position: relative;
   overflow: hidden;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 @media (min-width: 768px) {
@@ -157,9 +157,23 @@
   background-color: #0f172a;
 }
 
+.zoneVisualImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.zoneVisualImage[data-media-fallback="true"] {
+  background:
+    radial-gradient(circle at 25% 25%, rgba(251, 191, 36, 0.25), transparent 32%),
+    linear-gradient(135deg, #10233a, #0d4547);
+}
+
 @media (hover: hover) {
-  .adventureHero:hover .zoneVisualWithImage {
-    background-size: 104%;
+  .adventureHero:hover .zoneVisualImage {
+    transform: scale(1.04);
   }
 
   .adventureHeroPrimary:hover,
@@ -190,7 +204,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .adventureMode,
-  .adventureHero .zoneVisualWithImage,
+  .adventureHero .zoneVisualImage,
   .adventureHeroPrimary,
   .adventureHeroSecondary,
   .adventureHeroPrimary span {

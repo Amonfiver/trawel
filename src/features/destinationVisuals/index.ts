@@ -2,6 +2,7 @@ export {
   loadDestinationVisualManifest,
   resolveDestinationVisuals,
 } from './destinationVisuals.service';
+export { DestinationMedia } from './DestinationMedia';
 
 export type {
   DestinationVisualAsset,
