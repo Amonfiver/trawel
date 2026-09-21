@@ -1,0 +1,120 @@
+{
+  "destinationSlug": "cuenca",
+  "destinationName": "Cuenca",
+  "assets": [
+    {
+      "id": "cuenca-hanging-houses-sunset",
+      "path": "shared/hero/casas-colgadas-atardecer.png",
+      "category": "landmark",
+      "modes": "both",
+      "usage": ["hero", "highlight", "gallery"],
+      "alt": "Casas Colgadas de Cuenca iluminadas al atardecer sobre la hoz.",
+      "caption": "Las Casas Colgadas y la hoz al final del día.",
+      "credit": "Cuenca visual lab",
+      "source": "Cuenca visual lab",
+      "rightsStatus": "prototype",
+      "referenceOnly": true,
+      "priority": 100
+    },
+    {
+      "id": "cuenca-serrania",
+      "path": "shared/landscape/serrania.png",
+      "category": "landscape",
+      "modes": "both",
+      "usage": ["highlight", "gallery", "figure"],
+      "alt": "Barranco boscoso y paredes calizas de la Serranía de Cuenca.",
+      "caption": "La escala natural de la Serranía de Cuenca.",
+      "credit": "Cuenca visual lab",
+      "source": "Cuenca visual lab",
+      "rightsStatus": "prototype",
+      "referenceOnly": true,
+      "priority": 90
+    },
+    {
+      "id": "cuenca-semana-santa",
+      "path": "shared/culture/semana-santa.png",
+      "category": "culture",
+      "modes": "both",
+      "usage": ["highlight", "gallery", "figure"],
+      "alt": "Procesión de Semana Santa ante la catedral de Cuenca al anochecer.",
+      "caption": "La ciudad también se lee a través de sus celebraciones.",
+      "credit": "Cuenca visual lab",
+      "source": "Cuenca visual lab",
+      "rightsStatus": "prototype",
+      "referenceOnly": true,
+      "priority": 80
+    },
+    {
+      "id": "cuenca-gastronomia",
+      "path": "shared/food/gastronomia-mirador.png",
+      "category": "food",
+      "modes": "adventure",
+      "usage": ["gallery", "card"],
+      "alt": "Mesa con platos tradicionales y vista sobre Cuenca.",
+      "caption": "Una pausa gastronómica con la ciudad al fondo.",
+      "credit": "Cuenca visual lab",
+      "source": "Cuenca visual lab",
+      "rightsStatus": "prototype",
+      "referenceOnly": true,
+      "priority": 70
+    },
+    {
+      "id": "cuenca-vida-local",
+      "path": "shared/people-life/calle-y-terrazas.png",
+      "category": "people-life",
+      "modes": "adventure",
+      "usage": ["highlight", "gallery", "card"],
+      "alt": "Calle de Cuenca con terrazas y vida cotidiana frente al casco histórico.",
+      "caption": "Ritmo de calle y terrazas bajo el casco histórico.",
+      "credit": "Cuenca visual lab",
+      "source": "Cuenca visual lab",
+      "rightsStatus": "prototype",
+      "referenceOnly": true,
+      "priority": 60
+    },
+    {
+      "id": "cuenca-detalle-historico",
+      "path": "shared/detail/llamador-historico.png",
+      "category": "detail",
+      "modes": "both",
+      "usage": ["gallery", "figure"],
+      "alt": "Llamador de hierro en una puerta histórica con las Casas Colgadas al fondo.",
+      "caption": "Las texturas que sostienen la memoria del casco antiguo.",
+      "credit": "Cuenca visual lab",
+      "source": "Cuenca visual lab",
+      "rightsStatus": "prototype",
+      "referenceOnly": true,
+      "priority": 50
+    },
+    {
+      "id": "cuenca-ciudad-encantada",
+      "path": "shared/wildcard/ciudad-encantada.png",
+      "category": "landscape",
+      "modes": "both",
+      "usage": ["highlight", "gallery", "itinerary"],
+      "alt": "Formación rocosa de la Ciudad Encantada bajo un cielo cambiante.",
+      "caption": "Formas calizas que cambian la escala de la visita.",
+      "credit": "Cuenca visual lab",
+      "source": "Cuenca visual lab",
+      "rightsStatus": "prototype",
+      "referenceOnly": true,
+      "priority": 75
+    }
+  ],
+  "selections": {
+    "adventure": {
+      "hero": "cuenca-hanging-houses-sunset",
+      "highlights": ["cuenca-serrania", "cuenca-ciudad-encantada", "cuenca-vida-local"],
+      "gallery": ["cuenca-hanging-houses-sunset", "cuenca-semana-santa", "cuenca-gastronomia", "cuenca-detalle-historico"],
+      "itinerary": ["cuenca-ciudad-encantada"],
+      "map": []
+    },
+    "student": {
+      "hero": "cuenca-serrania",
+      "highlights": [],
+      "gallery": ["cuenca-semana-santa", "cuenca-detalle-historico"],
+      "itinerary": [],
+      "map": []
+    }
+  }
+}

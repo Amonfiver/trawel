@@ -17,8 +17,14 @@ import {
   getZoneScreenFallbackData,
   type ResolvedZoneScreenData,
 } from '../../features/travelData';
+import {
+  loadDestinationVisualManifest,
+  resolveDestinationVisuals,
+  type DestinationVisualManifest,
+} from '../../features/destinationVisuals';
 import { CountryFlag } from '../../features/countries';
 import { useExperienceMode } from '../../features/experienceMode';
+import { AdventureVisualExperience } from './AdventureVisualExperience';
 import { ZoneEditorialSection } from './ZoneEditorialSection';
 import styles from './CountryZonePage.module.css';
 
@@ -39,11 +45,13 @@ function ZoneHeroVisual({
   countryName,
   isoAlpha2,
   imageUrl,
+  imageAlt,
 }: {
   zoneName: string;
   countryName: string;
   isoAlpha2?: string;
   imageUrl?: string;
+  imageAlt?: string;
 }) {
   if (imageUrl) {
     return (
@@ -51,7 +59,7 @@ function ZoneHeroVisual({
         className={`${styles.zoneVisual} ${styles.zoneVisualWithImage}`}
         style={{ backgroundImage: `url(${imageUrl})` }}
         role="img"
-        aria-label={`Imagen panorámica de ${zoneName}`}
+        aria-label={imageAlt || `Imagen panorámica de ${zoneName}`}
       />
     );
   }
@@ -157,6 +165,7 @@ export function CountryZonePage() {
       : undefined;
   const [resolvedScreenState, setResolvedScreenState] =
     useState<ResolvedZoneScreenState | null>(null);
+  const [visualManifest, setVisualManifest] = useState<DestinationVisualManifest | null>(null);
   const screenData =
     resolvedScreenState &&
     resolvedScreenState.countrySlug === normalizedCountrySlug &&
@@ -173,7 +182,9 @@ export function CountryZonePage() {
     cleanDisplayName(screenData?.zoneName) ||
     createNameFromSlug(zoneSlug) ||
     'Zona por descubrir';
-  const zoneHeroImageUrl = screenData?.hero.imageUrl;
+  const destinationVisuals = visualManifest ? resolveDestinationVisuals(visualManifest, mode) : null;
+  const zoneHeroImageUrl = destinationVisuals?.hero?.url || screenData?.hero.imageUrl;
+  const zoneHeroImageAlt = destinationVisuals?.hero?.alt || screenData?.hero.imageAlt;
   const hasZoneHeroImage = Boolean(zoneHeroImageUrl);
   const zoneFallbackCopy =
     cleanDisplayName(screenData?.hero.subtitle) ||
@@ -187,6 +198,25 @@ export function CountryZonePage() {
     screenData?.metadata.hasRemoteEditorial && screenData.editorial.status === 'published'
       ? screenData.editorial
       : null;
+
+  useEffect(() => {
+    if (!normalizedZoneSlug) {
+      setVisualManifest(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    loadDestinationVisualManifest(normalizedZoneSlug).then((manifest) => {
+      if (isMounted) {
+        setVisualManifest(manifest);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [normalizedZoneSlug]);
 
   useEffect(() => {
     if (!normalizedCountrySlug || !normalizedZoneSlug) {
@@ -223,10 +253,10 @@ export function CountryZonePage() {
   }, [mode, normalizedCountrySlug, normalizedZoneSlug]);
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${mode === 'adventure' ? styles.adventureMode : styles.studentMode}`}>
       {/* Hero visual de la Zona - Con recuadro prominente para foto */}
       <header
-        className={styles.hero}
+        className={`${styles.hero} ${mode === 'adventure' ? styles.adventureHero : styles.studentHero}`}
         aria-label={
           hasZoneHeroImage
             ? `Imagen panorámica de ${zoneName}`
@@ -239,6 +269,7 @@ export function CountryZonePage() {
           countryName={countryName}
           isoAlpha2={countryIsoAlpha2}
           imageUrl={zoneHeroImageUrl}
+          imageAlt={zoneHeroImageAlt}
         />
 
         {/* Overlay con contenido */}
@@ -264,7 +295,7 @@ export function CountryZonePage() {
             <p className={styles.kicker}>{countryName}</p>
             <h1 className={styles.title}>{zoneName}</h1>
             <p className={styles.subtitle}>
-              {!hasZoneHeroImage ? zoneFallbackCopy : 'Contenido disponible para explorar.'}
+              {remoteEditorial?.headline || (!hasZoneHeroImage ? zoneFallbackCopy : 'Contenido disponible para explorar.')}
             </p>
           </div>
         </div>
@@ -275,9 +306,13 @@ export function CountryZonePage() {
         promotions={promotions}
       />
 
-      <main className={styles.main}>
+      <main className={`${styles.main} ${mode === 'adventure' ? styles.adventureMain : styles.studentMain}`}>
         {remoteEditorial ? (
-          <ZoneEditorialSection editorial={remoteEditorial} zoneName={zoneName} />
+          mode === 'adventure' ? (
+            <AdventureVisualExperience editorial={remoteEditorial} visuals={destinationVisuals} />
+          ) : (
+            <ZoneEditorialSection editorial={remoteEditorial} zoneName={zoneName} />
+          )
         ) : (
           <FutureResourcesBlock zoneName={zoneName} />
         )}
