@@ -102,8 +102,12 @@ function normalizePresentation(
 }
 
 function toCanonicalMedia(asset: AssetRow): CanonicalDestinationMedia | null {
-  const url = text(asset.public_url) || (asset.storage_bucket && asset.storage_path && supabase
-    ? supabase.storage.from(asset.storage_bucket).getPublicUrl(asset.storage_path).data.publicUrl : null);
+  // The stored URL may have been produced by an internal Edge/Storage hostname.
+  // For a Storage-backed asset, derive the public URL from the browser's active
+  // Supabase endpoint so local and deployed runtimes never expose that hostname.
+  const url = asset.storage_bucket && asset.storage_path && supabase
+    ? supabase.storage.from(asset.storage_bucket).getPublicUrl(asset.storage_path).data.publicUrl
+    : text(asset.public_url);
   const alt = text(asset.alt);
   if (!url || !alt || asset.rights_status !== 'APPROVED_FOR_PUBLIC_USE') return null;
   return { id: asset.id, url, alt, rightsStatus: asset.rights_status, ...(text(asset.caption) ? { defaultCaption: text(asset.caption) } : {}), ...(text(asset.credit) ? { credit: text(asset.credit) } : {}), ...(text(asset.source) ? { source: text(asset.source) } : {}), ...(text(asset.license) ? { license: text(asset.license) } : {}) };
