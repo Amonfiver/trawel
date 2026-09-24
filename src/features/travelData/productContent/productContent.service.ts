@@ -31,6 +31,7 @@ interface DBEditorialContent {
   sections: unknown;
   sources: unknown;
   metadata: unknown;
+  presentation_package_id?: string | null;
   status: string;
   review_state: string | null;
   published_at: string | null;
@@ -164,9 +165,12 @@ export async function getPublishedEditorialContent(
   }
 
   try {
+    const columns = input.presentationPackageId
+      ? `${EDITORIAL_CONTENT_COLUMNS},presentation_package_id`
+      : EDITORIAL_CONTENT_COLUMNS;
     let query = supabase
       .from('editorial_contents')
-      .select(EDITORIAL_CONTENT_COLUMNS)
+      .select(columns)
       .eq('status', 'published')
       .not('published_at', 'is', null)
       .eq('entity_type', input.entityType);
@@ -189,6 +193,10 @@ export async function getPublishedEditorialContent(
 
     if (input.mode) {
       query = query.eq('mode', input.mode);
+    }
+
+    if (input.presentationPackageId) {
+      query = query.eq('presentation_package_id', input.presentationPackageId);
     }
 
     const { data, error } = await query
@@ -324,6 +332,7 @@ function mapEditorialContent(db: DBEditorialContent): EditorialContent {
     sections: asArray(db.sections),
     sources: asArray(db.sources),
     metadata: asObject(db.metadata),
+    presentationPackageId: db.presentation_package_id ?? null,
     status: 'published',
     reviewState: db.review_state,
     publishedAt: db.published_at,

@@ -38,6 +38,74 @@ interface EditorialDeliveryV2 {
   provenance: Record<string, unknown>;
   approval: Record<string, unknown>;
   profiles: Record<ProfileMode, EditorialProfile>;
+  presentationPackage?: PresentationPackage;
+}
+
+type PresentationTone = 'IMPACT' | 'ADVENTURE' | 'CULTURE' | 'LANDSCAPE' | 'FOOD' | 'LOCAL_LIFE' | 'NIGHT' | 'CALM' | 'PREMIUM';
+type TextPlacement = 'OVERLAY' | 'BELOW_MEDIA' | 'CARD_OVERLAY' | 'INLINE';
+type PlaceCategory = 'STAY' | 'EAT' | 'DRINK' | 'NIGHTLIFE';
+
+interface EditorialCta {
+  label: string;
+  actionType: 'ANCHOR' | 'INTERNAL_ROUTE' | 'EXTERNAL_URL';
+  target: string;
+}
+
+interface PresentationHero {
+  trawelMediaId: string;
+  title: string;
+  shortCopy: string;
+  presentationTone: PresentationTone;
+  textPlacement: TextPlacement;
+  kicker?: string;
+  caption?: string;
+  cta?: EditorialCta;
+  mode?: 'adventure' | 'student' | 'both';
+}
+
+interface VisualStoryItem extends Omit<PresentationHero, 'title' | 'shortCopy'> {
+  order: number;
+  title?: string;
+  shortCopy?: string;
+  linkedAdventureSection?: string;
+}
+
+interface PlaceToGoItem {
+  category: PlaceCategory;
+  name: string;
+  order: number;
+  shortDescription: string;
+  reasonToGo: string;
+  trawelMediaId?: string;
+  area?: string;
+  caption?: string;
+  presentationTone?: PresentationTone;
+  address?: string;
+  url?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface PresentationPackage {
+  hero: PresentationHero;
+  destinationVisualStory: VisualStoryItem[];
+  placesToGo: PlaceToGoItem[];
+}
+
+interface MediaUploadMetadata {
+  expectedChecksum: string;
+  entityType: 'country' | 'zone' | 'place' | 'route' | 'plan' | 'static_page' | 'promotion' | 'generic';
+  entityId?: string;
+  entitySlug?: string;
+  countrySlug?: string;
+  zoneSlug?: string;
+  alt: string;
+  defaultCaption?: string;
+  credit: string;
+  source: string;
+  license?: string;
+  rightsStatus: 'APPROVED_FOR_PUBLIC_USE';
+  focalPoint?: { x: number; y: number };
 }
 
 interface EditorialDeliveryRow {
@@ -67,6 +135,11 @@ const HANDOFF_KEY_PATTERN = /^[A-Za-z0-9._:-]{16,200}$/;
 const SHA256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 const IDENTIFIER_MAX_LENGTH = 200;
 const PROFILE_MODES: ProfileMode[] = ['adventure', 'student'];
+const PRESENTATION_TONES = new Set<PresentationTone>(['IMPACT', 'ADVENTURE', 'CULTURE', 'LANDSCAPE', 'FOOD', 'LOCAL_LIFE', 'NIGHT', 'CALM', 'PREMIUM']);
+const TEXT_PLACEMENTS = new Set<TextPlacement>(['OVERLAY', 'BELOW_MEDIA', 'CARD_OVERLAY', 'INLINE']);
+const PLACE_CATEGORIES = new Set<PlaceCategory>(['STAY', 'EAT', 'DRINK', 'NIGHTLIFE']);
+const MAX_MEDIA_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_DIMENSION = 12_000;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -108,6 +181,10 @@ Deno.serve(async (req) => {
 
   if (req.method !== 'POST') {
     return jsonResponse({ success: false, error: 'Method not allowed.' }, 405);
+  }
+
+  if (isMediaUploadRequest(req)) {
+    return receiveMediaUpload(supabase, req);
   }
 
   const body = await readJsonBody(req);
@@ -422,6 +499,11 @@ function validateDeliveryV2(
     profiles[mode] = profileValidation.data;
   }
 
+  const presentationValidation = validatePresentationPackage(value.presentationPackage);
+  if (!presentationValidation.valid) {
+    return presentationValidation;
+  }
+
   return {
     valid: true,
     data: {
@@ -436,8 +518,135 @@ function validateDeliveryV2(
       provenance: value.provenance,
       approval: value.approval,
       profiles,
+      ...(presentationValidation.data ? { presentationPackage: presentationValidation.data } : {}),
     },
   };
+}
+
+function validatePresentationPackage(
+  value: unknown
+): { valid: true; data?: PresentationPackage } | { valid: false; error: string } {
+  if (value === undefined) return { valid: true };
+  if (!isPlainObject(value)) return { valid: false, error: 'presentationPackage must be an object.' };
+
+  const hero = validatePresentationHero(value.hero, 'presentationPackage.hero', true);
+  if (!hero.valid) return hero;
+  if (!Array.isArray(value.destinationVisualStory) || value.destinationVisualStory.length === 0) {
+    return { valid: false, error: 'presentationPackage.destinationVisualStory must contain at least one item.' };
+  }
+  if (!Array.isArray(value.placesToGo)) {
+    return { valid: false, error: 'presentationPackage.placesToGo must be an array.' };
+  }
+
+  const story: VisualStoryItem[] = [];
+  const storyOrders = new Set<number>();
+  for (const [index, item] of value.destinationVisualStory.entries()) {
+    const validItem = validatePresentationHero(item, `presentationPackage.destinationVisualStory[${index}]`, false);
+    if (!validItem.valid) return validItem;
+    const order = integerAtLeast((item as Record<string, unknown>).order, 0);
+    if (order === null || storyOrders.has(order)) {
+      return { valid: false, error: `presentationPackage.destinationVisualStory[${index}].order must be a unique non-negative integer.` };
+    }
+    storyOrders.add(order);
+    story.push({
+      ...validItem.data,
+      order,
+      title: optionalText((item as Record<string, unknown>).title),
+      shortCopy: optionalText((item as Record<string, unknown>).shortCopy),
+      linkedAdventureSection: optionalText((item as Record<string, unknown>).linkedAdventureSection),
+    });
+  }
+
+  const places: PlaceToGoItem[] = [];
+  const placeOrders = new Set<string>();
+  for (const [index, item] of value.placesToGo.entries()) {
+    const place = validatePlaceToGo(item, index);
+    if (!place.valid) return place;
+    const orderKey = `${place.data.category}:${place.data.order}`;
+    if (placeOrders.has(orderKey)) {
+      return { valid: false, error: `presentationPackage.placesToGo[${index}].order must be unique within category.` };
+    }
+    placeOrders.add(orderKey);
+    places.push(place.data);
+  }
+
+  return { valid: true, data: { hero: hero.data, destinationVisualStory: story, placesToGo: places } };
+}
+
+function validatePresentationHero(
+  value: unknown,
+  path: string,
+  requireCopy: boolean
+): { valid: true; data: PresentationHero } | { valid: false; error: string } {
+  if (!isPlainObject(value)) return { valid: false, error: `${path} must be an object.` };
+  const trawelMediaId = requiredUuid(value.trawelMediaId);
+  const presentationTone = typeof value.presentationTone === 'string' && PRESENTATION_TONES.has(value.presentationTone as PresentationTone)
+    ? value.presentationTone as PresentationTone : undefined;
+  const textPlacement = typeof value.textPlacement === 'string' && TEXT_PLACEMENTS.has(value.textPlacement as TextPlacement)
+    ? value.textPlacement as TextPlacement : undefined;
+  const mode = value.mode === undefined || value.mode === 'adventure' || value.mode === 'student' || value.mode === 'both'
+    ? value.mode as PresentationHero['mode'] : undefined;
+  const title = optionalText(value.title);
+  const shortCopy = optionalText(value.shortCopy);
+  const cta = validateEditorialCta(value.cta, `${path}.cta`);
+  if (!trawelMediaId || !presentationTone || !textPlacement || !cta.valid || (value.mode !== undefined && !mode) || (requireCopy && (!title || !shortCopy))) {
+    return { valid: false, error: `${path} requires an approved trawelMediaId, presentationTone, textPlacement${requireCopy ? ', title and shortCopy' : ''}.` };
+  }
+  return {
+    valid: true,
+    data: {
+      trawelMediaId,
+      ...(title ? { title } : {}),
+      ...(shortCopy ? { shortCopy } : {}),
+      presentationTone,
+      textPlacement,
+      ...(optionalText(value.kicker) ? { kicker: optionalText(value.kicker) } : {}),
+      ...(optionalText(value.caption) ? { caption: optionalText(value.caption) } : {}),
+      ...(cta.data ? { cta: cta.data } : {}),
+      ...(mode ? { mode } : {}),
+    } as PresentationHero,
+  };
+}
+
+function validatePlaceToGo(value: unknown, index: number): { valid: true; data: PlaceToGoItem } | { valid: false; error: string } {
+  if (!isPlainObject(value)) return { valid: false, error: `presentationPackage.placesToGo[${index}] must be an object.` };
+  const category = typeof value.category === 'string' && PLACE_CATEGORIES.has(value.category as PlaceCategory)
+    ? value.category as PlaceCategory : undefined;
+  const name = optionalText(value.name);
+  const shortDescription = optionalText(value.shortDescription);
+  const reasonToGo = optionalText(value.reasonToGo);
+  const order = integerAtLeast(value.order, 0);
+  const trawelMediaId = value.trawelMediaId === undefined ? undefined : requiredUuid(value.trawelMediaId) || undefined;
+  const url = value.url === undefined ? undefined : optionalText(value.url);
+  const latitude = value.latitude === undefined ? undefined : finiteCoordinate(value.latitude, -90, 90);
+  const longitude = value.longitude === undefined ? undefined : finiteCoordinate(value.longitude, -180, 180);
+  const tone = value.presentationTone === undefined ? undefined : (typeof value.presentationTone === 'string' && PRESENTATION_TONES.has(value.presentationTone as PresentationTone) ? value.presentationTone as PresentationTone : undefined);
+  if (!category || !name || !shortDescription || !reasonToGo || order === null || (value.trawelMediaId !== undefined && !trawelMediaId)
+      || (url !== undefined && (!url || !isSafeHttpsUrl(url)))
+      || (value.latitude !== undefined && latitude === null) || (value.longitude !== undefined && longitude === null)
+      || (value.presentationTone !== undefined && !tone)) {
+    return { valid: false, error: `presentationPackage.placesToGo[${index}] is invalid.` };
+  }
+  return { valid: true, data: {
+    category, name, order, shortDescription, reasonToGo,
+    ...(trawelMediaId ? { trawelMediaId } : {}), ...(optionalText(value.area) ? { area: optionalText(value.area) } : {}),
+    ...(optionalText(value.caption) ? { caption: optionalText(value.caption) } : {}), ...(tone ? { presentationTone: tone } : {}),
+    ...(optionalText(value.address) ? { address: optionalText(value.address) } : {}), ...(url ? { url } : {}),
+    ...(latitude !== undefined ? { latitude } : {}), ...(longitude !== undefined ? { longitude } : {}),
+  } };
+}
+
+function validateEditorialCta(value: unknown, path: string): { valid: true; data?: EditorialCta } | { valid: false; error: string } {
+  if (value === undefined || value === null) return { valid: true };
+  if (!isPlainObject(value)) return { valid: false, error: `${path} must be an object.` };
+  const label = optionalText(value.label);
+  const actionType = value.actionType;
+  const target = optionalText(value.target);
+  const validTarget = (actionType === 'ANCHOR' && Boolean(target && /^#[A-Za-z][A-Za-z0-9_-]*$/.test(target)))
+    || (actionType === 'INTERNAL_ROUTE' && Boolean(target && /^\/[A-Za-z0-9/_?=&%.-]*$/.test(target) && !target.startsWith('//')))
+    || (actionType === 'EXTERNAL_URL' && Boolean(target && isSafeHttpsUrl(target)));
+  if (!label || label.length > 160 || !validTarget) return { valid: false, error: `${path} is invalid.` };
+  return { valid: true, data: { label, actionType, target: target! } as EditorialCta };
 }
 
 function validateProfile(
@@ -600,6 +809,224 @@ async function readJsonBody(req: Request): Promise<unknown> {
   }
 }
 
+function isMediaUploadRequest(req: Request): boolean {
+  const parts = new URL(req.url).pathname.split('/').filter(Boolean);
+  const functionIndex = parts.lastIndexOf('internal-editorial-deliveries');
+  return functionIndex >= 0 && parts[functionIndex + 1] === 'media';
+}
+
+async function receiveMediaUpload(supabase: SupabaseClient, req: Request): Promise<Response> {
+  const contentType = req.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().startsWith('multipart/form-data')) {
+    return jsonResponse({ success: false, error: 'Media upload requires multipart/form-data.' }, 415);
+  }
+
+  let form: FormData;
+  try {
+    form = await req.formData();
+  } catch {
+    return jsonResponse({ success: false, error: 'Malformed multipart body.' }, 400);
+  }
+  const fileValue = form.get('file');
+  const metadata = parseMediaMetadata(form.get('metadata'));
+  if (!(fileValue instanceof File) || !metadata.valid) {
+    return jsonResponse({ success: false, error: metadata.valid ? 'A file field is required.' : metadata.error }, 400);
+  }
+  if (fileValue.size < 1 || fileValue.size > MAX_MEDIA_BYTES) {
+    return jsonResponse({ success: false, error: `Media must be between 1 byte and ${MAX_MEDIA_BYTES} bytes.` }, 413);
+  }
+
+  const bytes = new Uint8Array(await fileValue.arrayBuffer());
+  const detected = detectImage(bytes);
+  if (!detected || (fileValue.type && fileValue.type !== detected.mimeType)) {
+    return jsonResponse({ success: false, error: 'Media MIME type or magic bytes are not allowed.' }, 415);
+  }
+  if (detected.width < 1 || detected.height < 1 || detected.width > MAX_IMAGE_DIMENSION || detected.height > MAX_IMAGE_DIMENSION) {
+    return jsonResponse({ success: false, error: 'Media dimensions are outside the safe range.' }, 400);
+  }
+  const checksumSha256 = await sha256Hex(bytes);
+  if (checksumSha256 !== metadata.data.expectedChecksum) {
+    return jsonResponse({ success: false, error: 'expectedChecksum does not match uploaded bytes.' }, 409);
+  }
+
+  const { data: matching, error: matchingError } = await supabase
+    .from('image_assets')
+    .select('id,checksum_sha256,mime_type,byte_size,width,height,rights_status,storage_path,storage_bucket,public_url')
+    .eq('checksum_sha256', checksumSha256)
+    .maybeSingle();
+  if (matchingError) {
+    console.error('internal-editorial-deliveries: media dedupe lookup failed', matchingError.message);
+    return jsonResponse({ success: false, error: 'Could not verify media dedupe.' }, 500);
+  }
+  if (matching) {
+    if (!isCompatibleExistingMedia(matching as Record<string, unknown>, detected, bytes.byteLength, metadata.data)) {
+      return jsonResponse({ success: false, error: 'Checksum is already associated with incompatible media metadata.' }, 409);
+    }
+    return jsonResponse({
+      success: true,
+      trawelMediaId: matching.id,
+      checksumSha256,
+      storagePath: matching.storage_path,
+      publicUrl: matching.public_url || getPublicUrl(supabase, matching.storage_bucket as string, matching.storage_path as string),
+      reused: true,
+    });
+  }
+
+  const storagePath = `v1/by-sha256/${checksumSha256}.${detected.extension}`;
+  const upload = await supabase.storage.from('destination-media').upload(storagePath, bytes, {
+    contentType: detected.mimeType,
+    upsert: false,
+  });
+  if (upload.error) {
+    console.error('internal-editorial-deliveries: media upload failed', upload.error.message);
+    return jsonResponse({ success: false, error: 'Could not store media bytes.' }, 500);
+  }
+
+  const publicUrl = getPublicUrl(supabase, 'destination-media', storagePath);
+  const { data: inserted, error: insertError } = await supabase
+    .from('image_assets')
+    .insert({
+      entity_type: metadata.data.entityType,
+      entity_id: metadata.data.entityId || null,
+      entity_slug: metadata.data.entitySlug || null,
+      country_slug: metadata.data.countrySlug || null,
+      zone_slug: metadata.data.zoneSlug || null,
+      storage_bucket: 'destination-media',
+      storage_path: storagePath,
+      public_url: publicUrl,
+      alt: metadata.data.alt,
+      caption: metadata.data.defaultCaption || null,
+      credit: metadata.data.credit,
+      source: metadata.data.source,
+      license: metadata.data.license || null,
+      usage_type: 'gallery',
+      focal_point: metadata.data.focalPoint || {},
+      width: detected.width,
+      height: detected.height,
+      checksum_sha256: checksumSha256,
+      mime_type: detected.mimeType,
+      byte_size: bytes.byteLength,
+      rights_status: metadata.data.rightsStatus,
+      status: 'staged',
+      review_state: 'approved_by_investighost',
+      metadata: { ingress: 'internal-editorial-deliveries/media' },
+    })
+    .select('id')
+    .single();
+  if (insertError || !inserted) {
+    console.error('internal-editorial-deliveries: media metadata insert failed', insertError?.message);
+    await supabase.storage.from('destination-media').remove([storagePath]);
+    return jsonResponse({ success: false, error: 'Could not persist media metadata.' }, 500);
+  }
+
+  return jsonResponse({ success: true, trawelMediaId: inserted.id, checksumSha256, storagePath, publicUrl, reused: false }, 201);
+}
+
+function parseMediaMetadata(value: FormDataEntryValue | null): { valid: true; data: MediaUploadMetadata } | { valid: false; error: string } {
+  if (typeof value !== 'string') return { valid: false, error: 'metadata JSON field is required.' };
+  let raw: unknown;
+  try { raw = JSON.parse(value); } catch { return { valid: false, error: 'metadata must be valid JSON.' }; }
+  if (!isPlainObject(raw)) return { valid: false, error: 'metadata must be an object.' };
+  const expectedChecksum = requiredText(raw.expectedChecksum)?.toLowerCase();
+  const entityTypes = new Set<MediaUploadMetadata['entityType']>(['country', 'zone', 'place', 'route', 'plan', 'static_page', 'promotion', 'generic']);
+  const entityType = typeof raw.entityType === 'string' && entityTypes.has(raw.entityType as MediaUploadMetadata['entityType'])
+    ? raw.entityType as MediaUploadMetadata['entityType'] : undefined;
+  const alt = optionalText(raw.alt);
+  const credit = optionalText(raw.credit);
+  const source = optionalText(raw.source);
+  const focalPoint = parseFocalPoint(raw.focalPoint);
+  if (!expectedChecksum || !SHA256_HEX_PATTERN.test(expectedChecksum) || !entityType || !alt || !credit || !source || raw.rightsStatus !== 'APPROVED_FOR_PUBLIC_USE' || focalPoint === null) {
+    return { valid: false, error: 'metadata requires approved rights, expectedChecksum, entityType, alt, credit and source.' };
+  }
+  return { valid: true, data: {
+    expectedChecksum, entityType, alt, credit, source, rightsStatus: 'APPROVED_FOR_PUBLIC_USE',
+    ...(optionalText(raw.entityId) ? { entityId: optionalText(raw.entityId) } : {}),
+    ...(optionalText(raw.entitySlug) ? { entitySlug: optionalText(raw.entitySlug) } : {}),
+    ...(optionalText(raw.countrySlug) ? { countrySlug: optionalText(raw.countrySlug) } : {}),
+    ...(optionalText(raw.zoneSlug) ? { zoneSlug: optionalText(raw.zoneSlug) } : {}),
+    ...(optionalText(raw.defaultCaption) ? { defaultCaption: optionalText(raw.defaultCaption) } : {}),
+    ...(optionalText(raw.license) ? { license: optionalText(raw.license) } : {}),
+    ...(focalPoint ? { focalPoint } : {}),
+  } };
+}
+
+function isCompatibleExistingMedia(existing: Record<string, unknown>, image: DetectedImage, byteSize: number, metadata: MediaUploadMetadata): boolean {
+  return existing.mime_type === image.mimeType
+    && existing.byte_size === byteSize
+    && existing.width === image.width
+    && existing.height === image.height
+    && existing.rights_status === metadata.rightsStatus;
+}
+
+function getPublicUrl(supabase: SupabaseClient, bucket: string, path: string): string {
+  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+}
+
+type DetectedImage = { mimeType: 'image/jpeg' | 'image/png' | 'image/webp'; extension: 'jpg' | 'png' | 'webp'; width: number; height: number };
+
+function detectImage(bytes: Uint8Array): DetectedImage | null {
+  if (bytes.length >= 24 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
+    return { mimeType: 'image/png', extension: 'png', width: readUint32BE(bytes, 16), height: readUint32BE(bytes, 20) };
+  }
+  if (bytes.length >= 12 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return jpegDimensions(bytes);
+  }
+  if (bytes.length >= 30 && ascii(bytes, 0, 4) === 'RIFF' && ascii(bytes, 8, 4) === 'WEBP') {
+    return webpDimensions(bytes);
+  }
+  return null;
+}
+
+function jpegDimensions(bytes: Uint8Array): DetectedImage | null {
+  let offset = 2;
+  while (offset + 9 < bytes.length) {
+    if (bytes[offset] !== 0xff) { offset += 1; continue; }
+    const marker = bytes[offset + 1];
+    offset += 2;
+    if (marker === 0xd8 || marker === 0xd9) continue;
+    if (offset + 2 > bytes.length) return null;
+    const length = (bytes[offset] << 8) + bytes[offset + 1];
+    if (length < 7 || offset + length > bytes.length) return null;
+    if ((marker >= 0xc0 && marker <= 0xc3) || (marker >= 0xc5 && marker <= 0xc7) || (marker >= 0xc9 && marker <= 0xcb) || (marker >= 0xcd && marker <= 0xcf)) {
+      return { mimeType: 'image/jpeg', extension: 'jpg', width: (bytes[offset + 5] << 8) + bytes[offset + 6], height: (bytes[offset + 3] << 8) + bytes[offset + 4] };
+    }
+    offset += length;
+  }
+  return null;
+}
+
+function webpDimensions(bytes: Uint8Array): DetectedImage | null {
+  const chunk = ascii(bytes, 12, 4);
+  if (chunk === 'VP8X' && bytes.length >= 30) {
+    return { mimeType: 'image/webp', extension: 'webp', width: 1 + readUint24LE(bytes, 24), height: 1 + readUint24LE(bytes, 27) };
+  }
+  if (chunk === 'VP8L' && bytes.length >= 25 && bytes[20] === 0x2f) {
+    const bits = bytes[21] | (bytes[22] << 8) | (bytes[23] << 16) | (bytes[24] << 24);
+    return { mimeType: 'image/webp', extension: 'webp', width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+  }
+  if (chunk === 'VP8 ' && bytes.length >= 30 && bytes[23] === 0x9d && bytes[24] === 0x01 && bytes[25] === 0x2a) {
+    return { mimeType: 'image/webp', extension: 'webp', width: (bytes[26] | (bytes[27] << 8)) & 0x3fff, height: (bytes[28] | (bytes[29] << 8)) & 0x3fff };
+  }
+  return null;
+}
+
+function ascii(bytes: Uint8Array, offset: number, length: number): string {
+  return String.fromCharCode(...bytes.slice(offset, offset + length));
+}
+
+function readUint32BE(bytes: Uint8Array, offset: number): number {
+  return ((bytes[offset] << 24) >>> 0) + (bytes[offset + 1] << 16) + (bytes[offset + 2] << 8) + bytes[offset + 3];
+}
+
+function readUint24LE(bytes: Uint8Array, offset: number): number {
+  return bytes[offset] + (bytes[offset + 1] << 8) + (bytes[offset + 2] << 16);
+}
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 function requiredText(value: unknown): string | null {
   const text = optionalText(value);
   return text && text.length <= IDENTIFIER_MAX_LENGTH ? text : null;
@@ -612,6 +1039,38 @@ function optionalText(value: unknown): string | undefined {
 
   const text = value.trim();
   return text || undefined;
+}
+
+function requiredUuid(value: unknown): string | null {
+  const text = optionalText(value);
+  return text && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text)
+    ? text.toLowerCase()
+    : null;
+}
+
+function integerAtLeast(value: unknown, minimum: number): number | null {
+  return typeof value === 'number' && Number.isInteger(value) && value >= minimum ? value : null;
+}
+
+function finiteCoordinate(value: unknown, minimum: number, maximum: number): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= minimum && value <= maximum ? value : null;
+}
+
+function parseFocalPoint(value: unknown): { x: number; y: number } | null | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (!isPlainObject(value)) return null;
+  const x = finiteCoordinate(value.x, 0, 1);
+  const y = finiteCoordinate(value.y, 0, 1);
+  return x === null || y === null ? null : { x, y };
+}
+
+function isSafeHttpsUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' && Boolean(parsed.hostname);
+  } catch {
+    return false;
+  }
 }
 
 function isStringArray(value: unknown): value is string[] {

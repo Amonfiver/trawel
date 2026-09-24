@@ -274,10 +274,90 @@
 }
 
 .galleryCard figcaption {
+  display: grid;
+  gap: 0.35rem;
   padding: 1.15rem 1.25rem;
   color: #f8fafc;
   font-size: 0.94rem;
   line-height: 1.45;
+}
+
+.storyKicker {
+  color: #fde68a;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.storyTitle {
+  color: #ffffff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.3rem;
+  line-height: 1.15;
+}
+
+.storyCta,
+.placeLink {
+  width: fit-content;
+  margin-top: 0.35rem;
+  color: #fcd34d;
+  font-size: 0.86rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.storyCta:hover,
+.placeLink:hover {
+  text-decoration: underline;
+}
+
+.storyTextBelow {
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  min-height: 0;
+  background: #152238;
+}
+
+.storyTextBelow::after {
+  display: none;
+}
+
+.storyTextBelow .storyMediaBelow {
+  min-height: 250px;
+  position: relative;
+  inset: auto;
+  z-index: auto;
+}
+
+.storyTextBelow figcaption {
+  background: #152238;
+}
+
+.galleryCard[data-presentation-tone='NIGHT']::after,
+.businessCard[data-presentation-tone='NIGHT']::after {
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.12), rgba(2, 6, 23, 0.97));
+}
+
+.galleryCard[data-presentation-tone='FOOD']::after,
+.businessCard[data-presentation-tone='FOOD']::after {
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.04), rgba(69, 26, 3, 0.9));
+}
+
+.galleryCard[data-presentation-tone='CALM']::after {
+  background: linear-gradient(180deg, rgba(8, 47, 73, 0.04), rgba(15, 23, 42, 0.78));
+}
+
+.canonicalHighlights {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 780px;
+  margin: 0;
+  padding-left: 1.3rem;
+  color: #dbeafe;
+  font-size: 1.03rem;
+  line-height: 1.65;
 }
 
 .travelerExperiences {
@@ -579,6 +659,14 @@
   color: #e2e8f0;
   font-size: 0.92rem;
   line-height: 1.55;
+}
+
+.businessReason {
+  margin: 0.6rem 0 0;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .businessCard button,

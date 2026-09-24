@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import type { ResolvedDestinationVisualAsset } from './destinationVisuals.types';
+import type { CanonicalDestinationMedia } from '../destinationPresentation';
+
+type RenderableDestinationMedia = Pick<ResolvedDestinationVisualAsset, 'url' | 'alt' | 'rightsStatus' | 'referenceOnly'>
+  | Pick<CanonicalDestinationMedia, 'url' | 'alt' | 'rightsStatus'>;
 
 interface DestinationMediaProps {
-  asset: ResolvedDestinationVisualAsset;
+  asset: RenderableDestinationMedia;
   className?: string;
   sizes: string;
   priority?: boolean;
@@ -20,7 +24,7 @@ export function DestinationMedia({ asset, className, sizes, priority = false }: 
       <div
         className={className}
         data-media-fallback="true"
-        data-reference-only={asset.referenceOnly ? 'true' : 'false'}
+        data-reference-only={'referenceOnly' in asset && asset.referenceOnly ? 'true' : 'false'}
         data-rights-status={asset.rightsStatus}
         role="img"
         aria-label={`Imagen no disponible: ${asset.alt}`}
@@ -37,7 +41,7 @@ export function DestinationMedia({ asset, className, sizes, priority = false }: 
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
       fetchPriority={priority ? 'high' : 'auto'}
-      data-reference-only={asset.referenceOnly ? 'true' : 'false'}
+      data-reference-only={'referenceOnly' in asset && asset.referenceOnly ? 'true' : 'false'}
       data-rights-status={asset.rightsStatus}
       onError={() => setFailed(true)}
     />

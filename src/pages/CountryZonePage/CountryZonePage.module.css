@@ -73,6 +73,28 @@
     linear-gradient(to top, rgba(2, 6, 23, 0.78) 0%, transparent 72%);
 }
 
+.adventureHero[data-presentation-tone='NIGHT'] .heroOverlay {
+  background:
+    linear-gradient(90deg, rgba(2, 6, 23, 0.88) 0%, rgba(2, 6, 23, 0.42) 58%, transparent 100%),
+    linear-gradient(to top, rgba(2, 6, 23, 0.9) 0%, transparent 72%);
+}
+
+.adventureHero[data-presentation-tone='FOOD'] .heroOverlay {
+  background:
+    linear-gradient(90deg, rgba(120, 53, 15, 0.76) 0%, rgba(69, 26, 3, 0.24) 58%, transparent 100%),
+    linear-gradient(to top, rgba(69, 26, 3, 0.82) 0%, transparent 72%);
+}
+
+.adventureHero[data-presentation-tone='CALM'] .heroOverlay {
+  background:
+    linear-gradient(90deg, rgba(8, 47, 73, 0.72) 0%, rgba(8, 47, 73, 0.18) 58%, transparent 100%),
+    linear-gradient(to top, rgba(15, 23, 42, 0.76) 0%, transparent 72%);
+}
+
+.hero[data-text-placement='BELOW_MEDIA'] .heroOverlay {
+  background: linear-gradient(to top, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.62));
+}
+
 .adventureHero .title {
   max-width: 760px;
   font-family: Georgia, 'Times New Roman', serif;

@@ -1,5 +1,6 @@
 import type { Coordinates } from '../../cities/types/city.types';
 import type { CountryMapAdminLevel } from '../../map/config/countryMapProfiles';
+import type { CanonicalDestinationPresentation } from '../../destinationPresentation';
 
 export type ScreenExperienceMode = 'adventure' | 'student';
 
@@ -106,6 +107,7 @@ export interface ZoneScreenData {
     reason?: string;
   };
   communityCta: ScreenCommunityCtaData;
+  canonicalPresentation?: CanonicalDestinationPresentation;
 }
 
 export interface CountryZoneScreenDataRepository {

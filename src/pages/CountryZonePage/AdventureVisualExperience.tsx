@@ -4,18 +4,20 @@ import { AdventureCarousel } from './AdventureCarousel';
 import { getAdventureExpectations } from './adventureVisuals.utils';
 import { DestinationBusinessLayer } from './DestinationBusinessLayer';
 import { TravelerExperiences } from './TravelerExperiences';
+import type { CanonicalDestinationPresentation, DestinationVisualStoryItem, EditorialCta } from '../../features/destinationPresentation';
 import styles from './AdventureVisualExperience.module.css';
 
 interface AdventureVisualExperienceProps {
   editorial: ScreenEditorialData;
   visuals: ResolvedDestinationVisuals | null;
+  presentation?: CanonicalDestinationPresentation;
 }
 
 /**
  * Presenta únicamente texto editorial ya publicado y assets declarados por el
  * manifest del destino. No decide ni transforma la autoridad editorial.
  */
-export function AdventureVisualExperience({ editorial, visuals }: AdventureVisualExperienceProps) {
+export function AdventureVisualExperience({ editorial, visuals, presentation }: AdventureVisualExperienceProps) {
   const practicalTips = Array.isArray(editorial.practicalTips)
     ? editorial.practicalTips
     : editorial.practicalTips
@@ -44,6 +46,7 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
     priority: 0,
   } satisfies ResolvedDestinationVisualAsset));
   const expectations = visuals ? getAdventureExpectations(visuals.assets) : [];
+  const hasCanonicalPresentation = Boolean(presentation);
 
   return (
     <article className={styles.experience} aria-labelledby="adventure-experience-title">
@@ -53,7 +56,7 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
         {editorial.intro && <p className={styles.lead}>{editorial.intro}</p>}
       </header>
 
-      {expectations.length > 0 && (
+      {!hasCanonicalPresentation && expectations.length > 0 && (
         <section className={styles.expectations} aria-labelledby="adventure-expectations-title">
           <div className={styles.sectionHeader}>
             <p className={styles.eyebrow}>Elige tu pulso</p>
@@ -86,7 +89,7 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
         </section>
       )}
 
-      {highlights.length > 0 && (
+      {!hasCanonicalPresentation && highlights.length > 0 && (
         <section className={styles.highlights} aria-labelledby="adventure-highlights-title">
           <div className={styles.sectionHeader}>
             <p className={styles.eyebrow}>Detente aquí</p>
@@ -108,7 +111,9 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
         </section>
       )}
 
-      {visuals?.gallery.length ? (
+      {presentation ? (
+        <DestinationVisualStory items={presentation.destinationVisualStory} />
+      ) : visuals?.gallery.length ? (
         <section className={styles.gallery} id="aventura-galeria" aria-labelledby="adventure-gallery-title">
           <div className={styles.sectionHeader}>
             <p className={styles.eyebrow}>Mira antes de llegar</p>
@@ -132,6 +137,18 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
         </section>
       ) : null}
 
+      {hasCanonicalPresentation && editorial.highlights.length > 0 && (
+        <section className={styles.highlights} aria-labelledby="adventure-highlights-title">
+          <div className={styles.sectionHeader}>
+            <p className={styles.eyebrow}>Detente aquí</p>
+            <h3 id="adventure-highlights-title">No te pierdas</h3>
+          </div>
+          <ul className={styles.canonicalHighlights}>
+            {editorial.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}
+          </ul>
+        </section>
+      )}
+
       <TravelerExperiences
         destinationSlug={visuals?.destinationSlug}
         backgroundAsset={visuals?.gallery[0]}
@@ -141,6 +158,7 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
         destinationSlug={visuals?.destinationSlug}
         destinationName={visuals?.destinationName}
         visualAssets={visuals?.gallery}
+        places={presentation?.placesToGo}
       />
 
       {editorial.suggestedRoute && (
@@ -153,4 +171,47 @@ export function AdventureVisualExperience({ editorial, visuals }: AdventureVisua
       )}
     </article>
   );
+}
+
+function DestinationVisualStory({ items }: { items: readonly DestinationVisualStoryItem[] }) {
+  return (
+    <section className={styles.gallery} id="aventura-galeria" aria-labelledby="destination-visual-story-title" data-destination-visual-story="true">
+      <div className={styles.sectionHeader}>
+        <p className={styles.eyebrow}>Mira antes de llegar</p>
+        <h3 id="destination-visual-story-title">La historia visual del destino</h3>
+      </div>
+      <AdventureCarousel
+        items={items}
+        label="Historia visual del destino"
+        renderItem={(item) => (
+          <figure
+            className={`${styles.galleryCard} ${item.textPlacement === 'BELOW_MEDIA' ? styles.storyTextBelow : ''}`}
+            data-presentation-tone={item.presentationTone}
+            data-text-placement={item.textPlacement}
+            key={item.id}
+          >
+            <DestinationMedia
+              asset={item.asset}
+              className={`${styles.cardMedia} ${item.textPlacement === 'BELOW_MEDIA' ? styles.storyMediaBelow : ''}`}
+              sizes="(max-width: 680px) 85vw, 52vw"
+            />
+            {(item.kicker || item.title || item.shortCopy || item.caption || item.cta) && (
+              <figcaption>
+                {item.kicker && <span className={styles.storyKicker}>{item.kicker}</span>}
+                {item.title && <strong className={styles.storyTitle}>{item.title}</strong>}
+                {item.shortCopy && <span>{item.shortCopy}</span>}
+                {item.caption && <span>{item.caption}</span>}
+                {item.asset.credit && <span className="srOnly">Crédito visual: {item.asset.credit}</span>}
+                {item.cta && <EditorialCta cta={item.cta} />}
+              </figcaption>
+            )}
+          </figure>
+        )}
+      />
+    </section>
+  );
+}
+
+function EditorialCta({ cta }: { cta: EditorialCta }) {
+  return <a className={styles.storyCta} href={cta.target} {...(cta.actionType === 'EXTERNAL_URL' ? { target: '_blank', rel: 'noreferrer' } : {})}>{cta.label}</a>;
 }

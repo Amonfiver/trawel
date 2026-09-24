@@ -26,6 +26,7 @@ import {
 } from '../../features/destinationVisuals';
 import { CountryFlag } from '../../features/countries';
 import { useExperienceMode } from '../../features/experienceMode';
+import type { CanonicalDestinationMedia, EditorialCta } from '../../features/destinationPresentation';
 import { AdventureVisualExperience } from './AdventureVisualExperience';
 import { ZoneEditorialSection } from './ZoneEditorialSection';
 import styles from './CountryZonePage.module.css';
@@ -53,7 +54,7 @@ function ZoneHeroVisual({
   zoneName: string;
   countryName: string;
   isoAlpha2?: string;
-  asset?: ResolvedDestinationVisualAsset;
+  asset?: ResolvedDestinationVisualAsset | CanonicalDestinationMedia;
   imageUrl?: string;
   imageAlt?: string;
 }) {
@@ -205,7 +206,9 @@ export function CountryZonePage() {
     createNameFromSlug(zoneSlug) ||
     'Zona por descubrir';
   const destinationVisuals = visualManifest ? resolveDestinationVisuals(visualManifest, mode) : null;
-  const zoneHeroAsset = destinationVisuals?.hero;
+  const canonicalPresentation = screenData?.canonicalPresentation;
+  const canonicalHero = canonicalPresentation?.hero;
+  const zoneHeroAsset = canonicalHero?.asset || destinationVisuals?.hero;
   const zoneHeroImageUrl = zoneHeroAsset?.url || screenData?.hero.imageUrl;
   const zoneHeroImageAlt = zoneHeroAsset?.alt || screenData?.hero.imageAlt;
   const hasZoneHeroImage = Boolean(zoneHeroAsset || zoneHeroImageUrl);
@@ -221,6 +224,10 @@ export function CountryZonePage() {
     screenData?.metadata.hasRemoteEditorial && screenData.editorial.status === 'published'
       ? screenData.editorial
       : null;
+  const heroTitle = canonicalHero?.title || zoneName;
+  const heroKicker = canonicalHero?.kicker || (mode === 'adventure' ? 'Aventura' : countryName);
+  const heroCopy = canonicalHero?.shortCopy || remoteEditorial?.headline || (!hasZoneHeroImage ? zoneFallbackCopy : 'Contenido disponible para explorar.');
+  const heroCta = canonicalHero?.cta;
 
   useEffect(() => {
     if (!normalizedZoneSlug) {
@@ -283,6 +290,8 @@ export function CountryZonePage() {
       {/* Hero visual de la Zona - Con recuadro prominente para foto */}
       <header
         className={`${styles.hero} ${mode === 'adventure' ? styles.adventureHero : styles.studentHero}`}
+        data-presentation-tone={canonicalHero?.presentationTone}
+        data-text-placement={canonicalHero?.textPlacement}
         aria-label={
           hasZoneHeroImage
             ? `Imagen panorámica de ${zoneName}`
@@ -319,17 +328,19 @@ export function CountryZonePage() {
           </nav>
 
           <div className={styles.heroContent}>
-            <p className={styles.kicker}>{mode === 'adventure' ? 'Aventura' : countryName}</p>
-            <h1 className={styles.title}>{zoneName}</h1>
+            <p className={styles.kicker}>{heroKicker}</p>
+            <h1 className={styles.title}>{heroTitle}</h1>
             <p className={styles.subtitle}>
-              {remoteEditorial?.headline || (!hasZoneHeroImage ? zoneFallbackCopy : 'Contenido disponible para explorar.')}
+              {heroCopy}
             </p>
             {mode === 'adventure' && remoteEditorial && (
               <div className={styles.adventureHeroActions}>
-                <a className={styles.adventureHeroPrimary} href="#aventura-no-te-pierdas">
-                  Descubrir {zoneName}<span aria-hidden="true">↓</span>
-                </a>
-                {destinationVisuals?.gallery.length ? (
+                {heroCta ? <EditorialCtaLink cta={heroCta} className={styles.adventureHeroPrimary} /> : (
+                  <a className={styles.adventureHeroPrimary} href="#aventura-no-te-pierdas">
+                    Descubrir {zoneName}<span aria-hidden="true">↓</span>
+                  </a>
+                )}
+                {(canonicalPresentation?.destinationVisualStory.length || destinationVisuals?.gallery.length) ? (
                   <a className={styles.adventureHeroSecondary} href="#aventura-galeria">Ver paisajes</a>
                 ) : null}
               </div>
@@ -346,7 +357,7 @@ export function CountryZonePage() {
       <main className={`${styles.main} ${mode === 'adventure' ? styles.adventureMain : styles.studentMain}`}>
         {remoteEditorial ? (
           mode === 'adventure' ? (
-            <AdventureVisualExperience editorial={remoteEditorial} visuals={destinationVisuals} />
+            <AdventureVisualExperience editorial={remoteEditorial} visuals={destinationVisuals} presentation={canonicalPresentation} />
           ) : (
             <ZoneEditorialSection editorial={remoteEditorial} zoneName={zoneName} />
           )
@@ -367,6 +378,13 @@ export function CountryZonePage() {
       </main>
     </div>
   );
+}
+
+function EditorialCtaLink({ cta, className }: { cta: EditorialCta; className: string }) {
+  if (cta.actionType === 'INTERNAL_ROUTE') {
+    return <Link className={className} to={cta.target}>{cta.label}</Link>;
+  }
+  return <a className={className} href={cta.target} {...(cta.actionType === 'EXTERNAL_URL' ? { target: '_blank', rel: 'noreferrer' } : {})}>{cta.label}</a>;
 }
 
 function cleanDisplayName(value: unknown): string | null {

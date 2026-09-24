@@ -5,12 +5,14 @@ import {
   type BusinessPlacement,
 } from '../../features/destinationBusiness';
 import { AdventureCarousel } from './AdventureCarousel';
+import type { PlaceToGoCategory, PlaceToGoItem } from '../../features/destinationPresentation';
 import styles from './AdventureVisualExperience.module.css';
 
 interface DestinationBusinessLayerProps {
   destinationSlug?: string;
   destinationName?: string;
   visualAssets?: readonly ResolvedDestinationVisualAsset[];
+  places?: readonly PlaceToGoItem[];
 }
 
 const categoryLabels: Record<BusinessCategory, string> = {
@@ -45,7 +47,11 @@ export function DestinationBusinessLayer({
   destinationSlug,
   destinationName,
   visualAssets = [],
+  places,
 }: DestinationBusinessLayerProps) {
+  if (places !== undefined) {
+    return <PlacesToGoCarousel places={places} destinationName={destinationName} />;
+  }
   const placements = getDestinationBusinessPlacements(destinationSlug).filter((placement) => placement.active !== false);
   const isEmpty = placements.length === 0;
   const resolvedName = destinationName ?? 'este destino';
@@ -93,6 +99,47 @@ export function DestinationBusinessLayer({
         <button type="button" disabled aria-describedby="advertiser-cta-status">Quiero aparecer en Trawel</button>
         <p id="advertiser-cta-status">Próximamente: contacta con Trawel para valorar una colaboración local.</p>
       </div>
+    </section>
+  );
+}
+
+const canonicalCategoryLabels: Record<PlaceToGoCategory, string> = {
+  STAY: 'Dormir',
+  EAT: 'Comer',
+  DRINK: 'Tomar algo',
+  NIGHTLIFE: 'Salir / bailar',
+};
+
+function PlacesToGoCarousel({ places, destinationName }: { places: readonly PlaceToGoItem[]; destinationName?: string }) {
+  const resolvedName = destinationName ?? 'este destino';
+  return (
+    <section className={styles.businessLayer} aria-labelledby="places-to-go-title" data-destination-business="true" data-places-to-go="true">
+      <header className={styles.sectionHeader}>
+        <p className={styles.eyebrow}>Cuando el viaje toma forma</p>
+        <h3 id="places-to-go-title">Lugares para ir</h3>
+        <p className={styles.businessIntro}>Selecciones locales aprobadas para {resolvedName}.</p>
+      </header>
+      {places.length === 0 ? <p className={styles.businessEmpty}>No hay lugares prácticos publicados para este destino.</p> : (
+        <AdventureCarousel
+          items={places}
+          label="Lugares para ir"
+          renderItem={(place) => (
+            <article className={styles.businessCard} data-business-status="READY" data-business-category={place.category} data-presentation-tone={place.presentationTone} key={place.id}>
+              {place.asset && <DestinationMedia asset={place.asset} className={styles.businessMedia} sizes="(max-width: 680px) 84vw, 34vw" />}
+              <div className={styles.businessCardContent}>
+                <h4 className={styles.businessCategory}>{canonicalCategoryLabels[place.category]}</h4>
+                {place.area && <span className={styles.businessBadge}>{place.area}</span>}
+                <p className={styles.businessName}>{place.name}</p>
+                <p className={styles.businessDescription}>{place.shortDescription}</p>
+                <p className={styles.businessReason}>{place.reasonToGo}</p>
+                {place.url && <a className={styles.placeLink} href={place.url} target="_blank" rel="noreferrer">Ver lugar</a>}
+                {place.caption && <span className="srOnly">{place.caption}</span>}
+                {place.asset?.credit && <span className="srOnly">Crédito visual: {place.asset.credit}</span>}
+              </div>
+            </article>
+          )}
+        />
+      )}
     </section>
   );
 }

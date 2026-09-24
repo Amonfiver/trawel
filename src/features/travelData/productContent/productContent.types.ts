@@ -41,6 +41,7 @@ export interface EditorialContent {
   sections: unknown[];
   sources: unknown[];
   metadata: Record<string, unknown>;
+  presentationPackageId: string | null;
   status: 'published';
   reviewState: string | null;
   publishedAt: string | null;
@@ -55,6 +56,7 @@ export interface GetPublishedEditorialContentInput {
   countrySlug?: string | null;
   zoneSlug?: string | null;
   mode?: ProductContentMode | null;
+  presentationPackageId?: string | null;
 }
 
 export type StaticPageType =

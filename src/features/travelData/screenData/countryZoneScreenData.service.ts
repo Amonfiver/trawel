@@ -4,6 +4,7 @@ import type { Promotion } from '../productContent';
 import { getCountryPageData } from '../services/travelData.service';
 import type { CountryPageData } from '../types/travelData.types';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
+import { getPublishedCanonicalDestinationPresentation, type CanonicalDestinationPresentation } from '../../destinationPresentation';
 import {
   normalizePublishedEditorialContent,
   resolvePublishedZoneEditorial,
@@ -58,10 +59,13 @@ export interface ResolvedZoneScreenData extends ZoneScreenData {
       | 'localFallback'
       | 'remoteZone'
       | 'remotePromotions'
-      | 'remoteZoneAndPromotions';
+      | 'remoteZoneAndPromotions'
+      | 'canonicalDynamic'
+      | 'canonicalDynamicAndPromotions';
     hasRemoteZone: boolean;
     hasRemotePromotions: boolean;
     hasRemoteEditorial: boolean;
+    hasCanonicalPresentation: boolean;
     isUsingPremiumFallback: boolean;
   };
 }
@@ -243,17 +247,25 @@ export async function getResolvedZoneScreenData(
     fetchRemoteZoneEditorial(normalizedCountrySlug, normalizedZoneSlug, mode),
   ]);
 
-  const resolvedZoneScreenData = remoteEditorial
+  const canonicalPresentation = await fetchCanonicalZonePresentation(
+    normalizedCountrySlug,
+    normalizedZoneSlug,
+    mode
+  );
+  const effectiveEditorial = canonicalPresentation?.editorial || remoteEditorial;
+
+  const resolvedZoneScreenData = effectiveEditorial
     ? {
         ...zoneScreenData,
-        editorial: remoteEditorial,
+        editorial: effectiveEditorial,
+        ...(canonicalPresentation ? { canonicalPresentation: canonicalPresentation.presentation } : {}),
       }
     : zoneScreenData;
 
   return buildResolvedZoneScreenData(resolvedZoneScreenData, promotions, {
-    source: getResolvedZoneSource(Boolean(remoteZone), promotions.length > 0),
+    source: getResolvedZoneSource(Boolean(remoteZone), promotions.length > 0, Boolean(canonicalPresentation)),
     hasRemoteZone: Boolean(remoteZone),
-    hasRemoteEditorial: Boolean(remoteEditorial),
+    hasRemoteEditorial: Boolean(effectiveEditorial),
   });
 }
 
@@ -448,6 +460,30 @@ async function fetchRemoteZoneEditorial(
   return resolvePublishedZoneEditorial(contents, { countrySlug, zoneSlug, mode });
 }
 
+async function fetchCanonicalZonePresentation(
+  countrySlug: string,
+  zoneSlug: string,
+  mode: ScreenExperienceMode
+): Promise<{ presentation: CanonicalDestinationPresentation; editorial: ScreenEditorialData } | null> {
+  const presentation = await getPublishedCanonicalDestinationPresentation({ countrySlug, zoneSlug, mode });
+  if (!presentation) return null;
+
+  const contents = await getPublishedEditorialContent({
+    entityType: 'zone',
+    countrySlug,
+    zoneSlug,
+    presentationPackageId: presentation.packageId,
+  });
+  const adventure = resolvePublishedZoneEditorial(contents.filter((content) => content.mode === 'adventure'), {
+    countrySlug, zoneSlug, mode: 'adventure',
+  });
+  const student = resolvePublishedZoneEditorial(contents.filter((content) => content.mode === 'student'), {
+    countrySlug, zoneSlug, mode: 'student',
+  });
+  const editorial = mode === 'adventure' ? adventure : student;
+  return adventure && student && editorial ? { presentation, editorial } : null;
+}
+
 function normalizeRemoteZoneBaseData(db: DBCityBase | null): RemoteZoneBaseData | null {
   if (!db) {
     return null;
@@ -557,6 +593,7 @@ function buildResolvedZoneScreenData(
       ...metadata,
       hasRemotePromotions: promotions.length > 0,
       hasRemoteEditorial: metadata.hasRemoteEditorial,
+      hasCanonicalPresentation: screenData.canonicalPresentation !== undefined,
       isUsingPremiumFallback: screenData.fallback.isUsingPremiumFallback,
     },
   };
@@ -564,8 +601,12 @@ function buildResolvedZoneScreenData(
 
 function getResolvedZoneSource(
   hasRemoteZone: boolean,
-  hasRemotePromotions: boolean
+  hasRemotePromotions: boolean,
+  hasCanonicalPresentation = false,
 ): ResolvedZoneScreenData['metadata']['source'] {
+  if (hasCanonicalPresentation) {
+    return hasRemotePromotions ? 'canonicalDynamicAndPromotions' : 'canonicalDynamic';
+  }
   if (hasRemoteZone && hasRemotePromotions) {
     return 'remoteZoneAndPromotions';
   }

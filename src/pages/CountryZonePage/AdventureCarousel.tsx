@@ -40,11 +40,22 @@ function getNearestItemIndex(track: HTMLDivElement): number {
 export function AdventureCarousel<T extends CarouselItem>({ items, label, renderItem }: AdventureCarouselProps<T>) {
   const trackRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ active: false, pointerId: 0, startX: 0, startScrollLeft: 0, suppressClick: false });
+  const targetIndexRef = useRef<number | null>(null);
+  const targetSettleTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const [dragging, setDragging] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const updateActiveIndex = (event: UIEvent<HTMLDivElement>) => {
+    if (targetIndexRef.current !== null) return;
     setActiveIndex(getNearestItemIndex(event.currentTarget));
+  };
+
+  const clearProgrammaticTarget = () => {
+    targetIndexRef.current = null;
+    if (targetSettleTimerRef.current !== null) {
+      window.clearTimeout(targetSettleTimerRef.current);
+      targetSettleTimerRef.current = null;
+    }
   };
 
   const scrollToIndex = (requestedIndex: number) => {
@@ -53,18 +64,25 @@ export function AdventureCarousel<T extends CarouselItem>({ items, label, render
 
     const nextIndex = Math.min(items.length - 1, Math.max(0, requestedIndex));
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    clearProgrammaticTarget();
+    targetIndexRef.current = nextIndex;
     setActiveIndex(nextIndex);
     track.scrollTo({ left: getItemScrollLeft(track, nextIndex), behavior: reducedMotion ? 'auto' : 'smooth' });
+    targetSettleTimerRef.current = window.setTimeout(() => {
+      targetIndexRef.current = null;
+      targetSettleTimerRef.current = null;
+      setActiveIndex(getNearestItemIndex(track));
+    }, reducedMotion ? 0 : 700);
   };
 
   const move = (direction: 1 | -1) => {
-    const track = trackRef.current;
-    if (track) scrollToIndex(getNearestItemIndex(track) + direction);
+    if (trackRef.current) scrollToIndex((targetIndexRef.current ?? activeIndex) + direction);
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'mouse' || event.button !== 0) return;
 
+    clearProgrammaticTarget();
     dragRef.current = {
       active: true,
       pointerId: event.pointerId,
