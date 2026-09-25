@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { smokeCanonicalStudentDocument } from '../../src/features/studentDocument/smokeCanonicalStudentDocument.fixture';
+import { smokeCanonicalShortStudentDocument, smokeCanonicalStudentDocument } from '../../src/features/studentDocument/smokeCanonicalStudentDocument.fixture';
 import { parseStudentDocumentV1 } from '../../src/features/studentDocument/studentDocument.validation';
 
 test('STUDENT_DOCUMENT_V1_ACCEPTED y orden preservado', () => {
@@ -13,6 +13,20 @@ test('valida tipos, placement, niveles y URLs seguras', () => {
   assert.equal(parseStudentDocumentV1({ ...smokeCanonicalStudentDocument, blocks: [{ type: 'heading', level: 4, text: 'No' }] }), null);
   assert.equal(parseStudentDocumentV1({ ...smokeCanonicalStudentDocument, blocks: [{ type: 'figure', assetId: 'a', alt: 'a', placement: 'FULL_BLEED' }] }), null);
   assert.equal(parseStudentDocumentV1({ ...smokeCanonicalStudentDocument, blocks: [{ type: 'references', items: [{ title: 'Unsafe', url: 'javascript:alert(1)' }] }] }), null);
+});
+
+test('SHORT_STUDENT_VALID: permite un documento breve sin bloques ricos opcionales', () => {
+  const parsed = parseStudentDocumentV1(smokeCanonicalShortStudentDocument);
+  assert.ok(parsed);
+  assert.equal(parsed.blocks.some((block) => block.type === 'timeline' || block.type === 'key_facts' || block.type === 'figure'), false);
+  assert.deepEqual(parsed.blocks.map((block) => block.type), smokeCanonicalShortStudentDocument.blocks.map((block) => block.type));
+  assert.ok(parseStudentDocumentV1({ ...smokeCanonicalShortStudentDocument, lead: [] }));
+});
+
+test('NO_EMPTY_BLOCKS: rechaza documentos sin bloque informativo o con arrays vacíos', () => {
+  assert.equal(parseStudentDocumentV1({ ...smokeCanonicalShortStudentDocument, blocks: [] }), null);
+  assert.equal(parseStudentDocumentV1({ ...smokeCanonicalShortStudentDocument, blocks: [{ type: 'heading', level: 2, text: 'Solo título' }] }), null);
+  assert.equal(parseStudentDocumentV1({ ...smokeCanonicalShortStudentDocument, blocks: [{ type: 'list', style: 'unordered', items: [] }] }), null);
 });
 
 test('fixture cubre paragraph, headings, figures, lists, facts, callout, timeline y references', () => {

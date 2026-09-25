@@ -18,7 +18,8 @@ BEGIN
        OR p_document->>'version' <> 'student-document-v1'
        OR NULLIF(trim(p_document->>'headline'), '') IS NULL
        OR jsonb_typeof(p_document->'lead') <> 'array'
-       OR jsonb_typeof(p_document->'blocks') <> 'array' THEN RETURN FALSE; END IF;
+       OR jsonb_typeof(p_document->'blocks') <> 'array'
+       OR jsonb_array_length(p_document->'blocks') = 0 THEN RETURN FALSE; END IF;
     FOR item IN SELECT value FROM jsonb_array_elements(p_document->'lead') LOOP
         IF jsonb_typeof(item) <> 'string' OR NULLIF(trim(item #>> '{}'), '') IS NULL THEN RETURN FALSE; END IF;
     END LOOP;
@@ -36,6 +37,10 @@ BEGIN
         ELSE RETURN FALSE;
         END CASE;
     END LOOP;
+    IF NOT EXISTS (
+        SELECT 1 FROM jsonb_array_elements(p_document->'blocks') AS candidate(value)
+        WHERE candidate.value->>'type' <> 'heading'
+    ) THEN RETURN FALSE; END IF;
     RETURN TRUE;
 END;
 $$;

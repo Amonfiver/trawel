@@ -711,12 +711,13 @@ function validateProfile(
 
 function validateStudentDocumentV1(value: unknown): StudentDocumentV1 | null | undefined {
   if (value === undefined) return undefined;
-  if (!isPlainObject(value) || value.version !== 'student-document-v1' || !requiredText(value.headline) || !Array.isArray(value.lead) || !value.lead.every((item) => Boolean(requiredText(item))) || !Array.isArray(value.blocks)) return null;
+  if (!isPlainObject(value) || value.version !== 'student-document-v1' || !requiredText(value.headline) || !Array.isArray(value.lead) || !value.lead.every((item) => Boolean(requiredText(item))) || !Array.isArray(value.blocks) || value.blocks.length === 0) return null;
   const blocks: StudentDocumentBlock[] = [];
   for (const block of value.blocks) {
     if (!isPlainObject(block) || !validateStudentBlock(block)) return null;
     blocks.push(block);
   }
+  if (!blocks.some((block) => block.type !== 'heading')) return null;
   return { version: 'student-document-v1', headline: requiredText(value.headline)!, lead: (value.lead as unknown[]).map((item) => requiredText(item)!), blocks };
 }
 

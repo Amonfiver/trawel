@@ -6,11 +6,15 @@ const object = (value: unknown): value is Record<string, unknown> => Boolean(val
 
 /** Technical shape validation only; editorial quality remains Investighost's responsibility. */
 export function parseStudentDocumentV1(value: unknown): StudentDocumentV1 | null {
-  if (!object(value) || value.version !== STUDENT_DOCUMENT_V1 || !text(value.headline) || !Array.isArray(value.lead) || !value.lead.every(text) || !Array.isArray(value.blocks)) return null;
+  if (!object(value) || value.version !== STUDENT_DOCUMENT_V1 || !text(value.headline) || !Array.isArray(value.lead) || !value.lead.every(text) || !Array.isArray(value.blocks) || value.blocks.length === 0) return null;
   const blocks = value.blocks.map(parseBlock);
-  return blocks.every((block): block is StudentBlock => block !== null)
+  return blocks.every((block): block is StudentBlock => block !== null) && blocks.some(isInformativeBlock)
     ? { version: STUDENT_DOCUMENT_V1, headline: value.headline.trim(), lead: value.lead.map((item) => item.trim()), blocks }
     : null;
+}
+
+function isInformativeBlock(block: StudentBlock): boolean {
+  return block.type !== 'heading';
 }
 
 function parseBlock(value: unknown): StudentBlock | null {

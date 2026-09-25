@@ -69,6 +69,13 @@ La migración está implementada en el repositorio; su aplicación al proyecto r
 
 Investighost compone el documento: decide el texto, el orden de `blocks`, capítulos, figuras, `assetId`, placement, captions y referencias. Trawel solo valida técnicamente, resuelve assets aprobados y renderiza cada bloque exactamente en el orden recibido. No recompone Student, ni mueve media, ni convierte captions en bloques separados.
 
+- `STUDENT_VARIABLE_LENGTH = TRUE`: la maqueta larga demuestra capacidad, no una cuota de producción. Un documento puede ser corto o largo.
+- `STUDENT_OPTIONAL_BLOCKS = TRUE`: H2/H3, figuras, listas, key facts, callouts, timeline y referencias se omiten cuando no hay evidencia suficiente.
+- `STUDENT_NO_EMPTY_BLOCKS = TRUE`: no se admiten arrays vacíos ni bloques sin contenido; tampoco títulos solos como documento.
+- `TRAWEL_STRUCTURE_VALIDATION_ONLY = TRUE`: se exige versión, titular, `blocks` no vacíos y al menos un bloque informativo; no se mide riqueza, número de palabras ni número de secciones.
+
+El diagnóstico de regresión local confirma que Cuenca no tiene perfiles editoriales publicados; el fixture `smoke-canonical-destination` sí conserva Adventure publicado con Hero, `DESTINATION_VISUAL_STORY` y `PLACES_TO_GO`. La ausencia de Adventure en Cuenca es `FIXTURE_ONLY`, no una regresión de Student.
+
 La extensión V2 es opcional y backward-compatible: `profiles.student.document`. No cambia `headline`, `intro`, `sections`, hashes, aprobación ni idempotencia. Si no existe un documento válido, el runtime mantiene `ZoneEditorialSection` legacy.
 
 ```json

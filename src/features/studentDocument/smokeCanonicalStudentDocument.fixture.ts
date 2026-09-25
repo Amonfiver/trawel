@@ -85,3 +85,17 @@ export const smokeCanonicalStudentDocument: StudentDocumentV1 = {
     ] },
   ],
 };
+
+/** A deliberately compact document proving that optional rich blocks are not required. */
+export const smokeCanonicalShortStudentDocument: StudentDocumentV1 = {
+  version: STUDENT_DOCUMENT_V1,
+  headline: 'Smoke Student: lectura breve y estructurada',
+  lead: ['SMOKE / DEMO / NON EDITORIAL CONTENT. Este documento breve comprueba el contrato mínimo de StudentDocumentV1.'],
+  blocks: [
+    { type: 'paragraph', text: 'Un bloque inicial no vacío permite que el documento sea útil sin fingir una investigación más extensa.' },
+    { type: 'heading', level: 2, id: 'contexto', text: 'Contexto' },
+    { type: 'paragraph', text: 'La estructura conserva el orden entregado y omite de forma válida figuras, cronología, datos clave y referencias.' },
+    { type: 'heading', level: 2, id: 'sintesis', text: 'Síntesis' },
+    { type: 'paragraph', text: 'Trawel presenta este contenido tal como llega, sin rellenar secciones ni crear bloques vacíos.' },
+  ],
+};

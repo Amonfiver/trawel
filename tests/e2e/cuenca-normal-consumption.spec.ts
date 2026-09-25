@@ -274,3 +274,27 @@ test('Cuenca Student renderiza el documento enciclopédico V1 ordenado y selecci
   await expect(page.locator('[data-traveler-experiences]')).toHaveCount(0);
   await expect(page.locator('[data-destination-business]')).toHaveCount(0);
 });
+
+test('Smoke Canonical Destination conserva Adventure y cambia a StudentDocumentV1 sin mezclar contratos', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('trawel-experience-mode', 'adventure');
+  });
+  await page.goto('/pais/espana/smoke-canonical-destination');
+
+  await expect(page.getByRole('heading', { name: 'Smoke Canonical Destination', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'No te pierdas' })).toBeVisible();
+  await expect(page.locator('#aventura-galeria img')).toHaveCount(5);
+  await expect(page.locator('[data-destination-business="true"]')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Lugares para ir' })).toBeVisible();
+
+  await page.getByTitle('Modo Estudiante').click();
+  await expect(page.locator('[data-student-document="student-document-v1"]')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Smoke Student: lectura breve y estructurada' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Contexto', exact: true })).toBeVisible();
+  await expect(page.locator('#aventura-galeria')).toHaveCount(0);
+  await expect(page.locator('[data-destination-business="true"]')).toHaveCount(0);
+
+  await page.getByTitle('Modo Aventura').click();
+  await expect(page.getByRole('heading', { name: 'No te pierdas' })).toBeVisible();
+  await expect(page.locator('#aventura-galeria img')).toHaveCount(5);
+});
