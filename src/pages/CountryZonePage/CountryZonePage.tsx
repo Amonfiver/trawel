@@ -29,6 +29,7 @@ import { useExperienceMode } from '../../features/experienceMode';
 import type { CanonicalDestinationMedia, EditorialCta } from '../../features/destinationPresentation';
 import { AdventureVisualExperience } from './AdventureVisualExperience';
 import { ZoneEditorialSection } from './ZoneEditorialSection';
+import { StudentDocumentRenderer } from './StudentDocumentRenderer';
 import styles from './CountryZonePage.module.css';
 
 interface ZoneLocationState {
@@ -224,6 +225,11 @@ export function CountryZonePage() {
     screenData?.metadata.hasRemoteEditorial && screenData.editorial.status === 'published'
       ? screenData.editorial
       : null;
+  // A V1 Student document may be the local canonical smoke fixture or a published profile.
+  // Its own header/lead replaces the visual Adventure-style hero.
+  const studentDocumentEditorial = mode === 'student' && screenData?.editorial.studentDocument
+    ? screenData.editorial
+    : null;
   const heroTitle = canonicalHero?.title || zoneName;
   const heroKicker = canonicalHero?.kicker || (mode === 'adventure' ? 'Aventura' : countryName);
   const heroCopy = canonicalHero?.shortCopy || remoteEditorial?.headline || (!hasZoneHeroImage ? zoneFallbackCopy : 'Contenido disponible para explorar.');
@@ -287,7 +293,16 @@ export function CountryZonePage() {
       className={`${styles.container} ${mode === 'adventure' ? styles.adventureMode : styles.studentMode}`}
       data-experience-mode={mode}
     >
-      {/* Hero visual de la Zona - Con recuadro prominente para foto */}
+      {studentDocumentEditorial ? (
+        <header className={styles.studentDocumentHeader}>
+          <nav className={styles.studentBreadcrumb} aria-label="Navegación">
+            <Link to="/">Inicio</Link><span aria-hidden="true">/</span>
+            {countrySlug ? <Link to={`/pais/${countrySlug}`}>{countryName}</Link> : <span>{countryName}</span>}
+            <span aria-hidden="true">/</span><span aria-current="page">{zoneName}</span>
+          </nav>
+          <p>{zoneName}</p>
+        </header>
+      ) : (
       <header
         className={`${styles.hero} ${mode === 'adventure' ? styles.adventureHero : styles.studentHero}`}
         data-presentation-tone={canonicalHero?.presentationTone}
@@ -348,14 +363,20 @@ export function CountryZonePage() {
           </div>
         </div>
       </header>
+      )}
 
-      <MonetizationSlot
+      {!studentDocumentEditorial && <MonetizationSlot
         placement="zone-after-intro"
         promotions={promotions}
-      />
+      />}
 
       <main className={`${styles.main} ${mode === 'adventure' ? styles.adventureMain : styles.studentMain}`}>
-        {remoteEditorial ? (
+        {studentDocumentEditorial?.studentDocument ? (
+          <StudentDocumentRenderer
+            document={studentDocumentEditorial.studentDocument}
+            assets={studentDocumentEditorial.studentDocumentAssets || {}}
+          />
+        ) : remoteEditorial ? (
           mode === 'adventure' ? (
             <AdventureVisualExperience editorial={remoteEditorial} visuals={destinationVisuals} presentation={canonicalPresentation} />
           ) : (
@@ -365,16 +386,16 @@ export function CountryZonePage() {
           <FutureResourcesBlock zoneName={zoneName} />
         )}
 
-        <HeroContributionBlock
+        {!studentDocumentEditorial && <HeroContributionBlock
           zoneName={zoneName}
           title="¿Tienes una foto que represente este lugar?"
           text={communityCtaText}
           shareHref={getZoneHeroPhotoShareHref(normalizedCountrySlug, normalizedZoneSlug)}
-        />
+        />}
 
-        <Link to={countrySlug ? `/pais/${countrySlug}` : '/'} className={styles.backLink}>
+        {!studentDocumentEditorial && <Link to={countrySlug ? `/pais/${countrySlug}` : '/'} className={styles.backLink}>
           Volver al mapa de {countryName}
-        </Link>
+        </Link>}
       </main>
     </div>
   );

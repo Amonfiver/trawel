@@ -24,6 +24,7 @@
 
 - El frontend usa `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` solo para lectura pública; no expone service role.
 - `editorial_contents` conserva Adventure y Student por entidad, país/zona, modo, estado y fecha de publicación.
+- `editorial_contents.student_document` admite opcionalmente `StudentDocumentV1` para el perfil Student. Es un JSON tipado, no Markdown opaco; los perfiles V2 previos siguen usando `sections`.
 - `internal-editorial-deliveries` es el receiver interno V2. Autentica `x-internal-editorial-secret` contra el secret remoto `INTERNAL_EDITORIAL_DELIVERIES_SECRET`; usa `SUPABASE_SERVICE_ROLE_KEY` solo dentro de Edge Functions.
 - El receiver acepta `GET` de estado y `POST` JSON V2. Valida identidad, hashes, mapping activo e idempotencia por `handoffKey` + `payloadFingerprint`.
 - `ingest_editorial_delivery_v2` publica directamente los dos perfiles aprobados como `status=published`, `review_state=approved_by_investighost` y `published_at` presente. La lectura pública exige `published` y fecha no nula.
@@ -61,6 +62,34 @@
 La migración está implementada en el repositorio; su aplicación al proyecto remoto y el primer smoke de una entrega real siguen siendo pasos de despliegue, no decisiones editoriales.
 
 ## Contrato de handoff previsto
+
+### STUDENT_DOCUMENT_V1
+
+`STUDENT_IS_ORDERED_EDITORIAL_DOCUMENT = TRUE`.
+
+Investighost compone el documento: decide el texto, el orden de `blocks`, capítulos, figuras, `assetId`, placement, captions y referencias. Trawel solo valida técnicamente, resuelve assets aprobados y renderiza cada bloque exactamente en el orden recibido. No recompone Student, ni mueve media, ni convierte captions en bloques separados.
+
+La extensión V2 es opcional y backward-compatible: `profiles.student.document`. No cambia `headline`, `intro`, `sections`, hashes, aprobación ni idempotencia. Si no existe un documento válido, el runtime mantiene `ZoneEditorialSection` legacy.
+
+```json
+{
+  "version": "student-document-v1",
+  "headline": "string",
+  "lead": ["string"],
+  "blocks": [
+    { "type": "heading", "level": 2, "id": "historia", "text": "Historia" },
+    { "type": "paragraph", "text": "string" },
+    { "type": "figure", "assetId": "uuid", "placement": "WIDE", "alt": "string", "caption": "string" },
+    { "type": "list", "style": "unordered", "items": ["string"] },
+    { "type": "key_facts", "title": "string", "items": [{ "label": "string", "value": "string" }] },
+    { "type": "callout", "tone": "DEFINITION", "title": "string", "text": "string" },
+    { "type": "timeline", "title": "string", "items": [{ "label": "Siglo XII", "text": "string" }] },
+    { "type": "references", "items": [{ "title": "string", "source": "string", "url": "https://example.com" }] }
+  ]
+}
+```
+
+Los únicos block types V1 son `paragraph`, `heading`, `figure`, `list`, `key_facts`, `callout`, `timeline` y `references`. `heading.level` se limita a 2 o 3; `figure.placement` a `INLINE` o `WIDE`; las URL externas de referencias deben ser HTTPS. En ingest se comprueba además que cada figura referencia un asset publicado/staged con derechos aprobados.
 
 ### Antes/durante upload
 

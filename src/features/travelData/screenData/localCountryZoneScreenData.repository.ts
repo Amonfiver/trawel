@@ -15,6 +15,7 @@ import type {
   ScreenZoneSummary,
   ZoneScreenData,
 } from './screenData.types';
+import { smokeCanonicalStudentDocument, smokeStudentMedia } from '../../studentDocument/smokeCanonicalStudentDocument.fixture';
 
 const countryHeroImages = import.meta.glob<{ default: string }>(
   '../../../assets/countries/hero/*.webp',
@@ -213,6 +214,18 @@ function buildZoneEditorial(
   city: City | undefined,
   mode: ScreenExperienceMode
 ): ScreenEditorialData {
+  if (zone.slug === 'cuenca' && mode === 'student') {
+    return {
+      mode,
+      status: 'published',
+      headline: smokeCanonicalStudentDocument.headline,
+      intro: smokeCanonicalStudentDocument.lead[0],
+      highlights: [],
+      sections: [],
+      studentDocument: smokeCanonicalStudentDocument,
+      studentDocumentAssets: smokeStudentMedia,
+    };
+  }
   const content =
     city?.contentByMode?.[mode] || city?.contentByMode?.adventure || city?.contentByMode?.student;
   const intro = content ? getLocalizedText(content, 'es') : zone.summary;

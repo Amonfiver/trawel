@@ -32,6 +32,7 @@ interface DBEditorialContent {
   sources: unknown;
   metadata: unknown;
   presentation_package_id?: string | null;
+  student_document?: unknown;
   status: string;
   review_state: string | null;
   published_at: string | null;
@@ -103,6 +104,7 @@ const EDITORIAL_CONTENT_COLUMNS = [
   'sections',
   'sources',
   'metadata',
+  'student_document',
   'status',
   'review_state',
   'published_at',
@@ -164,11 +166,23 @@ export async function getPublishedEditorialContent(
     return [];
   }
 
+  return fetchPublishedEditorialContent(input, true);
+}
+
+async function fetchPublishedEditorialContent(
+  input: GetPublishedEditorialContentInput,
+  includeStudentDocument: boolean
+): Promise<EditorialContent[]> {
+  if (!supabase) return [];
+  const client = supabase;
   try {
+    const baseColumns = includeStudentDocument
+      ? EDITORIAL_CONTENT_COLUMNS
+      : EDITORIAL_CONTENT_COLUMNS.replace(',student_document', '');
     const columns = input.presentationPackageId
-      ? `${EDITORIAL_CONTENT_COLUMNS},presentation_package_id`
-      : EDITORIAL_CONTENT_COLUMNS;
-    let query = supabase
+      ? `${baseColumns},presentation_package_id`
+      : baseColumns;
+    let query = client
       .from('editorial_contents')
       .select(columns)
       .eq('status', 'published')
@@ -204,6 +218,11 @@ export async function getPublishedEditorialContent(
       .order('updated_at', { ascending: false });
 
     if (error) {
+      // Existing deployments may not yet have migration 021. Keep V2/legacy
+      // editorial readable until the optional Student column is deployed.
+      if (includeStudentDocument && isMissingStudentDocumentColumn(error)) {
+        return fetchPublishedEditorialContent(input, false);
+      }
       logProductContentError('Error loading published editorial content', error);
       return [];
     }
@@ -215,6 +234,10 @@ export async function getPublishedEditorialContent(
     logProductContentError('Unexpected error loading published editorial content', error);
     return [];
   }
+}
+
+function isMissingStudentDocumentColumn(error: { code?: string; message?: string }): boolean {
+  return error.code === '42703' && Boolean(error.message?.includes('student_document'));
 }
 
 export async function getPublishedStaticPageBySlug(slug: string): Promise<StaticPage | null> {
@@ -333,6 +356,7 @@ function mapEditorialContent(db: DBEditorialContent): EditorialContent {
     sources: asArray(db.sources),
     metadata: asObject(db.metadata),
     presentationPackageId: db.presentation_package_id ?? null,
+    studentDocument: db.student_document,
     status: 'published',
     reviewState: db.review_state,
     publishedAt: db.published_at,

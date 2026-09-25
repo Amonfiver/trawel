@@ -5,6 +5,7 @@ import { getCountryPageData } from '../services/travelData.service';
 import type { CountryPageData } from '../types/travelData.types';
 import { isSupabaseConfigured, supabase } from '../../../lib/supabaseClient';
 import { getPublishedCanonicalDestinationPresentation, type CanonicalDestinationPresentation } from '../../destinationPresentation';
+import { getPublishedStudentDocumentAssets } from '../../studentDocument/studentDocumentMedia.service';
 import {
   normalizePublishedEditorialContent,
   resolvePublishedZoneEditorial,
@@ -457,7 +458,9 @@ async function fetchRemoteZoneEditorial(
     mode,
   });
 
-  return resolvePublishedZoneEditorial(contents, { countrySlug, zoneSlug, mode });
+  const editorial = resolvePublishedZoneEditorial(contents, { countrySlug, zoneSlug, mode });
+  if (!editorial?.studentDocument) return editorial;
+  return { ...editorial, studentDocumentAssets: await getPublishedStudentDocumentAssets(editorial.studentDocument) };
 }
 
 async function fetchCanonicalZonePresentation(

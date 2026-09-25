@@ -42,6 +42,7 @@ export interface EditorialContent {
   sources: unknown[];
   metadata: Record<string, unknown>;
   presentationPackageId: string | null;
+  studentDocument?: unknown;
   status: 'published';
   reviewState: string | null;
   publishedAt: string | null;

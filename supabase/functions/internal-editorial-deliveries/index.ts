@@ -23,7 +23,11 @@ interface EditorialProfile {
   sections?: unknown[];
   sources?: unknown[];
   metadata?: Record<string, unknown>;
+  document?: StudentDocumentV1;
 }
+
+interface StudentDocumentV1 { version: 'student-document-v1'; headline: string; lead: string[]; blocks: StudentDocumentBlock[]; }
+type StudentDocumentBlock = Record<string, unknown>;
 
 interface EditorialDeliveryV2 {
   [key: string]: unknown;
@@ -684,6 +688,10 @@ function validateProfile(
     return { valid: false, error: `profiles.${mode}.metadata must be an object.` };
   }
 
+  const document = value.document === undefined ? undefined : validateStudentDocumentV1(value.document);
+  if (document === null) return { valid: false, error: `profiles.${mode}.document must be a valid StudentDocumentV1.` };
+  if (mode !== 'student' && document !== undefined) return { valid: false, error: 'profiles.adventure.document is not supported.' };
+
   return {
     valid: true,
     data: {
@@ -696,8 +704,33 @@ function validateProfile(
       sections: value.sections as unknown[] | undefined,
       sources: value.sources as unknown[] | undefined,
       metadata: projectProfileMetadata(value.metadata),
+      ...(document ? { document } : {}),
     },
   };
+}
+
+function validateStudentDocumentV1(value: unknown): StudentDocumentV1 | null | undefined {
+  if (value === undefined) return undefined;
+  if (!isPlainObject(value) || value.version !== 'student-document-v1' || !requiredText(value.headline) || !Array.isArray(value.lead) || !value.lead.every((item) => Boolean(requiredText(item))) || !Array.isArray(value.blocks)) return null;
+  const blocks: StudentDocumentBlock[] = [];
+  for (const block of value.blocks) {
+    if (!isPlainObject(block) || !validateStudentBlock(block)) return null;
+    blocks.push(block);
+  }
+  return { version: 'student-document-v1', headline: requiredText(value.headline)!, lead: (value.lead as unknown[]).map((item) => requiredText(item)!), blocks };
+}
+
+function validateStudentBlock(block: Record<string, unknown>): boolean {
+  const strings = (value: unknown) => Boolean(requiredText(value));
+  if (block.type === 'paragraph') return strings(block.text);
+  if (block.type === 'heading') return (block.level === 2 || block.level === 3) && strings(block.text) && (block.id === undefined || strings(block.id));
+  if (block.type === 'figure') return strings(block.assetId) && strings(block.alt) && (block.placement === 'INLINE' || block.placement === 'WIDE') && (block.caption === undefined || strings(block.caption));
+  if (block.type === 'list') return (block.style === 'unordered' || block.style === 'ordered') && Array.isArray(block.items) && block.items.length > 0 && block.items.every(strings);
+  if (block.type === 'key_facts') return (block.title === undefined || strings(block.title)) && Array.isArray(block.items) && block.items.length > 0 && block.items.every((item) => isPlainObject(item) && strings(item.label) && strings(item.value));
+  if (block.type === 'callout') return (block.tone === 'NOTE' || block.tone === 'CONTEXT' || block.tone === 'DEFINITION') && strings(block.text) && (block.title === undefined || strings(block.title));
+  if (block.type === 'timeline') return (block.title === undefined || strings(block.title)) && Array.isArray(block.items) && block.items.length > 0 && block.items.every((item) => isPlainObject(item) && strings(item.label) && strings(item.text));
+  if (block.type === 'references') return Array.isArray(block.items) && block.items.length > 0 && block.items.every((item) => isPlainObject(item) && strings(item.title) && (item.label === undefined || strings(item.label)) && (item.source === undefined || strings(item.source)) && (item.url === undefined || (strings(item.url) && isSafeHttpsUrl(requiredText(item.url)!))));
+  return false;
 }
 
 /**

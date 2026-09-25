@@ -558,9 +558,36 @@
 }
 
 .studentMain {
-  max-width: 980px;
+  max-width: 1280px;
   margin: 0 auto;
 }
+
+/* The canonical Student document starts without the immersive Adventure hero. */
+.studentDocumentHeader {
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) 0;
+  color: #475569;
+}
+
+.studentDocumentHeader > p {
+  margin: 1.2rem 0 0;
+  color: #1e3a8a;
+  font-size: .78rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.studentBreadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  align-items: center;
+  font-size: .88rem;
+}
+
+.studentBreadcrumb a { color: #1d4ed8; }
 
 .adventureMode .heroContributionCard {
   color: #cbd5e1;

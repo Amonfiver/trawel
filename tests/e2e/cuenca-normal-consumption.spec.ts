@@ -252,19 +252,24 @@ test('Adventure respeta la preferencia de movimiento reducido', async ({ page })
   ))).toBe('none');
 });
 
-test('Cuenca Student muestra las secciones educativas públicas completas', async ({ page }) => {
+test('Cuenca Student renderiza el documento enciclopédico V1 ordenado y seleccionable', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('trawel-experience-mode', 'student');
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/pais/espana/cuenca');
 
-  await expect(page.getByRole('img', { name: /Barranco boscoso y paredes calizas/i })).toBeVisible();
+  await expect(page.locator('[data-student-document="student-document-v1"]')).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Cuenca: lectura territorial/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Historia', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /naturaleza, geología y ciencia/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /para comprender mejor/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /datos y conceptos clave/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /visión de conjunto/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Orígenes', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Naturaleza y medio ambiente/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Conceptos clave', exact: true })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Índice del documento' })).toBeVisible();
+  await expect(page.locator('figure')).toHaveCount(6);
+  await expect(page.locator('figure figcaption')).toHaveCount(6);
+  await expect(page.locator('article').evaluate((element) => getComputedStyle(element).userSelect)).not.toBe('none');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(page.getByText(/borradores sin publicar|lector privado|aprobar contenido/i)).toHaveCount(0);
   await expect(page.locator('[data-traveler-experiences]')).toHaveCount(0);
   await expect(page.locator('[data-destination-business]')).toHaveCount(0);

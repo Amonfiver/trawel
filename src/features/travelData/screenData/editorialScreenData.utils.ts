@@ -1,4 +1,5 @@
 import type { EditorialContent } from '../productContent';
+import { parseStudentDocumentV1 } from '../../studentDocument';
 import type {
   ScreenEditorialData,
   ScreenEditorialSection,
@@ -54,6 +55,9 @@ export function normalizePublishedEditorialContent(
   const suggestedRoute = normalizeOptionalText(content.suggestedRoute);
   const practicalTips = normalizeStringList(content.practicalTips);
   const sections = normalizeEditorialSections(content.sections);
+  const studentDocument = content.mode === 'student'
+    ? parseStudentDocumentV1(content.studentDocument)
+    : null;
 
   if (!headline) {
     return null;
@@ -69,6 +73,7 @@ export function normalizePublishedEditorialContent(
     suggestedRoute: suggestedRoute || undefined,
     practicalTips: practicalTips.length > 0 ? practicalTips : undefined,
     sections,
+    ...(studentDocument ? { studentDocument } : {}),
   };
 }
 

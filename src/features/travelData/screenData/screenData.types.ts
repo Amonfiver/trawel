@@ -1,6 +1,7 @@
 import type { Coordinates } from '../../cities/types/city.types';
 import type { CountryMapAdminLevel } from '../../map/config/countryMapProfiles';
 import type { CanonicalDestinationPresentation } from '../../destinationPresentation';
+import type { StudentDocumentMediaAsset, StudentDocumentV1 } from '../../studentDocument';
 
 export type ScreenExperienceMode = 'adventure' | 'student';
 
@@ -32,6 +33,9 @@ export interface ScreenEditorialData {
   suggestedRoute?: string;
   practicalTips?: string | string[];
   sections: ScreenEditorialSection[];
+  /** Optional V1 contract. Its block array is authoritative and never reordered by Trawel. */
+  studentDocument?: StudentDocumentV1;
+  studentDocumentAssets?: Record<string, StudentDocumentMediaAsset>;
 }
 
 /** Bloque editorial público recibido desde el contrato V2. */
